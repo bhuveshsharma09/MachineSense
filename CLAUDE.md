@@ -256,6 +256,20 @@ the only model allowed is the diagnostic RandomForest of the band-stop shortcut 
 
 Stop after Stage 2A and report. Don't build spectrograms, full caches or models without a go-ahead.
 
+## 7b. Plan notes (planned controls, not yet implemented)
+
+Recorded 26 Sep 2026 (Stage 2B.1). Each runs when its stage comes; none is implemented yet.
+- **Q1 (detection):** report the detection rate at the **mildest severities** of each fault family, and compare the
+  detector **with vs without the microphone**.
+- **Q2 (severity extrapolation):** the `split_severity` test is the main severity-extrapolation result, across held-out
+  folder proxies, **evaluated once at the end**.
+- **Q3 (open set):** report the **false-unknown rate on known classes at held-out severities**.
+- Development evaluation (Stage 2B.1): folder-grouped folds on the development pool (`split_closed` ∈ {train, val},
+  `split_severity` ≠ test, `split_speed_block` ≠ test); folders are proxies for sessions. Model selection uses permitted
+  development data only; closed-set ties are broken by simplicity and measured latency; reserved tests are never used for
+  selection. LOCO runs exclude the withheld class from fitting, preprocessing selection and calibration, but every class
+  has already been seen during development.
+
 ## 8. Code conventions
 
 - Type hints on public functions. Docstrings say *what and why* in one or two lines, plus units

@@ -349,6 +349,26 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
     fold-specific exclusion during fitting and calibration, but cannot claim those classes never influenced overall
     method development. Fold-safe thresholds alone do not resolve this.
 
+### Folder-grouped development evaluation (Stage 2B.1)
+- K = 3 folds over the development pool (804 recordings), folder proxies never split; normal (one folder) dealt to the
+  folds by speed and evaluated within-folder (`results/dev_folds.csv`).
+- Out-of-fold recording-level class10 macro-F1 with stratified mixed-unit intervals (fault folder proxies resampled
+  within class, normal recordings individually; conditional on the fitted folds; no between-session uncertainty for
+  normal): SVM 0.943 [0.896, 0.980], ensemble 0.943, logistic regression 0.941, k-NN 0.930, random forest 0.905,
+  LightGBM 0.898 [0.814, 0.963]; class6 0.933–0.981. Hardest folder proxies: the 20 g bearing folders
+  (overhang_outer/20g, underhang_cage/20g, overhang_cage/20g), confused with other bearing classes.
+- LightGBM comparisons (drop = dependence, not artefact): capped at 10 kHz −0.005 [−0.012, +0.001] vs primary; without
+  envelope, with − without −0.002 [−0.009, +0.003]; vibration only 0.881, microphone only 0.701, all − vibration
+  +0.017 [+0.001, +0.045]; family importance over_axial 0.224, microphone 0.090, over_radial 0.071, envelope ≈ 0.
+- Protocol comparison (not a leakage estimate; training sizes matched exactly): window-level macro-F1 1.000
+  window-random, 0.984 recording-grouped, 0.878 folder-grouped.
+
+### Plan notes (planned controls, not yet implemented; also in CLAUDE.md §7b)
+- **Q1:** detection rate at the mildest severities; with vs without the microphone.
+- **Q2:** the `split_severity` test is the main severity-extrapolation result across held-out folder proxies,
+  evaluated once at the end.
+- **Q3:** false-unknown rate on known classes at held-out severities.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the
