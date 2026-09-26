@@ -299,6 +299,12 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   windows, r = 0.984–0.997 (per channel and pair). They are kept for the first baseline; their limited independence
   is documented here, and any later feature selection uses training data only.
 
+### Suspect channel check: `imbalance__30g__14.9504`, under_radial (Stage 2B)
+- Flagged in the Stage 2A subset for a very low 1× on under_radial (0.020 V). Compared with the nearest non-test
+  recordings of the same folder (13.1 Hz and 16.6 Hz, both val): std 0.326 V vs 0.327–0.329 V, ~105,000 distinct
+  values, normal waveform; the 13.1 Hz neighbour has the same 1× (0.020 V). **Not dead or disconnected; no quality flag;
+  file kept.** Figure `results/figures/03_suspect_channel.png`.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the
