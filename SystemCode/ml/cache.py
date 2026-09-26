@@ -121,3 +121,15 @@ def load_features(path: Path, meta: pd.DataFrame, pre: PreprocessConfig, track: 
     df = read_feature_cache(path, pre, sources_from_metadata(meta), track)
     cols = ["rec_id", *JOIN_COLUMNS, *[c for c in meta.columns if c.startswith(SPLIT_PREFIXES)]]
     return df.merge(meta[cols], on="rec_id", how="left", validate="many_to_one")
+
+
+# ----------------------------------------------------------------------------- representation cache
+def representation_cache_key(pre: PreprocessConfig, sources: Mapping[str, Source], candidate: str, version: str,
+                             track: str | None = None) -> str:
+    """sha256 over: the FULL preprocess config (cleaning, band-stop, low-pass, windows, speed and every spectro/Mel
+    setting), the candidate name, the representation version, each source recording's npy checksum and supplied speed,
+    and the track ("shared")."""
+    payload = {"preprocess": pre.model_dump(mode="json"), "candidate": candidate, "version": version,
+               "sources": sorted([rid, s.npy_sha256, repr(float(s.fr_hz))] for rid, s in sources.items()),
+               "track": track or "shared"}
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
