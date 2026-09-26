@@ -28,7 +28,6 @@ import pandas as pd
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
 from sklearn.model_selection import GroupKFold, KFold
 from sklearn.neighbors import KNeighborsClassifier
@@ -37,6 +36,7 @@ from sklearn.preprocessing import QuantileTransformer
 from sklearn.svm import SVC
 
 from ml.cache import load_features, read_cache_metadata
+from ml.classical import logreg_pipeline
 from ml.config import BaselineConfig, Config, PreprocessConfig, load_config
 from ml.evaluation import (CLASS10_TO_6, aggregate_recordings, block_permutation_importance, metrics,
                            metrics_mixed, mixed_bootstrap_draws, paired_bootstrap, paired_mixed, to_class6)
@@ -90,8 +90,7 @@ def build(name: str, bc: BaselineConfig, groups: np.ndarray, X: np.ndarray, y: n
     if name == "knn":
         return Pipeline([("scale", quantile(bc)), ("knn", KNeighborsClassifier(**bc.knn, n_jobs=-1))])
     if name == "logreg":
-        return Pipeline([("scale", quantile(bc)),
-                         ("lr", LogisticRegression(**bc.logreg, class_weight=cw, random_state=bc.seed))])
+        return logreg_pipeline(bc)
     raise ValueError(name)
 
 

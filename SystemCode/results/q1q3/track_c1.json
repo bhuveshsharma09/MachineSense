@@ -1,0 +1,434 @@
+{
+ "provenance": {
+  "feature_table": "r1cap10_7dda9b7750ed.parquet",
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "941211efc235aabba1a04f2f53748f5a11849191-dirty",
+  "model": "logistic regression (baselines.logreg, QuantileTransformer)",
+  "k_folds": 3,
+  "acceptance": 0.95
+ },
+ "per_class": {
+  "imbalance": {
+   "n_known": 660,
+   "n_unknown": 144,
+   "known_accuracy": 0.95,
+   "msp": {
+    "auroc_unknown": 0.7513468013468014,
+    "oscr": 0.7425189393939393,
+    "threshold": 0.6595151498706397,
+    "unknown_recall": 0.06944444444444445,
+    "false_unknown_rate": 0.05,
+    "false_unknown_rate_known_faults_unseen_folders": 0.050393700787401574,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 635,
+    "n_normal": 25
+   },
+   "max_logit": {
+    "auroc_unknown": 0.6142676767676768,
+    "oscr": 0.6052819865319865,
+    "threshold": 5.236343235400977,
+    "unknown_recall": 0.08333333333333333,
+    "false_unknown_rate": 0.05,
+    "false_unknown_rate_known_faults_unseen_folders": 0.050393700787401574,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 635,
+    "n_normal": 25
+   },
+   "energy": {
+    "auroc_unknown": 0.611026936026936,
+    "oscr": 0.6015888047138047,
+    "threshold": 5.4606775186643635,
+    "unknown_recall": 0.0763888888888889,
+    "false_unknown_rate": 0.05,
+    "false_unknown_rate_known_faults_unseen_folders": 0.050393700787401574,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 635,
+    "n_normal": 25
+   }
+  },
+  "horizontal_misalignment": {
+   "n_known": 731,
+   "n_unknown": 73,
+   "known_accuracy": 0.9521203830369357,
+   "msp": {
+    "auroc_unknown": 0.9339617337855818,
+    "oscr": 0.9131795438787174,
+    "threshold": 0.7495750963399418,
+    "unknown_recall": 0.3972602739726027,
+    "false_unknown_rate": 0.0506155950752394,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05099150141643059,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 706,
+    "n_normal": 25
+   },
+   "max_logit": {
+    "auroc_unknown": 0.8946086239529261,
+    "oscr": 0.8729456739688549,
+    "threshold": 5.569400293209752,
+    "unknown_recall": 0.1643835616438356,
+    "false_unknown_rate": 0.0506155950752394,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05099150141643059,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 706,
+    "n_normal": 25
+   },
+   "energy": {
+    "auroc_unknown": 0.8881059910424826,
+    "oscr": 0.866012030807863,
+    "threshold": 5.833767604065692,
+    "unknown_recall": 0.1232876712328767,
+    "false_unknown_rate": 0.0506155950752394,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05099150141643059,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 706,
+    "n_normal": 25
+   }
+  },
+  "vertical_misalignment": {
+   "n_known": 679,
+   "n_unknown": 125,
+   "known_accuracy": 0.9543446244477173,
+   "msp": {
+    "auroc_unknown": 0.8681944035346097,
+    "oscr": 0.853078055964654,
+    "threshold": 0.7044749379623009,
+    "unknown_recall": 0.152,
+    "false_unknown_rate": 0.050073637702503684,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05045871559633028,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 654,
+    "n_normal": 25
+   },
+   "max_logit": {
+    "auroc_unknown": 0.8103446244477172,
+    "oscr": 0.7910810014727542,
+    "threshold": 5.052408292809156,
+    "unknown_recall": 0.2,
+    "false_unknown_rate": 0.050073637702503684,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05045871559633028,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 654,
+    "n_normal": 25
+   },
+   "energy": {
+    "auroc_unknown": 0.807281296023564,
+    "oscr": 0.7874403534609721,
+    "threshold": 5.305911303468785,
+    "unknown_recall": 0.192,
+    "false_unknown_rate": 0.050073637702503684,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05045871559633028,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 654,
+    "n_normal": 25
+   }
+  },
+  "underhang_ball": {
+   "n_known": 727,
+   "n_unknown": 77,
+   "known_accuracy": 0.9559834938101788,
+   "msp": {
+    "auroc_unknown": 0.8877614819843155,
+    "oscr": 0.8700226870790831,
+    "threshold": 0.7213286060144682,
+    "unknown_recall": 0.22077922077922077,
+    "false_unknown_rate": 0.05089408528198074,
+    "false_unknown_rate_known_faults_unseen_folders": 0.04985754985754986,
+    "false_unknown_rate_normal_within_folder": 0.08,
+    "n_known_faults": 702,
+    "n_normal": 25
+   },
+   "max_logit": {
+    "auroc_unknown": 0.7352400007145536,
+    "oscr": 0.7211275656942782,
+    "threshold": 5.66098270745614,
+    "unknown_recall": 0.14285714285714285,
+    "false_unknown_rate": 0.05089408528198074,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05128205128205128,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 702,
+    "n_normal": 25
+   },
+   "energy": {
+    "auroc_unknown": 0.7237535504385574,
+    "oscr": 0.7097304346272709,
+    "threshold": 5.948888042744237,
+    "unknown_recall": 0.14285714285714285,
+    "false_unknown_rate": 0.05089408528198074,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05128205128205128,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 702,
+    "n_normal": 25
+   }
+  },
+  "underhang_cage": {
+   "n_known": 732,
+   "n_unknown": 72,
+   "known_accuracy": 0.9740437158469946,
+   "msp": {
+    "auroc_unknown": 0.8902929568913175,
+    "oscr": 0.8803696114146934,
+    "threshold": 0.7759132008578605,
+    "unknown_recall": 0.2222222222222222,
+    "false_unknown_rate": 0.050546448087431695,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05091937765205092,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 707,
+    "n_normal": 25
+   },
+   "max_logit": {
+    "auroc_unknown": 0.8175850030358227,
+    "oscr": 0.8088380388585306,
+    "threshold": 5.972437453264274,
+    "unknown_recall": 0.19444444444444445,
+    "false_unknown_rate": 0.050546448087431695,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05091937765205092,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 707,
+    "n_normal": 25
+   },
+   "energy": {
+    "auroc_unknown": 0.8131261384335154,
+    "oscr": 0.8041894353369763,
+    "threshold": 6.175320036311127,
+    "unknown_recall": 0.18055555555555555,
+    "false_unknown_rate": 0.050546448087431695,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05091937765205092,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 707,
+    "n_normal": 25
+   }
+  },
+  "underhang_outer": {
+   "n_known": 731,
+   "n_unknown": 73,
+   "known_accuracy": 0.9671682626538988,
+   "msp": {
+    "auroc_unknown": 0.8995371324700636,
+    "oscr": 0.8843955549725465,
+    "threshold": 0.7731637359042518,
+    "unknown_recall": 0.3013698630136986,
+    "false_unknown_rate": 0.0506155950752394,
+    "false_unknown_rate_known_faults_unseen_folders": 0.049575070821529746,
+    "false_unknown_rate_normal_within_folder": 0.08,
+    "n_known_faults": 706,
+    "n_normal": 25
+   },
+   "max_logit": {
+    "auroc_unknown": 0.7361280287839889,
+    "oscr": 0.7267207615763731,
+    "threshold": 5.5699078898202625,
+    "unknown_recall": 0.0410958904109589,
+    "false_unknown_rate": 0.0506155950752394,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05099150141643059,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 706,
+    "n_normal": 25
+   },
+   "energy": {
+    "auroc_unknown": 0.7239473043119764,
+    "oscr": 0.714689953713247,
+    "threshold": 5.871813135114414,
+    "unknown_recall": 0.0136986301369863,
+    "false_unknown_rate": 0.0506155950752394,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05099150141643059,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 706,
+    "n_normal": 25
+   }
+  },
+  "overhang_ball": {
+   "n_known": 735,
+   "n_unknown": 69,
+   "known_accuracy": 0.964625850340136,
+   "msp": {
+    "auroc_unknown": 0.9241447303559105,
+    "oscr": 0.9092576160899142,
+    "threshold": 0.7874999218717362,
+    "unknown_recall": 0.3333333333333333,
+    "false_unknown_rate": 0.050340136054421766,
+    "false_unknown_rate_known_faults_unseen_folders": 0.04929577464788732,
+    "false_unknown_rate_normal_within_folder": 0.08,
+    "n_known_faults": 710,
+    "n_normal": 25
+   },
+   "max_logit": {
+    "auroc_unknown": 0.057103421078576355,
+    "oscr": 0.05702454895001479,
+    "threshold": 5.637942956747,
+    "unknown_recall": 0.0,
+    "false_unknown_rate": 0.050340136054421766,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05070422535211268,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 710,
+    "n_normal": 25
+   },
+   "energy": {
+    "auroc_unknown": 0.04823030661539979,
+    "oscr": 0.04815143448683821,
+    "threshold": 5.898718711814524,
+    "unknown_recall": 0.0,
+    "false_unknown_rate": 0.050340136054421766,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05070422535211268,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 710,
+    "n_normal": 25
+   }
+  },
+  "overhang_cage": {
+   "n_known": 732,
+   "n_unknown": 72,
+   "known_accuracy": 0.9795081967213115,
+   "msp": {
+    "auroc_unknown": 0.959073315118397,
+    "oscr": 0.9474802671523983,
+    "threshold": 0.8180059215403767,
+    "unknown_recall": 0.7222222222222222,
+    "false_unknown_rate": 0.050546448087431695,
+    "false_unknown_rate_known_faults_unseen_folders": 0.04809052333804809,
+    "false_unknown_rate_normal_within_folder": 0.12,
+    "n_known_faults": 707,
+    "n_normal": 25
+   },
+   "max_logit": {
+    "auroc_unknown": 0.9411809350333941,
+    "oscr": 0.9278992106860958,
+    "threshold": 6.018954154118194,
+    "unknown_recall": 0.5694444444444444,
+    "false_unknown_rate": 0.050546448087431695,
+    "false_unknown_rate_known_faults_unseen_folders": 0.04809052333804809,
+    "false_unknown_rate_normal_within_folder": 0.12,
+    "n_known_faults": 707,
+    "n_normal": 25
+   },
+   "energy": {
+    "auroc_unknown": 0.9355077413479053,
+    "oscr": 0.9222829386763811,
+    "threshold": 6.2149012160996655,
+    "unknown_recall": 0.5694444444444444,
+    "false_unknown_rate": 0.050546448087431695,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05091937765205092,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 707,
+    "n_normal": 25
+   }
+  },
+  "overhang_outer": {
+   "n_known": 730,
+   "n_unknown": 74,
+   "known_accuracy": 0.9698630136986301,
+   "msp": {
+    "auroc_unknown": 0.9446316179192892,
+    "oscr": 0.9295075897815623,
+    "threshold": 0.7715264508766433,
+    "unknown_recall": 0.5135135135135135,
+    "false_unknown_rate": 0.050684931506849315,
+    "false_unknown_rate_known_faults_unseen_folders": 0.04822695035460993,
+    "false_unknown_rate_normal_within_folder": 0.12,
+    "n_known_faults": 705,
+    "n_normal": 25
+   },
+   "max_logit": {
+    "auroc_unknown": 0.9657719363198816,
+    "oscr": 0.9457238059977786,
+    "threshold": 5.91016987566673,
+    "unknown_recall": 0.8243243243243243,
+    "false_unknown_rate": 0.050684931506849315,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05106382978723404,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 705,
+    "n_normal": 25
+   },
+   "energy": {
+    "auroc_unknown": 0.9666234727878564,
+    "oscr": 0.9463161791928916,
+    "threshold": 6.09303430963494,
+    "unknown_recall": 0.8648648648648649,
+    "false_unknown_rate": 0.050684931506849315,
+    "false_unknown_rate_known_faults_unseen_folders": 0.05106382978723404,
+    "false_unknown_rate_normal_within_folder": 0.04,
+    "n_known_faults": 705,
+    "n_normal": 25
+   }
+  }
+ },
+ "summary": {
+  "msp": {
+   "auroc_unknown": {
+    "mean": 0.8954382414895874,
+    "std": 0.06162823030916735
+   },
+   "oscr": {
+    "mean": 0.8810899850808344,
+    "std": 0.05989117517439562
+   },
+   "unknown_recall": {
+    "mean": 0.3257938992779176,
+    "std": 0.19869242107289334
+   },
+   "false_unknown_rate": {
+    "mean": 0.050479652985677526,
+    "std": 0.0002902924054049534
+   },
+   "false_unknown_rate_known_faults_unseen_folders": {
+    "mean": 0.04975657383020426,
+    "std": 0.0010692895010726469
+   },
+   "false_unknown_rate_normal_within_folder": {
+    "mean": 0.07111111111111111,
+    "std": 0.03333333333333333
+   }
+  },
+  "max_logit": {
+   "auroc_unknown": {
+    "mean": 0.7302478055705042,
+    "std": 0.2756030701100035
+   },
+   "oscr": {
+    "mean": 0.7174047326374073,
+    "std": 0.2699983555824464
+   },
+   "unknown_recall": {
+    "mean": 0.24665368238427604,
+    "std": 0.27159420393997913
+   },
+   "false_unknown_rate": {
+    "mean": 0.050479652985677526,
+    "std": 0.0002902924054049534
+   },
+   "false_unknown_rate_known_faults_unseen_folders": {
+    "mean": 0.05054393629201001,
+    "std": 0.0009638107477740575
+   },
+   "false_unknown_rate_normal_within_folder": {
+    "mean": 0.04888888888888889,
+    "std": 0.026666666666666665
+   }
+  },
+  "energy": {
+   "auroc_unknown": {
+    "mean": 0.7241780818920214,
+    "std": 0.2772271323052544
+   },
+   "oscr": {
+    "mean": 0.7111557294462495,
+    "std": 0.27155210188447654
+   },
+   "unknown_recall": {
+    "mean": 0.24034413310897326,
+    "std": 0.28798127662789214
+   },
+   "false_unknown_rate": {
+    "mean": 0.050479652985677526,
+    "std": 0.0002902924054049534
+   },
+   "false_unknown_rate_known_faults_unseen_folders": {
+    "mean": 0.05085825343801032,
+    "std": 0.0002881000125675782
+   },
+   "false_unknown_rate_normal_within_folder": {
+    "mean": 0.04,
+    "std": 0.0
+   }
+  }
+ }
+}
