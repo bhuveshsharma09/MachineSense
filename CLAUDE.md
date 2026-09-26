@@ -222,6 +222,12 @@ MachineSense-Project/                 repo root
 11. **`clean_recording` is applied to the whole recording before windowing, at training and serving.**
 12. **Selection protocol.** Model and variant choices use the folder-grouped development scheme (the 2B.1 pool, K = 3).
     Closed-set ties are broken by simplicity and latency. Reserved tests are never used for selection.
+13. **Evaluation protocol (27 Sep 2026, `ml/protocol.py`).** Consistent scoring: every evaluated recording is scored
+    exactly once, by the model of its own outer dev fold (no averaging over fold models). Calibration is separate from
+    evaluation: thresholds come from calibration recordings only, and rates at a threshold come from recordings not used to
+    choose it or fit the model. Primary summaries are per-fold threshold-free metrics (AUROC; OSCR for Q3), mean and
+    spread across folds; metrics on pooled raw scores are supplementary. Score directions are fixed before running.
+    Every Q1 result states that the healthy sample is 25 recordings from one folder.
 
 ## 6. Working method: exploration → development
 
@@ -261,21 +267,20 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage 2C-2/2D — confirm the representation, build its cache, classical Q1/Q3 baselines
+## 7. Current stage: Stage 2D.1 — corrected Q1/Q3 protocol and context-aware normalisation
 
-Stages 1–2C-1 are done. No deep models in this stage. Development evaluation uses the 2B.1 pool and
-`results/dev_folds.csv` only; reserved tests stay sealed. LOCO rule: the withheld class is excluded from fitting,
-scaling, calibration and thresholds within its own LOCO run.
+Candidate C and its cache are kept; no representation work, no new features. Models: refits of the existing detectors
+and logistic regression only. Development pool and `results/dev_folds.csv` only; reserved tests sealed; LOCO rule unchanged.
+Principles: rule 13 in §5 and `ml/protocol.py`.
 
-0. Record the 27 Sep decisions (this file, config, audit report).
-1. Speed-risk check C vs B (rule committed before running): real group (ii) = split_closed train ∩ dev pool with
-   speed_range_pct > 1 %, group (iii) = matched clean references; synthetic stress = corrupted tacho → fallback, supplied
-   speed offset ±0.5/±1/±2 %. Freeze C only if it passes; otherwise stop and report.
-2. Full representation cache for the frozen candidate (N × 7 × 128 × 25, float16), checks, serving parity and latency,
-   `ml.datasets.norm_stats(track)`, notebook 04 part 2.
-3. Healthy-only detectors (Track B baselines B0–B3, B1s) on the capped R1 features: Q1 metrics and controls.
-4. Unknown-fault baselines (Track C1): logistic regression, LOCO over the 9 fault classes on the dev pool; Q3 control.
-5. Deck-ready figures.
+0. Wording fixes (speed check, calibration vs generalisation rates, one-class SVM, energy failure).
+1. Q1 corrected: per outer fold, fit/calibration split of the outer-training normals (2:1, speed-stratified), threshold =
+   maximum calibration score, evaluation on fold k only; per-fold AUROC primary.
+2. Q3 corrected: per withheld class and outer fold, fit / calibration / seen-folder evaluation split (4:1:1 within each
+   folder, speed-stratified); per-score order-statistic thresholds; (a) seen-folder vs (b) unseen-folder false-unknown
+   rates on known fault classes; (c) unknown recall; per-fold AUROC and OSCR primary.
+3. `ml.datasets.norm_stats`: named-track mode and a development mode with explicit fit IDs and a context.
+4. Updated deck figures and a plain-language Q1/Q3 summary in the audit report.
 
 ## 7b. Plan notes (planned controls, not yet implemented)
 
