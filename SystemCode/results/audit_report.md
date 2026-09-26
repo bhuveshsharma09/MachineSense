@@ -384,6 +384,21 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   `split_speed_block` test; none is in the development pool. Speed fallback matters mainly for the reserved speed-block
   test and for fast machines in the app.
 
+### Speed-risk check, representation cache, Q1 and Q3 classical baselines (Stage 2C-2/2D, 27 Sep 2026)
+- **Speed risk:** candidate C passed the pre-committed rule on group (ii) (12 variable-speed recordings; 24 clean
+  references) and on the synthetic ±1 % fallback (20 recordings): median 1× error 0.434 order bins (the axis offset,
+  same as references and B), width ratio 1.0. The 4.6 % order bins cannot resolve errors below about half a bin. C is
+  frozen and cached (17,559 × 7 × 128 × 25 float16); serving is bit-identical to the cache, 0.51 s per recording.
+- **Q1 (Track B, healthy-only, dev pool, 25 healthy recordings in one folder):** mean AUROC over 9 fault classes
+  0.945 (B0 rules) to 0.984 (B1s speed polynomial, isolation forest); at one allowed false alarm (4 %, Clopper–Pearson
+  0.1–20.4 %) the best rung detects 98 % on average. Mildest severities: imbalance 6 g, vertical 0.51 mm and all bearing
+  classes at 0 g are detected by every rung except B0; horizontal misalignment 0.5 mm is hard (0.36–0.88). The
+  microphone changes little. Caveat: healthy-vs-fault may partly reflect folder proxies.
+- **Q3 (Track C1, LOCO logistic regression):** MSP AUROC 0.895 ± 0.062, OSCR 0.881 ± 0.060, unknown recall at 95 % known
+  acceptance 0.33 ± 0.20; max logit and energy are unstable (energy AUROC 0.048 for withheld overhang ball); imbalance
+  is the hardest unknown (AUROC 0.75). The unseen-folder control is close to tautological with this threshold (it is set
+  on known out-of-fold recordings, mostly unseen-folder faults): false-unknown 0.050 on known faults vs 0.071 on normal.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the
