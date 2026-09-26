@@ -99,3 +99,23 @@ preprocess:
     bpfi_shaft_sidebands: [-1, 0, 1]
     tol_orders: 0.02
     bg_halfwidth_orders: 0.3
+
+# Closed-set classical baselines (scripts/05_baselines.py). Fixed hyperparameters stated before training; one seed.
+baselines:
+  seed: 42
+  feature_table: r1
+  sensitivity_table: r1cap10
+  sensitivity_config: variants/r1cap10.yaml
+  class_weight: balanced
+  quantile_n: 1000
+  lgbm: {n_estimators: 400, learning_rate: 0.05, num_leaves: 31, min_child_samples: 20, subsample: 0.8, subsample_freq: 1, colsample_bytree: 0.8, reg_lambda: 1.0}
+  rf: {n_estimators: 500, max_features: sqrt, min_samples_leaf: 2}
+  svm: {C: 10.0, gamma: scale}
+  svm_calibration: {method: sigmoid, n_group_folds: 3}
+  knn: {n_neighbors: 15, weights: distance}
+  logreg: {C: 1.0, max_iter: 3000}
+  ensemble: [lgbm, rf, svm, knn, logreg]
+  prob_floor: 1.0e-6
+  n_bootstrap: 2000
+  n_permutation_repeats: 5
+  leaky_n_folds: 5

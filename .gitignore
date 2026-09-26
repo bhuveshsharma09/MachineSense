@@ -29,3 +29,6 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 .DS_Store
+
+# --- derived model outputs (reproducible with scripts/05_baselines.py) ---
+SystemCode/results/scores/

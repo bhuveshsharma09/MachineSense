@@ -241,12 +241,39 @@ class PathsConfig(_Strict):
     mlflow_uri: str = "sqlite:///mlruns.db"
 
 
+class BaselineConfig(_Strict):
+    """Closed-set classical baselines (scripts/05_baselines.py). Fixed hyperparameters, stated before training; one
+    seed; no tuning. Scalers and any learned preprocessing are fitted on training data only."""
+
+    seed: int = 42
+    feature_table: str = "r1"  # data/features/<feature_table>_<key>.parquet
+    sensitivity_table: str = "r1cap10"
+    sensitivity_config: str = "variants/r1cap10.yaml"  # relative to configs/
+    class_weight: str | None = "balanced"  # LightGBM, random forest, SVM, logistic regression (macro-F1 target)
+    # Scaled models (SVM, k-NN, logistic regression): QuantileTransformer to a normal distribution, fitted on train.
+    quantile_n: int = 1000
+    lgbm: dict = Field(default_factory=lambda: {
+        "n_estimators": 400, "learning_rate": 0.05, "num_leaves": 31, "min_child_samples": 20,
+        "subsample": 0.8, "subsample_freq": 1, "colsample_bytree": 0.8, "reg_lambda": 1.0})
+    rf: dict = Field(default_factory=lambda: {"n_estimators": 500, "max_features": "sqrt", "min_samples_leaf": 2})
+    svm: dict = Field(default_factory=lambda: {"C": 10.0, "gamma": "scale"})
+    svm_calibration: dict = Field(default_factory=lambda: {"method": "sigmoid", "n_group_folds": 3})
+    knn: dict = Field(default_factory=lambda: {"n_neighbors": 15, "weights": "distance"})
+    logreg: dict = Field(default_factory=lambda: {"C": 1.0, "max_iter": 3000})
+    ensemble: tuple[str, ...] = ("lgbm", "rf", "svm", "knn", "logreg")  # equal weights, soft vote
+    prob_floor: float = 1e-6  # window probabilities are clipped to [prob_floor, 1] before log-averaging
+    n_bootstrap: int = 2000
+    n_permutation_repeats: int = 5
+    leaky_n_folds: int = 5
+
+
 class Config(_Strict):
     """Root config as loaded from configs/*.yaml."""
 
     seed: int = 42
     paths: PathsConfig = Field(default_factory=PathsConfig)
     preprocess: PreprocessConfig = Field(default_factory=PreprocessConfig)
+    baselines: BaselineConfig = Field(default_factory=BaselineConfig)
 
 
 def _deep_merge(base: dict, over: dict) -> dict:
