@@ -212,6 +212,33 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   the only significant underhang-ball result, on the underhang-named channel. **Not switched**; `envelope.bands_provisional`
   is true until a decision.
 
+### Speed variability within a recording (audit columns)
+- `ml.preprocess.window_speeds`: speed per 1 s window (0.5 s hop, 9 windows) from the clean tacho intervals inside
+  it; a window with fewer than 3 clean intervals, or every window of a recording whose pulse train is unusable,
+  falls back to the recording speed. `scripts/01b_speed_windows.py` adds `speed_min_hz`, `speed_max_hz`,
+  `speed_range_pct` (range / measured speed × 100) and `speed_window_fallbacks` to `metadata.csv`. **Audit only,
+  never model inputs.** Split hash unchanged (`4a93579360db…`).
+- Range is NaN (unknown, not zero) for the 94 recordings where every window fell back: the severe tacho-glitch
+  files (underhang ball 63, overhang outer 11, overhang ball 9, overhang cage 6, underhang cage 5).
+- Median range 0.087 %. Above 1 %: 21 recordings; above 2 %: 4; above 5 %: none.
+
+  | Class | > 1 % | > 2 % | > 5 % | unknown | n |
+  | --- | --- | --- | --- | --- | --- |
+  | normal | 0 | 0 | 0 | 0 | 49 |
+  | imbalance | 4 | 2 | 0 | 0 | 333 |
+  | horizontal misalignment | 2 | 0 | 0 | 0 | 197 |
+  | vertical misalignment | 5 | 1 | 0 | 0 | 301 |
+  | underhang ball | 1 | 0 | 0 | 63 | 186 |
+  | underhang cage | 0 | 0 | 0 | 5 | 188 |
+  | underhang outer | 0 | 0 | 0 | 0 | 184 |
+  | overhang ball | 1 | 0 | 0 | 9 | 137 |
+  | overhang cage | 6 | 1 | 0 | 6 | 188 |
+  | overhang outer | 2 | 0 | 0 | 11 | 188 |
+
+- Largest: `imbalance__25g__15.1552` 4.46 %, `overhang__cage_fault__6g__16.1792` 4.02 % (the speed-disagreement file),
+  `imbalance__15g__21.0944` 2.64 %. These are also the files whose speed methods disagreed most (section 2).
+- Whether Stage 2 uses per-window speed for the order axis is an open decision.
+
 ## 10. Open items
 - Decide whether to rename the accelerometer channel groups (section 8, swap evidence). This changes the
   representation, so it needs a decision.

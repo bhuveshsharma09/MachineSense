@@ -90,6 +90,35 @@ def tacho_edges_speed(tacho: np.ndarray, fs: float, cfg: PreprocessConfig) -> fl
     return float(fs * ti.revs[ti.good].sum() / ti.intervals[ti.good].sum())
 
 
+def window_speeds(tacho: np.ndarray, fs: float, win_s: float = 1.0, hop_s: float = 0.5,
+                  cfg: PreprocessConfig | None = None, fr_fallback_hz: float | None = None) -> tuple[np.ndarray, int]:
+    """Shaft speed (Hz) per window, from the clean tacho intervals lying entirely inside it. Audit only.
+
+    Windows are win_s long, stepped by hop_s (9 windows for a 5 s recording at the defaults). A window with fewer than
+    cfg.speed.window_min_intervals clean intervals falls back to the recording speed (fr_fallback_hz, or the tacho-edge
+    speed of the whole recording); so does every window when the pulse train as a whole is unusable (fewer than
+    cfg.speed.min_good_fraction clean intervals). Returns (speeds, number of windows that fell back).
+    """
+    cfg = cfg or PreprocessConfig()
+    n, win, hop = tacho.shape[0], int(round(win_s * fs)), int(round(hop_s * fs))
+    starts = np.arange(0, n - win + 1, hop)
+    fallback = fr_fallback_hz if fr_fallback_hz is not None else tacho_edges_speed(tacho, fs, cfg)
+    ti = tacho_intervals(tacho, cfg)
+    speeds = np.full(starts.size, float(fallback))
+    n_fallback = starts.size
+    # Same validity as tacho_edges_speed: on a dead or garbled tacho, some noise intervals look "clean" by chance.
+    if ti is not None and ti.good.mean() >= cfg.speed.min_good_fraction:
+        n_fallback = 0
+        first, last = ti.edges[:-1], ti.edges[1:]
+        for i, s in enumerate(starts):
+            inside = ti.good & (first >= s) & (last <= s + win)
+            if inside.sum() >= cfg.speed.window_min_intervals:
+                speeds[i] = fs * ti.revs[inside].sum() / ti.intervals[inside].sum()
+            else:
+                n_fallback += 1
+    return speeds, n_fallback
+
+
 def tacho_glitch_count(tacho: np.ndarray, cfg: PreprocessConfig) -> int:
     """Number of glitched tacho intervals (−1 if there is no usable pulse train). A quality flag only."""
     ti = tacho_intervals(tacho, cfg)

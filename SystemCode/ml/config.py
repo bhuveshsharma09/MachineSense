@@ -52,6 +52,7 @@ class SpeedConfig(_Strict):
     comb_harmonics: int = 10
     fft_zero_pad: int = 8  # zero-padding factor: 0.2 Hz bins at 5 s → 0.025 Hz
     min_peak_ratio: float = 10.0  # tacho FFT peak must exceed the median magnitude over 0.5–1.5 × speed by this factor
+    window_min_intervals: int = 3  # window_speeds: fewer clean tacho intervals in a window → recording speed
     confirm_tol: float = 0.002  # two methods confirm each other within 0.2 % (typical agreement is < 0.05 %)
     disagree_tol: float = 0.01  # flag when methods differ by more than 1 %
 

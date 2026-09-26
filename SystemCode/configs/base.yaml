@@ -10,6 +10,8 @@ paths:
   mlflow_uri: sqlite:///mlruns.db
 
 preprocess:
+  speed:
+    window_min_intervals: 3  # window_speeds: fewer clean tacho intervals in a window → recording speed
   # Bearing defect frequencies as multiples of shaft rate (orders); the ball defect line is 2 × BSF.
   bearing:
     bpfo: 2.998
