@@ -112,8 +112,15 @@ Graders run the app on a Linux or Windows CPU.
     spectrum**. Raw-spectrum orders are for imbalance and misalignment.
   - The bearing-defect line is 2×BSF, not BSF.
 - Known quirks:
-  - About 60 files have tachometer glitches, mostly ball faults. Keep these files, correct their speed, and
-    never feed quality flags to a model.
+  - Tacho glitches (displaced pulses): 228 files have at least one, 94 are severe (> 20 % of revolutions
+    glitched), and 63 of the severe ones are underhang ball. Speed is corrected in all of them. Keep these files
+    and never feed quality flags to a model.
+  - Microphone bursts in ~168 files: short electrical-looking spikes up to ~160 V, almost all in imbalance 20–35 g
+    and underhang cage 6–35 g (plus one overhang cage 35 g). They are class-correlated, so they are removed
+    (rule 10 in §5).
+  - Accelerometer saturation in 9 overhang-ball 6 g files at 47–55 Hz (underhang accelerometers on the rail).
+  - The overhang accelerometers carry DC up to 2.2 V; DC is removed per window.
+  - Full details: `SystemCode/results/audit_report.md`.
   - There is a ~23 kHz resonance. Never low-pass before envelope analysis.
   - `cage_fault` may really be an inner-race flaw. Audit it and report the finding, but **keep the folder labels**.
 - "Imbalance" means imbalance-only. About three-quarters of the bearing recordings also carry imbalance mass.
@@ -171,6 +178,9 @@ MachineSense-Project/                 repo root
 8. **Frozen means frozen.** After 1 Oct, split columns in `metadata.csv` change only with an explicit note in
    `results/CHANGELOG.md` and a re-run of everything downstream.
 9. Report metrics with uncertainty: bootstrap over test recordings, Clopper–Pearson for rates from few recordings.
+10. **Mic bursts are removed** with `ml.preprocess.remove_mic_bursts` before every representation, at training and
+    at serving. No mic peak, crest-factor or kurtosis features. The burst threshold comes from `split_closed`
+    TRAIN normal recordings only.
 
 ## 6. Working method: exploration → development
 
@@ -201,58 +211,21 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage 1 — data foundation (target: done by Sun 27 Sep, frozen 1 Oct)
+## 7. Current stage: Stage 1b — notebooks 00 and 02
 
-Scope, in order:
+Stage 1 (data foundation: index, speed, conversion, splits, notebook 01, audit report) is **done**, 26 Sep 2026.
 
-1. **Scaffold.**
-   - `SystemCode/` with `pyproject.toml` (package `ml`), `configs/base.yaml`, `ml/{__init__,config,paths,labels,utils}.py`.
-   - `pip install -e .` must work.
-   - Update `.gitignore`.
-   - Set up MLflow on SQLite.
-   - Add a stub `manifest.json` schema (Pydantic model in `ml/bundle.py`).
-2. **Smoke test.** `python scripts/smoke_env.py --data <mafaulda root> --resnet` must pass on the Mac mini.
-   Paste its output into `results/env_check.txt`.
-3. **Index.** `scripts/01_index.py` → `metadata.csv`.
-   - One row per file: `rec_id`, `path`, `fault_family`, `fault_type`, `severity`, `class10`, `class6`,
-     `fr_file_hz`, `fr_measured_hz`, `speed_method`, `n_rows`, `n_cols`, NaN count, clip flags, DC offset per channel,
-     `quality_flags`.
-   - Print class counts against the table in §3 and fail loudly on mismatch.
-4. **Robust speed estimator** in `ml/preprocess.estimate_speed`:
-   - hysteresis threshold on the raw tacho pulse
-   - reject intervals < 0.5 × median
-   - cross-check against the FFT fundamental of the tacho channel
-   - cross-check against a harmonic comb on a radial accelerometer, searched inside ±5 % of `fr_file_hz × 0.977`
-   - never take the radial "max peak"
-   - record which method won; flag disagreements > 1 %
-   - unit-test it on synthetic pulses: clean, double-triggered, dropped pulse.
-5. **Convert.** `scripts/00_convert.py`: CSV → `data/raw_npy/<rec_id>.npy`.
-   - float32, parsed with `pyarrow.csv` in a process pool.
-   - Class-stratified order, so a 10 % subset is usable first.
-   - Verify row counts and write a checksum column.
-   - Do **not** delete CSVs. Bhuvesh decides that.
-6. **Splits.** `scripts/02_split.py` adds columns to `metadata.csv`:
-   - `split_closed` (70/15/15, stratified by class10 × speed tercile)
-   - `loco_<class>` for each of the 9 fault classes (never normal)
-   - `split_speed_block` (train < 40 Hz, test ≥ 40 Hz)
-   - `split_severity` (train interior masses/offsets, test 35 g and the largest misalignment)
-   - `cv_fold` (5-fold grouped, on train + val only)
-   - Fixed seed. Print balance tables.
-7. **Notebook 01** (`01_index_audit_splits.ipynb`) shows:
-   - counts vs the published table
-   - speed histogram, measured vs nominal
-   - the glitch files with one example plotted
-   - a class × speed heatmap
-   - split balance plots
-   - Findings
+Stage 1b scope:
 
-**Definition of done for Stage 1:**
-- `pytest` passes.
-- `metadata.csv` has 1,951 rows, is committed, and contains all split columns.
-- Notebook 01 runs top to bottom.
-- `results/audit_report.md` lists every quality finding.
+1. **`notebooks/00_data_journey.ipynb`** (exported to `results/00_data_journey.html`): follows three train
+   recordings from folder path to labels, raw CSV, tacho and speed, quality numbers, `.npy`, `metadata.csv` row and
+   split columns. Placeholders for the Stage 2 steps (window → R1 features → order spectrogram), no code.
+2. **`notebooks/01_data_layer/02_signal_exploration.ipynb`**: mic bursts (threshold, `remove_mic_bursts`,
+   shortcut test), the > 1 % speed-disagreement file, order and amplitude spectra, spectral kurtosis and the
+   demodulation band, envelope spectra, and the `cage_fault` audit. Loops over more than ~50 recordings live in
+   scripts that write cached parquet/npz files. Only train recordings set parameters.
 
-Stop there and report. Don't start Stage 2 (windows, features, spectrograms) without a go-ahead.
+Stop after Stage 1b and report. Don't start Stage 2 (windows, features, spectrogram cache) without a go-ahead.
 
 ## 8. Code conventions
 
