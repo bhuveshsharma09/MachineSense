@@ -6,7 +6,8 @@ archive.zip
 SystemCode/data/*
 !SystemCode/data/.gitkeep
 *.npy
-artifacts/**/*.pt
+**/*.pt
+**/artifacts/**/*.pt
 *.safetensors
 
 # --- experiment tracking ---
@@ -19,7 +20,7 @@ mlruns/
 
 # --- frontend (commit dist/ only for a release) ---
 node_modules/
-frontend/dist/
+**/frontend/dist/
 
 # --- Python / tooling noise ---
 __pycache__/

@@ -9,7 +9,7 @@ class ModelEntry(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    name: str  # e.g. "cnn_scratch", "autoencoder", "lightgbm"
+    name: str  # e.g. "cnn_scratch", "autoencoder", "resnet18_ft"
     role: str  # "classifier" | "anomaly" | "openset" | "calibrator"
     file: str  # path relative to the bundle directory
     sha256: str

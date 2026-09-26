@@ -10,8 +10,8 @@ requires-python = ">=3.12"
 # Dependencies are pinned in requirements.txt (install that first); `pip install -e .` only makes `import ml` work.
 dependencies = []
 
-[tool.setuptools]
-packages = ["ml"]
+[tool.setuptools.packages.find]
+include = ["ml*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
