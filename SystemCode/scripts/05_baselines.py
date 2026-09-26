@@ -7,6 +7,7 @@ torch (CLAUDE.md §2).
     python scripts/05_baselines.py dev-folds      # folder-grouped development folds → results/dev_folds.csv
     python scripts/05_baselines.py dev            # out-of-fold evaluation of the classical models on the dev pool
     python scripts/05_baselines.py dev-compare    # LightGBM comparisons (a)–(d) under the same folds
+    python scripts/05_baselines.py dev-protocol   # evaluation-protocol comparison (for the deck; not a leakage estimate)
 
 Train on split_closed train windows; evaluate on split_closed VAL. The test split stays sealed: its rows are dropped
 right after loading. Outputs: results/baselines/*.json|csv, results/scores/<run_name>.parquet (train/val windows only),
@@ -524,14 +525,78 @@ def run_dev_compare(cfg: Config) -> None:
     print(f"→ {(OUT / 'dev_compare.json').relative_to(SYSTEM_CODE_DIR)}")
 
 
+def run_dev_protocol(cfg: Config) -> None:
+    """Evaluation-protocol comparison within the development pool (LightGBM, K folds): window-random,
+    recording-grouped and folder-grouped. Training sizes are matched exactly: in every protocol, fold j holds out the
+    same number of windows of each class (window-random) or recordings of each class (recording-grouped) as the
+    folder-grouped fold j; only WHICH windows/recordings are held out differs. A protocol comparison, not a pure
+    leakage estimate."""
+    bc, pre = cfg.baselines, cfg.preprocess
+    meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
+    path, df, k = load_dev_table(cfg, bc.feature_table, pre, meta)
+    cols = feature_columns(df)
+    X, y = xy(df, cols)
+    rng = np.random.default_rng(bc.seed)
+    rec = df.groupby("rec_id", sort=False)[["class10", "dev_fold"]].first()
+
+    # recording-grouped: per class, a random permutation of its recordings split with the folder-grouped fold counts
+    rec_fold = pd.Series(-1, index=rec.index)
+    for _, g in rec.groupby("class10"):
+        counts = g.dev_fold.value_counts().reindex(range(k), fill_value=0).to_numpy()
+        perm = g.index[rng.permutation(len(g))]
+        rec_fold[perm] = np.repeat(np.arange(k), counts)
+    # window-random: per class, a random permutation of its windows split with the folder-grouped window counts
+    win_fold = np.full(len(df), -1)
+    for _, idx in df.groupby("class10").groups.items():
+        idx = np.asarray(idx)
+        counts = df.dev_fold.to_numpy()[idx]
+        counts = np.bincount(counts, minlength=k)
+        win_fold[rng.permutation(idx)] = np.repeat(np.arange(k), counts)
+    assignments = {"window_random": win_fold, "recording_grouped": df.rec_id.map(rec_fold).to_numpy(),
+                   "folder_grouped": df.dev_fold.to_numpy()}
+    labels = [c for c in CLASS10 if c in set(df.class10)]
+    out = {"provenance": {"feature_table": path.name, "split_hash": split_hash(meta), "git_sha": git_sha(), "k": k,
+                          "matching": "fold j of every protocol holds out the same number of windows (window-random) or "
+                                      "recordings (recording-grouped) of each class as folder-grouped fold j",
+                          "label": "evaluation-protocol comparison, not a pure leakage estimate"}}
+    for name, fold in assignments.items():
+        per_fold, proba = [], np.zeros((len(df), len(CLASS10)))
+        n_train = []
+        for j in range(k):
+            tr, te = fold != j, fold == j
+            m = build("lgbm", bc, None, None, None).fit(X[tr], y[tr])
+            proba[te] = proba10(m, X[te])
+            pred = np.asarray(CLASS10)[proba[te].argmax(axis=1)]
+            per_fold.append(float(f1_score(df.class10.to_numpy()[te], pred, labels=labels, average="macro", zero_division=0)))
+            n_train.append(int(tr.sum()))
+        shared = float(np.mean([np.isin(df.rec_id.to_numpy()[fold == j], df.rec_id.to_numpy()[fold != j]).mean()
+                                for j in range(k)]))
+        entry = {"window_macro_f1_per_fold": per_fold, "window_macro_f1_mean": float(np.mean(per_fold)),
+                 "training_windows_per_fold": n_train,
+                 "share_of_held_out_windows_whose_recording_is_in_training": shared}
+        if name != "window_random":  # recording-level only where a recording's windows stay together
+            agg = aggregate_recordings(proba, df.rec_id.to_numpy(), bc.prob_floor)
+            yr = rec.class10.loc[agg.index]
+            entry["recording_macro_f1"] = float(f1_score(yr, agg.idxmax(axis=1), labels=labels, average="macro",
+                                                         zero_division=0))
+        out[name] = entry
+        print(f"  {name:18s} window macro-F1 {np.mean(per_fold):.3f} (folds {np.round(per_fold, 3).tolist()}), "
+              f"train windows {n_train}, held-out windows with their recording in training {shared:.0%}"
+              + (f", recording macro-F1 {entry['recording_macro_f1']:.3f}" if "recording_macro_f1" in entry else ""))
+    (OUT / "dev_protocol.json").write_text(json.dumps(out, indent=1))
+    print(f"→ {(OUT / 'dev_protocol.json').relative_to(SYSTEM_CODE_DIR)}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["closed", "leaky", "dev-inventory", "dev-folds", "dev", "dev-compare"])
+    ap.add_argument("task", choices=["closed", "leaky", "dev-inventory", "dev-folds", "dev", "dev-compare",
+                                         "dev-protocol"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     args = ap.parse_args()
     cfg = load_config(args.config)
     {"closed": run_closed, "leaky": run_leaky, "dev-inventory": run_dev_inventory,
-     "dev-folds": run_dev_folds, "dev": run_dev, "dev-compare": run_dev_compare}[args.task](cfg)
+     "dev-folds": run_dev_folds, "dev": run_dev, "dev-compare": run_dev_compare,
+     "dev-protocol": run_dev_protocol}[args.task](cfg)
     return 0
 
 

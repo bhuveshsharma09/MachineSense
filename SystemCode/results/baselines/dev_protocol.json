@@ -1,0 +1,54 @@
+{
+ "provenance": {
+  "feature_table": "r1_a09d3b7b8d13.parquet",
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "a389242f967224c181b493d918dd0639cd80de0b-dirty",
+  "k": 3,
+  "matching": "fold j of every protocol holds out the same number of windows (window-random) or recordings (recording-grouped) of each class as folder-grouped fold j",
+  "label": "evaluation-protocol comparison, not a pure leakage estimate"
+ },
+ "window_random": {
+  "window_macro_f1_per_fold": [
+   1.0,
+   0.9995640632345747,
+   1.0
+  ],
+  "window_macro_f1_mean": 0.9998546877448583,
+  "training_windows_per_fold": [
+   4842,
+   4707,
+   4923
+  ],
+  "share_of_held_out_windows_whose_recording_is_in_training": 1.0
+ },
+ "recording_grouped": {
+  "window_macro_f1_per_fold": [
+   0.9820638834993396,
+   0.9948929222949776,
+   0.9748499847896506
+  ],
+  "window_macro_f1_mean": 0.9839355968613225,
+  "training_windows_per_fold": [
+   4842,
+   4707,
+   4923
+  ],
+  "share_of_held_out_windows_whose_recording_is_in_training": 0.0,
+  "recording_macro_f1": 0.9864918140534668
+ },
+ "folder_grouped": {
+  "window_macro_f1_per_fold": [
+   0.8451857173107383,
+   0.9709868344924015,
+   0.817865550597008
+  ],
+  "window_macro_f1_mean": 0.8780127008000495,
+  "training_windows_per_fold": [
+   4842,
+   4707,
+   4923
+  ],
+  "share_of_held_out_windows_whose_recording_is_in_training": 0.0,
+  "recording_macro_f1": 0.8978573521928462
+ }
+}
