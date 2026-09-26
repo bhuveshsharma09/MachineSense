@@ -202,7 +202,43 @@ def main() -> int:
               round(e["reference_width_synthetic"], 3))
         for off, v in e["synthetic"].items():
             print("   ", off, {k: round(x, 3) for k, x in v.items()})
+    plot_examples(res, meta, pre, sr)
     return 0
+
+
+def plot_examples(res: dict, meta: pd.DataFrame, pre, sr) -> None:
+    """One example per group: frame-averaged order profile (window 4) near 0.5–3×, C and B."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    m = meta.set_index("rec_id")
+    o = order_axis(pre)
+    g2 = max(res["group_ii_rec_ids"], key=lambda r: m.loc[r, "speed_range_pct"])
+    g3 = min(res["group_iii_rec_ids"], key=lambda r: abs(m.loc[r, "fr_measured_hz"] - m.loc[g2, "fr_measured_hz"])
+             if m.loc[r, "class10"] == m.loc[g2, "class10"] else 1e9)
+    sy = res["synthetic_rec_ids"][0]
+    fig, axes = plt.subplots(1, 3, figsize=(17, 3.8), sharey=False)
+    for ax, (label, rid) in zip(axes, [("group (ii)", g2), ("group (iii)", g3), ("synthetic", sy)]):
+        x = load(rid)
+        fr = m.loc[rid, "fr_measured_hz"]
+        for c, ls in zip(CANDS, ("-", "--")):
+            variants = [("", x, fr)] if label != "synthetic" else [
+                ("clean", x, fr), ("fallback +1 %", displace_tacho(x, pre, sr.displace_every, sr.displace_fraction), fr * 1.01),
+                ("fallback +2 %", displace_tacho(x, pre, sr.displace_every, sr.displace_fraction), fr * 1.02)]
+            rep0 = recording_representation(x, fr, pre, c)["order"]
+            ch = int(np.argmax(rep0.astype(np.float32).mean(axis=(0, 3))[:, np.argmin(np.abs(o - 1))]))
+            for name, xx, ff in variants:
+                prof = recording_representation(xx, ff, pre, c)["order"][4, ch].astype(np.float32).mean(axis=1)
+                ax.semilogx(o, prof, ls, lw=1, label=f"{c.split('_')[0]} {name}".strip())
+        for k in (0.5, 1, 2, 3):
+            ax.axvline(k, color="grey", lw=0.5, ls=":")
+        ax.set(xlim=(0.45, 3.5), title=f"{label}: {rid} ({fr:.1f} Hz, range {m.loc[rid, 'speed_range_pct']:.2f} %)",
+               xlabel="order", ylabel="amplitude (dB re 1 V)")
+        ax.title.set_fontsize(8)
+        ax.legend(fontsize=7)
+    fig.tight_layout()
+    fig.savefig(results_dir() / "figures" / "09_speed_risk_examples.png")
 
 
 if __name__ == "__main__":

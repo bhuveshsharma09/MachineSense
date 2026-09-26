@@ -98,3 +98,10 @@ def test_split_hash_is_checked(tmp_path):
     path, _ = _write(tmp_path, {"split_hash": "0" * 64})
     with pytest.raises(SplitHashMismatchError):
         load_features(path, meta, PRE)
+
+
+def test_representation_settings_do_not_touch_feature_keys():
+    base = feature_cache_key(PRE, SRC)
+    sc = PRE.spectro
+    changed = PRE.model_copy(update={"spectro": sc.model_copy(update={"n_orders": 64, "mel_n": 64})})
+    assert feature_cache_key(changed, SRC) == base

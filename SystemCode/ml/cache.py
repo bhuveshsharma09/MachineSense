@@ -43,13 +43,14 @@ def sources_from_metadata(meta: pd.DataFrame, rec_ids=None) -> dict[str, Source]
 
 
 def feature_cache_key(pre: PreprocessConfig, sources: Mapping[str, Source], track: str | None = None) -> str:
-    """sha256 over: the full preprocess config (cleaning, band-stop, low-pass, envelope band, windows, feature settings
-    and version), the feature definitions (feature_dictionary), each source recording's npy checksum AND supplied
+    """sha256 over: the preprocess config except the representation-only `spectro` section (cleaning, band-stop,
+    low-pass, envelope band, windows, feature settings and version), the feature definitions (feature_dictionary), each source recording's npy checksum AND supplied
     speed, and the track ("shared" for track-independent features)."""
     from ml.features import feature_dictionary
 
     payload = {
-        "preprocess": pre.model_dump(mode="json"),
+        # R1 features do not depend on the representation-only `spectro` section, so it is left out of their key.
+        "preprocess": pre.model_dump(mode="json", exclude={"spectro"}),
         "feature_version": pre.features.version,
         "feature_definitions": hashlib.sha256(feature_dictionary(pre).to_csv(index=False).encode()).hexdigest(),
         "sources": sorted([rid, s.npy_sha256, repr(float(s.fr_hz))] for rid, s in sources.items()),
