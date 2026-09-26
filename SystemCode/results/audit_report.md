@@ -127,13 +127,15 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   pulled low. Its order spectra are blurred by about ±3 %. Other such files would need a speed-variability column.
 
 ### Spectra
-- **The ~23 kHz "resonance" is a narrowband electrical line** at 22,028 Hz (2–3 bins of 6.1 Hz) with sidebands at
-  ±55–61 Hz and ±116–122 Hz (60 Hz mains), on every accelerometer (7.3–61× the 5–20 kHz median) and the microphone
-  (168×). A structural resonance would be broad and sensor-specific. This contradicts CLAUDE.md §3.
-- **Accelerometer groups may be swapped relative to CLAUDE.md §3.** Median > 1 kHz RMS relative to train normal:
-  underhang ball 10.8× on over_axial and 11.3× on over_tangential; underhang outer 5.0× on over_radial; overhang
-  ball 42× on under_tangential. under_tangential also responds to most faults, and overhang ball raises over_radial
-  10.7×, so this is strong evidence, not proof. Channel names are unchanged pending a decision.
+- **The ~23 kHz "resonance" is a narrowband line consistent with electrical interference**: 22,028 Hz (2–3 bins of
+  6.1 Hz) with sidebands at ±55–61 Hz and ±116–122 Hz (60 Hz mains), on every accelerometer (7.3–61× the 5–20 kHz
+  median) and the microphone (168×). A structural resonance would be broad and sensor-specific. This contradicts the
+  "resonance" wording of CLAUDE.md §3 (now updated); its per-recording level is folder-linked (section 9).
+- **Channel-group pattern (unresolved observation).** Median > 1 kHz RMS relative to train normal: underhang ball
+  10.8× on over_axial and 11.3× on over_tangential; underhang outer 5.0× on over_radial; overhang ball 42× on
+  under_tangential. Each bearing fault responds most on the opposite-named group, which would fit swapped column
+  groups, but under_tangential also responds to most faults and overhang ball raises over_radial 10.7×. Channel
+  names are unchanged.
 - **Demodulation bands** (`envelope.bands_hz`): largest median spectral-kurtosis contrast (train 0 g outer race −
   train normal), bands ≥ 2 kHz (12 orders at 61 Hz), lower edge ≥ 1 kHz, each channel scored against the bearing
   position it hears best: under_radial **9–11 kHz** (overhang, +0.94), over_radial **13–17 kHz** (underhang, +4.31).
@@ -152,9 +154,10 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   | underhang ball (over_radial) | −2.47 | −2.86 | −0.51 | −1.63 |
   | overhang ball (under_radial) | +3.42 (p < 0.001) | +2.51 (p < 0.001) | +1.89 | −2.20 |
 
-- **Verdict: no inner-race signature.** The BPFI comb is below normal for both cage positions, while a real race
-  defect lifts it by 10 dB. The cage (FTF) signature is weak and not significant, so the data cannot confirm a
-  cage fault either; at 0 g, cage files look close to normal in the envelope.
+- **Result: no detectable inner-race signature under this analysis; the underhang-ball positive control failed, which
+  limits sensitivity.** The BPFI comb is below normal for both cage positions, while a real race defect lifts it by
+  10 dB. The cage (FTF) signature is weak and not significant, so the data cannot confirm a cage fault either; at
+  0 g, cage files look close to normal in the envelope.
 - Limits: BPFO and BPFI sit within 0.006 orders of integer shaft orders, so those two combs cannot separate outer
   from inner race (underhang outer lifts every integer order 1–12). The ball control fails for underhang ball.
 
@@ -267,10 +270,24 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   the overhang channels (horizontal: over_radial 1× +9.7 dB; vertical: over_tangential 2× +10.6 dB, over_radial 2×
   +5.4 dB), underhang channels within ±2.6 dB; over_axial falls for vertical misalignment (−11.5 dB at 1×).
   MAFAULDA places the underhang bearing "between the rotor and the motor", nearer the coupling, so this is again
-  consistent with swapped channel groups, but vibration also travels through rotor and frame. **Unresolved
+  consistent with the channel-group pattern above, but vibration also travels through rotor and frame. **Unresolved
   observation**; channel names unchanged.
 
-## 10. Open items
-- Decide whether to rename the accelerometer channel groups (section 8, swap evidence). This changes the
-  representation, so it needs a decision.
-- A per-recording speed-variability column (section 8, speed) before Stage 2 order analysis.
+## 10. Open items and unresolved observations
+Decisions for Bhuvesh:
+- **Demodulation bands** are provisional: the closed-track bands lie above the rated range of at least one sensor
+  model (section 9). Keep them, or switch to an in-range band?
+- **Order axis**: whether Stage 2 uses per-window speed (section 9, speed variability).
+- **22 kHz tone**: apply the proposed notch (or exclude 21.8–22.3 kHz) before spectral representations? (section 9)
+- **Channel names**: unchanged; the group pattern is an unresolved observation.
+
+Unresolved (documented, cause not proven):
+- The physical cause of the 22 kHz line (consistent with electrical interference) and why its level is folder-linked.
+- The channel-group pattern (bearing faults and misalignment respond most on the opposite-named group; shared
+  ~10 kHz peak on the `under_*` channels).
+- Whether the flagged microphone events are electrical (they look it), and whether cleaning leaves a trace in the
+  Stage 2 microphone representation.
+- `cage_fault` identity: no detectable inner-race signature under this analysis, but the underhang-ball positive
+  control failed, which limits sensitivity; a cage signature is not confirmed either.
+- 94 severe tacho-glitch recordings have unknown within-recording speed variability.
+- In the two outer-race LOCO folds, one channel's band has near-zero contrast (section 9).

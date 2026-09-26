@@ -121,8 +121,13 @@ Graders run the app on a Linux or Windows CPU.
   - Accelerometer saturation in 9 overhang-ball 6 g files at 47–55 Hz (underhang accelerometers on the rail).
   - The overhang accelerometers carry DC up to 2.2 V; DC is removed per window.
   - Full details: `SystemCode/results/audit_report.md`.
-  - There is a ~23 kHz resonance. Never low-pass before envelope analysis.
-  - `cage_fault` may really be an inner-race flaw. Audit it and report the finding, but **keep the folder labels**.
+  - The ~23 kHz "resonance" is a narrowband line at ~22,028 Hz with ±60/±120 Hz sidebands on every channel, consistent
+    with electrical interference. Its level is folder-linked (a shortcut risk); a notch is proposed, not applied.
+    Never low-pass before envelope analysis.
+  - `cage_fault`: no detectable inner-race signature under this analysis; the underhang-ball positive control failed,
+    which limits sensitivity. **Keep the folder labels.**
+  - Channel groups: bearing faults and misalignment respond most on the opposite-named accelerometer group. This is an
+    unresolved observation; channel names do not change.
 - "Imbalance" means imbalance-only. About three-quarters of the bearing recordings also carry imbalance mass.
 
 ## 4. Repository layout (target)
