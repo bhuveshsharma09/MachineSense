@@ -267,6 +267,17 @@ class BaselineConfig(_Strict):
     leaky_n_folds: int = 5
 
 
+class DevelopmentConfig(_Strict):
+    """Folder-grouped development evaluation of the classical baselines (Stage 2B.1). Rule, written before running:
+    a recording is in the development pool only if split_closed ∈ allowed_closed AND none of the reserved_columns
+    equals "test" (split_closed test, split_severity test and split_speed_block test are reserved and never used).
+    A folder is class10 × severity: a PROXY for an acquisition session."""
+
+    allowed_closed: tuple[str, ...] = ("train", "val")
+    reserved_columns: tuple[str, ...] = ("split_severity", "split_speed_block")
+    seed: int = 42
+
+
 class Config(_Strict):
     """Root config as loaded from configs/*.yaml."""
 
@@ -274,6 +285,7 @@ class Config(_Strict):
     paths: PathsConfig = Field(default_factory=PathsConfig)
     preprocess: PreprocessConfig = Field(default_factory=PreprocessConfig)
     baselines: BaselineConfig = Field(default_factory=BaselineConfig)
+    development: DevelopmentConfig = Field(default_factory=DevelopmentConfig)
 
 
 def _deep_merge(base: dict, over: dict) -> dict:

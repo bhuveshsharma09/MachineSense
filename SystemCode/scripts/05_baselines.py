@@ -3,6 +3,7 @@ torch (CLAUDE.md §2).
 
     python scripts/05_baselines.py closed   # A0 + A1 rungs, sensitivity, envelope diagnostic, permutation importance
     python scripts/05_baselines.py leaky    # deliberate leakage illustration: window-level vs recording-grouped CV
+    python scripts/05_baselines.py dev-inventory  # development pool (Stage 2B.1): recordings by class and folder proxy
 
 Train on split_closed train windows; evaluate on split_closed VAL. The test split stays sealed: its rows are dropped
 right after loading. Outputs: results/baselines/*.json|csv, results/scores/<run_name>.parquet (train/val windows only),
@@ -37,7 +38,7 @@ from ml.evaluation import (CLASS10_TO_6, aggregate_recordings, block_permutation
 from ml.features import ACCEL_CHANNELS, feature_columns
 from ml.labels import CLASS6, CLASS10
 from ml.paths import CONFIGS_DIR, DEFAULT_CONFIG, SYSTEM_CODE_DIR, data_dir, results_dir
-from ml.splits import split_hash
+from ml.splits import development_pool, split_hash
 from ml.utils import git_sha
 
 OUT = results_dir() / "baselines"
@@ -299,13 +300,32 @@ def run_leaky(cfg: Config) -> None:
     print(f"  gap {out['gap']:+.3f} → {(OUT / 'leaky_vs_honest.json').relative_to(SYSTEM_CODE_DIR)}")
 
 
+def run_dev_inventory(cfg: Config) -> None:
+    """Inventory of the development pool: recordings per class and folder proxy, and folders per class."""
+    dc = cfg.development
+    meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
+    pool = development_pool(meta, dc.allowed_closed, dc.reserved_columns)
+    inv = (pool.groupby(["class10", "folder"]).agg(recordings=("rec_id", "size"),
+                                                   speed_min_hz=("fr_measured_hz", "min"),
+                                                   speed_max_hz=("fr_measured_hz", "max")).reset_index())
+    inv["class10"] = pd.Categorical(inv.class10, CLASS10, ordered=True)
+    inv = inv.sort_values(["class10", "folder"])
+    OUT.mkdir(parents=True, exist_ok=True)
+    inv.to_csv(OUT / "dev_pool_inventory.csv", index=False)
+    per = pool.groupby("class10").folder.nunique().reindex(CLASS10)
+    k = int(per.drop("normal").min())
+    print(f"pool: {len(pool)} of {len(meta)} recordings, {pool.fr_measured_hz.min():.1f}–{pool.fr_measured_hz.max():.1f} Hz")
+    print(f"folders per class: {per.to_dict()}; K = min over fault classes = {k}")
+    print(f"→ {(OUT / 'dev_pool_inventory.csv').relative_to(SYSTEM_CODE_DIR)}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["closed", "leaky"])
+    ap.add_argument("task", choices=["closed", "leaky", "dev-inventory"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     args = ap.parse_args()
     cfg = load_config(args.config)
-    run_closed(cfg) if args.task == "closed" else run_leaky(cfg)
+    {"closed": run_closed, "leaky": run_leaky, "dev-inventory": run_dev_inventory}[args.task](cfg)
     return 0
 
 

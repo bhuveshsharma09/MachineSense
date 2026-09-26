@@ -119,3 +119,10 @@ baselines:
   n_bootstrap: 2000
   n_permutation_repeats: 5
   leaky_n_folds: 5
+
+# Folder-grouped development evaluation (Stage 2B.1). Pool rule, written before running: split_closed ∈ allowed_closed
+# AND split_severity ≠ test AND split_speed_block ≠ test. A folder (class10 × severity) is a PROXY for a session.
+development:
+  allowed_closed: [train, val]
+  reserved_columns: [split_severity, split_speed_block]
+  seed: 42

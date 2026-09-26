@@ -335,6 +335,20 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
 - Model selection uses permitted development data only; closed-set ties are broken by simplicity and measured latency;
   reserved tests are never used for selection.
 
+### Development pool for the folder-grouped evaluation (Stage 2B.1)
+- **Rule (config `development`, written before running):** a recording is in the pool only if `split_closed` ∈
+  {train, val} AND `split_severity` ≠ test AND `split_speed_block` ≠ test. All reserved tests stay out. A folder is
+  class10 × severity: a **proxy** for an acquisition session.
+- **Inventory** (`results/baselines/dev_pool_inventory.csv`): 804 of 1,951 recordings, 11.8–40.0 Hz. Folders per class:
+  normal 1 (25 recordings), imbalance 6 (6–30 g), horizontal misalignment 3 (0.5–1.5 mm), vertical misalignment 5
+  (0.51–1.78 mm), each bearing class 3 (0, 6, 20 g added mass); 20–27 recordings per folder.
+- **Limitations:**
+  - speeds below 40 Hz only (the speed-block test is reserved);
+  - few folders per class (3 for 7 of the 9 fault classes, one for normal);
+  - this exercise uses examples of every class that is later withheld in LOCO. LOCO runs can therefore demonstrate
+    fold-specific exclusion during fitting and calibration, but cannot claim those classes never influenced overall
+    method development. Fold-safe thresholds alone do not resolve this.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the

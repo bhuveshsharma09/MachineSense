@@ -100,3 +100,22 @@ def split_hash(df: pd.DataFrame) -> str:
     cols = ["rec_id", *sorted(split_columns(df))]
     payload = df[cols].sort_values("rec_id").to_csv(index=False).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
+
+
+def folder_proxy(df: pd.DataFrame) -> pd.Series:
+    """Folder = class10 × severity (e.g. 'imbalance/20g', 'normal/-'): a PROXY for an acquisition session."""
+    unit = df["fault_family"].map({"misalignment": "mm"}).fillna("g")
+    sev = df["severity"].map(lambda v: f"{v:g}")
+    return np.where(df["class10"] == "normal", "normal/-", df["class10"] + "/" + sev + unit)
+
+
+def development_pool(meta: pd.DataFrame, allowed_closed=("train", "val"),
+                     reserved_columns=("split_severity", "split_speed_block")) -> pd.DataFrame:
+    """Recordings allowed in the development evaluation: split_closed in allowed_closed and no reserved column equal
+    to "test". Adds a `folder` column (the session proxy)."""
+    keep = meta["split_closed"].isin(allowed_closed)
+    for col in reserved_columns:
+        keep &= meta[col] != "test"
+    out = meta[keep].copy()
+    out["folder"] = folder_proxy(out)
+    return out
