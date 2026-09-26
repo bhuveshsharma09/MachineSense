@@ -2,6 +2,7 @@
 torch (CLAUDE.md §2).
 
     python scripts/05_baselines.py closed   # A0 + A1 rungs, sensitivity, envelope diagnostic, permutation importance
+    python scripts/05_baselines.py leaky    # deliberate leakage illustration: window-level vs recording-grouped CV
 
 Train on split_closed train windows; evaluate on split_closed VAL. The test split stays sealed: its rows are dropped
 right after loading. Outputs: results/baselines/*.json|csv, results/scores/<run_name>.parquet (train/val windows only),
@@ -23,7 +24,7 @@ from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
-from sklearn.model_selection import GroupKFold
+from sklearn.model_selection import GroupKFold, KFold
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import QuantileTransformer
@@ -260,13 +261,51 @@ def run_closed(cfg: Config) -> None:
     print(f"→ {(OUT / 'closed_val.json').relative_to(SYSTEM_CODE_DIR)}")
 
 
+def run_leaky(cfg: Config) -> None:
+    """Deliberate leakage illustration (reported separately): LightGBM, train+val windows, (a) random 5-fold split at
+    WINDOW level vs (b) the recording-grouped cv_fold. Window-level macro-F1 per fold. LightGBM needs no scaler, so
+    there is no other learned preprocessing to refit; signal cleaning is fixed and reused (conditional on it)."""
+    bc, pre = cfg.baselines, cfg.preprocess
+    meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
+    path, df = load_table(bc.feature_table, pre, meta)
+    cols = feature_columns(df)
+    X, y = xy(df, cols)
+    labels = [c for c in CLASS10 if c in set(df.class10)]
+    folds = {
+        "window_random": list(KFold(bc.leaky_n_folds, shuffle=True, random_state=bc.seed).split(X)),
+        "recording_grouped": [(np.flatnonzero(df.cv_fold.to_numpy() != k), np.flatnonzero(df.cv_fold.to_numpy() == k))
+                              for k in sorted(df.cv_fold.unique())],
+    }
+    out = {"provenance": {"feature_table": path.name, "split_hash": split_hash(meta), "git_sha": git_sha(),
+                          "n_windows": len(df), "n_recordings": int(df.rec_id.nunique()),
+                          "note": "deliberate leakage illustration; conditional on the fixed preprocessing"}}
+    for name, splits in folds.items():
+        scores = []
+        for itr, ite in splits:
+            m = build("lgbm", bc, None, None, None).fit(X[itr], y[itr])
+            pred = np.asarray(CLASS10)[proba10(m, X[ite]).argmax(axis=1)]
+            scores.append(float(f1_score(df.class10.to_numpy()[ite], pred, labels=labels, average="macro",
+                                         zero_division=0)))
+        # How many test-fold windows had a sibling window of the same recording in training?
+        shared = float(np.mean([np.isin(df.rec_id.to_numpy()[ite], df.rec_id.to_numpy()[itr]).mean()
+                                for itr, ite in splits]))
+        out[name] = {"fold_macro_f1": scores, "mean": float(np.mean(scores)), "std": float(np.std(scores)),
+                     "share_of_test_windows_with_their_recording_in_training": shared}
+        print(f"  {name:18s} window macro-F1 {np.mean(scores):.3f} ± {np.std(scores):.3f}  "
+              f"(test windows whose recording is also in training: {shared:.0%})")
+    out["gap"] = out["window_random"]["mean"] - out["recording_grouped"]["mean"]
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "leaky_vs_honest.json").write_text(json.dumps(out, indent=1))
+    print(f"  gap {out['gap']:+.3f} → {(OUT / 'leaky_vs_honest.json').relative_to(SYSTEM_CODE_DIR)}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["closed"])
+    ap.add_argument("task", choices=["closed", "leaky"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     args = ap.parse_args()
     cfg = load_config(args.config)
-    run_closed(cfg)
+    run_closed(cfg) if args.task == "closed" else run_leaky(cfg)
     return 0
 
 

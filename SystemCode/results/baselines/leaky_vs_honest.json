@@ -1,0 +1,35 @@
+{
+ "provenance": {
+  "feature_table": "r1_a09d3b7b8d13.parquet",
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "17b9e69d6eabcc9941e4a99aa0b3578770b924cd-dirty",
+  "n_windows": 14949,
+  "n_recordings": 1661,
+  "note": "deliberate leakage illustration; conditional on the fixed preprocessing"
+ },
+ "window_random": {
+  "fold_macro_f1": [
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0
+  ],
+  "mean": 1.0,
+  "std": 0.0,
+  "share_of_test_windows_with_their_recording_in_training": 1.0
+ },
+ "recording_grouped": {
+  "fold_macro_f1": [
+   0.9849670282938379,
+   0.9885598504273257,
+   0.995144398826722,
+   0.9891658910247264,
+   0.9982382444874329
+  ],
+  "mean": 0.991215082612009,
+  "std": 0.004796914748510738,
+  "share_of_test_windows_with_their_recording_in_training": 0.0
+ },
+ "gap": 0.008784917387991031
+}
