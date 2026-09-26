@@ -77,6 +77,18 @@ class MicConfig(_Strict):
     burst_pad: int = 15
 
 
+class BandStopConfig(_Strict):
+    """Fixed band-stop for the ~22,028 Hz line (clean_recording, channels 1–7). Linear-phase FIR (scipy firwin),
+    applied by centred convolution, so its group delay is compensated. Edges set in notebook 03 (Stage 2A item 2)."""
+
+    enabled: bool = False
+    stop_lo_hz: float = 0.0  # attenuation is guaranteed from stop_lo_hz to stop_hi_hz
+    stop_hi_hz: float = 0.0
+    transition_hz: float = 0.0  # width of each transition band outside the stop band
+    numtaps: int = 1  # odd
+    window: tuple[str, float] = ("kaiser", 0.0)
+
+
 class SensorSpec(_Strict):
     """Manufacturer ratings of one accelerometer model (Hz)."""
 
@@ -168,6 +180,7 @@ class PreprocessConfig(_Strict):
     speed: SpeedConfig = Field(default_factory=SpeedConfig)
     quality: QualityConfig = Field(default_factory=QualityConfig)
     mic: MicConfig = Field(default_factory=MicConfig)
+    bandstop: BandStopConfig = Field(default_factory=BandStopConfig)
     envelope: EnvelopeConfig = Field(default_factory=EnvelopeConfig)
     comb: CombConfig = Field(default_factory=CombConfig)
     expected_class_counts: dict[str, int] = Field(default_factory=lambda: dict(EXPECTED_CLASS_COUNTS))

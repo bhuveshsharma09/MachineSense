@@ -296,3 +296,43 @@ def remove_mic_bursts(mic: np.ndarray, z_thresh: float, pad: int = 5) -> tuple[n
     else:
         out[mask] = np.interp(idx[mask], idx[~mask], x[~mask])
     return out, n_bursts
+
+
+# ----------------------------------------------------------------------------- whole-recording cleaning
+def bandstop_taps(cfg: PreprocessConfig) -> np.ndarray:
+    """FIR taps of the fixed band-stop (odd length, symmetric → linear phase). Cutoffs sit half a transition
+    outside the stop band, so the full design attenuation holds from stop_lo_hz to stop_hi_hz."""
+    from scipy.signal import firwin
+
+    b = cfg.bandstop
+    if b.numtaps % 2 == 0:
+        raise ValueError("bandstop.numtaps must be odd for a linear-phase band-stop")
+    cut = [b.stop_lo_hz - b.transition_hz / 2, b.stop_hi_hz + b.transition_hz / 2]
+    return firwin(b.numtaps, cut, window=tuple(b.window), pass_zero="bandstop", fs=cfg.fs_hz)
+
+
+def apply_fir_centred(x: np.ndarray, taps: np.ndarray) -> np.ndarray:
+    """Convolve each column with a symmetric odd-length FIR and keep the centred part: the (numtaps − 1) / 2 sample
+    group delay is removed, so filtered and original stay time-aligned (zero-phase alignment). Edges are
+    zero-padded, so the first and last (numtaps − 1) / 2 samples see a partial filter."""
+    from scipy.signal import oaconvolve
+
+    x2 = x[:, None] if x.ndim == 1 else x
+    y = oaconvolve(x2.astype(np.float64), taps[:, None], mode="same", axes=0)
+    return y[:, 0] if x.ndim == 1 else y
+
+
+def clean_recording(x: np.ndarray, cfg: PreprocessConfig) -> tuple[np.ndarray, dict]:
+    """Whole-recording cleaning before any windowing (CLAUDE.md §5 rules 10 and 11), at training and serving:
+    1. microphone: remove events flagged by the burst threshold (remove_mic_bursts, cfg.mic);
+    2. channels 1–7: the fixed band-stop for the ~22 kHz line (cfg.bandstop), if enabled.
+    The tachometer (channel 0) is returned untouched. Returns (float32 copy, report)."""
+    mic = cfg.channels.index("mic")
+    out = np.array(x, dtype=np.float32, copy=True)
+    out[:, mic], n_bursts = remove_mic_bursts(out[:, mic], cfg.mic.burst_z, cfg.mic.burst_pad)
+    report = {"n_mic_bursts": n_bursts, "bandstop_applied": False, "bandstop_numtaps": 0}
+    if cfg.bandstop.enabled:
+        taps = bandstop_taps(cfg)
+        out[:, 1:] = apply_fir_centred(out[:, 1:], taps).astype(np.float32)
+        report.update(bandstop_applied=True, bandstop_numtaps=int(taps.size))
+    return out, report
