@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
@@ -9,6 +10,7 @@ import pandas as pd
 
 from ml.cache import CacheMismatchError, check_split_hash, representation_cache_key, sources_from_metadata
 from ml.config import Config
+from ml.splits import development_pool
 
 N_CHANNELS = 7  # six accelerometer order-spectrograms + the time-aligned microphone log-Mel
 
@@ -51,12 +53,72 @@ def track_train_mask(index: pd.DataFrame, meta: pd.DataFrame, track: str) -> np.
     return index.rec_id.isin(train_ids).to_numpy()
 
 
-def norm_stats(track: str, X: np.ndarray, index: pd.DataFrame, meta: pd.DataFrame, chunk: int = 512) -> dict:
-    """Per-channel mean and standard deviation over the TRAINING windows of `track` only (computed at training time,
-    never stored in the cache). Accumulated in float64 over row chunks."""
-    rows = np.flatnonzero(track_train_mask(index, meta, track))
+@dataclass(frozen=True)
+class NormContext:
+    """The recordings of one development run that must NOT inform normalisation: its calibration recordings, its
+    evaluation recordings (seen-folder and held-out) and the LOCO-withheld recordings. Empty sets are allowed but
+    must be passed explicitly."""
+    calibration: frozenset[str] = field(default_factory=frozenset)
+    evaluation: frozenset[str] = field(default_factory=frozenset)
+    withheld: frozenset[str] = field(default_factory=frozenset)
+
+    def __post_init__(self):
+        for name in ("calibration", "evaluation", "withheld"):
+            object.__setattr__(self, name, frozenset(getattr(self, name)))
+
+
+def development_fit_mask(index: pd.DataFrame, meta: pd.DataFrame, fit_ids, context: NormContext,
+                         allowed_closed=("train", "val"),
+                         reserved_columns=("split_severity", "split_speed_block")) -> np.ndarray:
+    """Rows of the index belonging to `fit_ids`, after checking the ID set. Raises ValueError unless every ID is a
+    known recording in the development pool (ml.splits.development_pool) and none is in the context's calibration,
+    evaluation or withheld sets."""
+    fit = frozenset(fit_ids)
+    if not fit:
+        raise ValueError("fit_ids is empty")
+    unknown = fit - set(meta.rec_id)
+    if unknown:
+        raise ValueError(f"{len(unknown)} fit IDs are not in the metadata, e.g. {sorted(unknown)[:3]}")
+    outside = fit - set(development_pool(meta, allowed_closed, reserved_columns).rec_id)
+    if outside:
+        raise ValueError(f"{len(outside)} fit IDs are outside the development pool, e.g. {sorted(outside)[:3]}")
+    for name in ("calibration", "evaluation", "withheld"):
+        clash = fit & getattr(context, name)
+        if clash:
+            raise ValueError(f"{len(clash)} fit IDs are {name} recordings of this run, e.g. {sorted(clash)[:3]}")
+    missing = fit - set(index.rec_id)
+    if missing:
+        raise ValueError(f"{len(missing)} fit IDs have no windows in the index, e.g. {sorted(missing)[:3]}")
+    return index.rec_id.isin(fit).to_numpy()
+
+
+def norm_stats(X: np.ndarray, index: pd.DataFrame, meta: pd.DataFrame, *, track: str | None = None,
+               fit_ids=None, context: NormContext | None = None, chunk: int = 512) -> dict:
+    """Per-channel mean and standard deviation over the chosen windows only (computed at training time, never stored in
+    the cache). Accumulated in float64 over row chunks; only the chosen rows of X are read. Two modes, exactly one:
+
+    - Named-track mode, `track=...` ("closed", "loco_<class>", "speed_block", "severity"): the TRAINING side of that
+      frozen split column (unchanged behaviour). NOTE: "closed" uses split_closed == "train", which includes
+      recordings OUTSIDE the development pool (the severity-test and speed-block-test recordings); it is valid only
+      for closed-track runs, never for development (dev-fold) runs.
+    - Development mode, `fit_ids=..., context=NormContext(...)`: exactly the given recordings. Fails loudly unless
+      every ID is in the development pool and none is one of the run's calibration, evaluation or withheld
+      recordings (development_fit_mask).
+    """
+    if (track is None) == (fit_ids is None):
+        raise ValueError("pass exactly one of track= (named-track mode) or fit_ids= (development mode)")
+    if track is not None:
+        if context is not None:
+            raise ValueError("context is only used in development mode")
+        rows = np.flatnonzero(track_train_mask(index, meta, track))
+        mode = {"track": track}
+    else:
+        if context is None:
+            raise ValueError("development mode needs context=NormContext(calibration=, evaluation=, withheld=)")
+        rows = np.flatnonzero(development_fit_mask(index, meta, fit_ids, context))
+        mode = {"track": None, "n_recordings": int(len(frozenset(fit_ids)))}
     if rows.size == 0:
-        raise ValueError(f"track {track!r} has no training windows")
+        raise ValueError(f"no windows selected ({mode})")
     n_ch = X.shape[1]
     s, ss, n = np.zeros(n_ch), np.zeros(n_ch), 0
     for i in range(0, rows.size, chunk):
@@ -65,4 +127,4 @@ def norm_stats(track: str, X: np.ndarray, index: pd.DataFrame, meta: pd.DataFram
         ss += (block**2).sum(axis=(0, 2, 3))
         n += block.shape[0] * block.shape[2] * block.shape[3]
     mean = s / n
-    return {"track": track, "mean": mean, "std": np.sqrt(np.maximum(ss / n - mean**2, 0.0)), "n_windows": int(rows.size)}
+    return {**mode, "mean": mean, "std": np.sqrt(np.maximum(ss / n - mean**2, 0.0)), "n_windows": int(rows.size)}
