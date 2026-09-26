@@ -1,0 +1,796 @@
+{
+ "provenance": {
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "a808356bf85c2a6adc2b136864d943d0b2b2e92b-dirty",
+  "scope": "Q2-only; trained on all 10 classes; not valid for LOCO",
+  "seeds": [
+   42,
+   43,
+   44
+  ],
+  "sources": {
+   "cnn7_s42": "results/scores/cnn7_dev.parquet",
+   "cnn6_s42": "results/scores/cnn6_dev.parquet",
+   "cnn7_s43": "results/scores/cnn7_s43_dev_logits.parquet",
+   "cnn6_s43": "results/scores/cnn6_s43_dev_logits.parquet",
+   "cnn7_s44": "results/scores/cnn7_s44_dev_logits.parquet",
+   "cnn6_s44": "results/scores/cnn6_s44_dev_logits.parquet"
+  },
+  "n_bootstrap": 2000,
+  "bootstrap_seed": 42,
+  "uncertainty": "bootstrap intervals (per seed) describe the evaluated recordings and folders; the std across seeds describes CNN training-run variation; they are different sources and are reported separately, never merged",
+  "logreg": "refitted on the same folds (deterministic; identical for every seed)"
+ },
+ "per_seed": {
+  "42": {
+   "models": {
+    "cnn7": {
+     "class10": {
+      "macro_f1": 0.9802618835077446,
+      "macro_f1_ci": [
+       0.9658407142385915,
+       0.9928920524348548
+      ],
+      "balanced_accuracy": 0.9810274342835985,
+      "balanced_accuracy_ci": [
+       0.9674230089777714,
+       0.9931370207844773
+      ],
+      "per_class_f1": {
+       "normal": 1.0,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 0.973,
+       "vertical_misalignment": 0.9879,
+       "underhang_ball": 0.9935,
+       "underhang_cage": 0.9504,
+       "underhang_outer": 0.9932,
+       "overhang_ball": 1.0,
+       "overhang_cage": 0.951,
+       "overhang_outer": 0.9536
+      }
+     },
+     "class6": {
+      "macro_f1": 0.9877512251774658,
+      "macro_f1_ci": [
+       0.9754740045725535,
+       0.997722175456514
+      ],
+      "balanced_accuracy": 0.988388310578817,
+      "balanced_accuracy_ci": [
+       0.9780551882791891,
+       0.9976851851851851
+      ],
+      "per_class_f1": {
+       "normal": 1.0,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 0.973,
+       "vertical_misalignment": 0.9879,
+       "underhang_bearing": 0.9842,
+       "overhang_bearing": 0.9815
+      }
+     }
+    },
+    "cnn6": {
+     "class10": {
+      "macro_f1": 0.9894923011409288,
+      "macro_f1_ci": [
+       0.9804438575904099,
+       0.9977036266407391
+      ],
+      "balanced_accuracy": 0.9900666666666668,
+      "balanced_accuracy_ci": [
+       0.9813492063492063,
+       0.9983613167636172
+      ],
+      "per_class_f1": {
+       "normal": 1.0,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 0.9865,
+       "vertical_misalignment": 0.9919,
+       "underhang_ball": 1.0,
+       "underhang_cage": 0.964,
+       "underhang_outer": 0.9932,
+       "overhang_ball": 1.0,
+       "overhang_cage": 0.966,
+       "overhang_outer": 0.9933
+      }
+     },
+     "class6": {
+      "macro_f1": 0.993352411900799,
+      "macro_f1_ci": [
+       0.9856459856270773,
+       1.0
+      ],
+      "balanced_accuracy": 0.9943303303303304,
+      "balanced_accuracy_ci": [
+       0.9883023374637226,
+       1.0
+      ],
+      "per_class_f1": {
+       "normal": 1.0,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 0.9865,
+       "vertical_misalignment": 0.9919,
+       "underhang_bearing": 0.9909,
+       "overhang_bearing": 0.9908
+      }
+     }
+    }
+   },
+   "paired": {
+    "cnn7_minus_cnn6": {
+     "class10": {
+      "diff": -0.009230417633184218,
+      "ci": [
+       -0.018746412889673703,
+       -0.0011806741515910893
+      ],
+      "p_positive": 0.0075
+     },
+     "class6": {
+      "diff": -0.005601186723333207,
+      "ci": [
+       -0.011371111849691381,
+       0.0
+      ],
+      "p_positive": 0.0
+     }
+    },
+    "cnn7_minus_logreg": {
+     "class10": {
+      "diff": 0.03132849682301153,
+      "ci": [
+       0.005657815402393332,
+       0.06228234201269005
+      ],
+      "p_positive": 0.992
+     },
+     "class6": {
+      "diff": 0.007854590797795602,
+      "ci": [
+       -0.01094419881301425,
+       0.02893552836512561
+      ],
+      "p_positive": 0.763
+     }
+    },
+    "cnn6_minus_logreg": {
+     "class10": {
+      "diff": 0.04055891445619575,
+      "ci": [
+       0.01015996110578185,
+       0.07777070070811784
+      ],
+      "p_positive": 0.996
+     },
+     "class6": {
+      "diff": 0.013455777521128809,
+      "ci": [
+       -0.002703937608878526,
+       0.03235225267222242
+      ],
+      "p_positive": 0.937
+     }
+    }
+   },
+   "per_folder_accuracy": {
+    "cnn7": {
+     "horizontal_misalignment/0.5mm": 0.96,
+     "horizontal_misalignment/1.5mm": 1.0,
+     "horizontal_misalignment/1mm": 1.0,
+     "imbalance/10g": 1.0,
+     "imbalance/15g": 1.0,
+     "imbalance/20g": 1.0,
+     "imbalance/25g": 1.0,
+     "imbalance/30g": 1.0,
+     "imbalance/6g": 1.0,
+     "normal/-": 1.0,
+     "overhang_ball/0g": 1.0,
+     "overhang_ball/20g": 1.0,
+     "overhang_ball/6g": 1.0,
+     "overhang_cage/0g": 1.0,
+     "overhang_cage/20g": 0.8461538461538461,
+     "overhang_cage/6g": 1.0,
+     "overhang_outer/0g": 1.0,
+     "overhang_outer/20g": 0.9047619047619048,
+     "overhang_outer/6g": 1.0,
+     "underhang_ball/0g": 1.0,
+     "underhang_ball/20g": 1.0,
+     "underhang_ball/6g": 1.0,
+     "underhang_cage/0g": 1.0,
+     "underhang_cage/20g": 0.84,
+     "underhang_cage/6g": 0.9545454545454546,
+     "underhang_outer/0g": 1.0,
+     "underhang_outer/20g": 1.0,
+     "underhang_outer/6g": 1.0,
+     "vertical_misalignment/0.51mm": 1.0,
+     "vertical_misalignment/0.63mm": 0.88,
+     "vertical_misalignment/1.27mm": 1.0,
+     "vertical_misalignment/1.4mm": 1.0,
+     "vertical_misalignment/1.78mm": 1.0
+    },
+    "cnn6": {
+     "horizontal_misalignment/0.5mm": 1.0,
+     "horizontal_misalignment/1.5mm": 1.0,
+     "horizontal_misalignment/1mm": 1.0,
+     "imbalance/10g": 1.0,
+     "imbalance/15g": 1.0,
+     "imbalance/20g": 1.0,
+     "imbalance/25g": 1.0,
+     "imbalance/30g": 1.0,
+     "imbalance/6g": 1.0,
+     "normal/-": 1.0,
+     "overhang_ball/0g": 1.0,
+     "overhang_ball/20g": 1.0,
+     "overhang_ball/6g": 1.0,
+     "overhang_cage/0g": 1.0,
+     "overhang_cage/20g": 0.9615384615384616,
+     "overhang_cage/6g": 1.0,
+     "overhang_outer/0g": 1.0,
+     "overhang_outer/20g": 1.0,
+     "overhang_outer/6g": 1.0,
+     "underhang_ball/0g": 1.0,
+     "underhang_ball/20g": 1.0,
+     "underhang_ball/6g": 1.0,
+     "underhang_cage/0g": 1.0,
+     "underhang_cage/20g": 0.84,
+     "underhang_cage/6g": 0.9545454545454546,
+     "underhang_outer/0g": 1.0,
+     "underhang_outer/20g": 1.0,
+     "underhang_outer/6g": 1.0,
+     "vertical_misalignment/0.51mm": 1.0,
+     "vertical_misalignment/0.63mm": 0.92,
+     "vertical_misalignment/1.27mm": 1.0,
+     "vertical_misalignment/1.4mm": 1.0,
+     "vertical_misalignment/1.78mm": 1.0
+    }
+   }
+  },
+  "43": {
+   "models": {
+    "cnn7": {
+     "class10": {
+      "macro_f1": 0.9802546945983931,
+      "macro_f1_ci": [
+       0.9648465950364372,
+       0.993952280641569
+      ],
+      "balanced_accuracy": 0.9832348348348349,
+      "balanced_accuracy_ci": [
+       0.9694796496436873,
+       0.994557057057057
+      ],
+      "per_class_f1": {
+       "normal": 0.9615,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 1.0,
+       "vertical_misalignment": 0.9919,
+       "underhang_ball": 0.9872,
+       "underhang_cage": 0.964,
+       "underhang_outer": 0.9865,
+       "overhang_ball": 1.0,
+       "overhang_cage": 0.9388,
+       "overhang_outer": 0.9726
+      }
+     },
+     "class6": {
+      "macro_f1": 0.9884310559366014,
+      "macro_f1_ci": [
+       0.9735229089965151,
+       1.0
+      ],
+      "balanced_accuracy": 0.9935306934841819,
+      "balanced_accuracy_ci": [
+       0.9868806617734992,
+       1.0
+      ],
+      "per_class_f1": {
+       "normal": 0.9615,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 1.0,
+       "vertical_misalignment": 0.9919,
+       "underhang_bearing": 0.9887,
+       "overhang_bearing": 0.9884
+      }
+     }
+    },
+    "cnn6": {
+     "class10": {
+      "macro_f1": 0.9828696478722321,
+      "macro_f1_ci": [
+       0.9686005289670745,
+       0.9960422742435278
+      ],
+      "balanced_accuracy": 0.9859,
+      "balanced_accuracy_ci": [
+       0.9737797832089171,
+       0.9971014492753623
+      ],
+      "per_class_f1": {
+       "normal": 0.9615,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 1.0,
+       "vertical_misalignment": 0.9919,
+       "underhang_ball": 0.9872,
+       "underhang_cage": 0.9496,
+       "underhang_outer": 0.9932,
+       "overhang_ball": 1.0,
+       "overhang_cage": 0.9452,
+       "overhang_outer": 1.0
+      }
+     },
+     "class6": {
+      "macro_f1": 0.9861426465632666,
+      "macro_f1_ci": [
+       0.9703089250073978,
+       1.0
+      ],
+      "balanced_accuracy": 0.9912539981842308,
+      "balanced_accuracy_ci": [
+       0.9826628375893082,
+       1.0
+      ],
+      "per_class_f1": {
+       "normal": 0.9615,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 1.0,
+       "vertical_misalignment": 0.9919,
+       "underhang_bearing": 0.9819,
+       "overhang_bearing": 0.9815
+      }
+     }
+    }
+   },
+   "paired": {
+    "cnn7_minus_cnn6": {
+     "class10": {
+      "diff": -0.0026149532738389825,
+      "ci": [
+       -0.0119891496486945,
+       0.0028857645304106337
+      ],
+      "p_positive": 0.2785
+     },
+     "class6": {
+      "diff": 0.0022884093733348543,
+      "ci": [
+       0.0,
+       0.00524166584273509
+      ],
+      "p_positive": 0.9235
+     }
+    },
+    "cnn7_minus_logreg": {
+     "class10": {
+      "diff": 0.03132130791366006,
+      "ci": [
+       0.006717315976755492,
+       0.06303313695826068
+      ],
+      "p_positive": 0.9915
+     },
+     "class6": {
+      "diff": 0.008534421556931182,
+      "ci": [
+       -0.01280027697993007,
+       0.031641740722240304
+      ],
+      "p_positive": 0.7775
+     }
+    },
+    "cnn6_minus_logreg": {
+     "class10": {
+      "diff": 0.03393626118749904,
+      "ci": [
+       0.0058611467481925585,
+       0.06942983304826154
+      ],
+      "p_positive": 0.992
+     },
+     "class6": {
+      "diff": 0.006246012183596328,
+      "ci": [
+       -0.01424642563908272,
+       0.02761449705094972
+      ],
+      "p_positive": 0.727
+     }
+    }
+   },
+   "per_folder_accuracy": {
+    "cnn7": {
+     "horizontal_misalignment/0.5mm": 1.0,
+     "horizontal_misalignment/1.5mm": 1.0,
+     "horizontal_misalignment/1mm": 1.0,
+     "imbalance/10g": 1.0,
+     "imbalance/15g": 1.0,
+     "imbalance/20g": 1.0,
+     "imbalance/25g": 1.0,
+     "imbalance/30g": 1.0,
+     "imbalance/6g": 1.0,
+     "normal/-": 1.0,
+     "overhang_ball/0g": 1.0,
+     "overhang_ball/20g": 1.0,
+     "overhang_ball/6g": 1.0,
+     "overhang_cage/0g": 1.0,
+     "overhang_cage/20g": 0.8846153846153846,
+     "overhang_cage/6g": 1.0,
+     "overhang_outer/0g": 1.0,
+     "overhang_outer/20g": 0.8571428571428571,
+     "overhang_outer/6g": 1.0,
+     "underhang_ball/0g": 1.0,
+     "underhang_ball/20g": 1.0,
+     "underhang_ball/6g": 1.0,
+     "underhang_cage/0g": 1.0,
+     "underhang_cage/20g": 0.84,
+     "underhang_cage/6g": 0.9545454545454546,
+     "underhang_outer/0g": 1.0,
+     "underhang_outer/20g": 1.0,
+     "underhang_outer/6g": 1.0,
+     "vertical_misalignment/0.51mm": 1.0,
+     "vertical_misalignment/0.63mm": 0.92,
+     "vertical_misalignment/1.27mm": 1.0,
+     "vertical_misalignment/1.4mm": 1.0,
+     "vertical_misalignment/1.78mm": 1.0
+    },
+    "cnn6": {
+     "horizontal_misalignment/0.5mm": 1.0,
+     "horizontal_misalignment/1.5mm": 1.0,
+     "horizontal_misalignment/1mm": 1.0,
+     "imbalance/10g": 1.0,
+     "imbalance/15g": 1.0,
+     "imbalance/20g": 1.0,
+     "imbalance/25g": 1.0,
+     "imbalance/30g": 1.0,
+     "imbalance/6g": 1.0,
+     "normal/-": 1.0,
+     "overhang_ball/0g": 1.0,
+     "overhang_ball/20g": 1.0,
+     "overhang_ball/6g": 1.0,
+     "overhang_cage/0g": 1.0,
+     "overhang_cage/20g": 0.8846153846153846,
+     "overhang_cage/6g": 1.0,
+     "overhang_outer/0g": 1.0,
+     "overhang_outer/20g": 1.0,
+     "overhang_outer/6g": 1.0,
+     "underhang_ball/0g": 1.0,
+     "underhang_ball/20g": 1.0,
+     "underhang_ball/6g": 1.0,
+     "underhang_cage/0g": 1.0,
+     "underhang_cage/20g": 0.8,
+     "underhang_cage/6g": 0.9545454545454546,
+     "underhang_outer/0g": 1.0,
+     "underhang_outer/20g": 1.0,
+     "underhang_outer/6g": 1.0,
+     "vertical_misalignment/0.51mm": 1.0,
+     "vertical_misalignment/0.63mm": 0.92,
+     "vertical_misalignment/1.27mm": 1.0,
+     "vertical_misalignment/1.4mm": 1.0,
+     "vertical_misalignment/1.78mm": 1.0
+    }
+   }
+  },
+  "44": {
+   "models": {
+    "cnn7": {
+     "class10": {
+      "macro_f1": 0.9862166753319764,
+      "macro_f1_ci": [
+       0.9753275539156671,
+       0.9964112301641711
+      ],
+      "balanced_accuracy": 0.9887158295281582,
+      "balanced_accuracy_ci": [
+       0.9802829511504546,
+       0.9969854226768075
+      ],
+      "per_class_f1": {
+       "normal": 0.9615,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 0.9861,
+       "vertical_misalignment": 0.984,
+       "underhang_ball": 1.0,
+       "underhang_cage": 0.9714,
+       "underhang_outer": 0.9932,
+       "overhang_ball": 1.0,
+       "overhang_cage": 0.9726,
+       "overhang_outer": 0.9933
+      }
+     },
+     "class6": {
+      "macro_f1": 0.9863197408491041,
+      "macro_f1_ci": [
+       0.9704166017275189,
+       1.0
+      ],
+      "balanced_accuracy": 0.990514871035419,
+      "balanced_accuracy_ci": [
+       0.9792647580459641,
+       1.0
+      ],
+      "per_class_f1": {
+       "normal": 0.9615,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 0.9861,
+       "vertical_misalignment": 0.984,
+       "underhang_bearing": 0.9932,
+       "overhang_bearing": 0.9931
+      }
+     }
+    },
+    "cnn6": {
+     "class10": {
+      "macro_f1": 0.9944971345561987,
+      "macro_f1_ci": [
+       0.9892914986276027,
+       0.99868369777008
+      ],
+      "balanced_accuracy": 0.9944444444444445,
+      "balanced_accuracy_ci": [
+       0.9895299145299145,
+       0.9986666666666666
+      ],
+      "per_class_f1": {
+       "normal": 1.0,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 1.0,
+       "vertical_misalignment": 1.0,
+       "underhang_ball": 0.9935,
+       "underhang_cage": 0.979,
+       "underhang_outer": 0.9865,
+       "overhang_ball": 1.0,
+       "overhang_cage": 0.9859,
+       "overhang_outer": 1.0
+      }
+     },
+     "class6": {
+      "macro_f1": 0.9984737996451671,
+      "macro_f1_ci": [
+       0.9955142518053627,
+       1.0
+      ],
+      "balanced_accuracy": 0.9984496124031007,
+      "balanced_accuracy_ci": [
+       0.9955156950672647,
+       1.0
+      ],
+      "per_class_f1": {
+       "normal": 1.0,
+       "imbalance": 1.0,
+       "horizontal_misalignment": 1.0,
+       "vertical_misalignment": 1.0,
+       "underhang_bearing": 0.9955,
+       "overhang_bearing": 0.9953
+      }
+     }
+    }
+   },
+   "paired": {
+    "cnn7_minus_cnn6": {
+     "class10": {
+      "diff": -0.00828045922422227,
+      "ci": [
+       -0.019209977818528824,
+       0.0013610325974838804
+      ],
+      "p_positive": 0.0445
+     },
+     "class6": {
+      "diff": -0.012154058796063016,
+      "ci": [
+       -0.027873792572452323,
+       0.0015083326859416711
+      ],
+      "p_positive": 0.0365
+     }
+    },
+    "cnn7_minus_logreg": {
+     "class10": {
+      "diff": 0.037283288647243396,
+      "ci": [
+       0.0060409135451647755,
+       0.0765967027583474
+      ],
+      "p_positive": 0.9885
+     },
+     "class6": {
+      "diff": 0.006423106469433892,
+      "ci": [
+       -0.015068114719850189,
+       0.02954205989003411
+      ],
+      "p_positive": 0.72
+     }
+    },
+    "cnn6_minus_logreg": {
+     "class10": {
+      "diff": 0.045563747871465665,
+      "ci": [
+       0.013582152668558,
+       0.0849756686109632
+      ],
+      "p_positive": 0.998
+     },
+     "class6": {
+      "diff": 0.01857716526549691,
+      "ci": [
+       0.0007694340116018745,
+       0.0417707358243139
+      ],
+      "p_positive": 0.9815
+     }
+    }
+   },
+   "per_folder_accuracy": {
+    "cnn7": {
+     "horizontal_misalignment/0.5mm": 1.0,
+     "horizontal_misalignment/1.5mm": 0.9047619047619048,
+     "horizontal_misalignment/1mm": 1.0,
+     "imbalance/10g": 1.0,
+     "imbalance/15g": 1.0,
+     "imbalance/20g": 1.0,
+     "imbalance/25g": 1.0,
+     "imbalance/30g": 1.0,
+     "imbalance/6g": 1.0,
+     "normal/-": 1.0,
+     "overhang_ball/0g": 1.0,
+     "overhang_ball/20g": 1.0,
+     "overhang_ball/6g": 1.0,
+     "overhang_cage/0g": 1.0,
+     "overhang_cage/20g": 0.9615384615384616,
+     "overhang_cage/6g": 1.0,
+     "overhang_outer/0g": 1.0,
+     "overhang_outer/20g": 1.0,
+     "overhang_outer/6g": 1.0,
+     "underhang_ball/0g": 1.0,
+     "underhang_ball/20g": 1.0,
+     "underhang_ball/6g": 1.0,
+     "underhang_cage/0g": 1.0,
+     "underhang_cage/20g": 0.88,
+     "underhang_cage/6g": 0.9545454545454546,
+     "underhang_outer/0g": 1.0,
+     "underhang_outer/20g": 1.0,
+     "underhang_outer/6g": 1.0,
+     "vertical_misalignment/0.51mm": 1.0,
+     "vertical_misalignment/0.63mm": 0.92,
+     "vertical_misalignment/1.27mm": 1.0,
+     "vertical_misalignment/1.4mm": 1.0,
+     "vertical_misalignment/1.78mm": 1.0
+    },
+    "cnn6": {
+     "horizontal_misalignment/0.5mm": 1.0,
+     "horizontal_misalignment/1.5mm": 1.0,
+     "horizontal_misalignment/1mm": 1.0,
+     "imbalance/10g": 1.0,
+     "imbalance/15g": 1.0,
+     "imbalance/20g": 1.0,
+     "imbalance/25g": 1.0,
+     "imbalance/30g": 1.0,
+     "imbalance/6g": 1.0,
+     "normal/-": 1.0,
+     "overhang_ball/0g": 1.0,
+     "overhang_ball/20g": 1.0,
+     "overhang_ball/6g": 1.0,
+     "overhang_cage/0g": 1.0,
+     "overhang_cage/20g": 0.9230769230769231,
+     "overhang_cage/6g": 1.0,
+     "overhang_outer/0g": 1.0,
+     "overhang_outer/20g": 1.0,
+     "overhang_outer/6g": 1.0,
+     "underhang_ball/0g": 1.0,
+     "underhang_ball/20g": 1.0,
+     "underhang_ball/6g": 1.0,
+     "underhang_cage/0g": 1.0,
+     "underhang_cage/20g": 0.96,
+     "underhang_cage/6g": 0.9545454545454546,
+     "underhang_outer/0g": 1.0,
+     "underhang_outer/20g": 1.0,
+     "underhang_outer/6g": 1.0,
+     "vertical_misalignment/0.51mm": 1.0,
+     "vertical_misalignment/0.63mm": 1.0,
+     "vertical_misalignment/1.27mm": 1.0,
+     "vertical_misalignment/1.4mm": 1.0,
+     "vertical_misalignment/1.78mm": 1.0
+    }
+   }
+  }
+ },
+ "across_seeds": {
+  "cnn7_class10_macro_f1": {
+   "values": [
+    0.9802618835077446,
+    0.9802546945983931,
+    0.9862166753319764
+   ],
+   "mean": 0.9822444178127047,
+   "std": 0.0034400777999432715
+  },
+  "cnn7_class6_macro_f1": {
+   "values": [
+    0.9877512251774658,
+    0.9884310559366014,
+    0.9863197408491041
+   ],
+   "mean": 0.9875006739877238,
+   "std": 0.0010777266692832126
+  },
+  "cnn6_class10_macro_f1": {
+   "values": [
+    0.9894923011409288,
+    0.9828696478722321,
+    0.9944971345561987
+   ],
+   "mean": 0.9889530278564531,
+   "std": 0.005832471466108267
+  },
+  "cnn6_class6_macro_f1": {
+   "values": [
+    0.993352411900799,
+    0.9861426465632666,
+    0.9984737996451671
+   ],
+   "mean": 0.9926562860364109,
+   "std": 0.006194980023907998
+  },
+  "cnn7_minus_cnn6_class10_diff": {
+   "values": [
+    -0.009230417633184218,
+    -0.0026149532738389825,
+    -0.00828045922422227
+   ],
+   "mean": -0.00670861004374849,
+   "std": 0.003576887551637434,
+   "same_sign_all_seeds": true
+  },
+  "cnn7_minus_cnn6_class6_diff": {
+   "values": [
+    -0.005601186723333207,
+    0.0022884093733348543,
+    -0.012154058796063016
+   ],
+   "mean": -0.005155612048687123,
+   "std": 0.0072315367868131695,
+   "same_sign_all_seeds": false
+  },
+  "cnn7_minus_logreg_class10_diff": {
+   "values": [
+    0.03132849682301153,
+    0.03132130791366006,
+    0.037283288647243396
+   ],
+   "mean": 0.03331103112797166,
+   "std": 0.003440077799943272,
+   "same_sign_all_seeds": true
+  },
+  "cnn7_minus_logreg_class6_diff": {
+   "values": [
+    0.007854590797795602,
+    0.008534421556931182,
+    0.006423106469433892
+   ],
+   "mean": 0.007604039608053559,
+   "std": 0.0010777266692832126,
+   "same_sign_all_seeds": true
+  },
+  "cnn6_minus_logreg_class10_diff": {
+   "values": [
+    0.04055891445619575,
+    0.03393626118749904,
+    0.045563747871465665
+   ],
+   "mean": 0.040019641171720154,
+   "std": 0.005832471466108267,
+   "same_sign_all_seeds": true
+  },
+  "cnn6_minus_logreg_class6_diff": {
+   "values": [
+    0.013455777521128809,
+    0.006246012183596328,
+    0.01857716526549691
+   ],
+   "mean": 0.012759651656740681,
+   "std": 0.006194980023907997,
+   "same_sign_all_seeds": true
+  }
+ }
+}
