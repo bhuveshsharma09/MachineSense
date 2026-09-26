@@ -58,3 +58,20 @@ def test_block_permutation_moves_whole_recordings():
     # Every shuffled matrix keeps each recording's 9 windows together (constant column 0 within a block).
     for Xw in seen:
         assert (Xw[:, 0].reshape(n_rec, n_win).std(axis=1) == 0).all()
+
+
+def test_mixed_bootstrap_keeps_folders_whole():
+    from ml.evaluation import metrics_mixed, mixed_bootstrap_draws
+
+    classes = ["normal"] * 6 + ["imbalance"] * 9 + ["underhang_ball"] * 6
+    folders = ["normal/-"] * 6 + ["imb/a"] * 3 + ["imb/b"] * 3 + ["imb/c"] * 3 + ["ub/a"] * 3 + ["ub/b"] * 3
+    draws = mixed_bootstrap_draws(classes, folders, n_boot=50, seed=0)
+    folders = np.asarray(folders)
+    for d in draws:
+        fault = [i for i in d if classes[i] != "normal"]
+        # each drawn fault folder contributes all of its recordings (counts are multiples of the folder size, 3)
+        counts = pd.Series(folders[fault]).value_counts()
+        assert (counts % 3 == 0).all()
+        assert sum(1 for i in d if classes[i] == "normal") == 6  # normal resampled individually, same count
+    m = metrics_mixed(classes, classes, ["normal", "imbalance", "underhang_ball"], draws, folders)
+    assert m["macro_f1"] == 1.0 and m["per_folder_accuracy"]["imb/a"]["accuracy"] == 1.0
