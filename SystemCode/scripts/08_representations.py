@@ -246,14 +246,56 @@ def run_mic(meta, cfg, workers):
     print(verdict)
 
 
+def run_summary(meta, cfg, workers):
+    """Per candidate: would-be stacked shape (N windows × 7 × 128 × T: 6 accelerometer order-spectrograms + the
+    time-aligned microphone log-Mel), float16 size, projected full build time, cache-key inputs. Nothing is built."""
+    pre = cfg.preprocess
+    n_rec = len(meta)
+    n_win = n_rec * pre.window.n_windows
+    sharp = json.loads((OUT / "sharpness.json").read_text())
+    res = pd.read_csv(OUT / "resolution.csv")
+    out = {}
+    for name, cand in pre.spectro.candidates.items():
+        z = np.load(cache_file(f"08_subset_{name}", pre, ext="npz"), allow_pickle=True)
+        T = cand.frames_per_window
+        shape = [n_win, len(pre.spectro.channels) + 1, pre.spectro.n_orders, T]
+        per_rec = float(z["seconds"].mean())
+        syn = res[(res.candidate == name) & (res.source == "synthetic")].set_index("speed_hz")
+        out[name] = {
+            "settings": cand.model_dump(mode="json"),
+            "analysis_window_s": (cand.win_samples / pre.fs_hz) if cand.kind == "stft" else f"{cand.n_revs:g} revolutions = "
+                                 f"{cand.n_revs / 62:.3f}–{cand.n_revs / 11.8:.3f} s over 11.8–62 Hz",
+            "bin_spacing": (f"{pre.fs_hz / cand.win_samples:.2f} Hz = {pre.fs_hz / cand.win_samples / 12:.3f} orders at 12 Hz, "
+                            f"{pre.fs_hz / cand.win_samples / 30:.3f} at 30 Hz, {pre.fs_hz / cand.win_samples / 60:.3f} at 60 Hz")
+                           if cand.kind == "stft" else f"{1 / cand.n_revs:.3f} orders at every speed",
+            "T": T, "stacked_shape": shape,
+            "float16_bytes": int(np.prod(shape) * 2), "float16_gb": round(float(np.prod(shape) * 2 / 1e9), 3),
+            "seconds_per_recording_per_core": round(per_rec, 3),
+            "projected_full_build_min": round(n_rec * per_rec / workers / 60, 2), "workers": workers,
+            "fwhm_1x_orders_synthetic": {f"{k:g} Hz": round(float(v), 3) for k, v in syn["1x_fwhm_orders"].items()},
+            "separates_0p5x_1x_synthetic": {f"{k:g} Hz": bool(v) for k, v in syn["separated_0.5x_1x"].items()},
+            "speed_tercile_from_sharpness": sharp[name],
+            "cache_key_inputs": ["full preprocess config sha256 (cleaning: mic bursts, band-stop, 10 kHz low-pass; windows; "
+                                 "speed settings; spectro candidate settings, order axis, Mel settings)",
+                                 "representation version", "source recordings' npy_sha256 and supplied speed (fr_measured_hz)",
+                                 "track (shared)"],
+        }
+        print(f"{name}: shape {shape}, float16 {out[name]['float16_gb']} GB, {per_rec:.2f} s/recording/core → "
+              f"~{out[name]['projected_full_build_min']} min for {n_rec} recordings on {workers} workers")
+    (OUT / "candidates_summary.json").write_text(json.dumps({"n_recordings": n_rec, "n_windows": n_win,
+                                                             "preprocess_sha256": config_sha256(pre), "candidates": out},
+                                                            indent=1))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["subset", "resolution", "sharpness", "mic"])
+    ap.add_argument("task", choices=["subset", "resolution", "sharpness", "mic", "summary"])
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 4) - 2))
     args = ap.parse_args()
     cfg = load_config(DEFAULT_CONFIG)
     meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
-    {"subset": run_subset, "resolution": run_resolution, "sharpness": run_sharpness, "mic": run_mic}[args.task](
+    {"subset": run_subset, "resolution": run_resolution, "sharpness": run_sharpness, "mic": run_mic,
+     "summary": run_summary}[args.task](
         meta, cfg, args.workers)
     return 0
 

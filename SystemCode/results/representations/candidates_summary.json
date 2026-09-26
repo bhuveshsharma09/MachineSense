@@ -1,0 +1,157 @@
+{
+ "n_recordings": 1951,
+ "n_windows": 17559,
+ "preprocess_sha256": "d87f5c86efe4ec56178fe332c2d90ccaab3b9cf875d0dfd2b58fdfb6e9502947",
+ "candidates": {
+  "A_stft8192": {
+   "settings": {
+    "kind": "stft",
+    "frames_per_window": 25,
+    "window": "hann",
+    "win_samples": 8192,
+    "nfft": 16384,
+    "n_revs": 0.0,
+    "samples_per_rev": 0,
+    "zero_pad": 2,
+    "aa_orders": 0.0,
+    "aa_atten_db": 60.0
+   },
+   "analysis_window_s": 0.16384,
+   "bin_spacing": "6.10 Hz = 0.509 orders at 12 Hz, 0.203 at 30 Hz, 0.102 at 60 Hz",
+   "T": 25,
+   "stacked_shape": [
+    17559,
+    7,
+    128,
+    25
+   ],
+   "float16_bytes": 786643200,
+   "float16_gb": 0.787,
+   "seconds_per_recording_per_core": 0.358,
+   "projected_full_build_min": 0.97,
+   "workers": 12,
+   "fwhm_1x_orders_synthetic": {
+    "12 Hz": 0.905,
+    "30 Hz": 0.265,
+    "60 Hz": 0.135
+   },
+   "separates_0p5x_1x_synthetic": {
+    "12 Hz": false,
+    "30 Hz": true,
+    "60 Hz": true
+   },
+   "speed_tercile_from_sharpness": {
+    "macro_f1": 0.942645698427382,
+    "perm_mean": 0.3376808079538102,
+    "perm_p95": 0.4424812987866959,
+    "n_recordings": 70
+   },
+   "cache_key_inputs": [
+    "full preprocess config sha256 (cleaning: mic bursts, band-stop, 10 kHz low-pass; windows; speed settings; spectro candidate settings, order axis, Mel settings)",
+    "representation version",
+    "source recordings' npy_sha256 and supplied speed (fr_measured_hz)",
+    "track (shared)"
+   ]
+  },
+  "B_stft32768": {
+   "settings": {
+    "kind": "stft",
+    "frames_per_window": 10,
+    "window": "hann",
+    "win_samples": 32768,
+    "nfft": 65536,
+    "n_revs": 0.0,
+    "samples_per_rev": 0,
+    "zero_pad": 2,
+    "aa_orders": 0.0,
+    "aa_atten_db": 60.0
+   },
+   "analysis_window_s": 0.65536,
+   "bin_spacing": "1.53 Hz = 0.127 orders at 12 Hz, 0.051 at 30 Hz, 0.025 at 60 Hz",
+   "T": 10,
+   "stacked_shape": [
+    17559,
+    7,
+    128,
+    10
+   ],
+   "float16_bytes": 314657280,
+   "float16_gb": 0.315,
+   "seconds_per_recording_per_core": 0.576,
+   "projected_full_build_min": 1.56,
+   "workers": 12,
+   "fwhm_1x_orders_synthetic": {
+    "12 Hz": 0.135,
+    "30 Hz": 0.045,
+    "60 Hz": 0.045
+   },
+   "separates_0p5x_1x_synthetic": {
+    "12 Hz": true,
+    "30 Hz": true,
+    "60 Hz": true
+   },
+   "speed_tercile_from_sharpness": {
+    "macro_f1": 0.7606729341909947,
+    "perm_mean": 0.3091009163575168,
+    "perm_p95": 0.3858754208754208,
+    "n_recordings": 70
+   },
+   "cache_key_inputs": [
+    "full preprocess config sha256 (cleaning: mic bursts, band-stop, 10 kHz low-pass; windows; speed settings; spectro candidate settings, order axis, Mel settings)",
+    "representation version",
+    "source recordings' npy_sha256 and supplied speed (fr_measured_hz)",
+    "track (shared)"
+   ]
+  },
+  "C_order8rev": {
+   "settings": {
+    "kind": "order",
+    "frames_per_window": 25,
+    "window": "hann",
+    "win_samples": 0,
+    "nfft": 0,
+    "n_revs": 8.0,
+    "samples_per_rev": 512,
+    "zero_pad": 2,
+    "aa_orders": 205.0,
+    "aa_atten_db": 60.0
+   },
+   "analysis_window_s": "8 revolutions = 0.129\u20130.678 s over 11.8\u201362 Hz",
+   "bin_spacing": "0.125 orders at every speed",
+   "T": 25,
+   "stacked_shape": [
+    17559,
+    7,
+    128,
+    25
+   ],
+   "float16_bytes": 786643200,
+   "float16_gb": 0.787,
+   "seconds_per_recording_per_core": 1.184,
+   "projected_full_build_min": 3.21,
+   "workers": 12,
+   "fwhm_1x_orders_synthetic": {
+    "12 Hz": 0.135,
+    "30 Hz": 0.135,
+    "60 Hz": 0.135
+   },
+   "separates_0p5x_1x_synthetic": {
+    "12 Hz": true,
+    "30 Hz": true,
+    "60 Hz": true
+   },
+   "speed_tercile_from_sharpness": {
+    "macro_f1": 0.6682390557770498,
+    "perm_mean": 0.3155044042315365,
+    "perm_p95": 0.3886852451433858,
+    "n_recordings": 70
+   },
+   "cache_key_inputs": [
+    "full preprocess config sha256 (cleaning: mic bursts, band-stop, 10 kHz low-pass; windows; speed settings; spectro candidate settings, order axis, Mel settings)",
+    "representation version",
+    "source recordings' npy_sha256 and supplied speed (fr_measured_hz)",
+    "track (shared)"
+   ]
+  }
+ }
+}
