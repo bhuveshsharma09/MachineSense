@@ -39,6 +39,20 @@ class BearingRatios(_Strict):
     ftf: float = 0.375
 
 
+class SpeedConfig(_Strict):
+    """Shaft-speed estimation (ml.preprocess.estimate_speed)."""
+
+    hyst_low: float = 0.3  # hysteresis thresholds as fractions between tacho low (p10) and high (p99) levels
+    hyst_high: float = 0.7
+    min_interval_ratio: float = 0.5  # pulse intervals shorter than this × median are double triggers
+    search_halfwidth: float = 0.05  # search ±5 % around fr_file_hz × measured_speed_ratio
+    radial_channel: int = 2  # underhang radial accelerometer for the harmonic comb
+    comb_harmonics: int = 10
+    fft_zero_pad: int = 8  # zero-padding factor: 0.2 Hz bins at 5 s → 0.025 Hz
+    min_peak_ratio: float = 10.0  # tacho FFT peak must exceed the median magnitude over 0.5–1.5 × speed by this factor
+    disagree_tol: float = 0.01  # flag when methods differ by more than 1 %
+
+
 class PreprocessConfig(_Strict):
     """Signal facts and preprocessing settings; its sha256 names every derived cache."""
 
@@ -54,6 +68,7 @@ class PreprocessConfig(_Strict):
     # Measured shaft speed ≈ nominal (file name) × this; used to centre speed searches.
     measured_speed_ratio: float = 0.977
     bearing: BearingRatios = Field(default_factory=BearingRatios)
+    speed: SpeedConfig = Field(default_factory=SpeedConfig)
     expected_class_counts: dict[str, int] = Field(default_factory=lambda: dict(EXPECTED_CLASS_COUNTS))
     expected_total_files: int = EXPECTED_TOTAL_FILES
 
