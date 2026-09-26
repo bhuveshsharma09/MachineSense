@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 from ml.config import PreprocessConfig
-from ml.preprocess import estimate_speed
+from ml.preprocess import choose_speed, estimate_speed, tacho_glitch_count
 
 CFG = PreprocessConfig()
 FS = CFG.fs_hz
@@ -12,9 +12,10 @@ FR_FILE = 30.72
 FR_TRUE = FR_FILE * 0.9765  # a little off the nominal ratio, as in real files
 
 
-def _recording(fr=FR_TRUE, *, double=False, drop=(), noise=0.0, seed=0):
+def _recording(fr=FR_TRUE, *, double=False, drop=(), displace=(), noise=0.0, seed=0):
     """8-channel recording: square once-per-rev tacho (12 % duty, −0.7 → 4.6 V) and a radial accelerometer
-    carrying shaft harmonics. `drop` lists pulse numbers to remove; `double` adds a bounce after each edge."""
+    carrying shaft harmonics. `drop` lists pulse numbers to remove; `displace` lists pulses shifted 40 % of a
+    revolution late (the real MAFAULDA glitch); `double` adds a bounce after each edge."""
     rng = np.random.default_rng(seed)
     t = np.arange(N) / FS
     phase = (t * fr) % 1.0
@@ -22,6 +23,9 @@ def _recording(fr=FR_TRUE, *, double=False, drop=(), noise=0.0, seed=0):
     rev = np.floor(t * fr).astype(int)
     for k in drop:
         high &= rev != k
+    for k in displace:
+        high &= rev != k
+        high |= (rev == k) & (phase >= 0.4) & (phase < 0.52)
     tacho = np.where(high, 4.6, -0.7)
     if double:
         # 0.5 ms after each edge the pulse falls back low for 0.2 ms, then re-triggers.
@@ -47,8 +51,9 @@ def _rel_err(est):
     {"double": True},
     {"drop": (10, 50, 51, 90)},
     {"noise": 0.4},
-    {"double": True, "drop": (20,), "noise": 0.3},
-], ids=["clean", "double_triggered", "dropped_pulses", "noisy_baseline", "all_three"])
+    {"displace": (15, 40, 41, 100)},
+    {"double": True, "drop": (20,), "displace": (60,), "noise": 0.3},
+], ids=["clean", "double_triggered", "dropped_pulses", "noisy_baseline", "displaced_pulses", "all_combined"])
 def test_tacho_edges_recover_speed(kwargs):
     est = estimate_speed(_recording(**kwargs), FR_FILE, CFG)
     assert est.method == "tacho_edges"
@@ -73,3 +78,20 @@ def test_dead_tacho_falls_back_to_accelerometer():
 def test_never_raises(bad):
     est = estimate_speed(bad, FR_FILE, CFG)
     assert est.method == "failed" or np.isfinite(est.fr_hz)
+
+
+def test_glitch_count():
+    assert tacho_glitch_count(_recording()[:, 0], CFG) == 0
+    # Each displaced pulse turns two intervals into one short and one long.
+    assert tacho_glitch_count(_recording(displace=(15, 70))[:, 0], CFG) == 4
+
+
+def test_choice_rule_prefers_confirmed_pair_over_unconfirmed_edges():
+    # Edges off by 0.9 % (a missed glitch); FFT and comb agree within 0.05 %.
+    est = choose_speed({"tacho_edges": 29.73, "tacho_fft": 30.00, "accel_comb": 30.01}, FR_FILE, CFG)
+    assert est.method == "tacho_fft" and est.fr_hz == 30.00
+
+
+def test_choice_rule_median_when_nothing_confirms():
+    est = choose_speed({"tacho_edges": 29.9, "tacho_fft": 30.0, "accel_comb": 29.5}, FR_FILE, CFG)
+    assert est.method == "tacho_edges" and est.agreement > CFG.speed.confirm_tol

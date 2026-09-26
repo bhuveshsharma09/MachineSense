@@ -32,16 +32,22 @@ def _expected_band(fr_file_hz: float, cfg: PreprocessConfig) -> tuple[float, flo
     return centre, centre * (1 - hw), centre * (1 + hw)
 
 
-def tacho_edges_speed(tacho: np.ndarray, fs: float, cfg: PreprocessConfig) -> float:
-    """Speed (Hz) from rising edges of the once-per-rev pulse, with hysteresis and double-trigger rejection.
+class TachoIntervals(NamedTuple):
+    intervals: np.ndarray  # samples between kept rising edges
+    revs: np.ndarray  # revolutions per interval (1, or more across dropped pulses)
+    good: np.ndarray  # bool: interval length per revolution within tolerance of the median period
 
-    Dropped pulses are handled by counting each interval as round(interval / median) revolutions.
-    Returns NaN if the pulse train is unusable.
+
+def tacho_intervals(tacho: np.ndarray, cfg: PreprocessConfig) -> TachoIntervals | None:
+    """Rising-edge intervals of the once-per-rev pulse, with hysteresis and double-trigger rejection.
+
+    Dropped pulses count as round(interval / median) revolutions. Glitches (a displaced pulse splits one
+    revolution pair into a short and a long interval) are marked not-good. None if there is no pulse train.
     """
     lo_level, hi_level = np.percentile(tacho, [10, 99])
     span = hi_level - lo_level
     if not np.isfinite(span) or span <= 0:
-        return float("nan")
+        return None
     lo = lo_level + cfg.speed.hyst_low * span
     hi = lo_level + cfg.speed.hyst_high * span
 
@@ -54,7 +60,7 @@ def tacho_edges_speed(tacho: np.ndarray, fs: float, cfg: PreprocessConfig) -> fl
     state = mark[held]
     edges = np.flatnonzero((state[1:] == 1) & (state[:-1] == 0)) + 1
     if edges.size < 4:
-        return float("nan")
+        return None
 
     # Reject double triggers: an edge closer than min_interval_ratio × median to the last kept edge.
     for _ in range(2):  # second pass uses the median of the cleaned intervals
@@ -65,16 +71,28 @@ def tacho_edges_speed(tacho: np.ndarray, fs: float, cfg: PreprocessConfig) -> fl
                 keep.append(e)
         edges = np.asarray(keep)
         if edges.size < 4:
-            return float("nan")
+            return None
 
     intervals = np.diff(edges)
     period = np.median(intervals)
     revs = np.maximum(np.rint(intervals / period), 1)
-    # Interval lengths per revolution should be consistent; otherwise the pulse train is garbage.
-    per_rev = intervals / revs
-    if np.std(per_rev) / np.mean(per_rev) > 0.05:
+    good = np.abs(intervals / revs / period - 1) <= cfg.speed.interval_tol
+    return TachoIntervals(intervals, revs, good)
+
+
+def tacho_edges_speed(tacho: np.ndarray, fs: float, cfg: PreprocessConfig) -> float:
+    """Speed (Hz) from the good tacho intervals only, so glitched revolutions are corrected, not averaged in.
+    NaN if there is no pulse train or fewer than min_good_fraction of intervals are good."""
+    ti = tacho_intervals(tacho, cfg)
+    if ti is None or ti.good.mean() < cfg.speed.min_good_fraction:
         return float("nan")
-    return float(fs * revs.sum() / (edges[-1] - edges[0]))
+    return float(fs * ti.revs[ti.good].sum() / ti.intervals[ti.good].sum())
+
+
+def tacho_glitch_count(tacho: np.ndarray, cfg: PreprocessConfig) -> int:
+    """Number of glitched tacho intervals (−1 if there is no usable pulse train). A quality flag only."""
+    ti = tacho_intervals(tacho, cfg)
+    return -1 if ti is None else int((~ti.good).sum())
 
 
 def _peak_interp(mag: np.ndarray, i: int) -> float:
@@ -140,8 +158,9 @@ def speed_candidates(x: np.ndarray, fr_file_hz: float, cfg: PreprocessConfig) ->
 
 
 def choose_speed(cands: dict[str, float], fr_file_hz: float, cfg: PreprocessConfig) -> SpeedEstimate:
-    """Pick the winning estimate: tacho edges if another method confirms it, else the two that agree,
-    else the accelerometer comb. Estimates outside the search band are treated as failed."""
+    """Pick the winning estimate: tacho edges if another method confirms it (within confirm_tol), else the
+    tacho FFT if the comb confirms it, else the median of three, else the most precise valid sensor.
+    Estimates outside the search band are treated as failed."""
     _, f_lo, f_hi = _expected_band(fr_file_hz, cfg)
     valid = {k: v for k, v in cands.items() if np.isfinite(v) and f_lo <= v <= f_hi}
     if not valid:
@@ -149,7 +168,7 @@ def choose_speed(cands: dict[str, float], fr_file_hz: float, cfg: PreprocessConf
 
     vals = list(valid.values())
     agreement = (max(vals) - min(vals)) / np.median(vals) if len(vals) >= 2 else float("nan")
-    tol = cfg.speed.disagree_tol
+    tol = cfg.speed.confirm_tol
 
     def agree(a: str, b: str) -> bool:
         return a in valid and b in valid and abs(valid[a] - valid[b]) / valid[b] <= tol
@@ -158,7 +177,10 @@ def choose_speed(cands: dict[str, float], fr_file_hz: float, cfg: PreprocessConf
         return SpeedEstimate(valid["tacho_edges"], "tacho_edges", float(agreement))
     if agree("tacho_fft", "accel_comb"):
         return SpeedEstimate(valid["tacho_fft"], "tacho_fft", float(agreement))
-    for method in ("accel_comb", "tacho_edges", "tacho_fft"):
+    if len(valid) == 3:  # nobody confirms anybody: take the median estimate
+        method = sorted(valid, key=valid.get)[1]
+        return SpeedEstimate(valid[method], method, float(agreement))
+    for method in ("tacho_edges", "tacho_fft", "accel_comb"):  # tacho is the more precise sensor
         if method in valid:
             return SpeedEstimate(valid[method], method, float(agreement))
     raise AssertionError("unreachable")
@@ -171,3 +193,48 @@ def estimate_speed(x: np.ndarray, fr_file_hz: float, cfg: PreprocessConfig | Non
         return choose_speed(speed_candidates(x, fr_file_hz, cfg), fr_file_hz, cfg)
     except Exception:  # noqa: BLE001
         return SpeedEstimate(float("nan"), "failed", float("nan"))
+
+
+# ----------------------------------------------------------------------------- quality
+def quality_stats(x: np.ndarray, channels: tuple[str, ...]) -> dict[str, float]:
+    """Per-recording quality numbers (no decisions): shape, NaNs, and per channel the DC offset, the number of
+    samples sitting exactly on the channel's max/min (rail count, a clipping signature) and the largest robust
+    z-score |x − median| / (1.4826 · MAD) (a spike signature)."""
+    out: dict[str, float] = {"n_rows": x.shape[0], "n_cols": x.shape[1] if x.ndim == 2 else 0,
+                             "nan_count": int(np.isnan(x).sum())}
+    for i, ch in enumerate(channels[: out["n_cols"]]):
+        v = x[:, i]
+        v = v[np.isfinite(v)]
+        if v.size == 0:
+            out[f"dc_{ch}"] = out[f"rail_{ch}"] = out[f"peakz_{ch}"] = float("nan")
+            continue
+        med = np.median(v)
+        mad = 1.4826 * np.median(np.abs(v - med))
+        out[f"dc_{ch}"] = float(v.mean())
+        out[f"rail_{ch}"] = int((v == v.max()).sum() + (v == v.min()).sum())
+        out[f"peakz_{ch}"] = float(np.abs(v - med).max() / mad) if mad > 0 else float("inf")
+    return out
+
+
+def quality_flags(row: dict, cfg: PreprocessConfig) -> list[str]:
+    """Flags from an index row (quality_stats + speed columns); thresholds in cfg.quality. Audit only."""
+    q = cfg.quality
+    flags: list[str] = []
+    if row.get("n_rows") != cfg.n_rows or row.get("n_cols") != cfg.n_channels:
+        flags.append("shape")
+    if row.get("nan_count", 0) > 0:
+        flags.append("nan")
+    if row.get("speed_method") == "failed":
+        flags.append("speed_failed")
+    if row.get("tacho_glitches", 0) != 0:
+        flags.append("tacho_glitch")
+    if row.get("speed_agreement", 0) > cfg.speed.disagree_tol:
+        flags.append("speed_disagree")
+    for ch in cfg.channels[1:]:  # the tacho is a square wave: rails and big z-scores are normal there
+        if row.get(f"rail_{ch}", 0) >= q.rail_min:
+            flags.append(f"clip_{ch}")
+        if row.get(f"peakz_{ch}", 0) > q.spike_z:
+            flags.append(f"spike_{ch}")
+        if abs(row.get(f"dc_{ch}", 0)) > q.dc_abs:
+            flags.append(f"dc_{ch}")
+    return flags

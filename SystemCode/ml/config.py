@@ -45,12 +45,23 @@ class SpeedConfig(_Strict):
     hyst_low: float = 0.3  # hysteresis thresholds as fractions between tacho low (p10) and high (p99) levels
     hyst_high: float = 0.7
     min_interval_ratio: float = 0.5  # pulse intervals shorter than this × median are double triggers
+    interval_tol: float = 0.05  # an interval (per revolution) this far from the median period is a glitch
+    min_good_fraction: float = 0.8  # tacho edges are unusable if fewer intervals than this are clean
     search_halfwidth: float = 0.05  # search ±5 % around fr_file_hz × measured_speed_ratio
     radial_channel: int = 2  # underhang radial accelerometer for the harmonic comb
     comb_harmonics: int = 10
     fft_zero_pad: int = 8  # zero-padding factor: 0.2 Hz bins at 5 s → 0.025 Hz
     min_peak_ratio: float = 10.0  # tacho FFT peak must exceed the median magnitude over 0.5–1.5 × speed by this factor
+    confirm_tol: float = 0.002  # two methods confirm each other within 0.2 % (typical agreement is < 0.05 %)
     disagree_tol: float = 0.01  # flag when methods differ by more than 1 %
+
+
+class QualityConfig(_Strict):
+    """Thresholds that turn quality numbers into flags. Flags are for auditing only, never model inputs."""
+
+    rail_min: int = 10  # samples exactly at a channel's max/min; a clean channel has ~2
+    spike_z: float = 100.0  # robust z-score of the largest sample; accelerometers stay below ~50
+    dc_abs: float = 0.2  # |mean| in channel units
 
 
 class PreprocessConfig(_Strict):
@@ -69,6 +80,7 @@ class PreprocessConfig(_Strict):
     measured_speed_ratio: float = 0.977
     bearing: BearingRatios = Field(default_factory=BearingRatios)
     speed: SpeedConfig = Field(default_factory=SpeedConfig)
+    quality: QualityConfig = Field(default_factory=QualityConfig)
     expected_class_counts: dict[str, int] = Field(default_factory=lambda: dict(EXPECTED_CLASS_COUNTS))
     expected_total_files: int = EXPECTED_TOTAL_FILES
 
