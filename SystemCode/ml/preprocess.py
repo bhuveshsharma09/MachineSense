@@ -33,6 +33,7 @@ def _expected_band(fr_file_hz: float, cfg: PreprocessConfig) -> tuple[float, flo
 
 
 class TachoIntervals(NamedTuple):
+    edges: np.ndarray  # sample index of each kept rising edge
     intervals: np.ndarray  # samples between kept rising edges
     revs: np.ndarray  # revolutions per interval (1, or more across dropped pulses)
     good: np.ndarray  # bool: interval length per revolution within tolerance of the median period
@@ -77,7 +78,7 @@ def tacho_intervals(tacho: np.ndarray, cfg: PreprocessConfig) -> TachoIntervals 
     period = np.median(intervals)
     revs = np.maximum(np.rint(intervals / period), 1)
     good = np.abs(intervals / revs / period - 1) <= cfg.speed.interval_tol
-    return TachoIntervals(intervals, revs, good)
+    return TachoIntervals(edges, intervals, revs, good)
 
 
 def tacho_edges_speed(tacho: np.ndarray, fs: float, cfg: PreprocessConfig) -> float:
