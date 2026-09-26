@@ -52,7 +52,7 @@ def q1_figures(q1: dict) -> str:
         ax.text(i, 0.505, f"{v:.3f}", ha="center", fontsize=7, color="w")
     ax.set_xticks(range(len(cls)), cls, rotation=35, ha="right", fontsize=8)
     ax.set(ylim=(0.5, 1.01), ylabel="AUROC, held-out healthy vs class")
-    ax.set_title(f"Q1 {best}: per-class AUROC, mean of 3 dev folds (bars: fold min–max). Overall "
+    ax.set_title(f"Development finding. Q1 {best}: per-class AUROC, mean of 3 dev folds (bars: fold min–max). Overall "
                  f"{a['auroc_fold_mean']['overall']:.3f} ± {a['auroc_fold_std']['overall']:.3f}. "
                  f"Healthy: 25 recordings, one folder", fontsize=8)
     _save(fig, "q1_auroc_best_rung.png")
@@ -92,7 +92,7 @@ def q1_figures(q1: dict) -> str:
                label=f"{lab}: {s['false_alarms_total']}/{n_h} false alarms")
     ax.set_xticks(x, [f"{k}\n(n={a['detection_mildest'][k]['n']})" for k in mild], rotation=30, ha="right", fontsize=7)
     ax.set(ylim=(0, 1.3), ylabel="detection rate at the calibrated threshold")
-    ax.set_title("Q1 mildest severity per fault class (dev pool; thresholds from separate calibration healthy)",
+    ax.set_title("Development finding. Q1 mildest severity per fault class (dev pool; thresholds from separate calibration healthy)",
                  fontsize=8)
     ax.legend(fontsize=7, loc="upper center", ncol=len(series))
     _save(fig, "q1_mildest_detection.png")
@@ -112,7 +112,7 @@ def q3_figures(q3: dict) -> None:
     ax.axhline(0.5, color="k", lw=0.6, ls=":")
     ax.set_xticks(x, idx, rotation=35, ha="right", fontsize=8)
     ax.set(ylim=(0, 1.3), ylabel="AUROC, fold-k known vs withheld class")
-    ax.set_title("Q3 unknown-fault detection, LOCO over 9 fault classes (logistic regression; mean ± std over 3 dev "
+    ax.set_title("Development finding. Q3 unknown-fault detection, LOCO over 9 fault classes (logistic regression; mean ± std over 3 dev "
                  "folds)", fontsize=8)
     ax.legend(fontsize=7, loc="upper center", ncol=3)
     _save(fig, "q3_loco_auroc.png")
@@ -123,11 +123,12 @@ def q3_figures(q3: dict) -> None:
     for i, (col, lab, colr) in enumerate([
             ("fu_seen_known_faults_macro", f"(a) false unknown, seen-folder known faults (mean {s['fu_seen_known_faults_macro_mean']:.2f})", "#8c8c8c"),
             ("fu_unseen_known_faults_macro", f"(b) false unknown, unseen-folder known faults (mean {s['fu_unseen_known_faults_macro_mean']:.2f})", "#dd8452"),
-            ("unknown_recall", f"(c) withheld class flagged unknown (mean {s['unknown_recall_class_mean_std'][0]:.2f})", "#4c72b0")]):
+            ("unknown_recall", f"(c) withheld class flagged unknown (macro over withheld classes {s['unknown_recall_class_mean_std'][0]:.2f}; "
+             f"all withheld recordings {1 - s['withheld_faults_passing_as_known']:.2f})", "#4c72b0")]):
         ax.bar(x + (i - 1) * 0.27, p[col], width=0.27, color=colr, label=lab)
     ax.set_xticks(x, idx, rotation=35, ha="right", fontsize=8)
     ax.set(ylim=(0, 1.3), ylabel="rate at the 95 % calibration threshold (MSP)")
-    ax.set_title("Q3 folder control: known faults from unseen folders are flagged 'unknown' far more often than from "
+    ax.set_title("Development finding. Q3 folder control: known faults from unseen folders are flagged 'unknown' far more often than from "
                  "seen folders", fontsize=8)
     ax.legend(fontsize=7, loc="upper center", ncol=2)
     _save(fig, "q3_folder_control.png")

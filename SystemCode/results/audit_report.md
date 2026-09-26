@@ -363,11 +363,13 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
 - Protocol comparison (not a leakage estimate; training sizes matched exactly): window-level macro-F1 1.000
   window-random, 0.984 recording-grouped, 0.878 folder-grouped.
 
-### Plan notes (planned controls, not yet implemented; also in CLAUDE.md §7b)
-- **Q1:** detection rate at the mildest severities; with vs without the microphone.
+### Plan notes (also in CLAUDE.md §7b; status updated in Stage 3A)
+- **Q1:** detection rate at the mildest severities; with vs without the microphone. **Done** on development data
+  (Stage 2D.1, below).
 - **Q2:** the `split_severity` test is the main severity-extrapolation result across held-out folder proxies,
   evaluated once at the end.
-- **Q3:** false-unknown rate on known classes at held-out severities.
+- **Q3:** false-unknown rate on known classes at held-out severities. Covered on **development data** by control (b)
+  (unseen-folder known faults, Stage 2D.1); the `split_severity` test stays sealed.
 
 ### Decisions and facts of 27 Sep 2026 (Stage 2C-2/2D)
 - **Representation:** candidate C (order-domain resampling, 8 rev × 512 samples/rev, Kaiser anti-alias at 205 × speed,
@@ -395,10 +397,12 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   were also scored by averaging over fold models. The corrected protocol (Stage 2D.1, CLAUDE.md §5 rule 13) replaces
   them; see the Q1/Q3 summary below.
 - **One-class SVM:** limited useful separation (saturated scores).
-- **Energy score:** its inversion for withheld overhang ball (AUROC 0.048) is a **reported failure**; its direction is
-  fixed and must not be reversed after inspecting the withheld class.
+- **Energy score:** its inversion for withheld overhang ball is a **reported failure**; its direction is fixed and must
+  not be reversed after inspecting the withheld class. The value 0.048 (averaged-fold protocol) is **superseded** by
+  0.073 under the corrected protocol (Stage 2D.1).
 
 ### Q1 and Q3 in plain language, corrected protocol (Stage 2D.1, 27 Sep 2026)
+All numbers in this section are **development findings** on the development pool, **not reserved-test results**.
 Development pool and `dev_folds.csv` only (3 folder-grouped folds); every evaluated recording is scored once, by its own
 fold's model; thresholds come from separate calibration recordings; fold-mean metrics are the primary summaries.
 Outputs: `results/q1q3/q1_corrected.json`, `q3_corrected.json`, `q3_per_class_*.csv`; figures in `results/figures/q1_*`
@@ -406,17 +410,21 @@ and `q3_*`.
 
 **Q1: can a detector trained only on healthy recordings tell faults apart?** Mostly yes, on this data. The best
 detector (speed-aware polynomial baseline, B1s) ranks faults above healthy with AUROC 0.990 ± 0.013 over the three
-folds (worst fold 0.971); eight of nine detectors lie between 0.978 and 0.990, the simple rules (B0) at 0.912. The
+folds (worst fold 0.971). This AUROC describes separation between healthy and fault scores; it is not accuracy and
+does not imply reliable alarm settings. Eight of nine detectors lie between 0.978 and 0.990, the simple rules (B0) at 0.912. The
 hardest classes are horizontal misalignment (0.956) and overhang outer race (0.965). At a threshold set to the largest
 calibration healthy score (6, 6 and 5 calibration recordings per fold), B1s raised 5 false alarms on 25 held-out
 healthy recordings (approximate 95 % interval 7–41 %) and detected every fault recording, including every mildest
-severity. Without the microphone: AUROC 0.992 ± 0.009, 6/25 false alarms, all faults detected. The simple rules miss
+severity. Without the microphone: AUROC 0.992 ± 0.009, 6/25 false alarms, all faults detected. Q1 separation remains
+strong without the microphone; this supports vibration as useful evidence here, not that the microphone is unnecessary
+for the whole project. The simple rules miss
 most mild imbalance (6 g: 35 %) and mild horizontal misalignment (0.5 mm: 20 %).
 
 **Q3: does a classifier notice a fault type it was never trained on?** Partly. With logistic regression and the
 maximum class probability (MSP, primary score), a withheld fault type is ranked above known faults with AUROC
 0.842 ± 0.080 over the nine classes (fold values 0.51–0.97); OSCR 0.828 ± 0.078. At the 95 % calibration threshold,
-73 % of withheld-fault recordings are flagged unknown, so **30 % of withheld faults pass as a known class**. Imbalance
+unknown recall is **73 % as the macro average across withheld fault classes** and **70 % as the rate across all withheld
+recordings**; so **30 % of all withheld recordings pass as a known class**. Imbalance
 is hardest (recall 33 %, AUROC 0.66).
 
 **Folder control.** Known-fault recordings from folders the model saw in training are wrongly flagged unknown 4 % of
@@ -431,8 +439,8 @@ overhang ball (AUROC 0.085 and 0.073; none flagged): the classifier is more conf
 known ones. Directions were fixed before running and were not changed.
 
 **Caveats.** The healthy sample is small (25 recordings, one folder, three folds): a single false alarm moves the
-rate by 4 points, and measured acceptance (0.72–0.88 across detectors) differs from the ≈ 0.85 the threshold rule
-implies. Q3 calibration sets hold 71–83 recordings (attainable acceptance 0.950–0.962). Folders are proxies for sessions.
+rate by 4 points. About 0.85 acceptance is a theoretical reference under exchangeability; the measured acceptance for the
+leading detector (B1s) was 0.80 (5/25 false alarms), and 0.72–0.88 across detectors. Q3 calibration sets hold 71–83 recordings (attainable acceptance 0.950–0.962). Folders are proxies for sessions.
 These are classical development baselines, not final results.
 
 ## 10. Open items and unresolved observations

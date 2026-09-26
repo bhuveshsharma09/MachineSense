@@ -267,29 +267,43 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage 2D.1 — corrected Q1/Q3 protocol and context-aware normalisation
+## 7. Current stage: Stage 3A — scratch 2D CNN (early fusion) on cache C, Q2 development evaluation
 
-Candidate C and its cache are kept; no representation work, no new features. Models: refits of the existing detectors
-and logistic regression only. Development pool and `results/dev_folds.csv` only; reserved tests sealed; LOCO rule unchanged.
-Principles: rule 13 in §5 and `ml/protocol.py`.
+Dev pool and `results/dev_folds.csv` only (K = 3 outer folds, each pool recording scored once by its own fold's model);
+reserved tests sealed; the training process never imports LightGBM. Not in this stage: autoencoder, LOCO, arbitrator,
+ResNet, late fusion.
 
-0. Wording fixes (speed check, calibration vs generalisation rates, one-class SVM, energy failure).
-1. Q1 corrected: per outer fold, fit/calibration split of the outer-training normals (2:1, speed-stratified), threshold =
-   maximum calibration score, evaluation on fold k only; per-fold AUROC primary.
-2. Q3 corrected: per withheld class and outer fold, fit / calibration / seen-folder evaluation split (4:1:1 within each
-   folder, speed-stratified); per-score order-statistic thresholds; (a) seen-folder vs (b) unseen-folder false-unknown
-   rates on known fault classes; (c) unknown recall; per-fold AUROC and OSCR primary.
-3. `ml.datasets.norm_stats`: named-track mode and a development mode with explicit fit IDs and a context.
-4. Updated deck figures and a plain-language Q1/Q3 summary in the audit report.
+**Scope rules (fixed before running):**
+- **Q2 only.** These CNNs are trained on all ten classes; their embeddings and scores are for Q2 analysis ONLY and are
+  tagged "Q2-only; trained on all 10 classes; not valid for LOCO". Later LOCO experiments (Stage 3C) must retrain the
+  encoder without the withheld fault class and exclude that class from normalisation, calibration and threshold
+  selection. Stage 3A outputs must not be reused for Q3.
+- **Early fusion only** (all sensor channels into one CNN). Late fusion (separate sensor branches combined later) stays on
+  the roadmap; the fusion study is not complete after this stage. CNN-7 vs CNN-6 is an early-fusion preview.
+- **One training seed.** Bootstrap intervals describe uncertainty from the evaluated recordings and folders, not
+  variation between CNN training runs.
 
-## 7b. Plan notes (planned controls, not yet implemented)
+0. Documentation fixes (Q3 recall labels, Q1 acceptance and AUROC wording, superseded energy value, §7b status,
+   microphone wording, development-finding labels).
+1. Training infrastructure: `ml/models/cnn.py`, `ml/train.py`, `ml/datasets.py` additions; normalisation from
+   `norm_stats` in development mode (fit_ids = the fold's training recordings); fixed epochs, AdamW + cosine, batch 256,
+   class-weighted cross-entropy, training-only augmentation; tests on CPU.
+2. Smoke run (one fold, few epochs, subset): loss decreases, MPS step time and memory, projected training time.
+3. Development evaluation: CNN-7 (vibration + mic) and CNN-6 (vibration only); recording-level mean log-probability;
+   class10/class6 macro-F1 and balanced accuracy with the mixed-unit bootstrap; paired comparisons vs logistic regression
+   and CNN-7 vs CNN-6.
+4. Notebook `06_cnn_scratch` (architecture, curves, per-fold results, confusion matrices, paired comparisons, one PCA
+   per fold model).
 
-Recorded 26 Sep 2026 (Stage 2B.1). Each runs when its stage comes; none is implemented yet.
+## 7b. Plan notes (planned controls)
+
+Recorded 26 Sep 2026 (Stage 2B.1); status updated in Stage 3A.
 - **Q1 (detection):** report the detection rate at the **mildest severities** of each fault family, and compare the
-  detector **with vs without the microphone**.
+  detector **with vs without the microphone**. **Done** on development data (Stage 2D.1, classical detectors).
 - **Q2 (severity extrapolation):** the `split_severity` test is the main severity-extrapolation result, across held-out
   folder proxies, **evaluated once at the end**.
-- **Q3 (open set):** report the **false-unknown rate on known classes at held-out severities**.
+- **Q3 (open set):** report the **false-unknown rate on known classes at held-out severities**. Covered on development
+  data by control (b) of Stage 2D.1 (unseen-folder known faults); the `split_severity` test stays sealed.
 - Development evaluation (Stage 2B.1): folder-grouped folds on the development pool (`split_closed` ∈ {train, val},
   `split_severity` ≠ test, `split_speed_block` ≠ test); folders are proxies for sessions. Model selection uses permitted
   development data only; closed-set ties are broken by simplicity and measured latency; reserved tests are never used for
