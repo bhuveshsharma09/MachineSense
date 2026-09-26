@@ -1,0 +1,30 @@
+# --- dataset (never committed; read-only for code) ---
+mafaulda/
+archive.zip
+
+# --- derived data, caches, weights ---
+SystemCode/data/*
+!SystemCode/data/.gitkeep
+*.npy
+artifacts/**/*.pt
+*.safetensors
+
+# --- experiment tracking ---
+mlruns.db
+mlruns/
+
+# --- environments and secrets ---
+.venv/
+.env
+
+# --- frontend (commit dist/ only for a release) ---
+node_modules/
+frontend/dist/
+
+# --- Python / tooling noise ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store

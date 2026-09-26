@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "machinesense"
+version = "0.1.0"
+description = "Multi-sensor fault diagnosis for rotating machinery on MAFAULDA (NUS-ISS PRS practice module)."
+requires-python = ">=3.12"
+# Dependencies are pinned in requirements.txt (install that first); `pip install -e .` only makes `import ml` work.
+dependencies = []
+
+[tool.setuptools]
+packages = ["ml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

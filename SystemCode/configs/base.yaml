@@ -1,0 +1,9 @@
+# MachineSense base config. Dataset facts and preprocessing defaults live in ml/config.py;
+# any key set here overrides them (unknown keys are rejected).
+seed: 42
+
+paths:
+  # Folder that directly contains normal/, imbalance/, ... Relative to SystemCode/.
+  # Override per machine with the MACHINESENSE_DATA_ROOT env var.
+  data_root: ../mafaulda
+  mlflow_uri: sqlite:///mlruns.db

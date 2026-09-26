@@ -1,0 +1,46 @@
+# MachineSense — pinned for macOS arm64 (Apple Silicon), Python 3.12.
+# Verified against PyPI on 26 Sep 2026: every package below ships an arm64 (or pure-Python) wheel,
+# so `pip install -r requirements.txt` compiles nothing on the Mac mini.
+#
+# Linux / Windows graders: install the CPU-only torch FIRST, then this file, or pip pulls ~3 GB of CUDA wheels:
+#   pip install torch==2.14.0 torchvision==0.29.0 --index-url https://download.pytorch.org/whl/cpu
+
+# --- numerics and data ------------------------------------------------------
+numpy==2.5.3
+pandas==3.0.6
+scipy==1.18.1
+pyarrow==25.0.1          # CSV parsing (multi-threaded) and windows.parquet
+pyyaml==6.0.3
+psutil==7.2.2
+tqdm==4.70.1
+
+# --- classical ML -----------------------------------------------------------
+scikit-learn==1.9.1
+lightgbm==4.7.0          # macOS: brew install libomp (OpenMP runtime) first
+minisom==2.3.6           # SOM figure in Track D (pure Python)
+
+# --- deep learning (MPS on Apple Silicon; CPU wheels elsewhere) ---------------
+torch==2.14.0            # macOS 14+ arm64 wheel; set PYTORCH_ENABLE_MPS_FALLBACK=1 before import
+torchvision==0.29.0      # ResNet-18 ImageNet weights
+safetensors==0.8.0       # weight files in the ZIP, never pickled modules
+
+# --- experiment tracking ------------------------------------------------------
+mlflow==3.16.1           # backend: sqlite:///mlruns.db
+
+# --- notebooks and figures --------------------------------------------------
+jupyterlab==4.6.4
+ipykernel==7.3.0
+nbstripout==0.9.1        # strips outputs on commit
+matplotlib==3.11.2
+seaborn==0.13.2
+
+# --- backend ----------------------------------------------------------------
+fastapi==0.141.1
+uvicorn==0.54.0
+pydantic==2.13.5
+python-multipart==0.0.32
+python-dotenv==1.2.3
+
+# --- tests ------------------------------------------------------------------
+pytest==9.1.1
+httpx==0.28.1            # FastAPI TestClient

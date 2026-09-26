@@ -1,0 +1,39 @@
+MachineSense environment check — Bhuveshs-Mac-mini.local — 2026-09-26 16:21
+
+[PASS] python                             3.12.14 (ok)
+[PASS] macOS / arch                       macOS 26.4.1, arm64 (Apple Silicon)
+[PASS] memory                             51.5 GB total, 22.9 GB available now
+[PASS] disk free                          493.4 GB at ../mafaulda (need ~20 GB beyond the CSV tree; 40 GB comfortable)
+[PASS] class folders                      ['horizontal-misalignment', 'imbalance', 'normal', 'overhang', 'underhang', 'vertical-misalignment']
+[PASS] csv count                          1951 files (expected 1951), walked in 0.0 s
+[PASS] one real csv                       overhang/outer_race/20g/35.2256.csv: 250000 rows × 8 cols in 0.01 s
+[PASS] conversion estimate                ~0.0 min for all files with 12 workers (pyarrow parse only; float32 .npy writes add ~16 GB of I/O)
+[PASS] import numpy                       2.5.3
+[PASS] import pandas                      3.0.6
+[PASS] import pyarrow                     25.0.1
+[PASS] import scipy                       1.18.1
+[PASS] import sklearn                     1.9.1
+[PASS] import torch                       2.14.0
+[PASS] import torchvision                 0.29.0
+[PASS] import mlflow                      3.16.1
+[PASS] import fastapi                     0.141.1
+[PASS] import pydantic                    2.13.5
+[PASS] import matplotlib                  3.11.2
+[PASS] import yaml                        6.0.3
+[PASS] import safetensors                 0.8.0
+[PASS] lightgbm fit (subprocess)          4.7.0: 20 trees on 500×20 in 0.08 s (libomp ok)
+[PASS] matplotlib Agg                     headless PNG render ok
+[PASS] torch                              2.14.0, threads 10
+[PASS] PYTORCH_ENABLE_MPS_FALLBACK        1
+[PASS] torch.stft on CPU                  (7, 50000) → (7, 4097, 25) in 2 ms; all 17,559 windows ≈ 0.5 min single-threaded
+[PASS] MPS available                      built=True available=True
+[PASS] MPS memory ceiling                 40.2 GB recommended max working set
+[PASS] float64 on MPS                     refused as expected: cast numpy float64 → float32 before .to('mps')
+[PASS] cache tensor on device             4000 windows (0.2 GB) in 0.76 s; full cache 17,559 windows ≈ 0.8 GB
+[PASS] scratch CNN step (mps)             0.11 M params, batch 256: 37 ms/step → 6927 windows/s → epoch ≈ 1.8 s, 50 epochs ≈ 1.5 min
+[PASS] scratch CNN step (cpu)             210 ms/step → MPS speed-up ×5.7
+[PASS] ResNet-18 step (mps)               batch 64 at 224×224 (upper bound): 200 ms/step → epoch ≈ 0.6 min; 10 epochs ≈ 6 min
+[PASS] sklearn HGB fit after torch        50 iters on 2000×20 in 0.36 s
+
+34 passed, 0 warnings, 0 failures
+Ready: the machine can run the MachineSense pipeline.
