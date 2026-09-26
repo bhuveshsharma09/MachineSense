@@ -77,6 +77,25 @@ class MicConfig(_Strict):
     burst_pad: int = 15
 
 
+class FeatureConfig(_Strict):
+    """R1 physics features (ml.features.physics_features). Spectral lines are searched within ±tolerance, where
+    tolerance_hz = max(order_tol_bins × bin spacing, order_tol_rel × line frequency); bin spacing = 1 / win_s
+    (1 Hz for 1 s windows). Zero-padding interpolates the spectrum only; it adds no resolution."""
+
+    version: str = "r1-1.0"  # bump whenever a definition changes; part of every feature cache's identity
+    order_tol_bins: float = 1.5  # Hann main lobe ±2 bins; ±1.5 bins keeps neighbouring integer orders apart ≥ 12 Hz
+    order_tol_rel: float = 0.005  # speed uncertainty and within-window drift grow with order
+    zero_pad: int = 4
+    accel_orders: tuple[float, ...] = (0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    envelope_channels: tuple[str, ...] = ("under_radial", "over_radial")  # one radial channel per bearing
+    envelope_ref_orders: tuple[float, float] = (0.2, 12.0)  # median of the envelope spectrum here = the reference
+    mic_max_hz: float = 20000.0  # below the band-stop, so the stop band is excluded
+    mic_rolloff: float = 0.85
+    mic_bands_hz: tuple[tuple[float, float], ...] = (
+        (20.0, 250.0), (250.0, 500.0), (500.0, 1000.0), (1000.0, 2000.0), (2000.0, 4000.0), (4000.0, 8000.0),
+        (8000.0, 12000.0), (12000.0, 16000.0), (16000.0, 20000.0))
+
+
 class WindowConfig(_Strict):
     """Windowing after whole-recording cleaning (ml.preprocess.window)."""
 
@@ -192,6 +211,7 @@ class PreprocessConfig(_Strict):
     mic: MicConfig = Field(default_factory=MicConfig)
     bandstop: BandStopConfig = Field(default_factory=BandStopConfig)
     window: WindowConfig = Field(default_factory=WindowConfig)
+    features: FeatureConfig = Field(default_factory=FeatureConfig)
     envelope: EnvelopeConfig = Field(default_factory=EnvelopeConfig)
     comb: CombConfig = Field(default_factory=CombConfig)
     expected_class_counts: dict[str, int] = Field(default_factory=lambda: dict(EXPECTED_CLASS_COUNTS))

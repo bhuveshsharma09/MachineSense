@@ -177,3 +177,180 @@ def select_demod_band(recordings: pd.DataFrame, sk: pd.DataFrame, cfg: Preproces
                    "n_fault": len(groups[cls]), "n_reference": len(ref_ids),
                    "rec_ids": sorted([*groups[cls], *ref_ids])}
     return out
+
+
+
+# ============================================================================ R1 physics features (Stage 2A)
+ACCEL_CHANNELS = ("under_axial", "under_radial", "under_tangential", "over_axial", "over_radial", "over_tangential")
+FEATURE_PREFIX = "f_"
+
+
+def _order_name(o: float) -> str:
+    return f"o{o:g}".replace(".", "p")
+
+
+def envelope_line_names(cfg: PreprocessConfig) -> list[tuple[str, float]]:
+    """(name, order) of every envelope comb line: FTF harmonics, 2×BSF ± FTF, BPFO harmonics, BPFI harmonics ± 1×."""
+    b, c = cfg.bearing, cfg.comb
+    out = [(f"ftf{h}", h * b.ftf) for h in c.ftf_harmonics]
+    out += [(f"bsf2{'' if k == 0 else ('_m' if k < 0 else '_p') + str(abs(k))}", c.bsf_multiple * b.bsf + k * b.ftf)
+            for k in c.bsf_ftf_sidebands]
+    out += [(f"bpfo{h}", h * b.bpfo) for h in c.bpfo_harmonics]
+    out += [(f"bpfi{h}{'' if k == 0 else ('_m' if k < 0 else '_p') + str(abs(k))}", h * b.bpfi + k)
+            for h in c.bpfi_harmonics for k in c.bpfi_shaft_sidebands]
+    return out
+
+
+def line_tolerance_hz(f_line_hz: float, cfg: PreprocessConfig) -> float:
+    """Half-width (Hz) of the search window around a spectral line: max(k bins, relative fraction of the line)."""
+    fc = cfg.features
+    return max(fc.order_tol_bins / cfg.window.win_s, fc.order_tol_rel * f_line_hz)
+
+
+def window_spectrum(x: np.ndarray, fs: float, zero_pad: int) -> tuple[np.ndarray, np.ndarray]:
+    """Hann-windowed single-sided amplitude spectrum (sinusoid amplitude, same units as x) along axis 0, zero-padded
+    by `zero_pad` for interpolation. Returns (frequencies, amplitudes)."""
+    n = x.shape[0]
+    w = np.hanning(n)
+    xw = (x - x.mean(axis=0)) * (w if x.ndim == 1 else w[:, None])
+    amp = 2 * np.abs(np.fft.rfft(xw, n=n * zero_pad, axis=0)) / w.sum()
+    return np.fft.rfftfreq(n * zero_pad, 1 / fs), amp
+
+
+def line_peak(freqs: np.ndarray, amp: np.ndarray, f_line: float, tol_hz: float) -> np.ndarray:
+    """Largest amplitude within ±tol_hz of f_line (per column if amp is 2-D)."""
+    sel = (freqs >= f_line - tol_hz) & (freqs <= f_line + tol_hz)
+    return amp[sel].max(axis=0)
+
+
+def physics_features(signal_win: np.ndarray, envelope_win: np.ndarray, speed_hz: float,
+                     cfg: PreprocessConfig) -> dict[str, float]:
+    """R1 features of one window. signal_win: (win_samples, channels) cleaned, DC removed; envelope_win:
+    (win_samples, len(features.envelope_channels)) slices of the whole-recording envelopes; speed_hz: this window's
+    shaft speed. Every key starts with f_; see feature_dictionary for units and definitions."""
+    from scipy.stats import kurtosis
+
+    fs, fc = cfg.fs_hz, cfg.features
+    out: dict[str, float] = {}
+    acc_idx = [cfg.channels.index(c) for c in ACCEL_CHANNELS]
+    acc = signal_win[:, acc_idx].astype(np.float64)
+
+    # Accelerometers: time-domain statistics.
+    rms = np.sqrt(np.mean(acc**2, axis=0))
+    peak = np.abs(acc).max(axis=0)
+    kurt = kurtosis(acc, axis=0, fisher=True)
+    # Accelerometers: order amplitudes on the window's own speed.
+    f, amp = window_spectrum(acc, fs, fc.zero_pad)
+    orders = {o: line_peak(f, amp, o * speed_hz, line_tolerance_hz(o * speed_hz, cfg)) for o in fc.accel_orders}
+    for j, ch in enumerate(ACCEL_CHANNELS):
+        out[f"f_{ch}_rms"] = rms[j]
+        out[f"f_{ch}_peak"] = peak[j]
+        out[f"f_{ch}_crest"] = peak[j] / rms[j] if rms[j] > 0 else np.nan
+        out[f"f_{ch}_kurtosis"] = kurt[j]
+        for o in fc.accel_orders:
+            out[f"f_{ch}_{_order_name(o)}"] = orders[o][j]
+        out[f"f_{ch}_ratio_2x_1x"] = orders[2][j] / orders[1][j]
+    for bearing in ("under", "over"):
+        ax, rad = ACCEL_CHANNELS.index(f"{bearing}_axial"), ACCEL_CHANNELS.index(f"{bearing}_radial")
+        out[f"f_{bearing}_ratio_axial_radial_1x"] = orders[1][ax] / orders[1][rad]
+
+    # Envelope comb lines, each relative to the median of the envelope spectrum over envelope_ref_orders.
+    fe, ae = window_spectrum(envelope_win.astype(np.float64), fs, fc.zero_pad)
+    f1, a1 = window_spectrum(envelope_win.astype(np.float64), fs, 1)  # unpadded grid for the median
+    lo, hi = fc.envelope_ref_orders
+    ref = np.median(a1[(f1 >= lo * speed_hz) & (f1 <= hi * speed_hz)], axis=0)
+    for name, o in envelope_line_names(cfg):
+        vals = line_peak(fe, ae, o * speed_hz, line_tolerance_hz(o * speed_hz, cfg)) / ref
+        for j, ch in enumerate(fc.envelope_channels):
+            out[f"f_env_{ch}_{name}"] = vals[j]
+
+    # Microphone (after burst removal): RMS and spectral shape below mic_max_hz. No peak, crest or kurtosis (rule 10).
+    m = signal_win[:, cfg.channels.index("mic")].astype(np.float64)
+    fm, am = window_spectrum(m, fs, 1)
+    pw = am**2 / 2  # mean-square per bin
+    keep = (fm >= fc.mic_bands_hz[0][0]) & (fm <= fc.mic_max_hz)
+    tot = pw[keep].sum()
+    out["f_mic_rms"] = float(np.sqrt(np.mean(m**2)))
+    out["f_mic_centroid_hz"] = float((fm[keep] * pw[keep]).sum() / tot)
+    out["f_mic_rolloff_hz"] = float(fm[keep][np.searchsorted(np.cumsum(pw[keep]), fc.mic_rolloff * tot)])
+    for blo, bhi in fc.mic_bands_hz:
+        out[f"f_mic_logband_{blo:g}_{bhi:g}"] = float(np.log10(pw[(fm >= blo) & (fm < bhi)].sum() + 1e-20))
+    return {k: float(v) for k, v in out.items()}
+
+
+def recording_features(x_raw: np.ndarray, fr_hz: float, cfg: PreprocessConfig) -> pd.DataFrame:
+    """The one feature entry point, for batch and serving alike. One row per window (9), in this order:
+    clean the whole recording → per-window speeds from the UNTOUCHED tachometer (fallback: fr_hz) → whole-recording
+    envelopes (primary band, band-pass + Hilbert) on one radial channel per bearing → aligned signal and envelope
+    windows → physics_features. Columns: window_idx, speed_hz, speed_fallback (metadata, no prefix) and f_* features."""
+    from ml.preprocess import TACHO, clean_recording, window, window_speeds_detail, window_starts
+
+    x_clean, _ = clean_recording(x_raw, cfg)
+    speeds, fell_back = window_speeds_detail(np.asarray(x_raw[:, TACHO], dtype=np.float64), cfg.fs_hz,
+                                             cfg.window.win_s, cfg.window.hop_s, cfg, fr_fallback_hz=fr_hz)
+    lo, hi = cfg.envelope.primary_band_hz
+    env = np.stack([np.abs(band_analytic(x_clean[:, cfg.channels.index(ch)], cfg.fs_hz, lo, hi))
+                    for ch in cfg.features.envelope_channels], axis=1)
+    wins = window(x_clean, cfg)
+    starts = window_starts(x_clean.shape[0], cfg)
+    n = wins.shape[1]
+    rows = []
+    for i, s in enumerate(starts):
+        feats = physics_features(wins[i], env[s: s + n], float(speeds[i]), cfg)
+        rows.append({"window_idx": i, "speed_hz": float(speeds[i]), "speed_fallback": bool(fell_back[i]), **feats})
+    return pd.DataFrame(rows)
+
+
+def feature_columns(df: pd.DataFrame) -> list[str]:
+    """The model inputs: every column with the f_ prefix, and nothing else."""
+    return [c for c in df.columns if c.startswith(FEATURE_PREFIX)]
+
+
+def feature_dictionary(cfg: PreprocessConfig) -> pd.DataFrame:
+    """name, unit, definition, channel for every f_ column physics_features produces (same naming as the code)."""
+    fc = cfg.features
+    tol = (f"peak within ±max({fc.order_tol_bins:g} bins, {fc.order_tol_rel:.1%} of the line frequency), "
+           f"Hann window, {fc.zero_pad}× zero-padding for interpolation")
+    rows = []
+    for ch in ACCEL_CHANNELS:
+        rows += [(f"f_{ch}_rms", "V", "RMS of the window (DC removed)", ch),
+                 (f"f_{ch}_peak", "V", "largest |sample| in the window", ch),
+                 (f"f_{ch}_crest", "ratio", "peak / RMS", ch),
+                 (f"f_{ch}_kurtosis", "ratio", "excess kurtosis (Fisher) of the window", ch)]
+        rows += [(f"f_{ch}_{_order_name(o)}", "V", f"amplitude at {o:g}× the window's shaft speed; {tol}", ch)
+                 for o in fc.accel_orders]
+        rows.append((f"f_{ch}_ratio_2x_1x", "ratio", "2× order amplitude / 1× order amplitude", ch))
+    for bearing in ("under", "over"):
+        rows.append((f"f_{bearing}_ratio_axial_radial_1x", "ratio", "1× amplitude, axial / radial",
+                     f"{bearing}_axial, {bearing}_radial"))
+    lo, hi = cfg.envelope.primary_band_hz
+    rlo, rhi = fc.envelope_ref_orders
+    for name, o in envelope_line_names(cfg):
+        for ch in fc.envelope_channels:
+            rows.append((f"f_env_{ch}_{name}", "ratio",
+                         f"envelope spectrum ({lo / 1e3:g}–{hi / 1e3:g} kHz band-pass + Hilbert) at {o:.3f} orders, "
+                         f"divided by its median over {rlo:g}–{rhi:g} orders; {tol}", ch))
+    rows += [("f_mic_rms", "V", "RMS of the cleaned microphone window", "mic"),
+             ("f_mic_centroid_hz", "Hz", f"power-weighted mean frequency, {fc.mic_bands_hz[0][0]:g} Hz–"
+                                          f"{fc.mic_max_hz / 1e3:g} kHz", "mic"),
+             ("f_mic_rolloff_hz", "Hz", f"frequency below which {fc.mic_rolloff:.0%} of the power lies "
+                                         f"(same range)", "mic")]
+    rows += [(f"f_mic_logband_{blo:g}_{bhi:g}", "log10 V²", f"log10 of the power in {blo:g}–{bhi:g} Hz", "mic")
+             for blo, bhi in fc.mic_bands_hz]
+    return pd.DataFrame(rows, columns=["name", "unit", "definition", "channel"])
+
+
+def line_overlaps(speed_hz: float, cfg: PreprocessConfig) -> pd.DataFrame:
+    """Pairs of spectral lines whose search windows overlap at this shaft speed: accelerometer orders, and envelope
+    comb lines. Overlapping lines can return the same peak."""
+    rows = []
+    for family, lines in (("accel orders", [(_order_name(o), o) for o in cfg.features.accel_orders]),
+                          ("envelope lines", envelope_line_names(cfg))):
+        for i, (na, oa) in enumerate(lines):
+            for nb, ob in lines[i + 1:]:
+                fa, fb = oa * speed_hz, ob * speed_hz
+                gap = abs(fa - fb) - line_tolerance_hz(fa, cfg) - line_tolerance_hz(fb, cfg)
+                if gap < 0:
+                    rows.append({"family": family, "line_a": na, "line_b": nb, "orders_apart": abs(oa - ob),
+                                 "overlap_hz": -gap})
+    return pd.DataFrame(rows, columns=["family", "line_a", "line_b", "orders_apart", "overlap_hz"])
