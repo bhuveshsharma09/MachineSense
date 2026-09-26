@@ -1,0 +1,16 @@
+role,kind,outer_fold,overrides,n,pct
+foldk_known,truly_healthy,0,0,72,0.0
+foldk_known,truly_healthy,1,2,72,2.7777777777777777
+foldk_known,truly_healthy,2,6,81,7.4074074074074066
+foldk_known,known_fault,0,0,2064,0.0
+foldk_known,known_fault,1,1,2184,0.045787545787545784
+foldk_known,known_fault,2,0,1984,0.0
+foldk_withheld,withheld_fault,0,1,258,0.3875968992248062
+foldk_withheld,withheld_fault,1,5,273,1.8315018315018317
+foldk_withheld,withheld_fault,2,3,248,1.2096774193548387
+eval,truly_healthy,0,1,27,3.7037037037037033
+eval,truly_healthy,1,1,25,4.0
+eval,truly_healthy,2,0,22,0.0
+eval,known_fault,0,0,690,0.0
+eval,known_fault,1,0,680,0.0
+eval,known_fault,2,0,717,0.0

@@ -93,3 +93,41 @@ def loco_run_ids(assignment: pd.DataFrame, pool: pd.DataFrame, withheld: str, fo
                                  withheld=frozenset(all_c))
     return ids
 
+
+def three_way(pred, msp, maha, ae, tau_p: float, tau_d: float, tau_e: float,
+              ordering: str = "classifier_first") -> tuple[np.ndarray, np.ndarray]:
+    """Three-way decision per recording: "healthy", a known fault class name, or "unknown". Confident = MSP ≥ τ_p AND
+    Mahalanobis d ≤ τ_d (ties accepted); AE healthy = error ≤ τ_e (ties healthy). Never falls back to a second class.
+
+    classifier_first (PRIMARY): confident → healthy (top class normal) or that known fault; otherwise unknown, EXCEPT
+    top class normal and AE healthy → healthy (the AE override).
+    ae_first (comparison): AE healthy → healthy; else top class a fault AND confident → that fault; else unknown (this
+    includes a top class of normal while the AE says abnormal).
+    Returns (decision, override) where override marks classifier-first cases changed from unknown to healthy by the AE."""
+    pred, msp, maha, ae = map(np.asarray, (pred, msp, maha, ae))
+    conf = (msp >= tau_p) & (maha <= tau_d)
+    ae_ok = ae <= tau_e
+    is_normal = pred == "normal"
+    if ordering == "classifier_first":
+        out = np.where(conf, np.where(is_normal, "healthy", pred), "unknown").astype(object)
+        override = ~conf & is_normal & ae_ok
+        out[override] = "healthy"
+        return out, override
+    if ordering == "ae_first":
+        out = np.where(ae_ok, "healthy", np.where(~is_normal & conf, pred, "unknown")).astype(object)
+        return out, np.zeros(len(out), dtype=bool)
+    raise ValueError(ordering)
+
+
+def outcome_category(decision, true_class, withheld: bool) -> np.ndarray:
+    """Outcome labels: withheld recordings → healthy | known_fault | unknown; known faults → healthy | correct |
+    wrong_fault | unknown; normal recordings → healthy | fault | unknown."""
+    d, t = np.asarray(decision, dtype=object), np.asarray(true_class, dtype=object)
+    is_fault_decision = (d != "healthy") & (d != "unknown")
+    if withheld:
+        return np.where(d == "healthy", "healthy", np.where(is_fault_decision, "known_fault", "unknown"))
+    normal = t == "normal"
+    known = np.where(d == "healthy", "healthy",
+                     np.where(d == "unknown", "unknown", np.where(d == t, "correct", "wrong_fault")))
+    healthy_rec = np.where(d == "healthy", "healthy", np.where(d == "unknown", "unknown", "fault"))
+    return np.where(normal, healthy_rec, known)

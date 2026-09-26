@@ -67,3 +67,38 @@ def test_loco_process_does_not_import_lightgbm():
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=120, cwd=SYSTEM_CODE_DIR)
     assert r.returncode == 0, r.stderr[-2000:]
     assert json.loads(r.stdout.strip().splitlines()[-1]) is False
+
+
+def test_three_way_classifier_first():
+    from ml.openset import three_way
+    pred = np.array(["normal", "imbalance", "normal", "imbalance", "normal", "normal"])
+    msp = np.array([0.99, 0.99, 0.50, 0.50, 0.99, 0.50])
+    maha = np.array([1.0, 1.0, 1.0, 1.0, 9.0, 1.0])
+    ae = np.array([9.0, 9.0, 0.1, 0.1, 9.0, 9.0])
+    d, ov = three_way(pred, msp, maha, ae, tau_p=0.9, tau_d=5.0, tau_e=1.0, ordering="classifier_first")
+    # confident normal → healthy; confident fault → fault; unconfident normal + AE healthy → healthy (override);
+    # unconfident fault → unknown even if AE healthy; far normal + AE abnormal → unknown; never a second class
+    assert d.tolist() == ["healthy", "imbalance", "healthy", "unknown", "unknown", "unknown"]
+    assert ov.tolist() == [False, False, True, False, False, False]
+    d, _ = three_way(pred, msp, maha, ae, 0.99, 1.0, 1.0)  # ties accepted on MSP and distance
+    assert d[0] == "healthy" and d[1] == "imbalance"
+
+
+def test_three_way_ae_first():
+    from ml.openset import three_way
+    pred = np.array(["imbalance", "imbalance", "normal", "imbalance"])
+    msp = np.array([0.99, 0.99, 0.99, 0.50])
+    maha = np.array([1.0, 1.0, 1.0, 1.0])
+    ae = np.array([0.5, 2.0, 2.0, 2.0])
+    d, ov = three_way(pred, msp, maha, ae, 0.9, 5.0, 1.0, ordering="ae_first")
+    # AE healthy wins even over a confident fault; top class normal with AE abnormal → unknown
+    assert d.tolist() == ["healthy", "imbalance", "unknown", "unknown"] and not ov.any()
+
+
+def test_outcome_categories():
+    from ml.openset import outcome_category
+    assert outcome_category(["healthy", "imbalance", "unknown"], ["x"] * 3, True).tolist() == \
+        ["healthy", "known_fault", "unknown"]
+    got = outcome_category(["imbalance", "overhang_ball", "healthy", "unknown", "imbalance", "healthy"],
+                           ["imbalance", "imbalance", "imbalance", "imbalance", "normal", "normal"], False)
+    assert got.tolist() == ["correct", "wrong_fault", "healthy", "unknown", "fault", "healthy"]
