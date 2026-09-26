@@ -6,6 +6,7 @@ torch (CLAUDE.md §2).
     python scripts/05_baselines.py dev-inventory  # development pool (Stage 2B.1): recordings by class and folder proxy
     python scripts/05_baselines.py dev-folds      # folder-grouped development folds → results/dev_folds.csv
     python scripts/05_baselines.py dev            # out-of-fold evaluation of the classical models on the dev pool
+    python scripts/05_baselines.py dev-compare    # LightGBM comparisons (a)–(d) under the same folds
 
 Train on split_closed train windows; evaluate on split_closed VAL. The test split stays sealed: its rows are dropped
 right after loading. Outputs: results/baselines/*.json|csv, results/scores/<run_name>.parquet (train/val windows only),
@@ -441,14 +442,96 @@ def run_dev(cfg: Config) -> None:
     print(f"→ {(OUT / 'dev_eval.json').relative_to(SYSTEM_CODE_DIR)}")
 
 
+def run_dev_compare(cfg: Config) -> None:
+    """LightGBM comparisons under the folder-grouped dev folds, paired over identical mixed-unit draws:
+    (a) primary vs capped at 10 kHz, (b) with vs without envelope features, (c) vibration only vs microphone only vs
+    all, (d) family permutation importance within each held-out fold. A drop shows dependence on the removed
+    information, not that it is an artefact."""
+    bc, pre = cfg.baselines, cfg.preprocess
+    meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
+    path, df, k = load_dev_table(cfg, bc.feature_table, pre, meta)
+    cols = feature_columns(df)
+    rec0 = df.groupby("rec_id", sort=False)[["class10", "folder"]].first()
+    draws = dev_draws(rec0, bc)
+
+    def run(frame: pd.DataFrame, use: list[str], keep: bool = False):
+        proba, models = oof_proba("lgbm", bc, frame, use, k, keep_models=keep)
+        res, rec = dev_recording_eval(proba, frame, bc, draws)
+        return res, rec.loc[rec0.index], proba, models
+
+    base, rec_base, proba_base, models = run(df, cols, keep=True)
+    out = {"provenance": {"feature_table": path.name, "split_hash": split_hash(meta), "git_sha": git_sha(), "k": k,
+                          "folder_proxies_per_class": rec0.groupby("class10").folder.nunique().reindex(CLASS10).to_dict(),
+                          "rule": "a drop shows dependence on the removed information, not that it is an artefact"},
+           "all_features": base}
+    pair = lambda a, b: paired_mixed(rec0.class10, a.pred10, b.pred10, CLASS10, draws)
+
+    # (a) primary vs capped
+    cap_pre = load_config(CONFIGS_DIR / bc.sensitivity_config).preprocess
+    cpath, cdf, _ = load_dev_table(cfg, bc.sensitivity_table, cap_pre, meta)
+    assert (cdf[["rec_id", "window_idx", "dev_fold"]].to_numpy() == df[["rec_id", "window_idx", "dev_fold"]].to_numpy()).all()
+    cres, crec, _, _ = run(cdf, feature_columns(cdf))
+    out["a_capped"] = {"table": cpath.name, "capped": cres, "primary_minus_capped": pair(rec_base, crec)}
+    # (b) without envelope
+    nres, nrec, _, _ = run(df, [c for c in cols if not c.startswith("f_env_")])
+    out["b_without_envelope"] = {"without": nres, "with_minus_without": pair(rec_base, nrec)}
+    # (c) vibration only / microphone only
+    vib = [c for c in cols if not c.startswith("f_mic_")]
+    mic = [c for c in cols if c.startswith("f_mic_")]
+    vres, vrec, _, _ = run(df, vib)
+    mres, mrec, _, _ = run(df, mic)
+    out["c_modalities"] = {"n_vibration": len(vib), "n_microphone": len(mic), "vibration_only": vres,
+                           "microphone_only": mres, "all_minus_vibration": pair(rec_base, vrec),
+                           "all_minus_microphone": pair(rec_base, mrec), "vibration_minus_microphone": pair(vrec, mrec)}
+    for key, r in [("a capped", cres), ("b no envelope", nres), ("c vibration", vres), ("c microphone", mres)]:
+        print(f"  {key:14s} class10 {r['class10']['macro_f1']:.3f} [{r['class10']['macro_f1_ci'][0]:.3f}, "
+              f"{r['class10']['macro_f1_ci'][1]:.3f}]  (all features {base['class10']['macro_f1']:.3f})")
+
+    # (d) family permutation importance: within each held-out fold, shuffle whole recording blocks (all columns of a
+    # family together) across that fold's held-out recordings; pooled out-of-fold recording-level macro-F1 drop.
+    X, _ = xy(df, cols)
+    fams = families(cols)
+    rng = np.random.default_rng(bc.seed)
+    base_f1 = base["class10"]["macro_f1"]
+    y_rec = rec0.class10
+    rows = []
+    for fam, fcols in fams.items():
+        drops = []
+        for _ in range(bc.n_permutation_repeats):
+            proba = proba_base.copy()
+            for j in range(k):
+                te = np.flatnonzero((df.dev_fold == j).to_numpy())
+                ids = df.rec_id.to_numpy()[te]
+                n_rec = len(pd.unique(ids))
+                X3 = X[te].reshape(n_rec, -1, X.shape[1])
+                perm = rng.permutation(n_rec)
+                Xp = X3.copy()
+                Xp[:, :, fcols] = X3[perm][:, :, fcols]
+                proba[te] = proba10(models[j], Xp.reshape(-1, X.shape[1]))
+            agg = aggregate_recordings(proba, df.rec_id.to_numpy(), bc.prob_floor)
+            drops.append(base_f1 - f1_score(y_rec.loc[agg.index], agg.idxmax(axis=1), average="macro", zero_division=0))
+        rows.append({"family": fam, "n_columns": len(fcols), "importance": float(np.mean(drops)), "std": float(np.std(drops))})
+    fam_imp = pd.DataFrame(rows).sort_values("importance", ascending=False)
+    fam_imp.to_csv(OUT / "dev_family_importance.csv", index=False)
+    out["d_family_importance"] = fam_imp.to_dict("records")
+    (OUT / "dev_compare.json").write_text(json.dumps(out, indent=1))
+    for key, d in [("a primary−capped", out["a_capped"]["primary_minus_capped"]),
+                   ("b with−without env", out["b_without_envelope"]["with_minus_without"]),
+                   ("c all−vibration", out["c_modalities"]["all_minus_vibration"]),
+                   ("c all−microphone", out["c_modalities"]["all_minus_microphone"])]:
+        print(f"  {key:20s} {d['diff']:+.3f} [{d['ci'][0]:+.3f}, {d['ci'][1]:+.3f}]  P(>0) {d['p_positive']:.2f}")
+    print(fam_imp.round(3).to_string(index=False))
+    print(f"→ {(OUT / 'dev_compare.json').relative_to(SYSTEM_CODE_DIR)}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["closed", "leaky", "dev-inventory", "dev-folds", "dev"])
+    ap.add_argument("task", choices=["closed", "leaky", "dev-inventory", "dev-folds", "dev", "dev-compare"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     args = ap.parse_args()
     cfg = load_config(args.config)
     {"closed": run_closed, "leaky": run_leaky, "dev-inventory": run_dev_inventory,
-     "dev-folds": run_dev_folds, "dev": run_dev}[args.task](cfg)
+     "dev-folds": run_dev_folds, "dev": run_dev, "dev-compare": run_dev_compare}[args.task](cfg)
     return 0
 
 
