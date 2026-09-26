@@ -239,3 +239,31 @@ def quality_flags(row: dict, cfg: PreprocessConfig) -> list[str]:
         if abs(row.get(f"dc_{ch}", 0)) > q.dc_abs:
             flags.append(f"dc_{ch}")
     return flags
+
+
+# ----------------------------------------------------------------------------- microphone bursts
+def remove_mic_bursts(mic: np.ndarray, z_thresh: float, pad: int = 5) -> tuple[np.ndarray, int]:
+    """Remove short electrical bursts from the microphone channel (CLAUDE.md §5 rule 10).
+
+    Samples with |x − median| / (1.4826 · MAD) > z_thresh are widened by ±pad samples and replaced by linear
+    interpolation between the clean neighbours. Returns (cleaned float32 copy, number of burst runs).
+    """
+    x = np.asarray(mic, dtype=np.float32)
+    if x.size == 0:
+        return x.copy(), 0
+    med = np.median(x)
+    mad = 1.4826 * np.median(np.abs(x - med))
+    if not np.isfinite(mad) or mad == 0:
+        return x.copy(), 0
+    hit = np.abs(x - med) / mad > z_thresh
+    if not hit.any():
+        return x.copy(), 0
+    mask = np.convolve(hit, np.ones(2 * pad + 1), mode="same") > 0  # widen each run by ±pad
+    n_bursts = int(np.count_nonzero(np.diff(mask.astype(np.int8), prepend=0) == 1))
+    out = x.copy()
+    idx = np.arange(x.size)
+    if mask.all():
+        out[:] = med
+    else:
+        out[mask] = np.interp(idx[mask], idx[~mask], x[~mask])
+    return out, n_bursts

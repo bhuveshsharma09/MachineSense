@@ -91,9 +91,63 @@ sensitive to microphone peaks (max, kurtosis, crest factor, unclipped spectrogra
   added mass); normal follows `split_closed`.
 - `cv_fold`: 5 folds over `split_closed` train + val; per-class fold sizes differ by at most 1.
 
-## 8. Open items
+## 8. Signal exploration (notebook 02)
 
-- **`cage_fault` vs inner race (§3)**: not audited yet. It needs envelope spectra at FTF (0.375×) vs BPFI
-  (5.002×), which is Stage 2 work (notebook 02).
-- Microphone spike handling (section 4).
-- The single > 1 % speed disagreement (section 2) is kept as is; its speed error is at most about 1 %.
+Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scripts/03_signal_scan.py`, figures
+`results/figures/02_*.png`. Parameters come from train recordings only; test recordings were not loaded.
+
+### Microphone bursts (resolves section 4)
+- Threshold `mic.burst_z = 18.2`: 1.25 × the largest `peakz_mic` of `split_closed` train normal recordings (14.57).
+  Clean gap: the largest burst-free file is 14.57, the smallest caught file 21.18.
+- Caught: 168 files, listed in `results/mic_burst_files.csv`: imbalance 20–35 g (83), underhang cage 6–35 g (84),
+  and one overhang cage 35 g file (`overhang__cage_fault__35g__24.7808`, val, peak z 44.5).
+- Electrical, not acoustic: 1–2 samples up to about −160 V, then a ~0.2 ms anti-alias-filter ring; median run
+  7.5 samples; no accelerometer response (median robust z 2.5 at bursts, 2.5 at random times).
+- `ml.preprocess.remove_mic_bursts` removes them (widen ±5 samples, interpolate); CLAUDE.md §5 rule 10 requires it
+  everywhere.
+- Shortcut test (RandomForest on mic max, peak z, crest, kurtosis; 5-fold `cv_fold` CV on train + val): a burst
+  means imbalance or underhang cage with 99.3 % precision (32 % recall). Macro-F1 falls only from 0.628 to 0.620 after
+  cleaning. The shape statistics alone still reach 0.48, so these mic features carry class information even without
+  bursts; excluding them (rule 10) remains necessary.
+
+### Speed disagreement (section 2)
+- `overhang__cage_fault__6g__16.1792` is non-stationary: 15.47–16.35 Hz within 5 s (std 1.5 %), with every tacho
+  interval clean. The chosen speed (tacho-edge average, 15.754 Hz) is right; the FFT peak is smeared and the comb is
+  pulled low. Its order spectra are blurred by about ±3 %. Other such files would need a speed-variability column.
+
+### Spectra
+- **The ~23 kHz "resonance" is a narrowband electrical line** at 22,028 Hz (2–3 bins of 6.1 Hz) with sidebands at
+  ±55–61 Hz and ±116–122 Hz (60 Hz mains), on every accelerometer (7.3–61× the 5–20 kHz median) and the microphone
+  (168×). A structural resonance would be broad and sensor-specific. This contradicts CLAUDE.md §3.
+- **Accelerometer groups may be swapped relative to CLAUDE.md §3.** Median > 1 kHz RMS relative to train normal:
+  underhang ball 10.8× on over_axial and 11.3× on over_tangential; underhang outer 5.0× on over_radial; overhang
+  ball 42× on under_tangential. under_tangential also responds to most faults, and overhang ball raises over_radial
+  10.7×, so this is strong evidence, not proof. Channel names are unchanged pending a decision.
+- **Demodulation bands** (`envelope.bands_hz`): largest median spectral-kurtosis contrast (train 0 g outer race −
+  train normal), bands ≥ 2 kHz (12 orders at 61 Hz), lower edge ≥ 1 kHz, each channel scored against the bearing
+  position it hears best: under_radial **9–11 kHz** (overhang, +0.94), over_radial **13–17 kHz** (underhang, +4.31).
+  Neither is at ~23 kHz; over_radial is outside the expected 2–10 kHz.
+
+### `cage_fault` audit (§3; finding only, labels unchanged)
+- Comb prominence in envelope-order spectra, train + val 0 g, minus the normal median, on the channel that hears
+  each position:
+
+  | Class (channel) | FTF | 2×BSF | BPFO | BPFI |
+  | --- | --- | --- | --- | --- |
+  | underhang cage (over_radial) | +1.06 | −0.93 | +0.03 | −1.28 |
+  | overhang cage (under_radial) | −0.45 | +0.95 (p 0.010) | +0.42 | −2.40 |
+  | underhang outer (over_radial) | −2.68 | −3.95 | +8.98 (p < 0.001) | +10.20 (p < 0.001) |
+  | overhang outer (under_radial) | +0.69 | +1.00 | +0.47 | −1.68 |
+  | underhang ball (over_radial) | −2.47 | −2.86 | −0.51 | −1.63 |
+  | overhang ball (under_radial) | +3.42 (p < 0.001) | +2.51 (p < 0.001) | +1.89 | −2.20 |
+
+- **Verdict: no inner-race signature.** The BPFI comb is below normal for both cage positions, while a real race
+  defect lifts it by 10 dB. The cage (FTF) signature is weak and not significant, so the data cannot confirm a
+  cage fault either; at 0 g, cage files look close to normal in the envelope.
+- Limits: BPFO and BPFI sit within 0.006 orders of integer shaft orders, so those two combs cannot separate outer
+  from inner race (underhang outer lifts every integer order 1–12). The ball control fails for underhang ball.
+
+## 9. Open items
+- Decide whether to rename the accelerometer channel groups (section 8, swap evidence). This changes the
+  representation, so it needs a decision.
+- A per-recording speed-variability column (section 8, speed) before Stage 2 order analysis.

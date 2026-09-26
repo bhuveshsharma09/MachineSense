@@ -1,10 +1,13 @@
 """Resolve the data root and project directories from config and env vars; nothing is hard-coded."""
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
 
-from ml.config import Config, load_config
+from pydantic import BaseModel
+
+from ml.config import Config, config_sha256, load_config
 
 SYSTEM_CODE_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = SYSTEM_CODE_DIR.parent
@@ -59,3 +62,10 @@ def artifacts_dir() -> Path:
 
 def results_dir() -> Path:
     return SYSTEM_CODE_DIR / "results"
+
+
+def cache_file(name: str, *sections: BaseModel, ext: str) -> Path:
+    """data/cache/<name>_<sha12>.<ext>, named by the sha256 of the config sections that produced it,
+    so a changed setting can never silently reuse a stale cache."""
+    sha = hashlib.sha256("".join(config_sha256(s) for s in sections).encode()).hexdigest()[:12]
+    return data_dir() / "cache" / f"{name}_{sha}.{ext}"

@@ -1,5 +1,6 @@
-# MachineSense base config. Dataset facts and preprocessing defaults live in ml/config.py;
-# any key set here overrides them (unknown keys are rejected).
+# MachineSense base config. Defaults live in ml/config.py; every key here overrides them (unknown keys are rejected).
+# Values below were set from data in a notebook: the comment names it. Changing any of them changes the
+# preprocess config sha256 and invalidates every cache named by it.
 seed: 42
 
 paths:
@@ -7,3 +8,39 @@ paths:
   # Override per machine with the MACHINESENSE_DATA_ROOT env var.
   data_root: ../mafaulda
   mlflow_uri: sqlite:///mlruns.db
+
+preprocess:
+  # Bearing defect frequencies as multiples of shaft rate (orders); the ball defect line is 2 × BSF.
+  bearing:
+    bpfo: 2.998
+    bpfi: 5.002
+    bsf: 1.871
+    ftf: 0.375
+
+  # Notebook 02: 1.25 × max whole-recording robust z of split_closed TRAIN normal microphones (14.57).
+  mic:
+    burst_z: 18.2
+    burst_pad: 5
+
+  # Notebook 02: spectral kurtosis on train 0 g outer race vs train normal; band ≥ 2 kHz, never below 1 kHz.
+  envelope:
+    sk:
+      widths_hz: [1000.0, 2000.0, 4000.0, 8000.0]
+      min_lo_hz: 1000.0
+    min_band_hz: 2000.0
+    bands_hz:
+      under_radial: [9000.0, 11000.0]
+      over_radial: [13000.0, 17000.0]
+    max_order: 12.0
+    order_step: 0.005
+
+  # Envelope-order combs per bearing fault family (orders).
+  comb:
+    ftf_harmonics: [1, 2, 3, 4, 5]
+    bsf_multiple: 2.0
+    bsf_ftf_sidebands: [-1, 0, 1]
+    bpfo_harmonics: [1, 2, 3]
+    bpfi_harmonics: [1, 2]
+    bpfi_shaft_sidebands: [-1, 0, 1]
+    tol_orders: 0.02
+    bg_halfwidth_orders: 0.3

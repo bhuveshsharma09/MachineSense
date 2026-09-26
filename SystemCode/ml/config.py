@@ -64,6 +64,49 @@ class QualityConfig(_Strict):
     dc_abs: float = 0.2  # |mean| in channel units
 
 
+class MicConfig(_Strict):
+    """Microphone burst removal (CLAUDE.md §5 rule 10)."""
+
+    # 1.25 × the max whole-recording robust z of split_closed TRAIN normal mics (14.57); notebook 02 checks it.
+    burst_z: float = 18.2
+    burst_pad: int = 5  # samples added on each side of a burst run before interpolation
+
+
+class SpectralKurtosisConfig(_Strict):
+    """Fixed band grid for spectral kurtosis (the demodulation-band search)."""
+
+    widths_hz: tuple[float, ...] = (1000.0, 2000.0, 4000.0, 8000.0)
+    min_lo_hz: float = 1000.0  # never demodulate below 1 kHz
+
+
+class EnvelopeConfig(_Strict):
+    """Envelope analysis: spectral-kurtosis grid and the chosen demodulation band per radial channel."""
+
+    sk: SpectralKurtosisConfig = Field(default_factory=SpectralKurtosisConfig)
+    bands_hz: dict[str, tuple[float, float]] = Field(default_factory=lambda: {
+        # Notebook 02: widest-contrast band (≥ 2 kHz) of median spectral kurtosis, train 0 g outer race − train normal,
+        # for the bearing position each channel responds to most.
+        "under_radial": (9000.0, 11000.0),
+        "over_radial": (13000.0, 17000.0),
+    })
+    min_band_hz: float = 2000.0  # envelope must carry 12 orders at 61 Hz (≥ 1.46 kHz)
+    max_order: float = 12.0
+    order_step: float = 0.005
+
+
+class CombConfig(_Strict):
+    """Envelope-order comb definitions for bearing evidence (orders = multiples of shaft speed)."""
+
+    ftf_harmonics: tuple[int, ...] = (1, 2, 3, 4, 5)
+    bsf_multiple: float = 2.0  # the ball defect line is 2 × BSF
+    bsf_ftf_sidebands: tuple[int, ...] = (-1, 0, 1)
+    bpfo_harmonics: tuple[int, ...] = (1, 2, 3)
+    bpfi_harmonics: tuple[int, ...] = (1, 2)
+    bpfi_shaft_sidebands: tuple[int, ...] = (-1, 0, 1)
+    tol_orders: float = 0.02  # a line's peak is searched within ±tol
+    bg_halfwidth_orders: float = 0.3  # background = median within ±bg_halfwidth, excluding the peak zone
+
+
 class PreprocessConfig(_Strict):
     """Signal facts and preprocessing settings; its sha256 names every derived cache."""
 
@@ -81,6 +124,9 @@ class PreprocessConfig(_Strict):
     bearing: BearingRatios = Field(default_factory=BearingRatios)
     speed: SpeedConfig = Field(default_factory=SpeedConfig)
     quality: QualityConfig = Field(default_factory=QualityConfig)
+    mic: MicConfig = Field(default_factory=MicConfig)
+    envelope: EnvelopeConfig = Field(default_factory=EnvelopeConfig)
+    comb: CombConfig = Field(default_factory=CombConfig)
     expected_class_counts: dict[str, int] = Field(default_factory=lambda: dict(EXPECTED_CLASS_COUNTS))
     expected_total_files: int = EXPECTED_TOTAL_FILES
 
