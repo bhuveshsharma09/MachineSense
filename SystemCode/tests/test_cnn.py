@@ -110,3 +110,12 @@ def test_cnn_training_process_does_not_import_lightgbm():
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=120, cwd=SYSTEM_CODE_DIR)
     assert r.returncode == 0, r.stderr[-2000:]
     assert json.loads(r.stdout.strip().splitlines()[-1]) is False
+
+
+def test_a_final_batch_of_one_is_skipped():
+    torch.manual_seed(0)
+    cache = torch.randn(5, 7, 128, 25).to(torch.float16)
+    y = torch.tensor([0, 1, 0, 1, 0])
+    cfg = CFG.model_copy(update={"epochs": 2, "batch_size": 4})
+    _, hist = train_model(cache, y, np.arange(5), list(range(7)), np.zeros(7), np.ones(7), 2, cfg, CPU)
+    assert len(hist) == 2  # 5 windows at batch 4: the trailing single window is skipped instead of crashing

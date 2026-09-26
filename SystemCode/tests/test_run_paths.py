@@ -25,3 +25,12 @@ def test_variant_and_fold_are_in_the_paths():
 def test_new_scheme_never_touches_the_stage_3a_seed42_outputs():
     for v in ("cnn7", "cnn6"):
         assert not set(RunPaths("cnn", v, 42).all_paths()) & set(LEGACY_SEED42)
+
+
+def test_withheld_class_is_in_the_paths():
+    a = RunPaths("loco", "cnn6", 42, protocol="loco", withheld="imbalance")
+    b = RunPaths("loco", "cnn6", 42, protocol="loco", withheld="overhang_ball")
+    assert not set(a.all_paths()) & set(b.all_paths())
+    assert all("imbalance" in str(p) for p in a.all_paths())
+    assert a.tags(1)["withheld"] == "imbalance" and "imbalance" in a.run_name(1)
+    assert "withheld" not in RunPaths("cnn", "cnn6", 42).tags()

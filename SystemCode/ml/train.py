@@ -139,6 +139,8 @@ def train_model(cache: torch.Tensor, y: torch.Tensor, train_idx: np.ndarray, cha
         order = rows[torch.randperm(len(rows), generator=gen)]
         for i in range(0, len(order), cfg.batch_size):
             idx = order[i:i + cfg.batch_size].to(device)
+            if len(idx) < 2:  # batch-norm cannot train on one example; a final batch of 1 is skipped (never hit in 3A/3B)
+                continue
             xb = prepare_batch(cache, idx, ch, mu, sd, cfg, gen if augment else None)
             yb = y[idx]
             logits, _ = model(xb)

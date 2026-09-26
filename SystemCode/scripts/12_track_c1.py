@@ -25,7 +25,6 @@ import zlib
 
 import numpy as np
 import pandas as pd
-from scipy.special import logsumexp
 from sklearn.metrics import roc_auc_score
 
 from ml.cache import load_features
@@ -33,33 +32,13 @@ from ml.classical import logreg_pipeline
 from ml.config import load_config
 from ml.features import feature_columns
 from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, data_dir, results_dir
+from ml.openset import oscr, unknown_scores
 from ml.protocol import order_statistic_threshold, speed_stratified_split
 from ml.splits import FAULT_CLASSES, development_pool, split_hash
 from ml.utils import git_sha
 
 OUT = results_dir() / "q1q3"
 SCORES = ("msp", "max_logit", "energy")  # MSP primary
-
-
-def unknown_scores(model, X: np.ndarray, rec_ids: np.ndarray, floor: float) -> pd.DataFrame:
-    """Per recording: predicted class and the three unknown scores (higher = more unknown)."""
-    classes = np.asarray(model.classes_)
-    lp = pd.DataFrame(np.log(np.clip(model.predict_proba(X), floor, 1.0)), columns=classes).assign(rec_id=rec_ids)
-    lp = lp.groupby("rec_id", sort=False).mean()
-    prob = np.exp(lp.to_numpy())
-    prob /= prob.sum(axis=1, keepdims=True)
-    lg = pd.DataFrame(model.decision_function(X), columns=classes).assign(rec_id=rec_ids).groupby("rec_id", sort=False).mean()
-    return pd.DataFrame({"pred": classes[prob.argmax(axis=1)], "msp": -prob.max(axis=1),
-                         "max_logit": -lg.to_numpy().max(axis=1), "energy": -logsumexp(lg.to_numpy(), axis=1)},
-                        index=lp.index)
-
-
-def oscr(u_known: np.ndarray, known_correct: np.ndarray, u_unknown: np.ndarray) -> float:
-    """Area under CCR (knowns accepted AND correctly classified) vs FPR (unknowns accepted) over all thresholds."""
-    t = np.sort(np.unique(np.r_[u_known, u_unknown]))
-    ccr = [0.0] + [float(np.mean((u_known <= x) & known_correct)) for x in t]
-    fpr = [0.0] + [float(np.mean(u_unknown <= x)) for x in t]
-    return float(np.trapezoid(ccr, fpr))
 
 
 def main() -> int:

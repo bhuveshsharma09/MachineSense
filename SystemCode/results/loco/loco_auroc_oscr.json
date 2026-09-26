@@ -1,0 +1,76 @@
+{
+ "provenance": {
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "1495746dab2e459d3051a8f7d8772d98e4d69862-dirty",
+  "seed": 42,
+  "directions": {
+   "msp": "lower MSP = more unknown",
+   "maha": "higher = more unknown",
+   "knn": "higher = more unknown",
+   "ae": "higher = more anomalous (departure from healthy, not unfamiliarity among faults)"
+  },
+  "knn": "cosine distance to the 10th nearest fit window; recording = mean over windows",
+  "mahalanobis": "class centroids from fit windows; one shared Ledoit\u2013Wolf covariance of within-class residuals; min over known classes per window; mean over windows",
+  "assignment": "results/q1q3/q3_fit_cal_eval_assignment.csv",
+  "ae_interpretation": "AE error measures departure from healthy behaviour, not unfamiliarity among fault types; a familiar severe fault can have a larger error than an unfamiliar mild one"
+ },
+ "training": {
+  "runs": 27,
+  "cnn_seconds_total": 958.9334669560194,
+  "ae_seconds_total": 191.48473091539927,
+  "fit_recordings_range": [
+   285,
+   335
+  ],
+  "fit_normals_range": [
+   10,
+   12
+  ]
+ },
+ "summary": {
+  "ae": {
+   "auroc_macro": 0.5172962208886296,
+   "auroc_macro_std_over_classes": 0.32401710224613745,
+   "auroc_all_folds_std": 0.3141173733256568,
+   "auroc_all_folds_range": [
+    0.058437499999999996,
+    1.0
+   ],
+   "oscr_macro": 0.5095593098188907,
+   "oscr_macro_std_over_classes": 0.320045310870161
+  },
+  "knn": {
+   "auroc_macro": 0.8453555823377614,
+   "auroc_macro_std_over_classes": 0.1738403566932343,
+   "auroc_all_folds_std": 0.17266690335924517,
+   "auroc_all_folds_range": [
+    0.43848116169544743,
+    0.996757457846952
+   ],
+   "oscr_macro": 0.8414631416300391,
+   "oscr_macro_std_over_classes": 0.17165620377277935
+  },
+  "maha": {
+   "auroc_macro": 0.8769158787865375,
+   "auroc_macro_std_over_classes": 0.19395649608435123,
+   "auroc_all_folds_std": 0.18742540973181251,
+   "auroc_all_folds_range": [
+    0.3981554160125588,
+    0.9998141954663694
+   ],
+   "oscr_macro": 0.8704020378672458,
+   "oscr_macro_std_over_classes": 0.19065197170827977
+  },
+  "msp": {
+   "auroc_macro": 0.7817112636912676,
+   "auroc_macro_std_over_classes": 0.19233076947820943,
+   "auroc_all_folds_std": 0.22265044335941603,
+   "auroc_all_folds_range": [
+    0.17873748211731044,
+    0.9907587548638133
+   ],
+   "oscr_macro": 0.779095068638807,
+   "oscr_macro_std_over_classes": 0.19052337916416284
+  }
+ }
+}
