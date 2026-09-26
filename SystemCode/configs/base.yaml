@@ -28,6 +28,13 @@ preprocess:
       widths_hz: [1000.0, 2000.0, 4000.0, 8000.0]
       min_lo_hz: 1000.0
     min_band_hz: 2000.0
+    # Rule: ml.features.select_demod_band. Applied per evaluation track → results/demod_bands.json.
+    selection:
+      channels: [under_radial, over_radial]
+      fault_classes: [underhang_outer, overhang_outer]
+      severities: [0.0]
+      reference_class: normal
+      min_recordings: 5
     bands_hz:
       under_radial: [9000.0, 11000.0]
       over_radial: [13000.0, 17000.0]

@@ -4,7 +4,10 @@ Bearing evidence comes only from envelope spectra (CLAUDE.md §3); never low-pas
 """
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import numpy as np
+import pandas as pd
 
 from ml.config import PreprocessConfig
 
@@ -92,3 +95,85 @@ def comb_lines(cfg: PreprocessConfig) -> dict[str, np.ndarray]:
         "bpfo": np.array([h * b.bpfo for h in c.bpfo_harmonics]),
         "bpfi": np.array([h * b.bpfi + k for h in c.bpfi_harmonics for k in c.bpfi_shaft_sidebands]),
     }
+
+
+def candidate_bands(cfg: PreprocessConfig) -> list[tuple[float, float]]:
+    """Demodulation-band candidates: the spectral-kurtosis grid, keeping bands at least min_band_hz wide."""
+    env = cfg.envelope
+    return [(lo, hi) for lo, hi in band_grid(cfg.fs_hz, env.sk.widths_hz, env.sk.min_lo_hz)
+            if hi - lo >= env.min_band_hz]
+
+
+def spectral_kurtosis_table(rec_ids: list[str], cfg: PreprocessConfig,
+                            load: Callable[[str], np.ndarray]) -> pd.DataFrame:
+    """Spectral kurtosis of every candidate band, per recording and selection channel.
+
+    Columns: rec_id, channel, lo_hz, hi_hz, sk. `load(rec_id)` returns the (n_rows, n_channels) recording.
+    """
+    bands = candidate_bands(cfg)
+    rows = []
+    for rid in rec_ids:
+        x = load(rid)
+        for ch in cfg.envelope.selection.channels:
+            sk = band_kurtosis(x[:, cfg.channels.index(ch)], cfg.fs_hz, bands)
+            rows += [{"rec_id": rid, "channel": ch, "lo_hz": lo, "hi_hz": hi, "sk": float(v)}
+                     for (lo, hi), v in zip(bands, sk)]
+    return pd.DataFrame(rows)
+
+
+def select_demod_band(recordings: pd.DataFrame, sk: pd.DataFrame, cfg: PreprocessConfig) -> dict[str, dict]:
+    """Choose the envelope demodulation band per channel from one evaluation track's TRAINING recordings.
+
+    Rule (parameters in cfg.envelope.selection and cfg.envelope):
+      1. Groups. Fault groups: recordings of each class in `fault_classes` with severity in `severities`
+         (default: underhang and overhang outer race at 0 g). Reference: recordings of `reference_class`
+         (normal). Only recordings present in `recordings` count, so a class withheld from the track is
+         excluded by construction. A group with fewer than `min_recordings` recordings is dropped.
+      2. Candidates. The spectral-kurtosis grid (widths `sk.widths_hz`, stepped by half a width, lower edge
+         ≥ `sk.min_lo_hz`), keeping bands at least `min_band_hz` wide (the envelope must carry 12 orders at
+         61 Hz).
+      3. Score. For each channel, fault group and band: median spectral kurtosis of the fault group minus
+         median spectral kurtosis of the reference. The contrast, not the raw value, because healthy
+         machines are impulsive in some bands too.
+      4. Choice. Per channel, the (fault group, band) with the largest contrast. Scoring each fault group
+         separately lets a channel follow the bearing position it responds to. Ties: lower band edge, then
+         narrower band.
+    Raises ValueError if the reference or every fault group is too small.
+
+    `sk` must hold spectral kurtosis (ml.features.spectral_kurtosis_table) for at least the grouped recordings.
+    Returns {channel: {lo_hz, hi_hz, contrast, fault_class, n_fault, n_reference, rec_ids}}.
+    """
+    sel = cfg.envelope.selection
+    rec = recordings[["rec_id", "class10", "severity"]]
+    ref_ids = rec.loc[rec.class10 == sel.reference_class, "rec_id"]
+    if len(ref_ids) < sel.min_recordings:
+        raise ValueError(f"only {len(ref_ids)} {sel.reference_class} recordings; need {sel.min_recordings}")
+    groups = {}
+    for cls in sel.fault_classes:
+        ids = rec.loc[(rec.class10 == cls) & rec.severity.isin(sel.severities), "rec_id"]
+        if len(ids) >= sel.min_recordings:
+            groups[cls] = ids
+    if not groups:
+        raise ValueError("no fault group has enough recordings")
+
+    allowed = set(candidate_bands(cfg))
+    sk = sk[[(lo, hi) in allowed for lo, hi in zip(sk.lo_hz, sk.hi_hz)]]
+    out = {}
+    for ch in sel.channels:
+        s = sk[sk.channel == ch]
+        ref = s[s.rec_id.isin(ref_ids)].groupby(["lo_hz", "hi_hz"]).sk.median()
+        best = None
+        for cls, ids in groups.items():
+            got = s[s.rec_id.isin(ids)]
+            if got.rec_id.nunique() != len(ids) or s[s.rec_id.isin(ref_ids)].rec_id.nunique() != len(ref_ids):
+                raise ValueError(f"sk table is missing recordings for {ch}")
+            contrast = (got.groupby(["lo_hz", "hi_hz"]).sk.median() - ref).dropna()
+            for (lo, hi), c in contrast.items():
+                key = (-c, lo, hi - lo)
+                if best is None or key < best[0]:
+                    best = (key, lo, hi, c, cls)
+        _, lo, hi, c, cls = best
+        out[ch] = {"lo_hz": float(lo), "hi_hz": float(hi), "contrast": round(float(c), 4), "fault_class": cls,
+                   "n_fault": len(groups[cls]), "n_reference": len(ref_ids),
+                   "rec_ids": sorted([*groups[cls], *ref_ids])}
+    return out

@@ -79,10 +79,21 @@ class SpectralKurtosisConfig(_Strict):
     min_lo_hz: float = 1000.0  # never demodulate below 1 kHz
 
 
+class BandSelectionConfig(_Strict):
+    """Parameters of ml.features.select_demod_band (the rule itself is in its docstring)."""
+
+    channels: tuple[str, ...] = ("under_radial", "over_radial")
+    fault_classes: tuple[str, ...] = ("underhang_outer", "overhang_outer")  # outer race: the clearest impacts
+    severities: tuple[float, ...] = (0.0,)  # no added imbalance mass, so impacts are not masked
+    reference_class: str = "normal"  # contrast reference: healthy recordings of the same training data
+    min_recordings: int = 5  # per fault class and for the reference, or that group is not used
+
+
 class EnvelopeConfig(_Strict):
     """Envelope analysis: spectral-kurtosis grid and the chosen demodulation band per radial channel."""
 
     sk: SpectralKurtosisConfig = Field(default_factory=SpectralKurtosisConfig)
+    selection: BandSelectionConfig = Field(default_factory=BandSelectionConfig)
     bands_hz: dict[str, tuple[float, float]] = Field(default_factory=lambda: {
         # Notebook 02: widest-contrast band (≥ 2 kHz) of median spectral kurtosis, train 0 g outer race − train normal,
         # for the bearing position each channel responds to most.
