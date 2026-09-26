@@ -77,6 +77,14 @@ class MicConfig(_Strict):
     burst_pad: int = 15
 
 
+class WindowConfig(_Strict):
+    """Windowing after whole-recording cleaning (ml.preprocess.window)."""
+
+    win_s: float = 1.0
+    hop_s: float = 0.5
+    n_windows: int = 9  # expected per 5 s recording; anything else is an error
+
+
 class BandStopConfig(_Strict):
     """Fixed band-stop for the ~22,028 Hz line (clean_recording, channels 1–7). Linear-phase FIR (scipy firwin),
     applied by centred convolution, so its group delay is compensated. Edges set in notebook 03 (Stage 2A item 2)."""
@@ -183,6 +191,7 @@ class PreprocessConfig(_Strict):
     quality: QualityConfig = Field(default_factory=QualityConfig)
     mic: MicConfig = Field(default_factory=MicConfig)
     bandstop: BandStopConfig = Field(default_factory=BandStopConfig)
+    window: WindowConfig = Field(default_factory=WindowConfig)
     envelope: EnvelopeConfig = Field(default_factory=EnvelopeConfig)
     comb: CombConfig = Field(default_factory=CombConfig)
     expected_class_counts: dict[str, int] = Field(default_factory=lambda: dict(EXPECTED_CLASS_COUNTS))

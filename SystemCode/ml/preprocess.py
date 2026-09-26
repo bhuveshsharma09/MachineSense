@@ -90,6 +90,28 @@ def tacho_edges_speed(tacho: np.ndarray, fs: float, cfg: PreprocessConfig) -> fl
     return float(fs * ti.revs[ti.good].sum() / ti.intervals[ti.good].sum())
 
 
+def window_speeds_detail(tacho: np.ndarray, fs: float, win_s: float = 1.0, hop_s: float = 0.5,
+                         cfg: PreprocessConfig | None = None,
+                         fr_fallback_hz: float | None = None) -> tuple[np.ndarray, np.ndarray]:
+    """Like window_speeds, but returns (speeds, per-window fallback flags) instead of a count."""
+    cfg = cfg or PreprocessConfig()
+    n, win, hop = tacho.shape[0], int(round(win_s * fs)), int(round(hop_s * fs))
+    starts = np.arange(0, n - win + 1, hop)
+    fallback = fr_fallback_hz if fr_fallback_hz is not None else tacho_edges_speed(tacho, fs, cfg)
+    ti = tacho_intervals(tacho, cfg)
+    speeds = np.full(starts.size, float(fallback))
+    fell_back = np.ones(starts.size, dtype=bool)
+    # Same validity as tacho_edges_speed: on a dead or garbled tacho, some noise intervals look "clean" by chance.
+    if ti is not None and ti.good.mean() >= cfg.speed.min_good_fraction:
+        first, last = ti.edges[:-1], ti.edges[1:]
+        for i, s in enumerate(starts):
+            inside = ti.good & (first >= s) & (last <= s + win)
+            if inside.sum() >= cfg.speed.window_min_intervals:
+                speeds[i] = fs * ti.revs[inside].sum() / ti.intervals[inside].sum()
+                fell_back[i] = False
+    return speeds, fell_back
+
+
 def window_speeds(tacho: np.ndarray, fs: float, win_s: float = 1.0, hop_s: float = 0.5,
                   cfg: PreprocessConfig | None = None, fr_fallback_hz: float | None = None) -> tuple[np.ndarray, int]:
     """Shaft speed (Hz) per window, from the clean tacho intervals lying entirely inside it. Audit only.
@@ -99,24 +121,8 @@ def window_speeds(tacho: np.ndarray, fs: float, win_s: float = 1.0, hop_s: float
     speed of the whole recording); so does every window when the pulse train as a whole is unusable (fewer than
     cfg.speed.min_good_fraction clean intervals). Returns (speeds, number of windows that fell back).
     """
-    cfg = cfg or PreprocessConfig()
-    n, win, hop = tacho.shape[0], int(round(win_s * fs)), int(round(hop_s * fs))
-    starts = np.arange(0, n - win + 1, hop)
-    fallback = fr_fallback_hz if fr_fallback_hz is not None else tacho_edges_speed(tacho, fs, cfg)
-    ti = tacho_intervals(tacho, cfg)
-    speeds = np.full(starts.size, float(fallback))
-    n_fallback = starts.size
-    # Same validity as tacho_edges_speed: on a dead or garbled tacho, some noise intervals look "clean" by chance.
-    if ti is not None and ti.good.mean() >= cfg.speed.min_good_fraction:
-        n_fallback = 0
-        first, last = ti.edges[:-1], ti.edges[1:]
-        for i, s in enumerate(starts):
-            inside = ti.good & (first >= s) & (last <= s + win)
-            if inside.sum() >= cfg.speed.window_min_intervals:
-                speeds[i] = fs * ti.revs[inside].sum() / ti.intervals[inside].sum()
-            else:
-                n_fallback += 1
-    return speeds, n_fallback
+    speeds, fell_back = window_speeds_detail(tacho, fs, win_s, hop_s, cfg, fr_fallback_hz)
+    return speeds, int(fell_back.sum())
 
 
 def tacho_glitch_count(tacho: np.ndarray, cfg: PreprocessConfig) -> int:
@@ -350,3 +356,24 @@ def clean_recording(x: np.ndarray, cfg: PreprocessConfig) -> tuple[np.ndarray, d
         out[:, 1:] = apply_fir_centred(out[:, 1:], taps).astype(np.float32)
         report.update(bandstop_applied=True, bandstop_numtaps=int(taps.size))
     return out, report
+
+
+# ----------------------------------------------------------------------------- windowing
+def window_starts(n_samples: int, cfg: PreprocessConfig) -> np.ndarray:
+    """First sample of each window: 0, hop, 2·hop, … while the window fits. Raises if the count is not n_windows."""
+    win, hop = int(round(cfg.window.win_s * cfg.fs_hz)), int(round(cfg.window.hop_s * cfg.fs_hz))
+    starts = np.arange(0, n_samples - win + 1, hop)
+    if starts.size != cfg.window.n_windows:
+        raise ValueError(f"{n_samples} samples give {starts.size} windows, expected {cfg.window.n_windows}")
+    return starts
+
+
+def window(x_clean: np.ndarray, cfg: PreprocessConfig) -> np.ndarray:
+    """Cut a cleaned recording (n_samples × channels) into windows: shape (n_windows, win_samples, channels), float32.
+    DC is removed per window on every channel except the tachometer, which is kept as recorded. Windowing comes after
+    whole-recording cleaning (rule 11)."""
+    win = int(round(cfg.window.win_s * cfg.fs_hz))
+    starts = window_starts(x_clean.shape[0], cfg)
+    w = np.stack([x_clean[s: s + win] for s in starts]).astype(np.float32)
+    w[:, :, 1:] -= w[:, :, 1:].mean(axis=1, keepdims=True, dtype=np.float64).astype(np.float32)
+    return w

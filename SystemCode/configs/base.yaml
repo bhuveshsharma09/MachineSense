@@ -26,6 +26,12 @@ preprocess:
     # Notebook 02: event-aligned ringing stays > 1.2 × baseline for 15 samples either side of a flagged run.
     burst_pad: 15
 
+  # 1 s windows, 0.5 s hop: 9 per 5 s recording (after whole-recording cleaning, rule 11).
+  window:
+    win_s: 1.0
+    hop_s: 0.5
+    n_windows: 9
+
   # Fixed band-stop for the ~22,028 Hz line (clean_recording, channels 1–7). Set from split_closed TRAIN NORMAL
   # recordings only: line + ±60/±120 Hz sidebands span 21,899.1–22,166.3 Hz, + 25 Hz margin, rounded to 5 Hz.
   # Linear-phase Kaiser FIR (80 dB, 200 Hz transitions), applied by centred convolution.
