@@ -1,0 +1,502 @@
+{
+ "provenance": {
+  "feature_table": "r1cap10_7dda9b7750ed.parquet",
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "0646d8d1678949c5890c631fd3d6fc3282451865-dirty",
+  "protocol": "ml/protocol.py; CLAUDE.md rule 13",
+  "acceptance_target": 0.95,
+  "threshold_rule": "r = ceil(0.95 (n + 1)); threshold = r-th smallest calibration score; accept iff score <= threshold (ties accepted)",
+  "calibration_n_range": [
+   71,
+   83
+  ],
+  "attainable_level_range": [
+   0.95,
+   0.9620253164556962
+  ],
+  "seen_eval_recordings_reused_across_outer_folds": 188,
+  "seen_eval_recordings_total_unique_per_withheld_sum": 1973
+ },
+ "scores": {
+  "msp": {
+   "auroc_fold_mean_over_classes": 0.842368488422098,
+   "auroc_spread_std_over_all_folds": 0.11117721830200478,
+   "auroc_class_mean_std": [
+    0.8423684884220979,
+    0.07982462893834828
+   ],
+   "oscr_class_mean_std": [
+    0.8280445176708001,
+    0.07794886380302685
+   ],
+   "unknown_recall_class_mean_std": [
+    0.7314328828066171,
+    0.19284132645562793
+   ],
+   "withheld_faults_passing_as_known": 0.3029525032092426,
+   "fu_seen_known_faults_macro_mean": 0.04209707277827752,
+   "fu_unseen_known_faults_macro_mean": 0.23732277391162887,
+   "fu_normal_seen_mean": 0.08267195767195767,
+   "fu_normal_within_folder_foldk_mean": 0.23555555555555557,
+   "fu_by_known_class": {
+    "seen|horizontal_misalignment": 0.08121827411167512,
+    "seen|imbalance": 0.02857142857142857,
+    "seen|overhang_ball": 0.005494505494505495,
+    "seen|overhang_cage": 0.09644670050761421,
+    "seen|overhang_outer": 0.05102040816326531,
+    "seen|underhang_ball": 0.00966183574879227,
+    "seen|underhang_cage": 0.07614213197969544,
+    "seen|underhang_outer": 0.0,
+    "seen|vertical_misalignment": 0.029585798816568046,
+    "unseen|horizontal_misalignment": 0.4965753424657534,
+    "unseen|imbalance": 0.14322916666666666,
+    "unseen|overhang_ball": 0.0018115942028985507,
+    "unseen|overhang_cage": 0.5538194444444444,
+    "unseen|overhang_outer": 0.3108108108108108,
+    "unseen|underhang_ball": 0.06818181818181818,
+    "unseen|underhang_cage": 0.3368055555555556,
+    "unseen|underhang_outer": 0.16267123287671234,
+    "unseen|vertical_misalignment": 0.062
+   },
+   "per_class": [
+    {
+     "withheld": "horizontal_misalignment",
+     "auroc_mean": 0.8934,
+     "auroc_std": 0.0101,
+     "oscr_mean": 0.8732,
+     "oscr_std": 0.0217,
+     "n_unknown": 73,
+     "unknown_recall": 0.8767,
+     "fu_seen_known_faults_macro": 0.0364,
+     "fu_unseen_known_faults_macro": 0.1623,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.12
+    },
+    {
+     "withheld": "imbalance",
+     "auroc_mean": 0.6584,
+     "auroc_std": 0.1312,
+     "oscr_mean": 0.6495,
+     "oscr_std": 0.1241,
+     "n_unknown": 144,
+     "unknown_recall": 0.3264,
+     "fu_seen_known_faults_macro": 0.0444,
+     "fu_unseen_known_faults_macro": 0.2155,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.24
+    },
+    {
+     "withheld": "overhang_ball",
+     "auroc_mean": 0.8397,
+     "auroc_std": 0.0446,
+     "oscr_mean": 0.8249,
+     "oscr_std": 0.035,
+     "n_unknown": 69,
+     "unknown_recall": 0.6957,
+     "fu_seen_known_faults_macro": 0.0449,
+     "fu_unseen_known_faults_macro": 0.271,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.24
+    },
+    {
+     "withheld": "overhang_cage",
+     "auroc_mean": 0.9398,
+     "auroc_std": 0.0502,
+     "oscr_mean": 0.9267,
+     "oscr_std": 0.0462,
+     "n_unknown": 72,
+     "unknown_recall": 1.0,
+     "fu_seen_known_faults_macro": 0.038,
+     "fu_unseen_known_faults_macro": 0.2735,
+     "fu_normal_seen": 0.2222,
+     "fu_normal_within_folder_foldk": 0.32
+    },
+    {
+     "withheld": "overhang_outer",
+     "auroc_mean": 0.9097,
+     "auroc_std": 0.0621,
+     "oscr_mean": 0.8939,
+     "oscr_std": 0.0607,
+     "n_unknown": 74,
+     "unknown_recall": 0.8649,
+     "fu_seen_known_faults_macro": 0.0362,
+     "fu_unseen_known_faults_macro": 0.2014,
+     "fu_normal_seen": 0.1111,
+     "fu_normal_within_folder_foldk": 0.28
+    },
+    {
+     "withheld": "underhang_ball",
+     "auroc_mean": 0.8408,
+     "auroc_std": 0.1763,
+     "oscr_mean": 0.8285,
+     "oscr_std": 0.1739,
+     "n_unknown": 77,
+     "unknown_recall": 0.6234,
+     "fu_seen_known_faults_macro": 0.0263,
+     "fu_unseen_known_faults_macro": 0.2137,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.2
+    },
+    {
+     "withheld": "underhang_cage",
+     "auroc_mean": 0.8251,
+     "auroc_std": 0.1377,
+     "oscr_mean": 0.8083,
+     "oscr_std": 0.1272,
+     "n_unknown": 72,
+     "unknown_recall": 0.6528,
+     "fu_seen_known_faults_macro": 0.0379,
+     "fu_unseen_known_faults_macro": 0.2371,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.2
+    },
+    {
+     "withheld": "underhang_outer",
+     "auroc_mean": 0.846,
+     "auroc_std": 0.0637,
+     "oscr_mean": 0.8331,
+     "oscr_std": 0.0685,
+     "n_unknown": 73,
+     "unknown_recall": 0.7671,
+     "fu_seen_known_faults_macro": 0.0654,
+     "fu_unseen_known_faults_macro": 0.2962,
+     "fu_normal_seen": 0.2857,
+     "fu_normal_within_folder_foldk": 0.28
+    },
+    {
+     "withheld": "vertical_misalignment",
+     "auroc_mean": 0.8284,
+     "auroc_std": 0.0668,
+     "oscr_mean": 0.8143,
+     "oscr_std": 0.0556,
+     "n_unknown": 125,
+     "unknown_recall": 0.776,
+     "fu_seen_known_faults_macro": 0.0495,
+     "fu_unseen_known_faults_macro": 0.2653,
+     "fu_normal_seen": 0.125,
+     "fu_normal_within_folder_foldk": 0.24
+    }
+   ]
+  },
+  "max_logit": {
+   "auroc_fold_mean_over_classes": 0.7180325502827193,
+   "auroc_spread_std_over_all_folds": 0.2676911189848315,
+   "auroc_class_mean_std": [
+    0.7180325502827193,
+    0.2628017193742958
+   ],
+   "oscr_class_mean_std": [
+    0.7048261451234216,
+    0.25643697139428756
+   ],
+   "unknown_recall_class_mean_std": [
+    0.534942897027372,
+    0.3258700864882927
+   ],
+   "withheld_faults_passing_as_known": 0.49550706033376124,
+   "fu_seen_known_faults_macro_mean": 0.037921246870890185,
+   "fu_unseen_known_faults_macro_mean": 0.18688492659325992,
+   "fu_normal_seen_mean": 0.08575837742504408,
+   "fu_normal_within_folder_foldk_mean": 0.14666666666666667,
+   "fu_by_known_class": {
+    "seen|horizontal_misalignment": 0.050761421319796954,
+    "seen|imbalance": 0.02077922077922078,
+    "seen|overhang_ball": 0.0,
+    "seen|overhang_cage": 0.16243654822335024,
+    "seen|overhang_outer": 0.07142857142857142,
+    "seen|underhang_ball": 0.0,
+    "seen|underhang_cage": 0.01015228426395939,
+    "seen|underhang_outer": 0.0,
+    "seen|vertical_misalignment": 0.026627218934911243,
+    "unseen|horizontal_misalignment": 0.3253424657534247,
+    "unseen|imbalance": 0.08159722222222222,
+    "unseen|overhang_ball": 0.0,
+    "unseen|overhang_cage": 0.5416666666666666,
+    "unseen|overhang_outer": 0.34628378378378377,
+    "unseen|underhang_ball": 0.0,
+    "unseen|underhang_cage": 0.2604166666666667,
+    "unseen|underhang_outer": 0.04965753424657534,
+    "unseen|vertical_misalignment": 0.077
+   },
+   "per_class": [
+    {
+     "withheld": "horizontal_misalignment",
+     "auroc_mean": 0.8905,
+     "auroc_std": 0.0329,
+     "oscr_mean": 0.8674,
+     "oscr_std": 0.0412,
+     "n_unknown": 73,
+     "unknown_recall": 0.7808,
+     "fu_seen_known_faults_macro": 0.0409,
+     "fu_unseen_known_faults_macro": 0.161,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.04
+    },
+    {
+     "withheld": "imbalance",
+     "auroc_mean": 0.5893,
+     "auroc_std": 0.0837,
+     "oscr_mean": 0.5808,
+     "oscr_std": 0.0805,
+     "n_unknown": 144,
+     "unknown_recall": 0.1458,
+     "fu_seen_known_faults_macro": 0.0316,
+     "fu_unseen_known_faults_macro": 0.1367,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.08
+    },
+    {
+     "withheld": "overhang_ball",
+     "auroc_mean": 0.0849,
+     "auroc_std": 0.1067,
+     "oscr_mean": 0.0842,
+     "oscr_std": 0.1054,
+     "n_unknown": 69,
+     "unknown_recall": 0.0,
+     "fu_seen_known_faults_macro": 0.0395,
+     "fu_unseen_known_faults_macro": 0.2023,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.16
+    },
+    {
+     "withheld": "overhang_cage",
+     "auroc_mean": 0.909,
+     "auroc_std": 0.0788,
+     "oscr_mean": 0.8932,
+     "oscr_std": 0.0699,
+     "n_unknown": 72,
+     "unknown_recall": 0.9167,
+     "fu_seen_known_faults_macro": 0.0386,
+     "fu_unseen_known_faults_macro": 0.1979,
+     "fu_normal_seen": 0.1111,
+     "fu_normal_within_folder_foldk": 0.28
+    },
+    {
+     "withheld": "overhang_outer",
+     "auroc_mean": 0.939,
+     "auroc_std": 0.0571,
+     "oscr_mean": 0.9166,
+     "oscr_std": 0.056,
+     "n_unknown": 74,
+     "unknown_recall": 0.9459,
+     "fu_seen_known_faults_macro": 0.0395,
+     "fu_unseen_known_faults_macro": 0.1684,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.16
+    },
+    {
+     "withheld": "underhang_ball",
+     "auroc_mean": 0.734,
+     "auroc_std": 0.1779,
+     "oscr_mean": 0.727,
+     "oscr_std": 0.1807,
+     "n_unknown": 77,
+     "unknown_recall": 0.4545,
+     "fu_seen_known_faults_macro": 0.0401,
+     "fu_unseen_known_faults_macro": 0.2601,
+     "fu_normal_seen": 0.375,
+     "fu_normal_within_folder_foldk": 0.2
+    },
+    {
+     "withheld": "underhang_cage",
+     "auroc_mean": 0.8341,
+     "auroc_std": 0.0952,
+     "oscr_mean": 0.8163,
+     "oscr_std": 0.0864,
+     "n_unknown": 72,
+     "unknown_recall": 0.6111,
+     "fu_seen_known_faults_macro": 0.0353,
+     "fu_unseen_known_faults_macro": 0.161,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.08
+    },
+    {
+     "withheld": "underhang_outer",
+     "auroc_mean": 0.6891,
+     "auroc_std": 0.1301,
+     "oscr_mean": 0.681,
+     "oscr_std": 0.1281,
+     "n_unknown": 73,
+     "unknown_recall": 0.3836,
+     "fu_seen_known_faults_macro": 0.0419,
+     "fu_unseen_known_faults_macro": 0.2097,
+     "fu_normal_seen": 0.2857,
+     "fu_normal_within_folder_foldk": 0.16
+    },
+    {
+     "withheld": "vertical_misalignment",
+     "auroc_mean": 0.7923,
+     "auroc_std": 0.1272,
+     "oscr_mean": 0.777,
+     "oscr_std": 0.1093,
+     "n_unknown": 125,
+     "unknown_recall": 0.576,
+     "fu_seen_known_faults_macro": 0.0339,
+     "fu_unseen_known_faults_macro": 0.1848,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.16
+    }
+   ]
+  },
+  "energy": {
+   "auroc_fold_mean_over_classes": 0.7109960432499194,
+   "auroc_spread_std_over_all_folds": 0.2690077716442064,
+   "auroc_class_mean_std": [
+    0.7109960432499194,
+    0.26517842834757926
+   ],
+   "oscr_class_mean_std": [
+    0.6975661469583269,
+    0.25861947045247086
+   ],
+   "unknown_recall_class_mean_std": [
+    0.5177850780567675,
+    0.3216073123256927
+   ],
+   "withheld_faults_passing_as_known": 0.5109114249037228,
+   "fu_seen_known_faults_macro_mean": 0.03786493375415061,
+   "fu_unseen_known_faults_macro_mean": 0.18561140878321244,
+   "fu_normal_seen_mean": 0.08575837742504408,
+   "fu_normal_within_folder_foldk_mean": 0.13333333333333333,
+   "fu_by_known_class": {
+    "seen|horizontal_misalignment": 0.050761421319796954,
+    "seen|imbalance": 0.01818181818181818,
+    "seen|overhang_ball": 0.0,
+    "seen|overhang_cage": 0.16751269035532995,
+    "seen|overhang_outer": 0.07653061224489796,
+    "seen|underhang_ball": 0.0,
+    "seen|underhang_cage": 0.005076142131979695,
+    "seen|underhang_outer": 0.0,
+    "seen|vertical_misalignment": 0.023668639053254437,
+    "unseen|horizontal_misalignment": 0.3184931506849315,
+    "unseen|imbalance": 0.0763888888888889,
+    "unseen|overhang_ball": 0.0,
+    "unseen|overhang_cage": 0.5434027777777778,
+    "unseen|overhang_outer": 0.3530405405405405,
+    "unseen|underhang_ball": 0.0,
+    "unseen|underhang_cage": 0.2569444444444444,
+    "unseen|underhang_outer": 0.046232876712328765,
+    "unseen|vertical_misalignment": 0.076
+   },
+   "per_class": [
+    {
+     "withheld": "horizontal_misalignment",
+     "auroc_mean": 0.8864,
+     "auroc_std": 0.0344,
+     "oscr_mean": 0.8637,
+     "oscr_std": 0.0419,
+     "n_unknown": 73,
+     "unknown_recall": 0.7534,
+     "fu_seen_known_faults_macro": 0.0461,
+     "fu_unseen_known_faults_macro": 0.1618,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.04
+    },
+    {
+     "withheld": "imbalance",
+     "auroc_mean": 0.5872,
+     "auroc_std": 0.0808,
+     "oscr_mean": 0.578,
+     "oscr_std": 0.0776,
+     "n_unknown": 144,
+     "unknown_recall": 0.1458,
+     "fu_seen_known_faults_macro": 0.0316,
+     "fu_unseen_known_faults_macro": 0.1323,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.08
+    },
+    {
+     "withheld": "overhang_ball",
+     "auroc_mean": 0.0735,
+     "auroc_std": 0.092,
+     "oscr_mean": 0.0727,
+     "oscr_std": 0.0907,
+     "n_unknown": 69,
+     "unknown_recall": 0.0,
+     "fu_seen_known_faults_macro": 0.0367,
+     "fu_unseen_known_faults_macro": 0.197,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.16
+    },
+    {
+     "withheld": "overhang_cage",
+     "auroc_mean": 0.8994,
+     "auroc_std": 0.083,
+     "oscr_mean": 0.8828,
+     "oscr_std": 0.0743,
+     "n_unknown": 72,
+     "unknown_recall": 0.8889,
+     "fu_seen_known_faults_macro": 0.0355,
+     "fu_unseen_known_faults_macro": 0.1945,
+     "fu_normal_seen": 0.1111,
+     "fu_normal_within_folder_foldk": 0.24
+    },
+    {
+     "withheld": "overhang_outer",
+     "auroc_mean": 0.9404,
+     "auroc_std": 0.057,
+     "oscr_mean": 0.9173,
+     "oscr_std": 0.0561,
+     "n_unknown": 74,
+     "unknown_recall": 0.9324,
+     "fu_seen_known_faults_macro": 0.0395,
+     "fu_unseen_known_faults_macro": 0.1624,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.12
+    },
+    {
+     "withheld": "underhang_ball",
+     "auroc_mean": 0.7168,
+     "auroc_std": 0.1711,
+     "oscr_mean": 0.7104,
+     "oscr_std": 0.1746,
+     "n_unknown": 77,
+     "unknown_recall": 0.3766,
+     "fu_seen_known_faults_macro": 0.0326,
+     "fu_unseen_known_faults_macro": 0.2583,
+     "fu_normal_seen": 0.375,
+     "fu_normal_within_folder_foldk": 0.2
+    },
+    {
+     "withheld": "underhang_cage",
+     "auroc_mean": 0.8319,
+     "auroc_std": 0.0931,
+     "oscr_mean": 0.8135,
+     "oscr_std": 0.0843,
+     "n_unknown": 72,
+     "unknown_recall": 0.625,
+     "fu_seen_known_faults_macro": 0.0429,
+     "fu_unseen_known_faults_macro": 0.1723,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.08
+    },
+    {
+     "withheld": "underhang_outer",
+     "auroc_mean": 0.6751,
+     "auroc_std": 0.124,
+     "oscr_mean": 0.6674,
+     "oscr_std": 0.1232,
+     "n_unknown": 73,
+     "unknown_recall": 0.3699,
+     "fu_seen_known_faults_macro": 0.0419,
+     "fu_unseen_known_faults_macro": 0.2071,
+     "fu_normal_seen": 0.2857,
+     "fu_normal_within_folder_foldk": 0.12
+    },
+    {
+     "withheld": "vertical_misalignment",
+     "auroc_mean": 0.7883,
+     "auroc_std": 0.1314,
+     "oscr_mean": 0.7723,
+     "oscr_std": 0.114,
+     "n_unknown": 125,
+     "unknown_recall": 0.568,
+     "fu_seen_known_faults_macro": 0.0339,
+     "fu_unseen_known_faults_macro": 0.1847,
+     "fu_normal_seen": 0.0,
+     "fu_normal_within_folder_foldk": 0.16
+    }
+   ]
+  }
+ }
+}

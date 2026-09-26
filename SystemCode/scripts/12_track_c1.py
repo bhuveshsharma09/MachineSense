@@ -1,20 +1,27 @@
-"""Unknown-fault baselines (Track C1, Q3): logistic regression on the capped R1 features, LOCO over the 9 fault classes on
-the development pool. No torch.
+"""Unknown-fault baselines (Track C1, Q3), CORRECTED protocol (Stage 2D.1; ml/protocol.py). Logistic regression on the
+capped R1 features, LOCO over the 9 fault classes on the development pool. No torch.
 
     python scripts/12_track_c1.py
 
-For each withheld class: fit on the other classes of the pool with results/dev_folds.csv, so every known recording is
-scored out of fold; every withheld recording is scored by each fold's model and the scores are averaged. The withheld
-class never touches fitting, scaling (inside the pipeline), calibration or the threshold. Window → recording: class
-probabilities by mean log-probability (renormalised); logits by their mean. Scores (higher = more "known"): maximum softmax
-probability, maximum logit, energy (logsumexp of logits). Threshold: `openset.acceptance` of the known out-of-fold
-recordings. Q3 control: known fault recordings are scored from unseen folder proxies (new severity, known class); their
-false-unknown rate is reported separately from normal (scored within its single folder).
+For each withheld class c and outer dev fold k:
+- Training side = recordings of folds ≠ k, known classes (≠ c). Within EACH folder proxy, recordings are sorted by speed
+  and dealt 4:1:1 (fixed seed) into FIT, CALIBRATION and SEEN-FOLDER EVALUATION (assignment saved).
+- The model is fitted on FIT only (scaler inside the pipeline). Class c never touches fitting, scaling or thresholds.
+- Unknown scores, directions FIXED before running (higher = more unknown): −MSP, −max-logit, energy E = −logsumexp(logits).
+  Window → recording: probabilities by mean log-probability (renormalised), logits by their mean.
+- Each score's threshold comes from its own CALIBRATION distribution (ml.protocol.order_statistic_threshold, 95 %
+  acceptance: r = ceil(0.95 (n + 1)); accept iff score ≤ threshold, ties accepted).
+- Evaluated with that model and threshold: (a) false-unknown rate on SEEN-FOLDER evaluation recordings; (b) false-unknown
+  rate on fold-k known recordings (UNSEEN folders for fault classes; normal is one folder, so its fold-k recordings are
+  within-folder and reported separately); (c) unknown recall on fold-k recordings of class c. Every class-c recording is
+  evaluated exactly once, in its own outer fold.
+- Primary: per-fold AUROC and OSCR, fold-k known vs fold-k class c, then mean and spread over folds and classes.
 """
 from __future__ import annotations
 
 import json
 import sys
+import zlib
 
 import numpy as np
 import pandas as pd
@@ -25,34 +32,33 @@ from ml.cache import load_features
 from ml.classical import logreg_pipeline
 from ml.config import load_config
 from ml.features import feature_columns
-from ml.labels import CLASS10
 from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, data_dir, results_dir
+from ml.protocol import order_statistic_threshold, speed_stratified_split
 from ml.splits import FAULT_CLASSES, development_pool, split_hash
 from ml.utils import git_sha
 
 OUT = results_dir() / "q1q3"
+SCORES = ("msp", "max_logit", "energy")  # MSP primary
 
 
-def recording_scores(model, X: np.ndarray, rec_ids: np.ndarray, floor: float) -> pd.DataFrame:
-    p = np.clip(model.predict_proba(X), floor, 1.0)
-    logits = model.decision_function(X)
-    classes = list(model.classes_)
-    df = pd.DataFrame(np.log(p), columns=classes).assign(rec_id=rec_ids)
-    lp = df.groupby("rec_id", sort=False).mean()
+def unknown_scores(model, X: np.ndarray, rec_ids: np.ndarray, floor: float) -> pd.DataFrame:
+    """Per recording: predicted class and the three unknown scores (higher = more unknown)."""
+    classes = np.asarray(model.classes_)
+    lp = pd.DataFrame(np.log(np.clip(model.predict_proba(X), floor, 1.0)), columns=classes).assign(rec_id=rec_ids)
+    lp = lp.groupby("rec_id", sort=False).mean()
     prob = np.exp(lp.to_numpy())
     prob /= prob.sum(axis=1, keepdims=True)
-    lg = pd.DataFrame(logits, columns=classes).assign(rec_id=rec_ids).groupby("rec_id", sort=False).mean()
-    return pd.DataFrame({"msp": prob.max(axis=1), "pred": np.asarray(classes)[prob.argmax(axis=1)],
-                         "max_logit": lg.to_numpy().max(axis=1), "energy": logsumexp(lg.to_numpy(), axis=1)},
+    lg = pd.DataFrame(model.decision_function(X), columns=classes).assign(rec_id=rec_ids).groupby("rec_id", sort=False).mean()
+    return pd.DataFrame({"pred": classes[prob.argmax(axis=1)], "msp": -prob.max(axis=1),
+                         "max_logit": -lg.to_numpy().max(axis=1), "energy": -logsumexp(lg.to_numpy(), axis=1)},
                         index=lp.index)
 
 
-def oscr(known_score, known_correct, unknown_score) -> float:
-    """Area under the open-set classification rate curve: correct-classification rate of knowns accepted at threshold t
-    vs the rate of unknowns accepted, over all thresholds."""
-    t = np.sort(np.unique(np.r_[known_score, unknown_score]))[::-1]
-    ccr = [0.0] + [float(np.mean((known_score >= x) & known_correct)) for x in t]
-    fpr = [0.0] + [float(np.mean(unknown_score >= x)) for x in t]
+def oscr(u_known: np.ndarray, known_correct: np.ndarray, u_unknown: np.ndarray) -> float:
+    """Area under CCR (knowns accepted AND correctly classified) vs FPR (unknowns accepted) over all thresholds."""
+    t = np.sort(np.unique(np.r_[u_known, u_unknown]))
+    ccr = [0.0] + [float(np.mean((u_known <= x) & known_correct)) for x in t]
+    fpr = [0.0] + [float(np.mean(u_unknown <= x)) for x in t]
     return float(np.trapezoid(ccr, fpr))
 
 
@@ -68,50 +74,104 @@ def main() -> int:
     cols = feature_columns(df)
     rec = pool.set_index("rec_id")
     folds = sorted(df.dev_fold.unique())
-    results, rows = {}, []
-    for w in FAULT_CLASSES:
-        known = df[df.class10 != w]
-        unk = df[df.class10 == w]
-        kscores, uscores = [], []
-        for j in folds:
-            tr, te = known[known.dev_fold != j], known[known.dev_fold == j]
-            m = logreg_pipeline(bc).fit(tr[cols].to_numpy(), tr.class10.to_numpy())
-            assert w not in m.classes_
-            kscores.append(recording_scores(m, te[cols].to_numpy(), te.rec_id.to_numpy(), bc.prob_floor))
-            uscores.append(recording_scores(m, unk[cols].to_numpy(), unk.rec_id.to_numpy(), bc.prob_floor))
-        ks = pd.concat(kscores)
-        us = pd.concat(uscores).drop(columns="pred").groupby(level=0).mean()
-        correct = (ks.pred == rec.loc[ks.index, "class10"]).to_numpy()
-        is_normal = (rec.loc[ks.index, "class10"] == "normal").to_numpy()
-        entry = {"n_known": int(len(ks)), "n_unknown": int(len(us)), "known_accuracy": float(correct.mean())}
-        for sname in oc.scores:
-            k, u = ks[sname].to_numpy(), us[sname].to_numpy()
-            thr = float(np.quantile(k, 1 - oc.acceptance))
-            y = np.r_[np.zeros(len(k)), np.ones(len(u))]
-            entry[sname] = {
-                "auroc_unknown": float(roc_auc_score(y, -np.r_[k, u])), "oscr": oscr(k, correct, u),
-                "threshold": thr, "unknown_recall": float(np.mean(u < thr)),
-                "false_unknown_rate": float(np.mean(k < thr)),
-                "false_unknown_rate_known_faults_unseen_folders": float(np.mean(k[~is_normal] < thr)),
-                "false_unknown_rate_normal_within_folder": float(np.mean(k[is_normal] < thr)),
-                "n_known_faults": int((~is_normal).sum()), "n_normal": int(is_normal.sum())}
-            rows.append({"withheld": w, "score": sname, **{kk: vv for kk, vv in entry[sname].items() if kk != "threshold"}})
-        results[w] = entry
-        print(f"  {w:24s} known acc {entry['known_accuracy']:.3f} | " + " | ".join(
-            f"{s}: AUROC {entry[s]['auroc_unknown']:.3f} OSCR {entry[s]['oscr']:.3f} recall {entry[s]['unknown_recall']:.2f} "
-            f"FU faults {entry[s]['false_unknown_rate_known_faults_unseen_folders']:.3f}" for s in ("msp", "energy")))
-    per = pd.DataFrame(rows)
-    per.to_csv(OUT / "track_c1_per_class.csv", index=False)
+    assign_rows, fold_rows, rate_rows, thr_rows = [], [], [], []
+    for c in FAULT_CLASSES:
+        for k in folds:
+            side = pool[(pool.dev_fold != k) & (pool.class10 != c)]
+            parts = pd.concat([speed_stratified_split(g, {"fit": 4, "cal": 1, "eval": 1},
+                                                      seed=dc.seed + zlib.crc32(f"{c}|{k}|{f}".encode()) % 10_000)
+                               for f, g in side.groupby("folder")])
+            assign_rows += [{"withheld": c, "outer_fold": int(k), "rec_id": r, "part": p} for r, p in parts.items()]
+            fit = df[df.rec_id.isin(parts[parts == "fit"].index)]
+            model = logreg_pipeline(bc).fit(fit[cols].to_numpy(), fit.class10.to_numpy())
+            assert c not in model.classes_
+            groups = {"cal": df[df.rec_id.isin(parts[parts == "cal"].index)],
+                      "seen": df[df.rec_id.isin(parts[parts == "eval"].index)],
+                      "unseen": df[(df.dev_fold == k) & (df.class10 != c)],
+                      "unknown": df[(df.dev_fold == k) & (df.class10 == c)]}
+            sc = {g: unknown_scores(model, d[cols].to_numpy(), d.rec_id.to_numpy(), bc.prob_floor) for g, d in groups.items()}
+            correct = (sc["unseen"].pred == rec.loc[sc["unseen"].index, "class10"]).to_numpy()
+            for s in SCORES:
+                t = order_statistic_threshold(sc["cal"][s].to_numpy(), oc.acceptance)
+                thr_rows.append({"withheld": c, "outer_fold": int(k), "score": s, **t})
+                u_kn, u_un = sc["unseen"][s].to_numpy(), sc["unknown"][s].to_numpy()
+                y = np.r_[np.zeros(len(u_kn)), np.ones(len(u_un))]
+                fold_rows.append({"withheld": c, "outer_fold": int(k), "score": s, "auroc": float(roc_auc_score(y, np.r_[u_kn, u_un])),
+                                  "oscr": oscr(u_kn, correct, u_un), "unknown_recall": float(np.mean(u_un > t["threshold"])),
+                                  "n_unknown": int(len(u_un)), "n_known_unseen": int(len(u_kn))})
+                for grp in ("seen", "unseen"):
+                    lab = rec.loc[sc[grp].index, "class10"]
+                    flagged = sc[grp][s].to_numpy() > t["threshold"]
+                    for kc in sorted(set(lab)):
+                        m = (lab == kc).to_numpy()
+                        rate_rows.append({"withheld": c, "outer_fold": int(k), "score": s, "group": grp, "known_class": kc,
+                                          "n": int(m.sum()), "false_unknowns": int(flagged[m].sum())})
+            print(f"  {c:24s} fold {k}: n cal {t['n']}, MSP AUROC {fold_rows[-3]['auroc']:.3f}, recall {fold_rows[-3]['unknown_recall']:.2f}")
+    OUT.mkdir(parents=True, exist_ok=True)
+    assign = pd.DataFrame(assign_rows)
+    assign.to_csv(OUT / "q3_fit_cal_eval_assignment.csv", index=False)
+    fr, rr, tr = pd.DataFrame(fold_rows), pd.DataFrame(rate_rows), pd.DataFrame(thr_rows)
+    fr.to_csv(OUT / "q3_per_fold.csv", index=False)
+    rr.to_csv(OUT / "q3_false_unknown_counts.csv", index=False)
+    tr.to_csv(OUT / "q3_thresholds.csv", index=False)
+
+    # Aggregates.
+    summary = {}
+    for s in SCORES:
+        f = fr[fr.score == s]
+        per_class = f.groupby("withheld").agg(auroc_mean=("auroc", "mean"), auroc_std=("auroc", "std"),
+                                              oscr_mean=("oscr", "mean"), oscr_std=("oscr", "std"), n_unknown=("n_unknown", "sum"))
+        # (c) pooled over the class's outer folds: every class-c recording counted once
+        per_class["unknown_recall"] = (f.unknown_recall * f.n_unknown).groupby(f.withheld).sum() / per_class.n_unknown
+        r = rr[rr.score == s]
+        faults_r = r[r.known_class != "normal"]
+        # per known fault class rates (pooled over folds within a withheld run), then macro over known fault classes
+        rate = faults_r.groupby(["withheld", "group", "known_class"])[["false_unknowns", "n"]].sum()
+        rate["rate"] = rate.false_unknowns / rate.n
+        macro = rate.groupby(["withheld", "group"]).rate.mean().unstack("group")
+        normal = r[r.known_class == "normal"].groupby(["withheld", "group"])[["false_unknowns", "n"]].sum()
+        normal = (normal.false_unknowns / normal.n).unstack("group")
+        per_class["fu_seen_known_faults_macro"] = macro["seen"]
+        per_class["fu_unseen_known_faults_macro"] = macro["unseen"]
+        per_class["fu_normal_seen"] = normal["seen"]
+        per_class["fu_normal_within_folder_foldk"] = normal["unseen"]
+        per_class.to_csv(OUT / f"q3_per_class_{s}.csv")
+        by_known = rate.groupby(["group", "known_class"])[["false_unknowns", "n"]].sum()
+        by_known["rate"] = by_known.false_unknowns / by_known.n
+        summary[s] = {
+            "auroc_fold_mean_over_classes": float(f.auroc.mean()), "auroc_spread_std_over_all_folds": float(f.auroc.std()),
+            "auroc_class_mean_std": [float(per_class.auroc_mean.mean()), float(per_class.auroc_mean.std())],
+            "oscr_class_mean_std": [float(per_class.oscr_mean.mean()), float(per_class.oscr_mean.std())],
+            "unknown_recall_class_mean_std": [float(per_class.unknown_recall.mean()), float(per_class.unknown_recall.std())],
+            "withheld_faults_passing_as_known": float(1 - (f.unknown_recall * f.n_unknown).sum() / f.n_unknown.sum()),
+            "fu_seen_known_faults_macro_mean": float(per_class.fu_seen_known_faults_macro.mean()),
+            "fu_unseen_known_faults_macro_mean": float(per_class.fu_unseen_known_faults_macro.mean()),
+            "fu_normal_seen_mean": float(per_class.fu_normal_seen.mean()),
+            "fu_normal_within_folder_foldk_mean": float(per_class.fu_normal_within_folder_foldk.mean()),
+            "fu_by_known_class": {f"{g}|{kc}": float(v) for (g, kc), v in by_known.rate.items()},
+            "per_class": per_class.round(4).reset_index().to_dict("records"),
+        }
+    t_s = tr[tr.score == "msp"]
+    reuse = assign[assign.part == "eval"].groupby(["withheld", "rec_id"]).size()
     out = {"provenance": {"feature_table": path.name, "split_hash": split_hash(meta), "git_sha": git_sha(),
-                          "model": "logistic regression (baselines.logreg, QuantileTransformer)", "k_folds": len(folds),
-                          "acceptance": oc.acceptance},
-           "per_class": results,
-           "summary": {s: {m: {"mean": float(per[per.score == s][m].mean()), "std": float(per[per.score == s][m].std())}
-                           for m in ("auroc_unknown", "oscr", "unknown_recall", "false_unknown_rate",
-                                     "false_unknown_rate_known_faults_unseen_folders",
-                                     "false_unknown_rate_normal_within_folder")} for s in oc.scores}}
-    (OUT / "track_c1.json").write_text(json.dumps(out, indent=1))
-    print(pd.DataFrame({s: {m: f"{v['mean']:.3f} ± {v['std']:.3f}" for m, v in d.items()} for s, d in out["summary"].items()}).to_string())
+                          "protocol": "ml/protocol.py; CLAUDE.md rule 13", "acceptance_target": oc.acceptance,
+                          "threshold_rule": "r = ceil(0.95 (n + 1)); threshold = r-th smallest calibration score; "
+                                            "accept iff score <= threshold (ties accepted)",
+                          "calibration_n_range": [int(t_s.n.min()), int(t_s.n.max())],
+                          "attainable_level_range": [float(t_s.attainable_level.min()), float(t_s.attainable_level.max())],
+                          "seen_eval_recordings_reused_across_outer_folds": int((reuse > 1).sum()),
+                          "seen_eval_recordings_total_unique_per_withheld_sum": int(len(reuse))},
+           "scores": summary}
+    (OUT / "q3_corrected.json").write_text(json.dumps(out, indent=1))
+    for s in SCORES:
+        v = summary[s]
+        print(f"{s:9s} AUROC {v['auroc_class_mean_std'][0]:.3f} ± {v['auroc_class_mean_std'][1]:.3f} | OSCR "
+              f"{v['oscr_class_mean_std'][0]:.3f} ± {v['oscr_class_mean_std'][1]:.3f} | recall "
+              f"{v['unknown_recall_class_mean_std'][0]:.3f} | FU seen faults {v['fu_seen_known_faults_macro_mean']:.3f} vs "
+              f"unseen faults {v['fu_unseen_known_faults_macro_mean']:.3f} | normal seen {v['fu_normal_seen_mean']:.3f}, "
+              f"fold-k {v['fu_normal_within_folder_foldk_mean']:.3f} | withheld passing as known "
+              f"{v['withheld_faults_passing_as_known']:.3f}")
+    print(json.dumps(out["provenance"], indent=1))
     return 0
 
 
