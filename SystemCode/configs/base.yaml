@@ -59,6 +59,27 @@ preprocess:
     mic_rolloff: 0.85
     mic_bands_hz: [[20, 250], [250, 500], [500, 1000], [1000, 2000], [2000, 4000], [4000, 8000], [8000, 10000]]
 
+  # Stage 2C-1 PROTOTYPES (not frozen): fixed order axis 128 log bins, 0.5–150 orders, for every speed. Declared
+  # operating-speed ceiling 62 Hz (150 × 62 Hz ≈ 9.3 kHz < 9.8 kHz pass-band edge). Frames: T per 1 s window, centred at
+  # window_start + (i + 0.5)·1 s/T, cut from the whole cleaned recording.
+  spectro:
+    n_orders: 128
+    order_min: 0.5
+    order_max: 150.0
+    speed_ceiling_hz: 62.0
+    eps: 1.0e-9
+    channels: [under_axial, under_radial, under_tangential, over_axial, over_radial, over_tangential]
+    candidates:
+      A_stft8192: {kind: stft, frames_per_window: 25, window: hann, win_samples: 8192, nfft: 16384}
+      B_stft32768: {kind: stft, frames_per_window: 10, window: hann, win_samples: 32768, nfft: 65536}
+      C_order8rev: {kind: order, frames_per_window: 25, window: hann, n_revs: 8.0, samples_per_rev: 512, zero_pad: 2, aa_orders: 205.0, aa_atten_db: 60.0}
+    mel_n: 128
+    mel_fmin_hz: 20.0
+    mel_fmax_hz: 10000.0
+    mel_win_samples: 2048
+    mel_nfft: 2048
+    mel_eps: 1.0e-12
+
   # Fixed band-stop for the ~22,028 Hz line (clean_recording, channels 1–7). Set from split_closed TRAIN NORMAL
   # recordings only: line + ±60/±120 Hz sidebands span 21,899.1–22,166.3 Hz, + 25 Hz margin, rounded to 5 Hz.
   # Linear-phase Kaiser FIR (80 dB, 200 Hz transitions), applied by centred convolution.

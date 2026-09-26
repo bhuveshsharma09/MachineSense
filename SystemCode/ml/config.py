@@ -96,6 +96,53 @@ class FeatureConfig(_Strict):
         (8000.0, 10000.0))
 
 
+class SpectroCandidate(_Strict):
+    """One order-spectrogram candidate (Stage 2C-1 prototypes). Frames: T per 1 s window, centred at
+    window_start + (i + 0.5) · win_s / T, cut from the whole cleaned recording (reflect-padded at its ends only).
+    kind "stft": analysis window of win_samples, FFT length nfft (zero-padding interpolates only), mapped to orders
+    with the window's speed. kind "order": resampled to samples_per_rev per revolution along the shaft angle (speed
+    profile interpolated between window speeds), frames of n_revs revolutions, FFT length n_revs·samples_per_rev·zero_pad;
+    a speed-dependent anti-alias low-pass at aa_orders × speed is applied first whenever that is below the band limit."""
+
+    kind: str  # "stft" | "order"
+    frames_per_window: int  # T
+    window: str = "hann"
+    win_samples: int = 0  # stft
+    nfft: int = 0  # stft
+    n_revs: float = 0.0  # order
+    samples_per_rev: int = 0  # order
+    zero_pad: int = 2  # order
+    aa_orders: float = 0.0  # order: anti-alias cutoff in orders
+    aa_atten_db: float = 60.0
+
+
+class SpectroConfig(_Strict):
+    """Order-spectrogram prototypes (ml.spectro). Fixed order axis for every speed: n_orders log-spaced bins from
+    order_min to order_max. Declared operating-speed ceiling speed_ceiling_hz: order_max × ceiling = 9.3 kHz stays below
+    the 9.8 kHz pass-band edge of the primary low-pass."""
+
+    n_orders: int = 128
+    order_min: float = 0.5
+    order_max: float = 150.0
+    speed_ceiling_hz: float = 62.0
+    eps: float = 1e-9  # dB floor: 20·log10(amplitude + eps)
+    channels: tuple[str, ...] = ("under_axial", "under_radial", "under_tangential", "over_axial", "over_radial",
+                                 "over_tangential")
+    candidates: dict[str, SpectroCandidate] = Field(default_factory=lambda: {
+        "A_stft8192": SpectroCandidate(kind="stft", frames_per_window=25, win_samples=8192, nfft=16384),
+        "B_stft32768": SpectroCandidate(kind="stft", frames_per_window=10, win_samples=32768, nfft=65536),
+        "C_order8rev": SpectroCandidate(kind="order", frames_per_window=25, n_revs=8.0, samples_per_rev=512,
+                                        zero_pad=2, aa_orders=205.0),
+    })
+    # Microphone log-Mel (Hz axis, cleaned mic): frame centres identical to each candidate's.
+    mel_n: int = 128
+    mel_fmin_hz: float = 20.0
+    mel_fmax_hz: float = 10000.0
+    mel_win_samples: int = 2048
+    mel_nfft: int = 2048
+    mel_eps: float = 1e-12  # 10·log10(power + eps)
+
+
 class WindowConfig(_Strict):
     """Windowing after whole-recording cleaning (ml.preprocess.window)."""
 
@@ -230,6 +277,7 @@ class PreprocessConfig(_Strict):
     lowpass: LowpassConfig = Field(default_factory=LowpassConfig)
     window: WindowConfig = Field(default_factory=WindowConfig)
     features: FeatureConfig = Field(default_factory=FeatureConfig)
+    spectro: SpectroConfig = Field(default_factory=SpectroConfig)
     envelope: EnvelopeConfig = Field(default_factory=EnvelopeConfig)
     comb: CombConfig = Field(default_factory=CombConfig)
     expected_class_counts: dict[str, int] = Field(default_factory=lambda: dict(EXPECTED_CLASS_COUNTS))
