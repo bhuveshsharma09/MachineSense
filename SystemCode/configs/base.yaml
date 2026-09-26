@@ -63,6 +63,10 @@ preprocess:
   # operating-speed ceiling 62 Hz (150 × 62 Hz ≈ 9.3 kHz < 9.8 kHz pass-band edge). Frames: T per 1 s window, centred at
   # window_start + (i + 0.5)·1 s/T, cut from the whole cleaned recording.
   spectro:
+    leading_candidate: C_order8rev  # decision 27 Sep 2026; frozen only if the speed-risk check passes
+    fallback_candidate: B_stft32768
+    rejected_candidates: [A_stft8192]  # did not separate 0.5x from 1x at 12 Hz
+    frozen: false
     n_orders: 128
     order_min: 0.5
     order_max: 150.0

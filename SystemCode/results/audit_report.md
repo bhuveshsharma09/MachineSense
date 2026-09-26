@@ -369,6 +369,21 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   evaluated once at the end.
 - **Q3:** false-unknown rate on known classes at held-out severities.
 
+### Decisions and facts of 27 Sep 2026 (Stage 2C-2/2D)
+- **Representation:** candidate C (order-domain resampling, 8 rev × 512 samples/rev, Kaiser anti-alias at 205 × speed,
+  128 log order bins 0.5–150, T = 25) plus the aligned 128-bin microphone log-Mel is the leading candidate, not yet
+  frozen; B is the fallback; A is rejected. The speed-from-sharpness diagnostic used **logistic regression** (not a
+  random forest): C's lower score (0.668 vs A 0.943, B 0.761; permutation ≈ 0.32) shows less speed-dependent
+  resolution; it does not show C is free of shortcuts, and speed is real physical information on this machine.
+- **Microphone:** current cleaning policy kept. The burst comparison has no speed-matched controls (flags begin near
+  20 Hz within each affected folder); residue is untested, not shown to be absent.
+- **Classical reference:** logistic regression on the capped table, a simple reference with competitive development
+  performance; paired advantage over capped LightGBM +0.046 [+0.011, +0.095] on these development folds. LightGBM stays a
+  reported rung; the walking-skeleton stub will be logistic regression.
+- **Tacho fallback (new fact):** all 94 fallback recordings run at ≥ 38.5 Hz (median 49.4 Hz); 92 are
+  `split_speed_block` test; none is in the development pool. Speed fallback matters mainly for the reserved speed-block
+  test and for fast machines in the app.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the

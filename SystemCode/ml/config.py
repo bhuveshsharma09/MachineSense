@@ -121,6 +121,12 @@ class SpectroConfig(_Strict):
     order_min to order_max. Declared operating-speed ceiling speed_ceiling_hz: order_max × ceiling = 9.3 kHz stays below
     the 9.8 kHz pass-band edge of the primary low-pass."""
 
+    # Decision 27 Sep 2026: C is the leading candidate (frozen only if the speed-risk check passes); B the fallback;
+    # A rejected (no 0.5× / 1× separation at 12 Hz).
+    leading_candidate: str = "C_order8rev"
+    fallback_candidate: str = "B_stft32768"
+    rejected_candidates: tuple[str, ...] = ("A_stft8192",)
+    frozen: bool = False
     n_orders: int = 128
     order_min: float = 0.5
     order_max: float = 150.0

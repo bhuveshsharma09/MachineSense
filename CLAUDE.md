@@ -140,6 +140,21 @@ Graders run the app on a Linux or Windows CPU.
     is rated to 5 kHz) or remove all artefacts. The choice uses engineering considerations and the permitted development
     comparison (−0.005 [−0.012, +0.001], LightGBM). `base.yaml` carries it; the band-stop-only table (r1) is kept for the
     record via `configs/variants/r1_bandstop_only.yaml`.
+- **Decisions of 27 Sep 2026:**
+  - **Representation:** candidate C is the LEADING candidate, not yet frozen: order-domain resampling, 8 revolutions ×
+    512 samples/rev, Kaiser anti-alias at 205 × speed, 128 log order bins 0.5–150, T = 25, plus the 128-bin microphone
+    log-Mel aligned to the same frame times. B is the fallback; A is rejected (it did not separate 0.5× from 1× at 12 Hz).
+    C's lower speed-from-sharpness score (logistic regression; 0.668 vs A 0.943, B 0.761; permutation ≈ 0.32) shows less
+    speed-dependent resolution; it does not show C is free of shortcuts, and speed is real physical information here.
+  - **Microphone:** the current cleaning policy stays. The burst comparison has no speed-matched controls (flags begin near
+    20 Hz within each affected folder); residue is untested, not shown to be absent.
+  - **Classical reference:** logistic regression on the capped table, "a simple reference with competitive development
+    performance; paired advantage over capped LightGBM +0.046 [+0.011, +0.095] on these development folds". LightGBM stays
+    a reported rung. The walking-skeleton stub will be logistic regression. The chosen representation still needs its
+    own model evaluation later.
+  - **Tacho fallback:** all 94 fallback recordings (no measurable window speed) run at ≥ 38.5 Hz (median 49 Hz); 92 are
+    `split_speed_block` test and none is in the development pool. Speed fallback matters mainly for the reserved
+    speed-block test and for fast machines in the app.
 - **Development-evaluation limits (Stage 2B.1):** folders are session proxies; normal is evaluated within its single
   folder; speeds are below 40 Hz; cleaning settings were inherited from earlier development and are not re-evaluated per
   fold. The 2B.1 results are the classical benchmark; no feature redesign around the difficult folders.
@@ -246,24 +261,21 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage 2C-1 — representation prototypes
+## 7. Current stage: Stage 2C-2/2D — confirm the representation, build its cache, classical Q1/Q3 baselines
 
-Stages 1–2B.1 are done (data, preprocessing, R1 physics features, classical baselines and the folder-grouped development
-evaluation, which is the classical benchmark).
+Stages 1–2C-1 are done. No deep models in this stage. Development evaluation uses the 2B.1 pool and
+`results/dev_folds.csv` only; reserved tests stay sealed. LOCO rule: the withheld class is excluded from fitting,
+scaling, calibration and thresholds within its own LOCO run.
 
-Stage 2C-1 scope (prototype only: no full spectrogram cache, no frozen shape, no model training beyond the named items):
-0. Record the 26 Sep decisions and reporting fixes (this file, config, notebooks 05/05b).
-1. Capped logistic-regression reference on the 2B.1 development folds, paired against LightGBM (capped).
-2. Order-spectrogram candidates in `ml/spectro.py` (fixed 128-bin log order axis, 0.5–150 orders; operating-speed
-   ceiling 62 Hz): (A) the plan's 8,192-sample STFT, (B) a longer analysis window, (C) order-domain resampling with a
-   speed-dependent anti-alias filter. Resolution, T, galleries and a speed-sharpness diagnostic per candidate.
-3. Microphone log-Mel candidates (128 Mel bins to 10 kHz) with frame times aligned to each spectrogram candidate; cap
-   verification and a burst-residue diagnostic.
-4. Stop for Bhuvesh's representation choice: shape, float16 size, projected build time and cache-key inputs per candidate.
-5. `notebooks/02_feature_layer/04_representations.ipynb` (first part).
-
-Exploratory subset: `split_closed` TRAIN ∩ the 2B.1 development pool, class-stratified, about 10 %. Real recordings at
-40 Hz and above are reserved, so any 60 Hz example is synthetic.
+0. Record the 27 Sep decisions (this file, config, audit report).
+1. Speed-risk check C vs B (rule committed before running): real group (ii) = split_closed train ∩ dev pool with
+   speed_range_pct > 1 %, group (iii) = matched clean references; synthetic stress = corrupted tacho → fallback, supplied
+   speed offset ±0.5/±1/±2 %. Freeze C only if it passes; otherwise stop and report.
+2. Full representation cache for the frozen candidate (N × 7 × 128 × 25, float16), checks, serving parity and latency,
+   `ml.datasets.norm_stats(track)`, notebook 04 part 2.
+3. Healthy-only detectors (Track B baselines B0–B3, B1s) on the capped R1 features: Q1 metrics and controls.
+4. Unknown-fault baselines (Track C1): logistic regression, LOCO over the 9 fault classes on the dev pool; Q3 control.
+5. Deck-ready figures.
 
 ## 7b. Plan notes (planned controls, not yet implemented)
 
