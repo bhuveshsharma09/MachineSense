@@ -82,18 +82,18 @@ class FeatureConfig(_Strict):
     tolerance_hz = max(order_tol_bins × bin spacing, order_tol_rel × line frequency); bin spacing = 1 / win_s
     (1 Hz for 1 s windows). Zero-padding interpolates the spectrum only; it adds no resolution."""
 
-    version: str = "r1-1.0"  # bump whenever a definition changes; part of every feature cache's identity
+    version: str = "r1cap10-1.0"  # bump whenever a definition changes; part of every feature cache's identity
     order_tol_bins: float = 1.5  # Hann main lobe ±2 bins; ±1.5 bins keeps neighbouring integer orders apart ≥ 12 Hz
     order_tol_rel: float = 0.005  # speed uncertainty and within-window drift grow with order
     zero_pad: int = 4
     accel_orders: tuple[float, ...] = (0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
     envelope_channels: tuple[str, ...] = ("under_radial", "over_radial")  # one radial channel per bearing
     envelope_ref_orders: tuple[float, float] = (0.2, 12.0)  # median of the envelope spectrum here = the reference
-    mic_max_hz: float = 20000.0  # below the band-stop, so the stop band is excluded
+    mic_max_hz: float = 10000.0  # the primary pipeline is capped at 10 kHz (the band-stop-only record used 20 kHz)
     mic_rolloff: float = 0.85
     mic_bands_hz: tuple[tuple[float, float], ...] = (
         (20.0, 250.0), (250.0, 500.0), (500.0, 1000.0), (1000.0, 2000.0), (2000.0, 4000.0), (4000.0, 8000.0),
-        (8000.0, 12000.0), (12000.0, 16000.0), (16000.0, 20000.0))
+        (8000.0, 10000.0))
 
 
 class WindowConfig(_Strict):
@@ -119,10 +119,12 @@ class BandStopConfig(_Strict):
 
 
 class LowpassConfig(_Strict):
-    """Optional fixed low-pass on channels 1–7 in clean_recording (sensitivity variant r1cap10 only). Linear-phase
-    Kaiser FIR (firwin), cutoff midway between the pass-band and stop-band edges, applied by centred convolution."""
+    """Fixed low-pass on channels 1–7 in clean_recording. PRIMARY since 26 Sep 2026 (pipeline r1cap10): a pragmatic
+    bandwidth limit that reduces exposure to the identified high-frequency interference; it does not guarantee
+    calibrated measurements (the 604B31 is rated to 5 kHz) or remove all artefacts. Linear-phase Kaiser FIR (firwin),
+    cutoff midway between the pass-band and stop-band edges, applied by centred convolution."""
 
-    enabled: bool = False
+    enabled: bool = True
     pass_hz: float = 9800.0
     stop_hz: float = 10200.0
     # Requirement: ≥ 80 dB stop band, ≤ 0.01 dB pass-band ripple. kaiserord(80 dB) fell just short (79.73 dB measured),
@@ -246,9 +248,9 @@ class BaselineConfig(_Strict):
     seed; no tuning. Scalers and any learned preprocessing are fitted on training data only."""
 
     seed: int = 42
-    feature_table: str = "r1"  # data/features/<feature_table>_<key>.parquet
-    sensitivity_table: str = "r1cap10"
-    sensitivity_config: str = "variants/r1cap10.yaml"  # relative to configs/
+    feature_table: str = "r1cap10"  # data/features/<feature_table>_<key>.parquet (primary since 26 Sep 2026)
+    sensitivity_table: str = "r1"  # the band-stop-only table, kept for the record
+    sensitivity_config: str = "variants/r1_bandstop_only.yaml"  # relative to configs/
     class_weight: str | None = "balanced"  # LightGBM, random forest, SVM, logistic regression (macro-F1 target)
     # Scaled models (SVM, k-NN, logistic regression): QuantileTransformer to a normal distribution, fitted on train.
     quantile_n: int = 1000

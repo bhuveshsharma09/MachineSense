@@ -1,10 +1,10 @@
 """R1 physics features (Stage 2A).
 
-    python scripts/07_features.py dictionary             # write results/feature_dictionary.csv
+    python scripts/07_features.py dictionary             # results/feature_dictionary.csv (primary) or _<version>.csv
     python scripts/07_features.py subset --fraction 0.1  # class-stratified subset of split_closed TRAIN → cache
-    python scripts/07_features.py full --name r1         # every recording, primary pipeline → data/features/
-    python scripts/07_features.py full --name r1cap10 --config configs/variants/r1cap10.yaml
-    python scripts/07_features.py lowpass-edge --config configs/variants/r1cap10.yaml  # measured edge effect
+    python scripts/07_features.py full --name r1cap10    # every recording, primary pipeline → data/features/
+    python scripts/07_features.py full --name r1 --config configs/variants/r1_bandstop_only.yaml  # the earlier record
+    python scripts/07_features.py lowpass-edge           # measured edge effect of the primary low-pass
 
 The subset cache is data/cache/r1_subset_<key12>.parquet; full tables are data/features/<name>_<key12>.parquet, keyed by ml.cache.feature_cache_key (full config,
 feature definitions, source npy checksums and speeds). Full caches are not built in Stage 2A.
@@ -36,9 +36,9 @@ def load(rec_id: str) -> np.ndarray:
     return np.load(data_dir() / "raw_npy" / f"{rec_id}.npy")
 
 
-def write_dictionary(pre: PreprocessConfig) -> None:
+def write_dictionary(pre: PreprocessConfig, primary: bool) -> None:
     d = feature_dictionary(pre)
-    out = results_dir() / "feature_dictionary.csv"
+    out = results_dir() / ("feature_dictionary.csv" if primary else f"feature_dictionary_{pre.features.version}.csv")
     d.to_csv(out, index=False)
     print(f"{len(d)} features ({pre.features.version}) → {out.relative_to(SYSTEM_CODE_DIR)}")
 
@@ -118,14 +118,14 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("task", choices=["dictionary", "subset", "full", "lowpass-edge"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
-    ap.add_argument("--name", default="r1")
+    ap.add_argument("--name", default="r1cap10")
     ap.add_argument("--fraction", type=float, default=0.1)
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 4) - 2))
     args = ap.parse_args()
     pre = load_config(args.config).preprocess
     meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
     if args.task == "dictionary":
-        write_dictionary(pre)
+        write_dictionary(pre, primary=args.config == DEFAULT_CONFIG)
     elif args.task == "subset":
         run_subset(meta, pre, args.fraction, args.workers)
     elif args.task == "full":

@@ -1,4 +1,5 @@
-# Sensitivity variant r1cap10, declared 26 Sep 2026 BEFORE any results (Stage 2B item 4).
+# Variant r1cap10, declared 26 Sep 2026 BEFORE any results (Stage 2B item 4); since 26 Sep 2026 it is the PRIMARY
+# pipeline and base.yaml carries the same settings, so this file now resolves to the same config (kept for the record).
 # Same pipeline as base.yaml, plus a fixed zero-phase linear-phase FIR low-pass on channels 1–7 in clean_recording,
 # before every feature (including microphone RMS and all accelerometer statistics), and microphone bands up to 10 kHz.
 # Interpretation rule: a performance drop shows dependence on the removed information; it does not prove that

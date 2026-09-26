@@ -135,6 +135,14 @@ Graders run the app on a Linux or Windows CPU.
     falling back to the recording speed. Fallback indicators and speed-variability statistics are never model inputs.
   - **22 kHz line: a fixed band-stop** (above), set from `split_closed` train normal recordings only.
   - **Microphone cleaning is a provisional mitigation**; it is re-checked on the microphone representation in Stage 2C.
+  - **Primary pipeline: the 10 kHz-capped variant r1cap10 (decided 26 Sep 2026).** A pragmatic bandwidth limit that reduces
+    exposure to the identified high-frequency interference; it does not guarantee calibrated measurements (the 604B31
+    is rated to 5 kHz) or remove all artefacts. The choice uses engineering considerations and the permitted development
+    comparison (−0.005 [−0.012, +0.001], LightGBM). `base.yaml` carries it; the band-stop-only table (r1) is kept for the
+    record via `configs/variants/r1_bandstop_only.yaml`.
+- **Development-evaluation limits (Stage 2B.1):** folders are session proxies; normal is evaluated within its single
+  folder; speeds are below 40 Hz; cleaning settings were inherited from earlier development and are not re-evaluated per
+  fold. The 2B.1 results are the classical benchmark; no feature redesign around the difficult folders.
 - "Imbalance" means imbalance-only. About three-quarters of the bearing recordings also carry imbalance mass.
 
 ## 4. Repository layout (target)
@@ -197,6 +205,8 @@ MachineSense-Project/                 repo root
     itself may leave a trace, so the ban on mic peak statistics stays even after cleaning. The cleaning is a
     provisional mitigation, re-checked on the microphone representation in Stage 2C.
 11. **`clean_recording` is applied to the whole recording before windowing, at training and serving.**
+12. **Selection protocol.** Model and variant choices use the folder-grouped development scheme (the 2B.1 pool, K = 3).
+    Closed-set ties are broken by simplicity and latency. Reserved tests are never used for selection.
 
 ## 6. Working method: exploration → development
 
@@ -236,25 +246,24 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage 2A — shared preprocessing, windowing and physics features
+## 7. Current stage: Stage 2C-1 — representation prototypes
 
-Stages 1, 1b and 1c (data foundation, signal exploration, fold-safe preprocessing rules) are **done**, 26 Sep 2026.
+Stages 1–2B.1 are done (data, preprocessing, R1 physics features, classical baselines and the folder-grouped development
+evaluation, which is the classical benchmark).
 
-Stage 2A scope, verified on a small training subset only (no full caches, no predictive models, no spectrograms;
-the only model allowed is the diagnostic RandomForest of the band-stop shortcut test):
+Stage 2C-1 scope (prototype only: no full spectrogram cache, no frozen shape, no model training beyond the named items):
+0. Record the 26 Sep decisions and reporting fixes (this file, config, notebooks 05/05b).
+1. Capped logistic-regression reference on the 2B.1 development folds, paired against LightGBM (capped).
+2. Order-spectrogram candidates in `ml/spectro.py` (fixed 128-bin log order axis, 0.5–150 orders; operating-speed
+   ceiling 62 Hz): (A) the plan's 8,192-sample STFT, (B) a longer analysis window, (C) order-domain resampling with a
+   speed-dependent anti-alias filter. Resolution, T, galleries and a speed-sharpness diagnostic per candidate.
+3. Microphone log-Mel candidates (128 Mel bins to 10 kHz) with frame times aligned to each spectrogram candidate; cap
+   verification and a burst-residue diagnostic.
+4. Stop for Bhuvesh's representation choice: shape, float16 size, projected build time and cache-key inputs per candidate.
+5. `notebooks/02_feature_layer/04_representations.ipynb` (first part).
 
-1. `ml.preprocess.clean_recording(x, cfg)`: whole-recording mic burst removal, then the band-stop on channels 1–7;
-   the tachometer is returned untouched.
-2. The band-stop: set from `split_closed` train normal recordings, checked (not retuned) on other train/val
-   recordings, verified (designed response, synthetic signals, real recordings) and shortcut-tested.
-3. `ml.preprocess.window`: 1 s windows, 0.5 s hop, 9 per recording, DC removed per window.
-4. `ml.features.recording_features(x_raw, fr_hz, cfg)`: the one feature entry point for batch and serving.
-   Feature columns start with `f_`; model code selects features by that prefix only.
-5. Cache identity: every derived artifact is named by the sha256 of everything that changes its values.
-6. Subset run and checks in `notebooks/02_feature_layer/03_windows_physics_features.ipynb` (first half).
-7. Blue notes in notebook 00.
-
-Stop after Stage 2A and report. Don't build spectrograms, full caches or models without a go-ahead.
+Exploratory subset: `split_closed` TRAIN ∩ the 2B.1 development pool, class-stratified, about 10 %. Real recordings at
+40 Hz and above are reserved, so any 60 Hz example is synthetic.
 
 ## 7b. Plan notes (planned controls, not yet implemented)
 

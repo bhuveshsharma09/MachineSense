@@ -22,8 +22,7 @@ import pandas as pd
 
 from ml.config import PreprocessConfig, load_config
 from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, cache_file, data_dir
-from ml.preprocess import (apply_fir_centred, bandstop_taps, clean_recording, measure_edge_effect, propose_stopband,
-                           remove_mic_bursts)
+from ml.preprocess import apply_fir_centred, bandstop_taps, measure_edge_effect, propose_stopband, remove_mic_bursts
 
 SEARCH_HZ = (21_800.0, 22_300.0)  # main line search range (the line drifts by session; see notebook 03)
 SIDEBANDS = (-120.0, -60.0, 60.0, 120.0)
@@ -126,14 +125,15 @@ def verify_one(args: tuple[str, PreprocessConfig]) -> dict:
 
 
 def shortcut_one(args: tuple[str, PreprocessConfig]) -> dict:
-    """Energy (V²) in the stop band per channel 1–7, before (mic cleaned) and after clean_recording; plus, as a
+    """Energy (V²) in the stop band per channel 1–7, before (mic cleaned) and after the band-stop; plus, as a
     diagnostic, the energy in two bands next to it (outside the transitions), which the filter does not touch."""
     rec_id, pre = args
     x = load(rec_id)
     raw = x.astype(np.float64)
     mic = pre.channels.index("mic")
     raw[:, mic] = remove_mic_bursts(raw[:, mic], pre.mic.burst_z, pre.mic.burst_pad)[0]
-    clean = clean_recording(x, pre)[0].astype(np.float64)
+    clean = raw.copy()  # mic cleaned, then the band-stop alone (independent of the low-pass setting)
+    clean[:, 1:] = apply_fir_centred(clean[:, 1:], bandstop_taps(pre))
     b = pre.bandstop
     row = {"rec_id": rec_id}
     for name, sig in (("before", raw), ("after", clean)):

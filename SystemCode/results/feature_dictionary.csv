@@ -132,7 +132,7 @@ f_env_over_radial_bpfi2,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert)
 f_env_under_radial_bpfi2_p1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 11.004 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
 f_env_over_radial_bpfi2_p1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 11.004 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
 f_mic_rms,V,RMS of the cleaned microphone window,mic
-f_mic_centroid_hz,Hz,"power-weighted mean frequency, 20 Hz–20 kHz",mic
+f_mic_centroid_hz,Hz,"power-weighted mean frequency, 20 Hz–10 kHz",mic
 f_mic_rolloff_hz,Hz,frequency below which 85% of the power lies (same range),mic
 f_mic_logband_20_250,log10 V²,log10 of the power in 20–250 Hz,mic
 f_mic_logband_250_500,log10 V²,log10 of the power in 250–500 Hz,mic
@@ -140,6 +140,4 @@ f_mic_logband_500_1000,log10 V²,log10 of the power in 500–1000 Hz,mic
 f_mic_logband_1000_2000,log10 V²,log10 of the power in 1000–2000 Hz,mic
 f_mic_logband_2000_4000,log10 V²,log10 of the power in 2000–4000 Hz,mic
 f_mic_logband_4000_8000,log10 V²,log10 of the power in 4000–8000 Hz,mic
-f_mic_logband_8000_12000,log10 V²,log10 of the power in 8000–12000 Hz,mic
-f_mic_logband_12000_16000,log10 V²,log10 of the power in 12000–16000 Hz,mic
-f_mic_logband_16000_20000,log10 V²,log10 of the power in 16000–20000 Hz,mic
+f_mic_logband_8000_10000,log10 V²,log10 of the power in 8000–10000 Hz,mic

@@ -12,8 +12,9 @@ T = np.arange(N) / FS
 # A test band-stop (the real edges are set from data in notebook 03).
 BS = BandStopConfig(enabled=True, stop_lo_hz=21_850.0, stop_hi_hz=22_200.0, transition_hz=100.0, numtaps=2001,
                     window=("kaiser", 8.0))
-CFG_ON = PreprocessConfig(bandstop=BS)
-CFG_OFF = PreprocessConfig(bandstop=PreprocessConfig().bandstop.model_copy(update={"enabled": False}))
+_NO_LP = PreprocessConfig().lowpass.model_copy(update={"enabled": False})  # isolate the band-stop in these tests
+CFG_ON = PreprocessConfig(bandstop=BS, lowpass=_NO_LP)
+CFG_OFF = PreprocessConfig(bandstop=PreprocessConfig().bandstop.model_copy(update={"enabled": False}), lowpass=_NO_LP)
 
 
 def _recording(seed=0):
@@ -91,7 +92,9 @@ def test_lowpass_variant():
     from ml.paths import CONFIGS_DIR
 
     cap = load_config(CONFIGS_DIR / "variants" / "r1cap10.yaml").preprocess
-    assert cap.lowpass.enabled and not PreprocessConfig().lowpass.enabled
+    old = load_config(CONFIGS_DIR / "variants" / "r1_bandstop_only.yaml").preprocess
+    assert cap.lowpass.enabled and PreprocessConfig().lowpass.enabled and not old.lowpass.enabled
+    assert cap == PreprocessConfig()  # the capped pipeline is the primary since 26 Sep 2026
     x = np.zeros((N, 8), np.float32)
     x[:, 0] = np.where((T * 30) % 1 < 0.12, 4.6, -0.7)
     keep = 0.3 * np.sin(2 * np.pi * 5_000 * T)

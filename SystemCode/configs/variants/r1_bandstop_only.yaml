@@ -1,0 +1,12 @@
+# The band-stop-only pipeline (primary until 26 Sep 2026), kept for the record: table data/features/r1_<key>.parquet,
+# the Stage 2A/2B results and notebooks 03/05. Same as base.yaml without the 10 kHz low-pass, with the original
+# feature version and microphone bands up to 20 kHz.
+extends: ../base.yaml
+
+preprocess:
+  lowpass:
+    enabled: false
+  features:
+    version: r1-1.0
+    mic_max_hz: 20000.0
+    mic_bands_hz: [[20, 250], [250, 500], [500, 1000], [1000, 2000], [2000, 4000], [4000, 8000], [8000, 12000], [12000, 16000], [16000, 20000]]
