@@ -301,6 +301,19 @@ def recording_features(x_raw: np.ndarray, fr_hz: float, cfg: PreprocessConfig) -
     return pd.DataFrame(rows)
 
 
+def batch_features(recordings: pd.DataFrame, cfg: PreprocessConfig, load: Callable[[str], np.ndarray],
+                   keep: tuple[str, ...] = ()) -> pd.DataFrame:
+    """Batch path: recording_features for each row of `recordings` (needs rec_id and fr_measured_hz), with rec_id
+    and the `keep` metadata columns (e.g. split columns) added in front. Serving calls recording_features directly;
+    both go through the same function, so their features are identical."""
+    frames = []
+    for row in recordings.itertuples(index=False):
+        df = recording_features(load(row.rec_id), float(row.fr_measured_hz), cfg)
+        meta = {"rec_id": row.rec_id, **{k: getattr(row, k) for k in keep}}
+        frames.append(pd.concat([pd.DataFrame([meta] * len(df)), df], axis=1))
+    return pd.concat(frames, ignore_index=True)
+
+
 def feature_columns(df: pd.DataFrame) -> list[str]:
     """The model inputs: every column with the f_ prefix, and nothing else."""
     return [c for c in df.columns if c.startswith(FEATURE_PREFIX)]
