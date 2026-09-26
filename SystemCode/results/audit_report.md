@@ -250,6 +250,26 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   `imbalance__15g__21.0944` 2.64 %. These are also the files whose speed methods disagreed most (section 2).
 - Whether Stage 2 uses per-window speed for the order axis is an open decision.
 
+### Other anomalies (exploratory, time-boxed; unresolved unless stated)
+- **22 kHz tone, per recording** (train + val, 1,661 recordings): line at 22,028.8 Hz (IQR 22,027.0–22,030.0), ±60 Hz
+  sidebands about 2–5 % of the line. Its level is **strongly folder-linked** (Kruskal–Wallis p ≤ 6e-18 across classes on
+  every channel checked): on the underhang axial channel whole folders sit at about 4–10 mV (every horizontal-
+  misalignment severity, overhang ball 0 g, overhang outer 0 g, underhang ball 35 g, underhang outer 6 g) while others
+  carry 130–870 mV. This pattern follows acquisition folders rather than fault physics and is consistent with
+  electrical interference. It is a **shortcut risk** for any representation that reaches 22 kHz. **Proposed, not
+  applied:** zero-phase IIR notches at the recording's measured line f0 and f0 ± 60, ± 120 Hz (Q ≈ 11,000, ~2 Hz wide),
+  or excluding 21.8–22.3 kHz from spectrogram and log-Mel representations. The envelope bands in use already avoid it.
+  Figure `results/figures/02_tone_by_class.png`.
+- **Shared ~10 kHz peak** (34 train normal recordings): all three `under_*` channels have a weak peak at 9.2–10.0 kHz
+  (1.4–3.1 × above the surroundings); among `over_*` only radial does (9.4 kHz). Consistent with the `under_*` group
+  being the triaxial 604B31 (10 kHz resonance), not proof. **Unresolved observation.**
+- **Misalignment response** (327 train misalignment recordings with ≥ 3 train normals within ±3 Hz): 1× and 2× rise on
+  the overhang channels (horizontal: over_radial 1× +9.7 dB; vertical: over_tangential 2× +10.6 dB, over_radial 2×
+  +5.4 dB), underhang channels within ±2.6 dB; over_axial falls for vertical misalignment (−11.5 dB at 1×).
+  MAFAULDA places the underhang bearing "between the rotor and the motor", nearer the coupling, so this is again
+  consistent with swapped channel groups, but vibration also travels through rotor and frame. **Unresolved
+  observation**; channel names unchanged.
+
 ## 10. Open items
 - Decide whether to rename the accelerometer channel groups (section 8, swap evidence). This changes the
   representation, so it needs a decision.

@@ -7,6 +7,8 @@
     python scripts/03_signal_scan.py sensor     # > 1 kHz RMS and kurtosis per accelerometer (train, 0 g bearings + normal)
     python scripts/03_signal_scan.py bandcompare  # envelope spectra in the closed-track band and in 1–5 kHz (train only)
     python scripts/03_signal_scan.py micalign   # mic |robust z| aligned on flagged runs, raw and cleaned (train + val)
+    python scripts/03_signal_scan.py tone       # 22,028 Hz line and ±60/±120 Hz sidebands per channel (train + val)
+    python scripts/03_signal_scan.py shaft      # 1× and 2× order amplitude per accelerometer (train normal + misalignment)
     python scripts/03_signal_scan.py all
 
 Test recordings are never read. Cache names carry the sha256 of the config sections each task depends on.
@@ -26,7 +28,7 @@ from scipy.signal import welch
 from scipy.stats import kurtosis
 
 from ml.config import PreprocessConfig, load_config
-from ml.features import band_grid, band_kurtosis, envelope_order_spectrum
+from ml.features import band_grid, band_kurtosis, envelope_order_spectrum, order_spectrum
 from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, cache_file, data_dir
 from ml.preprocess import remove_mic_bursts
 
@@ -41,7 +43,7 @@ SENSOR_HP_HZ = 1000.0  # bearing impacts live above the shaft harmonics
 
 def cache_path(task: str, *sections) -> Path:
     """Cache for one task: data/cache/02_<task>_<sha12>.<ext> (see ml.paths.cache_file)."""
-    return cache_file(f"02_{task}", *sections, ext="parquet" if task in ("mic", "sk", "sensor") else "npz")
+    return cache_file(f"02_{task}", *sections, ext="parquet" if task in ("mic", "sk", "sensor", "tone", "shaft") else "npz")
 
 
 def load(rec_id: str) -> np.ndarray:
@@ -153,6 +155,46 @@ def micalign_one(args: tuple[str, PreprocessConfig]) -> dict:
             "run_len": (ends - starts + 1)[ok], "random": z_clean[rnd].astype(np.float32)}
 
 
+TONE_HZ = 22028.0
+TONE_OFFSETS = (-120.0, -60.0, 0.0, 60.0, 120.0)
+
+
+def tone_one(args: tuple[str, PreprocessConfig]) -> list[dict]:
+    """Amplitude (V) of the 22,028 Hz line and its ±60/±120 Hz sidebands per channel, from one 5 s Hann spectrum
+    (0.2 Hz bins): peak within ±3 Hz of each line (the main line's measured frequency sets the sideband positions),
+    plus the median amplitude over 21.5–22.5 kHz as the local floor."""
+    rec_id, pre = args
+    x = load(rec_id).astype(np.float64)
+    x[:, MIC] = remove_mic_bursts(x[:, MIC], pre.mic.burst_z, pre.mic.burst_pad)[0]
+    w = np.hanning(x.shape[0])
+    amp = 2 * np.abs(np.fft.rfft((x - x.mean(axis=0)) * w[:, None], axis=0)) / w.sum()
+    f = np.fft.rfftfreq(x.shape[0], 1 / pre.fs_hz)
+    rows = []
+    for c, ch in enumerate(pre.channels):
+        near = (f > TONE_HZ - 3) & (f < TONE_HZ + 3)
+        f0 = f[near][np.argmax(amp[near, c])]
+        row = {"rec_id": rec_id, "channel": ch, "f0_hz": f0,
+               "floor": float(np.median(amp[(f > 21500) & (f < 22500), c]))}
+        for off in TONE_OFFSETS:
+            band = (f > f0 + off - 3) & (f < f0 + off + 3)
+            row[f"a{int(off):+d}"] = float(amp[band, c].max())
+        rows.append(row)
+    return rows
+
+
+def shaft_one(args: tuple[str, float, PreprocessConfig]) -> dict:
+    """1× and 2× shaft-order amplitude (V) per accelerometer: peak within ±0.02 orders of each."""
+    rec_id, fr, pre = args
+    x = load(rec_id)
+    orders = np.arange(0.5, 2.5, 0.001)
+    row = {"rec_id": rec_id}
+    for c in ACCELS:
+        spec = order_spectrum(x[:, c], pre.fs_hz, fr, orders)
+        for h in (1, 2):
+            row[f"{pre.channels[c]}_{h}x"] = float(spec[np.abs(orders - h) <= 0.02].max())
+    return row
+
+
 def sensor_one(args: tuple[str, PreprocessConfig]) -> dict:
     """High-passed (> 1 kHz, FFT mask) RMS and kurtosis per accelerometer: which sensor hears the bearing."""
     rec_id, pre = args
@@ -226,6 +268,19 @@ def run(task: str, meta: pd.DataFrame, pre: PreprocessConfig, workers: int) -> P
                                 random=np.concatenate([r["random"] for r in res]),
                                 rec_id=np.concatenate([[r["rec_id"]] * len(r["run_len"]) for r in res]))
             n = len(sel)
+        elif task == "tone":
+            out = cache_path(task, pre.mic)
+            rows = [r for rs in pool.map(tone_one, [(r, pre) for r in trval.rec_id], chunksize=4) for r in rs]
+            pd.DataFrame(rows).merge(trval[["rec_id", "class10", "severity", "fr_measured_hz", "split_closed"]]).to_parquet(
+                out, index=False)
+            n = len(trval)
+        elif task == "shaft":
+            out = cache_path(task)
+            sel = train[train.class10.isin(["normal", "horizontal_misalignment", "vertical_misalignment"])]
+            df = pd.DataFrame(list(pool.map(shaft_one, [(r, fr, pre) for r, fr in zip(sel.rec_id, sel.fr_measured_hz)],
+                                            chunksize=4)))
+            df.merge(sel[["rec_id", "class10", "severity", "fr_measured_hz"]]).to_parquet(out, index=False)
+            n = len(sel)
         elif task == "sensor":
             out = cache_path(task)  # depends on no config setting
             sel = train[((train.fault_family == "bearing") & (train.severity == 0)) | (train.class10 == "normal")]
@@ -240,7 +295,8 @@ def run(task: str, meta: pd.DataFrame, pre: PreprocessConfig, workers: int) -> P
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["mic", "meanspec", "sk", "envelope", "sensor", "bandcompare", "micalign", "all"])
+    ap.add_argument("task", choices=["mic", "meanspec", "sk", "envelope", "sensor", "bandcompare", "micalign", "tone", "shaft",
+                                         "all"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 4) - 2))
     args = ap.parse_args()
@@ -248,7 +304,8 @@ def main() -> int:
     pre = load_config(args.config).preprocess
     meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
     (data_dir() / "cache").mkdir(parents=True, exist_ok=True)
-    for task in (["mic", "meanspec", "sk", "envelope", "sensor", "bandcompare", "micalign"] if args.task == "all"
+    for task in (["mic", "meanspec", "sk", "envelope", "sensor", "bandcompare", "micalign", "tone", "shaft"]
+                 if args.task == "all"
                  else [args.task]):
         run(task, meta, pre, args.workers)
     return 0
