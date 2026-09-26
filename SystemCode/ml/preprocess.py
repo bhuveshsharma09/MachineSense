@@ -299,6 +299,20 @@ def remove_mic_bursts(mic: np.ndarray, z_thresh: float, pad: int = 5) -> tuple[n
 
 
 # ----------------------------------------------------------------------------- whole-recording cleaning
+def propose_stopband(tone, present_db: float = 20.0, margin_hz: float = 25.0, round_hz: float = 5.0) -> dict:
+    """Stop band for the ~22 kHz line from a tone table (one row per recording × channel: f0_hz, snr_db and, per
+    sideband offset k in ±60/±120 Hz, f{k}_hz and snr{k}_db). The observed extent of present lines (main line
+    snr > present_db, sidebands > present_db / 2), widened by margin_hz each side and rounded outward to round_hz."""
+    main = tone[tone.snr_db > present_db]
+    lo, hi = main.f0_hz.min(), main.f0_hz.max()
+    for off in ("-120", "-60", "+60", "+120"):
+        s = main[main[f"snr{off}_db"] > present_db / 2]
+        lo, hi = min(lo, s[f"f{off}_hz"].min()), max(hi, s[f"f{off}_hz"].max())
+    return {"observed_lo_hz": float(lo), "observed_hi_hz": float(hi),
+            "stop_lo_hz": float(np.floor((lo - margin_hz) / round_hz) * round_hz),
+            "stop_hi_hz": float(np.ceil((hi + margin_hz) / round_hz) * round_hz)}
+
+
 def bandstop_taps(cfg: PreprocessConfig) -> np.ndarray:
     """FIR taps of the fixed band-stop (odd length, symmetric → linear phase). Cutoffs sit half a transition
     outside the stop band, so the full design attenuation holds from stop_lo_hz to stop_hi_hz."""

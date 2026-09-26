@@ -2,7 +2,9 @@
 import numpy as np
 
 from ml.config import BandStopConfig, PreprocessConfig
-from ml.preprocess import apply_fir_centred, bandstop_taps, clean_recording
+import pandas as pd
+
+from ml.preprocess import apply_fir_centred, bandstop_taps, clean_recording, propose_stopband
 
 FS = 50_000
 N = 5 * FS
@@ -68,3 +70,17 @@ def test_centred_fir_has_no_delay():
     impulse[10_000] = 1.0
     y = apply_fir_centred(impulse, taps)
     assert np.argmax(np.abs(y)) == 10_000
+
+
+def test_propose_stopband_rule():
+    tone = pd.DataFrame([
+        {"f0_hz": 22_020.0, "snr_db": 60, "f-120_hz": 21_900.0, "snr-120_db": 30, "f-60_hz": 21_960.0,
+         "snr-60_db": 30, "f+60_hz": 22_080.0, "snr+60_db": 30, "f+120_hz": 22_140.0, "snr+120_db": 30},
+        {"f0_hz": 22_050.0, "snr_db": 60, "f-120_hz": 21_930.0, "snr-120_db": 30, "f-60_hz": 21_990.0,
+         "snr-60_db": 30, "f+60_hz": 22_110.0, "snr+60_db": 30, "f+120_hz": 22_171.0, "snr+120_db": 5},  # weak
+        {"f0_hz": 23_000.0, "snr_db": 5, "f-120_hz": 0, "snr-120_db": 0, "f-60_hz": 0, "snr-60_db": 0,
+         "f+60_hz": 0, "snr+60_db": 0, "f+120_hz": 0, "snr+120_db": 0},  # line absent: ignored
+    ])
+    band = propose_stopband(tone, present_db=20, margin_hz=25, round_hz=5)
+    assert (band["observed_lo_hz"], band["observed_hi_hz"]) == (21_900.0, 22_140.0)
+    assert (band["stop_lo_hz"], band["stop_hi_hz"]) == (21_875.0, 22_165.0)

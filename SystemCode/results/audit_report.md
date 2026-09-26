@@ -273,6 +273,24 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   consistent with the channel-group pattern above, but vibration also travels through rotor and frame. **Unresolved
   observation**; channel names unchanged.
 
+## 9b. Band-stop for the ~22 kHz line (Stage 2A)
+- **Set from `split_closed` train normal recordings only** (34 recordings, line present on all 238 recording × channel
+  pairs): line 22,019.6–22,049.1 Hz, sidebands ±60/±120 Hz, total extent 21,899.1–22,166.3 Hz, drift within a recording
+  ≤ 0.38 Hz. Stop band = extent + 25 Hz margin, rounded to 5 Hz: **21,870–22,195 Hz**. Kaiser FIR, 1,257 taps
+  (β 7.857), 200 Hz transitions, applied by centred convolution (zero-phase alignment). Exposure: Stage 1c had already
+  measured the line across all classes (exploratory).
+- **Check on the other 1,627 train/val recordings (no retuning):** the line itself is always inside the stop band, but
+  it reaches 22,156 Hz in some sessions, so the +120 Hz sideband lies in the upper transition in 46 recordings (up to
+  22,276 Hz; 26 horizontal misalignment) and the +60 Hz sideband in 5 (all horizontal misalignment). Attenuation is
+  partial there. Not widened.
+- **Verification:** designed response ≥ 79.9 dB across the stop band, pass-band ripple 0.001 dB, −0.01 → −80 dB
+  transitions of 192 Hz; synthetic tones at the band edges drop 80.9–81.0 dB; real train recordings: line attenuation
+  ≥ 82.0 dB, change outside the stop band and transitions ≤ 0.0008 dB, measured edge effect 4–7 ms to −40 dB and
+  8–11 ms to −60 dB at each recording end (filter half-length 12.6 ms).
+- **Shortcut test** (train + val, `cv_fold` RandomForest on per-channel stop-band energy): macro-F1 0.980 before,
+  0.906 after, permutation baseline 0.102 (max 0.111). Neighbouring untouched bands alone give 0.935, so what remains is
+  the session-dependent noise floor near 22 kHz, not the line: a shortcut risk for Stage 2C representations.
+
 ## 10. Open items and unresolved observations
 Decisions for Bhuvesh:
 - **Demodulation bands** are provisional: the closed-track bands lie above the rated range of at least one sensor

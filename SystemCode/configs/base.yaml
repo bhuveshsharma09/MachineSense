@@ -26,6 +26,17 @@ preprocess:
     # Notebook 02: event-aligned ringing stays > 1.2 × baseline for 15 samples either side of a flagged run.
     burst_pad: 15
 
+  # Fixed band-stop for the ~22,028 Hz line (clean_recording, channels 1–7). Set from split_closed TRAIN NORMAL
+  # recordings only: line + ±60/±120 Hz sidebands span 21,899.1–22,166.3 Hz, + 25 Hz margin, rounded to 5 Hz.
+  # Linear-phase Kaiser FIR (80 dB, 200 Hz transitions), applied by centred convolution.
+  bandstop:
+    enabled: true
+    stop_lo_hz: 21870.0
+    stop_hi_hz: 22195.0
+    transition_hz: 200.0
+    numtaps: 1257
+    window: [kaiser, 7.8573]
+
   # Notebook 02: spectral kurtosis on train 0 g outer race vs train normal; band ≥ 2 kHz, never below 1 kHz.
   envelope:
     sk:

@@ -81,12 +81,14 @@ class BandStopConfig(_Strict):
     """Fixed band-stop for the ~22,028 Hz line (clean_recording, channels 1–7). Linear-phase FIR (scipy firwin),
     applied by centred convolution, so its group delay is compensated. Edges set in notebook 03 (Stage 2A item 2)."""
 
-    enabled: bool = False
-    stop_lo_hz: float = 0.0  # attenuation is guaranteed from stop_lo_hz to stop_hi_hz
-    stop_hi_hz: float = 0.0
-    transition_hz: float = 0.0  # width of each transition band outside the stop band
-    numtaps: int = 1  # odd
-    window: tuple[str, float] = ("kaiser", 0.0)
+    # Set from split_closed TRAIN NORMAL recordings (scripts/06_bandstop.py measure): the line and its ±60/±120 Hz
+    # sidebands span 21,899.1–22,166.3 Hz; + 25 Hz margin each side, rounded outward to 5 Hz.
+    enabled: bool = True
+    stop_lo_hz: float = 21870.0  # attenuation is guaranteed from stop_lo_hz to stop_hi_hz
+    stop_hi_hz: float = 22195.0
+    transition_hz: float = 200.0  # width of each transition band outside the stop band
+    numtaps: int = 1257  # scipy.signal.kaiserord(80 dB, 200 Hz): odd, 12.6 ms half-length
+    window: tuple[str, float] = ("kaiser", 7.8573)  # Kaiser beta for 80 dB
 
 
 class SensorSpec(_Strict):
