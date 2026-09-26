@@ -149,6 +149,22 @@ class SpectroConfig(_Strict):
     mel_eps: float = 1e-12  # 10·log10(power + eps)
 
 
+class SpeedRiskConfig(_Strict):
+    """Speed-risk check C vs B (Stage 2C-2), committed BEFORE running (rule in scripts/09_speed_risk.py docstring)."""
+
+    group_ii_min_range_pct: float = 1.0  # split_closed train ∩ dev pool recordings with speed_range_pct above this
+    clean_max_range_pct: float = 0.3  # "clean" references: speed_range_pct ≤ this, no tacho glitches, no quality flags
+    refs_per_recording: int = 2  # group (iii): nearest-speed clean recordings of the same class per group-(ii) recording
+    synthetic_per_class: int = 2  # clean recordings per class for the synthetic stress
+    displace_every: int = 3  # displace every n-th tacho pulse …
+    displace_fraction: float = 0.4  # … by this fraction of a revolution (forces the fallback speed)
+    offsets_pct: tuple[float, ...] = (-2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0)
+    pass_offsets_pct: tuple[float, ...] = (-1.0, 1.0)  # ±2 % and ±0.5 % are reported as sensitivity only
+    max_error_bins: float = 1.0
+    max_width_ratio: float = 1.5
+    seed: int = 0
+
+
 class WindowConfig(_Strict):
     """Windowing after whole-recording cleaning (ml.preprocess.window)."""
 
@@ -346,6 +362,7 @@ class Config(_Strict):
     preprocess: PreprocessConfig = Field(default_factory=PreprocessConfig)
     baselines: BaselineConfig = Field(default_factory=BaselineConfig)
     development: DevelopmentConfig = Field(default_factory=DevelopmentConfig)
+    speed_risk: SpeedRiskConfig = Field(default_factory=SpeedRiskConfig)
 
 
 def _deep_merge(base: dict, over: dict) -> dict:
