@@ -317,6 +317,24 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
 - Interpretation rule: a sensitivity experiment. A performance drop would show dependence on the removed information,
   not prove that information was an artefact.
 
+### Closed-set classical baselines (Stage 2B; wording corrected in Stage 2B.1)
+- **Several classical models achieve perfect classification on the current closed-set validation split.
+  Generalisation beyond that split remains untested.** Validation, 294 recordings, recording-level class10 macro-F1:
+  1.000 for LightGBM, random forest, SVM, logistic regression and the ensemble; 0.996 [0.988, 1.000] for k-NN; class6
+  1.000 for all; chance 0.029 (majority) and 0.100 (stratified).
+- The [1.000, 1.000] intervals and paired [0, 0] differences are **degenerate empirical bootstrap intervals**:
+  resampling an all-correct set cannot produce unseen errors. They are not evidence of zero uncertainty or of general
+  equivalence.
+- Nearest-neighbour diagnostic, with scaling fitted on training recordings only: 95.6 % of validation recordings have a
+  same-class nearest training neighbour, 69.0 % one from the same class and severity folder (median 0.742 Hz apart).
+  Matching folders suggests interpolation; it does not by itself establish acquisition-session identity.
+- The 10 kHz variant retained validation performance: an observation, not proof of equivalent generalisation, and it
+  does not resolve the artefact concern. Envelope features: no measurable incremental benefit on this split.
+- Microphone family permutation importance (0.206, the highest) measures this model's reliance, not whether the
+  evidence is physical or artefactual.
+- Model selection uses permitted development data only; closed-set ties are broken by simplicity and measured latency;
+  reserved tests are never used for selection.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the
