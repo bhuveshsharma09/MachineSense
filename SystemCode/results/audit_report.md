@@ -147,7 +147,27 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
 - Limits: BPFO and BPFI sit within 0.006 orders of integer shaft orders, so those two combs cannot separate outer
   from inner race (underhang outer lifts every integer order 1–12). The ball control fails for underhang ball.
 
-## 9. Open items
+## 10. Fold-safe preprocessing choices (Stage 1c)
+
+### Demodulation band per evaluation track
+- Rule: `ml.features.select_demod_band` (docstring), parameters in `envelope.selection`, committed before it was
+  applied. Applied by `scripts/04_demod_bands.py` to each track's training side only; results with the recordings
+  used in `results/demod_bands.json`. Stage 2 feature code must read the band per track from that file.
+
+  | Track | under_radial | over_radial |
+  | --- | --- | --- |
+  | closed and 7 LOCO folds (imbalance, both misalignments, all ball and cage folds) | 9–11 kHz (+0.94) | 13–17 kHz (+4.31) |
+  | loco_underhang_outer | 9–11 kHz (+0.94) | **1–3 kHz (+0.01)** |
+  | loco_overhang_outer | **23–25 kHz (+0.11)** | 13–17 kHz (+4.31) |
+
+  Contrast (median spectral kurtosis, outer race 0 g − normal) in brackets. When the outer-race class a channel
+  responds to is withheld, the remaining contrast is close to zero: the rule still returns a band, but it carries
+  little information. No minimum-contrast cut was defined in advance, so none is applied.
+- **The bands chosen in notebook 02 used outer-race train data**, so they must not be reused in the outer-race LOCO
+  folds (`loco_underhang_outer`, `loco_overhang_outer`); those folds use their own bands above. No LOCO results
+  exist yet, so nothing is contaminated so far.
+
+## 11. Open items
 - Decide whether to rename the accelerometer channel groups (section 8, swap evidence). This changes the
   representation, so it needs a decision.
 - A per-recording speed-variability column (section 8, speed) before Stage 2 order analysis.
