@@ -1,0 +1,1328 @@
+{
+ "provenance": {
+  "feature_table": "r1cap10_7dda9b7750ed.parquet",
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "7c29df03a7c6b0abecd28c22aaf810bfa07a1649-dirty",
+  "n_healthy": 25,
+  "k_folds": 3,
+  "caveat": "all healthy data is one folder, so healthy-vs-fault may partly reflect folder proxies"
+ },
+ "rungs": {
+  "B0_rules": {
+   "all": {
+    "n_healthy": 25,
+    "threshold": 1.5848740964683958,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9286111111111112,
+     "horizontal_misalignment": 0.8964383561643836,
+     "vertical_misalignment": 0.95008,
+     "underhang_ball": 0.9688311688311688,
+     "underhang_cage": 0.8372222222222222,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.961111111111111,
+     "overhang_outer": 0.96
+    },
+    "detection": {
+     "imbalance": 0.7638888888888888,
+     "horizontal_misalignment": 0.6986301369863014,
+     "vertical_misalignment": 0.92,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.5694444444444444,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 0.2608695652173913
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.76
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 0.96
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 0.44
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9446993299377774,
+    "detection_mean": 0.8835514967021817
+   },
+   "no_mic": {
+    "n_healthy": 25,
+    "threshold": 1.5848740964683958,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9286111111111112,
+     "horizontal_misalignment": 0.8964383561643836,
+     "vertical_misalignment": 0.95008,
+     "underhang_ball": 0.9688311688311688,
+     "underhang_cage": 0.8372222222222222,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.961111111111111,
+     "overhang_outer": 0.96
+    },
+    "detection": {
+     "imbalance": 0.7638888888888888,
+     "horizontal_misalignment": 0.6986301369863014,
+     "vertical_misalignment": 0.92,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.5694444444444444,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 0.2608695652173913
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.76
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 0.96
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 0.44
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9446993299377774,
+    "detection_mean": 0.8835514967021817
+   }
+  },
+  "B1_mahalanobis": {
+   "all": {
+    "n_healthy": 25,
+    "threshold": 979.1564269733523,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9855555555555555,
+     "horizontal_misalignment": 0.9561643835616439,
+     "vertical_misalignment": 0.9612799999999999,
+     "underhang_ball": 0.9953246753246753,
+     "underhang_cage": 0.9738888888888888,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.976111111111111,
+     "overhang_outer": 0.9664864864864865
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.821917808219178,
+     "vertical_misalignment": 1.0,
+     "underhang_ball": 1.0,
+     "underhang_cage": 1.0,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.76
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9794234556587068,
+    "detection_mean": 0.9802130898021308
+   },
+   "no_mic": {
+    "n_healthy": 25,
+    "threshold": 861.166749243679,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9855555555555555,
+     "horizontal_misalignment": 0.9523287671232877,
+     "vertical_misalignment": 0.9612799999999999,
+     "underhang_ball": 0.9942857142857142,
+     "underhang_cage": 0.9738888888888888,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.976111111111111,
+     "overhang_outer": 0.9664864864864865
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.7397260273972602,
+     "vertical_misalignment": 1.0,
+     "underhang_ball": 1.0,
+     "underhang_cage": 1.0,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.68
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9788818359390048,
+    "detection_mean": 0.9710806697108068
+   }
+  },
+  "B1_gmm": {
+   "all": {
+    "n_healthy": 25,
+    "threshold": 339.6471763030247,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9888888888888888,
+     "horizontal_misalignment": 0.9452054794520548,
+     "vertical_misalignment": 0.9616,
+     "underhang_ball": 0.9968831168831168,
+     "underhang_cage": 0.975,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9783333333333333,
+     "overhang_outer": 0.9681081081081081
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.7123287671232876,
+     "vertical_misalignment": 0.992,
+     "underhang_ball": 1.0,
+     "underhang_cage": 1.0,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.56
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9793354362961667,
+    "detection_mean": 0.9671476407914764
+   },
+   "no_mic": {
+    "n_healthy": 25,
+    "threshold": 321.5314504249504,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9888888888888888,
+     "horizontal_misalignment": 0.9391780821917809,
+     "vertical_misalignment": 0.9616,
+     "underhang_ball": 0.9963636363636363,
+     "underhang_cage": 0.9694444444444444,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9783333333333333,
+     "overhang_outer": 0.9681081081081081
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.6027397260273972,
+     "vertical_misalignment": 0.992,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.875,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.48
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9779907214811323,
+    "detection_mean": 0.9410821917808219
+   }
+  },
+  "B1s_speed_poly": {
+   "all": {
+    "n_healthy": 25,
+    "threshold": 1.3029614858792278,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9919444444444444,
+     "horizontal_misalignment": 0.9556164383561644,
+     "vertical_misalignment": 0.97888,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.9772222222222222,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9788888888888888,
+     "overhang_outer": 0.9691891891891892
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.8356164383561644,
+     "vertical_misalignment": 1.0,
+     "underhang_ball": 1.0,
+     "underhang_cage": 1.0,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.68
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9835267981223232,
+    "detection_mean": 0.9817351598173517
+   },
+   "no_mic": {
+    "n_healthy": 25,
+    "threshold": 1.3055000232030347,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9952777777777777,
+     "horizontal_misalignment": 0.9545205479452055,
+     "vertical_misalignment": 0.98592,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.975,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9805555555555555,
+     "overhang_outer": 0.9713513513513513
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.821917808219178,
+     "vertical_misalignment": 1.0,
+     "underhang_ball": 1.0,
+     "underhang_cage": 1.0,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.72
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9847361369588766,
+    "detection_mean": 0.9802130898021308
+   }
+  },
+  "B1s_knn_speed": {
+   "all": {
+    "n_healthy": 25,
+    "threshold": 14.280958138126321,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.985,
+     "horizontal_misalignment": 0.9545205479452055,
+     "vertical_misalignment": 0.9606399999999999,
+     "underhang_ball": 0.9927272727272727,
+     "underhang_cage": 0.9727777777777777,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9733333333333333,
+     "overhang_outer": 0.965945945945946
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.9041095890410958,
+     "vertical_misalignment": 1.0,
+     "underhang_ball": 1.0,
+     "underhang_cage": 1.0,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.88
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9783272086366149,
+    "detection_mean": 0.989345509893455,
+    "median_speed_gap_hz": 0.8376369682742499
+   },
+   "no_mic": {
+    "n_healthy": 25,
+    "threshold": 14.213924820407085,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.985,
+     "horizontal_misalignment": 0.9495890410958905,
+     "vertical_misalignment": 0.9606399999999999,
+     "underhang_ball": 0.9927272727272727,
+     "underhang_cage": 0.9722222222222222,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9733333333333333,
+     "overhang_outer": 0.965945945945946
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.821917808219178,
+     "vertical_misalignment": 1.0,
+     "underhang_ball": 1.0,
+     "underhang_cage": 1.0,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.84
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9777175350360737,
+    "detection_mean": 0.9802130898021308,
+    "median_speed_gap_hz": 0.8376369682742499
+   }
+  },
+  "B2_pca": {
+   "all": {
+    "n_healthy": 25,
+    "threshold": 1.1023099629041802,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.985,
+     "horizontal_misalignment": 0.9506849315068494,
+     "vertical_misalignment": 0.9609599999999999,
+     "underhang_ball": 0.9937662337662337,
+     "underhang_cage": 0.9738888888888888,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.976111111111111,
+     "overhang_outer": 0.9664864864864865
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.684931506849315,
+     "vertical_misalignment": 1.0,
+     "underhang_ball": 1.0,
+     "underhang_cage": 1.0,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.6
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9785441835288411,
+    "detection_mean": 0.964992389649924
+   },
+   "no_mic": {
+    "n_healthy": 25,
+    "threshold": 1.1473443480744472,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.985,
+     "horizontal_misalignment": 0.9501369863013699,
+     "vertical_misalignment": 0.9609599999999999,
+     "underhang_ball": 0.9932467532467533,
+     "underhang_cage": 0.9738888888888888,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.976111111111111,
+     "overhang_outer": 0.9664864864864865
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.6712328767123288,
+     "vertical_misalignment": 1.0,
+     "underhang_ball": 1.0,
+     "underhang_cage": 1.0,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.6
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9784255806705122,
+    "detection_mean": 0.9634703196347032
+   }
+  },
+  "B3_ocsvm": {
+   "all": {
+    "n_healthy": 25,
+    "threshold": 0.6643593695403945,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.96,
+     "horizontal_misalignment": 0.9331506849315069,
+     "vertical_misalignment": 0.9596800000000001,
+     "underhang_ball": 0.96,
+     "underhang_cage": 0.96,
+     "underhang_outer": 0.96,
+     "overhang_ball": 0.96,
+     "overhang_cage": 0.96,
+     "overhang_outer": 0.96
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.5753424657534246,
+     "vertical_misalignment": 0.992,
+     "underhang_ball": 1.0,
+     "underhang_cage": 1.0,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.44
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9569811872146118,
+    "detection_mean": 0.9519269406392694
+   },
+   "no_mic": {
+    "n_healthy": 25,
+    "threshold": 0.6618219575532814,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.96,
+     "horizontal_misalignment": 0.9265753424657535,
+     "vertical_misalignment": 0.9596800000000001,
+     "underhang_ball": 0.96,
+     "underhang_cage": 0.9588888888888889,
+     "underhang_outer": 0.96,
+     "overhang_ball": 0.96,
+     "overhang_cage": 0.96,
+     "overhang_outer": 0.96
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.4794520547945205,
+     "vertical_misalignment": 0.992,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.9722222222222222,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.36
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9561271368171825,
+    "detection_mean": 0.9381860307796381
+   }
+  },
+  "B3_iforest": {
+   "all": {
+    "n_healthy": 25,
+    "threshold": 0.5225228035630143,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9947222222222223,
+     "horizontal_misalignment": 0.9095890410958904,
+     "vertical_misalignment": 0.99872,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.9744444444444444,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9950000000000001,
+     "overhang_outer": 0.9832432432432433
+    },
+    "detection": {
+     "imbalance": 0.9791666666666666,
+     "horizontal_misalignment": 0.3972602739726027,
+     "vertical_misalignment": 0.992,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.8333333333333334,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9861111111111112,
+     "overhang_outer": 0.918918918918919
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 0.9130434782608695
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.36
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 0.9615384615384616
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.983968772333978,
+    "detection_mean": 0.9007544782225148
+   },
+   "no_mic": {
+    "n_healthy": 25,
+    "threshold": 0.51606817889431,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9833333333333333,
+     "horizontal_misalignment": 0.8931506849315068,
+     "vertical_misalignment": 0.98944,
+     "underhang_ball": 0.9989610389610389,
+     "underhang_cage": 0.9527777777777778,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9855555555555556,
+     "overhang_outer": 0.9675675675675676
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.4657534246575342,
+     "vertical_misalignment": 1.0,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.8472222222222222,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9861111111111112,
+     "overhang_outer": 0.9459459459459459
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.36
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 0.9615384615384616
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 0.84
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9745317731251978,
+    "detection_mean": 0.9161147448818681
+   }
+  },
+  "B3_lof": {
+   "all": {
+    "n_healthy": 25,
+    "threshold": 1.3069920004398596,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9863888888888889,
+     "horizontal_misalignment": 0.9539726027397261,
+     "vertical_misalignment": 0.9603200000000001,
+     "underhang_ball": 0.9932467532467533,
+     "underhang_cage": 0.9744444444444444,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.975,
+     "overhang_outer": 0.967027027027027
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.7945205479452054,
+     "vertical_misalignment": 0.992,
+     "underhang_ball": 1.0,
+     "underhang_cage": 1.0,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.76
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9789333018163155,
+    "detection_mean": 0.9762800608828006
+   },
+   "no_mic": {
+    "n_healthy": 25,
+    "threshold": 1.3031472520673673,
+    "false_alarms": 1,
+    "false_alarm_rate": 0.04,
+    "false_alarm_ci95": [
+     0.0010121996993108446,
+     0.203516913922414
+    ],
+    "auroc": {
+     "imbalance": 0.9863888888888889,
+     "horizontal_misalignment": 0.9517808219178082,
+     "vertical_misalignment": 0.9603200000000001,
+     "underhang_ball": 0.9932467532467533,
+     "underhang_cage": 0.9733333333333334,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.975,
+     "overhang_outer": 0.9664864864864865
+    },
+    "detection": {
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.7397260273972602,
+     "vertical_misalignment": 0.992,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.9861111111111112,
+     "underhang_outer": 1.0,
+     "overhang_ball": 1.0,
+     "overhang_cage": 1.0,
+     "overhang_outer": 1.0
+    },
+    "mildest": {
+     "imbalance @ 6": {
+      "n": 23,
+      "detection": 1.0
+     },
+     "horizontal_misalignment @ 0.5": {
+      "n": 25,
+      "detection": 0.72
+     },
+     "vertical_misalignment @ 0.51": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_ball @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "overhang_cage @ 0": {
+      "n": 21,
+      "detection": 1.0
+     },
+     "overhang_outer @ 0": {
+      "n": 26,
+      "detection": 1.0
+     },
+     "underhang_ball @ 0": {
+      "n": 27,
+      "detection": 1.0
+     },
+     "underhang_cage @ 0": {
+      "n": 25,
+      "detection": 1.0
+     },
+     "underhang_outer @ 0": {
+      "n": 23,
+      "detection": 1.0
+     }
+    },
+    "auroc_mean": 0.9785062537636967,
+    "detection_mean": 0.9686485709453747
+   }
+  }
+ }
+}

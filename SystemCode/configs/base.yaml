@@ -188,3 +188,25 @@ representation:
   rejected_candidates: [A_stft8192]
   frozen: true
   version: repC-1.0
+
+# Healthy-only detectors (Track B classical baselines, Stage 2D), stated before fitting. Per fold, on healthy training
+# windows only: log10 of positive features, then standard scaling.
+anomaly:
+  b0_features: [f_under_radial_rms, f_under_radial_kurtosis, f_under_radial_crest, f_over_radial_rms, f_over_radial_kurtosis, f_over_radial_crest]
+  b0_quantile: 0.95
+  gmm_components: 2
+  gmm_covariance: diag
+  pca_variance: 0.90
+  ocsvm_nu: 0.05
+  iforest_trees: 300
+  lof_neighbors: 20
+  b1s_degree: 2
+  b1s_knn: 2
+  false_alarm: 0.05
+  mildest: {imbalance: 6.0, horizontal_misalignment: 0.5, vertical_misalignment: 0.51, bearing: 0.0}
+  seed: 42
+
+# Unknown-fault baselines (Track C1): logistic regression, LOCO over the 9 fault classes on the dev pool.
+openset:
+  acceptance: 0.95
+  scores: [msp, max_logit, energy]

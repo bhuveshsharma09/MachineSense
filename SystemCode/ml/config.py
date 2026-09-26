@@ -348,6 +348,35 @@ class DevelopmentConfig(_Strict):
     folds_file: str = "dev_folds.csv"  # results/<folds_file>: rec_id, class10, folder, dev_fold
 
 
+class AnomalyConfig(_Strict):
+    """Healthy-only detectors (Track B classical baselines, Stage 2D) on the capped R1 features. Stated before fitting.
+    Per fold, on healthy TRAINING windows only: log10 of features positive there, then standard scaling."""
+
+    b0_features: tuple[str, ...] = ("f_under_radial_rms", "f_under_radial_kurtosis", "f_under_radial_crest",
+                                    "f_over_radial_rms", "f_over_radial_kurtosis", "f_over_radial_crest")
+    b0_quantile: float = 0.95  # rule score = max over features of (x − median) / (q95 − median), healthy training quantiles
+    gmm_components: int = 2
+    gmm_covariance: str = "diag"
+    pca_variance: float = 0.90
+    ocsvm_nu: float = 0.05
+    iforest_trees: int = 300
+    lof_neighbors: int = 20
+    b1s_degree: int = 2  # per-feature polynomial in log(speed) fitted on healthy training windows
+    b1s_knn: int = 2  # comparison: distance to the k nearest healthy training recordings by speed
+    false_alarm: float = 0.05  # threshold from out-of-fold healthy scores
+    mildest: dict[str, float] = Field(default_factory=lambda: {
+        "imbalance": 6.0, "horizontal_misalignment": 0.5, "vertical_misalignment": 0.51, "bearing": 0.0})
+    seed: int = 42
+
+
+class OpenSetConfig(_Strict):
+    """Unknown-fault baselines (Track C1, Stage 2D): logistic regression (the baselines' logreg settings) on the capped R1
+    features, LOCO over the 9 fault classes on the dev pool. Threshold: `acceptance` of known out-of-fold recordings."""
+
+    acceptance: float = 0.95
+    scores: tuple[str, ...] = ("msp", "max_logit", "energy")
+
+
 class RepresentationConfig(_Strict):
     """Representation STATUS (kept out of `preprocess` so a status change never alters a cache key).
     Decision 27 Sep 2026: C leading; B fallback; A rejected (no 0.5× / 1× separation at 12 Hz). C passed the speed-risk
@@ -370,6 +399,8 @@ class Config(_Strict):
     development: DevelopmentConfig = Field(default_factory=DevelopmentConfig)
     speed_risk: SpeedRiskConfig = Field(default_factory=SpeedRiskConfig)
     representation: RepresentationConfig = Field(default_factory=RepresentationConfig)
+    anomaly: AnomalyConfig = Field(default_factory=AnomalyConfig)
+    openset: OpenSetConfig = Field(default_factory=OpenSetConfig)
 
 
 def _deep_merge(base: dict, over: dict) -> dict:
