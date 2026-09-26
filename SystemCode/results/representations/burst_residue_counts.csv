@@ -1,0 +1,4 @@
+folder,flagged,unflagged,flagged_speed_hz,unflagged_speed_hz,flagged_in_overlap,unflagged_in_overlap
+imbalance/20g,1,23,39.0–39.0,13.1–37.8,0,0
+imbalance/30g,19,8,22.1–39.8,12.9–21.1,0,0
+underhang_cage/20g,18,7,19.9–39.5,12.9–19.0,0,0

@@ -184,14 +184,77 @@ def run_sharpness(meta, cfg, workers):
     (OUT / "sharpness.json").write_text(json.dumps(out, indent=1))
 
 
+def _cap_one(args):
+    """Microphone before vs after the 10 kHz low-pass (both with bursts removed and the band-stop applied)."""
+    rid, pre = args
+    x = load(rid)
+    no_lp = pre.model_copy(update={"lowpass": pre.lowpass.model_copy(update={"enabled": False})})
+    mic = pre.channels.index("mic")
+    before = clean_recording(x, no_lp)[0][:, mic].astype(np.float64)
+    after = clean_recording(x, pre)[0][:, mic].astype(np.float64)
+    w = np.hanning(before.size)
+    spec = lambda v: (2 * np.abs(np.fft.rfft((v - v.mean()) * w)) / w.sum()) ** 2 / 2
+    f = np.fft.rfftfreq(before.size, 1 / FS)
+    pb, pa = spec(before), spec(after)
+    above = f >= pre.lowpass.stop_hz
+    below = (f >= 20) & (f <= pre.lowpass.pass_hz)
+    edge = measure_edge_effect(before, lowpass_taps(pre), FS)
+    return {"rec_id": rid,
+            "atten_above_stop_db": float(10 * np.log10(pb[above].sum() / pa[above].sum())),
+            "residual_above_vs_passband_db": float(10 * np.log10(pa[above].sum() / pa[below].sum())),
+            "passband_change_db": float(10 * np.log10(pa[below].sum() / pb[below].sum())),
+            **{f"mic_{k}": v for k, v in edge.items()}}
+
+
+def run_mic(meta, cfg, workers):
+    """(1) 10 kHz cap on the microphone: measured attenuation above the 9.8–10.2 kHz transition, residual level, pass-band
+    change, and measured edge effect (subset recordings). (2) Burst-residue diagnostic: in the development pool's
+    affected folders, counts and speed ranges of flagged vs unflagged recordings; a flagged-vs-unflagged comparison is run
+    only where comparable controls exist (same folder, overlapping speed range, at least 5 of each)."""
+    pre = cfg.preprocess
+    sub = subset(meta, cfg)
+    with ProcessPoolExecutor(workers) as pool:
+        cap = pd.DataFrame(list(pool.map(_cap_one, [(r, pre) for r in sub.rec_id], chunksize=2)))
+    OUT.mkdir(parents=True, exist_ok=True)
+    cap.to_csv(OUT / "mic_cap.csv", index=False)
+    print(cap.drop(columns="rec_id").describe().loc[["min", "50%", "max"]].round(3).to_string())
+
+    dc = cfg.development
+    pool_df = development_pool(meta, dc.allowed_closed, dc.reserved_columns)
+    pool_df["flagged"] = pool_df.peakz_mic > pre.mic.burst_z
+    aff = pool_df[pool_df.folder.isin(pool_df.loc[pool_df.flagged, "folder"].unique())]
+    rows = []
+    for f, g in aff.groupby("folder"):
+        fl, un = g[g.flagged], g[~g.flagged]
+        lo, hi = max(fl.fr_measured_hz.min(), un.fr_measured_hz.min()), min(fl.fr_measured_hz.max(), un.fr_measured_hz.max())
+        in_overlap = lambda d: int(((d.fr_measured_hz >= lo) & (d.fr_measured_hz <= hi)).sum()) if lo <= hi else 0
+        rows.append({"folder": f, "flagged": len(fl), "unflagged": len(un),
+                     "flagged_speed_hz": f"{fl.fr_measured_hz.min():.1f}–{fl.fr_measured_hz.max():.1f}",
+                     "unflagged_speed_hz": f"{un.fr_measured_hz.min():.1f}–{un.fr_measured_hz.max():.1f}",
+                     "flagged_in_overlap": in_overlap(fl), "unflagged_in_overlap": in_overlap(un)})
+    burst = pd.DataFrame(rows)
+    burst.to_csv(OUT / "burst_residue_counts.csv", index=False)
+    feasible = burst[(burst.flagged_in_overlap >= 5) & (burst.unflagged_in_overlap >= 5)]
+    verdict = ("comparable controls exist in: " + ", ".join(feasible.folder)) if len(feasible) else (
+        "no conclusion: within every affected folder, flagged and unflagged recordings do not overlap in speed "
+        "(or one group has fewer than 5), so there are no comparable controls; a comparison would confound bursts with speed")
+    (OUT / "mic_diagnostics.json").write_text(json.dumps({
+        "cap": cap.drop(columns="rec_id").describe().loc[["min", "50%", "max"]].to_dict(),
+        "burst_residue_counts": rows, "burst_residue_verdict": verdict,
+        "split_hash": split_hash(meta), "git_sha": git_sha()}, indent=1))
+    print(burst.to_string(index=False))
+    print(verdict)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["subset", "resolution", "sharpness"])
+    ap.add_argument("task", choices=["subset", "resolution", "sharpness", "mic"])
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 4) - 2))
     args = ap.parse_args()
     cfg = load_config(DEFAULT_CONFIG)
     meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
-    {"subset": run_subset, "resolution": run_resolution, "sharpness": run_sharpness}[args.task](meta, cfg, args.workers)
+    {"subset": run_subset, "resolution": run_resolution, "sharpness": run_sharpness, "mic": run_mic}[args.task](
+        meta, cfg, args.workers)
     return 0
 
 

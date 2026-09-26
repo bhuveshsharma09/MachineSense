@@ -1,0 +1,71 @@
+{
+ "cap": {
+  "atten_above_stop_db": {
+   "min": 106.56756820392543,
+   "50%": 108.6774500546923,
+   "max": 111.02488889834214
+  },
+  "residual_above_vs_passband_db": {
+   "min": -111.8860779825294,
+   "50%": -109.87867454617981,
+   "max": -108.05454301156428
+  },
+  "passband_change_db": {
+   "min": 2.185558649725301e-05,
+   "50%": 2.8164396452066786e-05,
+   "max": 3.120157068445679e-05
+  },
+  "mic_edge_start_ms_40db": {
+   "min": 0.0,
+   "50%": 1.0,
+   "max": 3.0
+  },
+  "mic_edge_end_ms_40db": {
+   "min": 0.0,
+   "50%": 1.0,
+   "max": 2.0
+  },
+  "mic_edge_start_ms_60db": {
+   "min": 1.0,
+   "50%": 3.0,
+   "max": 4.0
+  },
+  "mic_edge_end_ms_60db": {
+   "min": 1.0,
+   "50%": 3.0,
+   "max": 4.0
+  }
+ },
+ "burst_residue_counts": [
+  {
+   "folder": "imbalance/20g",
+   "flagged": 1,
+   "unflagged": 23,
+   "flagged_speed_hz": "39.0\u201339.0",
+   "unflagged_speed_hz": "13.1\u201337.8",
+   "flagged_in_overlap": 0,
+   "unflagged_in_overlap": 0
+  },
+  {
+   "folder": "imbalance/30g",
+   "flagged": 19,
+   "unflagged": 8,
+   "flagged_speed_hz": "22.1\u201339.8",
+   "unflagged_speed_hz": "12.9\u201321.1",
+   "flagged_in_overlap": 0,
+   "unflagged_in_overlap": 0
+  },
+  {
+   "folder": "underhang_cage/20g",
+   "flagged": 18,
+   "unflagged": 7,
+   "flagged_speed_hz": "19.9\u201339.5",
+   "unflagged_speed_hz": "12.9\u201319.0",
+   "flagged_in_overlap": 0,
+   "unflagged_in_overlap": 0
+  }
+ ],
+ "burst_residue_verdict": "no conclusion: within every affected folder, flagged and unflagged recordings do not overlap in speed (or one group has fewer than 5), so there are no comparable controls; a comparison would confound bursts with speed",
+ "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+ "git_sha": "b0e99cb0a3cb6d293c70aa6945694795bb61d57b-dirty"
+}
