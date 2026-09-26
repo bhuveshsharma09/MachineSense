@@ -5,6 +5,7 @@
 Tracks and the training data each one may use:
   closed        split_closed == "train"
   loco_<class>  loco_<class> == "train" (the withheld class is excluded by construction), × 9
+  healthy       fixed a priori (envelope.healthy_band_hz); no recording is used
 
 The rule is ml.features.select_demod_band, unchanged per track. Test recordings are never read.
 """
@@ -72,6 +73,11 @@ def main() -> int:
     for name, train in by_track.items():
         result["tracks"][name] = {"training_data": "split_closed train" if name == "closed" else f"{name} == train",
                                   "channels": select_demod_band(train, sk, pre)}
+    lo, hi = pre.envelope.healthy_band_hz
+    result["tracks"]["healthy"] = {
+        "training_data": "none: fixed a priori from sensor ratings (envelope.healthy_band_hz)",
+        "channels": {ch: {"lo_hz": lo, "hi_hz": hi, "rec_ids": []} for ch in sel.channels},
+    }
 
     out = results_dir() / "demod_bands.json"
     out.write_text(json.dumps(result, indent=1) + "\n")

@@ -26,3 +26,23 @@ def test_comb_lines():
     assert np.allclose(lines["bsf"], [3.367, 3.742, 4.117])
     assert np.allclose(lines["bpfo"], [2.998, 5.996, 8.994])
     assert np.allclose(lines["bpfi"], [4.002, 5.002, 6.002, 9.004, 10.004, 11.004])
+
+
+def test_healthy_band_is_a_priori_valid():
+    env = PreprocessConfig().envelope
+    lo, hi = env.healthy_band_hz
+    assert lo >= env.sk.min_lo_hz and hi - lo >= env.min_band_hz
+    for spec in env.sensors.values():  # inside the rated range of every sensor model
+        assert spec.range_3db_hz[0] <= lo and hi <= spec.range_3db_hz[1]
+
+
+def test_config_bands_match_closed_track():
+    import json
+
+    from ml.paths import results_dir
+    path = results_dir() / "demod_bands.json"
+    if not path.exists():
+        return
+    closed = json.loads(path.read_text())["tracks"]["closed"]["channels"]
+    for ch, (lo, hi) in PreprocessConfig().envelope.bands_hz.items():
+        assert (closed[ch]["lo_hz"], closed[ch]["hi_hz"]) == (lo, hi), ch

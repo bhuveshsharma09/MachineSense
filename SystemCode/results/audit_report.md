@@ -147,7 +147,7 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
 - Limits: BPFO and BPFI sit within 0.006 orders of integer shaft orders, so those two combs cannot separate outer
   from inner race (underhang outer lifts every integer order 1–12). The ball control fails for underhang ball.
 
-## 10. Fold-safe preprocessing choices (Stage 1c)
+## 9. Fold-safe preprocessing choices (Stage 1c)
 
 ### Demodulation band per evaluation track
 - Rule: `ml.features.select_demod_band` (docstring), parameters in `envelope.selection`, committed before it was
@@ -167,7 +167,19 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   folds (`loco_underhang_outer`, `loco_overhang_outer`); those folds use their own bands above. No LOCO results
   exist yet, so nothing is contaminated so far.
 
-## 11. Open items
+### Healthy-only track (Track B)
+- Option (a), **a priori**: `envelope.healthy_band_hz = 1–5 kHz` for both radial channels, fixed from the sensor
+  ratings without using any recording. The anomaly detectors are trained on healthy recordings only, so a band
+  chosen with fault recordings (the other tracks) would leak fault knowledge into them. Option (b), choosing
+  from healthy recordings only, has no defensible target: without faults there is nothing to contrast, and the most
+  impulsive healthy band says nothing about where faults appear.
+- The rule: the widest band inside the ±3 dB range of **both** sensor models (MAFAULDA does not say which model is
+  on which bearing), starting at the 1 kHz floor (above 12 orders at 61 Hz = 0.73 kHz) and at least 2 kHz wide.
+  - 604B31 (triaxial): 0.5–5,000 Hz ±3 dB, resonance 10 kHz (spec sheet Revision B, ECN 49214).
+  - 601A01: 0.27–10,000 Hz ±3 dB, resonance 16 kHz (spec sheet Revision G, ECN 14824).
+- Saved as the `healthy` entry of `results/demod_bands.json` with an empty recording list.
+
+## 10. Open items
 - Decide whether to rename the accelerometer channel groups (section 8, swap evidence). This changes the
   representation, so it needs a decision.
 - A per-recording speed-variability column (section 8, speed) before Stage 2 order analysis.

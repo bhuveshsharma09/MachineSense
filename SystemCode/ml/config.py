@@ -72,6 +72,24 @@ class MicConfig(_Strict):
     burst_pad: int = 5  # samples added on each side of a burst run before interpolation
 
 
+class SensorSpec(_Strict):
+    """Manufacturer ratings of one accelerometer model (Hz)."""
+
+    range_3db_hz: tuple[float, float]
+    resonance_hz: float
+    source: str
+
+
+def _default_sensors() -> dict[str, SensorSpec]:
+    # MAFAULDA lists both models but does not say which one sits on which bearing.
+    return {
+        "601A01": SensorSpec(range_3db_hz=(0.27, 10000.0), resonance_hz=16000.0,
+                             source="PCB/IMI 601A01 spec sheet, Revision G, ECN 14824"),
+        "604B31": SensorSpec(range_3db_hz=(0.5, 5000.0), resonance_hz=10000.0,
+                             source="PCB/IMI 604B31 spec sheet, Revision B, ECN 49214"),
+    }
+
+
 class SpectralKurtosisConfig(_Strict):
     """Fixed band grid for spectral kurtosis (the demodulation-band search)."""
 
@@ -95,12 +113,18 @@ class EnvelopeConfig(_Strict):
     sk: SpectralKurtosisConfig = Field(default_factory=SpectralKurtosisConfig)
     selection: BandSelectionConfig = Field(default_factory=BandSelectionConfig)
     bands_hz: dict[str, tuple[float, float]] = Field(default_factory=lambda: {
-        # Notebook 02: widest-contrast band (≥ 2 kHz) of median spectral kurtosis, train 0 g outer race − train normal,
-        # for the bearing position each channel responds to most.
+        # Closed-track band (PROVISIONAL): ml.features.select_demod_band on split_closed train. Other tracks
+        # have their own band in results/demod_bands.json; feature code must read the band per track there.
         "under_radial": (9000.0, 11000.0),
         "over_radial": (13000.0, 17000.0),
     })
     min_band_hz: float = 2000.0  # envelope must carry 12 orders at 61 Hz (≥ 1.46 kHz)
+    bands_provisional: bool = True  # bands above the rated sensor range await a decision (audit report §9)
+    sensors: dict[str, SensorSpec] = Field(default_factory=_default_sensors)
+    # Healthy-only track (anomaly detectors): fixed a priori, never from recordings. The widest band that is
+    # inside the ±3 dB range of BOTH sensor models (the model-to-channel mapping is undocumented), starts at the
+    # 1 kHz floor (clear of 12 orders at 61 Hz) and is at least min_band_hz wide: 1–5 kHz, for every channel.
+    healthy_band_hz: tuple[float, float] = (1000.0, 5000.0)
     max_order: float = 12.0
     order_step: float = 0.005
 
