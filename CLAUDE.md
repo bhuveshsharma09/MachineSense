@@ -122,12 +122,19 @@ Graders run the app on a Linux or Windows CPU.
   - The overhang accelerometers carry DC up to 2.2 V; DC is removed per window.
   - Full details: `SystemCode/results/audit_report.md`.
   - The ~23 kHz "resonance" is a narrowband line at ~22,028 Hz with ±60/±120 Hz sidebands on every channel, consistent
-    with electrical interference. Its level is folder-linked (a shortcut risk); a notch is proposed, not applied.
-    Never low-pass before envelope analysis.
+    with electrical interference. Its level is folder-linked (a shortcut risk), so a **fixed band-stop** removes it in
+    `ml.preprocess.clean_recording` (not an adaptive high-Q notch). Never low-pass before envelope analysis.
   - `cage_fault`: no detectable inner-race signature under this analysis; the underhang-ball positive control failed,
     which limits sensitivity. **Keep the folder labels.**
   - Channel groups: bearing faults and misalignment respond most on the opposite-named accelerometer group. This is an
     unresolved observation; channel names do not change.
+- **Preprocessing decisions (26 Sep 2026):**
+  - **Primary envelope band: 1–5 kHz for every track**, fixed from the sensor specifications (inside both sensors'
+    rated ranges). The per-track bands in `results/demod_bands.json` are a separately reported comparison only.
+  - **Order axis: per-window speed** from `ml.preprocess.window_speeds`, computed from the untouched tachometer,
+    falling back to the recording speed. Fallback indicators and speed-variability statistics are never model inputs.
+  - **22 kHz line: a fixed band-stop** (above), set from `split_closed` train normal recordings only.
+  - **Microphone cleaning is a provisional mitigation**; it is re-checked on the microphone representation in Stage 2C.
 - "Imbalance" means imbalance-only. About three-quarters of the bearing recordings also carry imbalance mass.
 
 ## 4. Repository layout (target)
@@ -187,7 +194,9 @@ MachineSense-Project/                 repo root
     every representation, at training and at serving. No mic peak, crest-factor or kurtosis features. The threshold
     comes from `split_closed` TRAIN normal recordings only, and the padding from event-aligned residual ringing.
     This is a **conservative policy**: the flagged events look electrical, but that is not proven, and the cleaning
-    itself may leave a trace, so the ban on mic peak statistics stays even after cleaning.
+    itself may leave a trace, so the ban on mic peak statistics stays even after cleaning. The cleaning is a
+    provisional mitigation, re-checked on the microphone representation in Stage 2C.
+11. **`clean_recording` is applied to the whole recording before windowing, at training and serving.**
 
 ## 6. Working method: exploration → development
 
@@ -227,21 +236,25 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage 1b — notebooks 00 and 02
+## 7. Current stage: Stage 2A — shared preprocessing, windowing and physics features
 
-Stage 1 (data foundation: index, speed, conversion, splits, notebook 01, audit report) is **done**, 26 Sep 2026.
+Stages 1, 1b and 1c (data foundation, signal exploration, fold-safe preprocessing rules) are **done**, 26 Sep 2026.
 
-Stage 1b scope:
+Stage 2A scope, verified on a small training subset only (no full caches, no predictive models, no spectrograms;
+the only model allowed is the diagnostic RandomForest of the band-stop shortcut test):
 
-1. **`notebooks/00_data_journey.ipynb`** (exported to `results/00_data_journey.html`): follows three train
-   recordings from folder path to labels, raw CSV, tacho and speed, quality numbers, `.npy`, `metadata.csv` row and
-   split columns. Placeholders for the Stage 2 steps (window → R1 features → order spectrogram), no code.
-2. **`notebooks/01_data_layer/02_signal_exploration.ipynb`**: mic bursts (threshold, `remove_mic_bursts`,
-   shortcut test), the > 1 % speed-disagreement file, order and amplitude spectra, spectral kurtosis and the
-   demodulation band, envelope spectra, and the `cage_fault` audit. Loops over more than ~50 recordings live in
-   scripts that write cached parquet/npz files. Only train recordings set parameters.
+1. `ml.preprocess.clean_recording(x, cfg)`: whole-recording mic burst removal, then the band-stop on channels 1–7;
+   the tachometer is returned untouched.
+2. The band-stop: set from `split_closed` train normal recordings, checked (not retuned) on other train/val
+   recordings, verified (designed response, synthetic signals, real recordings) and shortcut-tested.
+3. `ml.preprocess.window`: 1 s windows, 0.5 s hop, 9 per recording, DC removed per window.
+4. `ml.features.recording_features(x_raw, fr_hz, cfg)`: the one feature entry point for batch and serving.
+   Feature columns start with `f_`; model code selects features by that prefix only.
+5. Cache identity: every derived artifact is named by the sha256 of everything that changes its values.
+6. Subset run and checks in `notebooks/02_feature_layer/03_windows_physics_features.ipynb` (first half).
+7. Blue notes in notebook 00.
 
-Stop after Stage 1b and report. Don't start Stage 2 (windows, features, spectrogram cache) without a go-ahead.
+Stop after Stage 2A and report. Don't build spectrograms, full caches or models without a go-ahead.
 
 ## 8. Code conventions
 

@@ -52,6 +52,8 @@ class SpeedConfig(_Strict):
     comb_harmonics: int = 10
     fft_zero_pad: int = 8  # zero-padding factor: 0.2 Hz bins at 5 s → 0.025 Hz
     min_peak_ratio: float = 10.0  # tacho FFT peak must exceed the median magnitude over 0.5–1.5 × speed by this factor
+    # Decision 26 Sep 2026: the order axis uses per-window speed (window_speeds on the untouched tachometer).
+    order_axis: str = "window"
     window_min_intervals: int = 3  # window_speeds: fewer clean tacho intervals in a window → recording speed
     confirm_tol: float = 0.002  # two methods confirm each other within 0.2 % (typical agreement is < 0.05 %)
     disagree_tol: float = 0.01  # flag when methods differ by more than 1 %
@@ -128,6 +130,9 @@ class EnvelopeConfig(_Strict):
     # inside the ±3 dB range of BOTH sensor models (the model-to-channel mapping is undocumented), starts at the
     # 1 kHz floor (clear of 12 orders at 61 Hz) and is at least min_band_hz wide: 1–5 kHz, for every channel.
     healthy_band_hz: tuple[float, float] = (1000.0, 5000.0)
+    # Decision 26 Sep 2026: the primary envelope band for EVERY track, from the sensor ratings (same rule as above).
+    # The per-track bands (bands_hz, results/demod_bands.json) are a separately reported comparison only.
+    primary_band_hz: tuple[float, float] = (1000.0, 5000.0)
     max_order: float = 12.0
     order_step: float = 0.005
 

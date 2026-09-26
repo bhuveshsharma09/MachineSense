@@ -11,6 +11,7 @@ paths:
 
 preprocess:
   speed:
+    order_axis: window  # decision 26 Sep 2026: per-window speed from the untouched tachometer
     window_min_intervals: 3  # window_speeds: fewer clean tacho intervals in a window → recording speed
   # Bearing defect frequencies as multiples of shaft rate (orders); the ball defect line is 2 × BSF.
   bearing:
@@ -47,6 +48,9 @@ preprocess:
     # Healthy-only track: a priori, no recordings used. Inside the ±3 dB range of BOTH sensor models,
     # lower edge at the 1 kHz floor, at least 2 kHz wide.
     healthy_band_hz: [1000.0, 5000.0]
+    # Decision 26 Sep 2026: primary envelope band for EVERY track (sensor ratings). bands_hz and
+    # results/demod_bands.json are a separately reported comparison only.
+    primary_band_hz: [1000.0, 5000.0]
     # Manufacturer ratings; MAFAULDA does not document which model is on which bearing.
     sensors:
       "601A01": {range_3db_hz: [0.27, 10000.0], resonance_hz: 16000.0, source: "PCB/IMI 601A01 spec sheet, Revision G, ECN 14824"}
