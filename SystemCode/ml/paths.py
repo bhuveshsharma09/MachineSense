@@ -69,3 +69,43 @@ def cache_file(name: str, *sections: BaseModel, ext: str) -> Path:
     so a changed setting can never silently reuse a stale cache."""
     sha = hashlib.sha256("".join(config_sha256(s) for s in sections).encode()).hexdigest()[:12]
     return data_dir() / "cache" / f"{name}_{sha}.{ext}"
+
+
+class RunPaths:
+    """Every output path of one trained variant × seed (× fold), Stage 3B on. The name `<variant>_s<seed>_<protocol>`
+    appears in every score, embedding, weight, normalisation-stat and result path and in the MLflow run names, so two
+    runs that differ only in seed (or variant) never write to the same file. Stage 3A's seed-42 CNN outputs keep their
+    original paths (they predate this scheme) and are never overwritten by it."""
+
+    def __init__(self, family: str, variant: str, seed: int, protocol: str = "dev"):
+        self.family, self.variant, self.seed, self.protocol = family, variant, int(seed), protocol
+        self.name = f"{variant}_s{int(seed)}_{protocol}"
+
+    def run_name(self, fold: int | None = None) -> str:
+        return self.name if fold is None else f"{self.name}_fold{int(fold)}"
+
+    def tags(self, fold: int | None = None) -> dict[str, str]:
+        t = {"family": self.family, "variant": self.variant, "seed": str(self.seed), "protocol": self.protocol}
+        return t if fold is None else {**t, "fold": str(int(fold))}
+
+    def scores(self, kind: str = "scores") -> Path:
+        """results/scores/<name>_<kind>.parquet (kind: scores, logits, channel_errors, …)."""
+        return results_dir() / "scores" / f"{self.name}_{kind}.parquet"
+
+    def embeddings(self) -> Path:
+        return results_dir() / "scores" / f"{self.name}_embeddings.npz"
+
+    def weights(self, fold: int) -> Path:
+        return artifacts_dir() / self.family / self.name / f"fold{int(fold)}.pt"
+
+    def norm_stats(self, fold: int) -> Path:
+        return results_dir() / self.family / self.name / f"fold{int(fold)}_norm.json"
+
+    def result(self, kind: str) -> Path:
+        """results/<family>/<name>_<kind>.json (kind: train, eval, …)."""
+        return results_dir() / self.family / f"{self.name}_{kind}.json"
+
+    def all_paths(self, folds=(0, 1, 2)) -> list[Path]:
+        out = [self.scores(), self.scores("logits"), self.scores("channel_errors"), self.embeddings(),
+               self.result("train"), self.result("eval")]
+        return out + [p for k in folds for p in (self.weights(k), self.norm_stats(k))]

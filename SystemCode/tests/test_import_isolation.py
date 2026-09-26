@@ -16,7 +16,8 @@ SCANNED = ("ml", "backend", "scripts")
 BASELINES_SCRIPT = SYSTEM_CODE / "scripts" / "05_baselines.py"
 BASELINES_NOTEBOOK = SYSTEM_CODE / "notebooks" / "03_ml_layer" / "05_baselines.ipynb"
 # ml modules a LightGBM script may use; none may import torch at module level.
-TORCH_FREE_ML = ("ml", "ml.config", "ml.labels", "ml.paths", "ml.preprocess", "ml.splits", "ml.utils", "ml.bundle")
+TORCH_FREE_ML = ("ml", "ml.config", "ml.labels", "ml.paths", "ml.preprocess", "ml.splits", "ml.utils", "ml.bundle",
+                 "ml.evaluation")
 
 # Any import statement, including indented (lazy) ones; torch also matches torchvision, which loads torch.
 LIGHTGBM = re.compile(r"^\s*(import|from)\s+lightgbm\b", re.MULTILINE)

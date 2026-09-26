@@ -56,8 +56,9 @@ Graders run the app on a Linux or Windows CPU.
 - `os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")` must run **before** `import torch`.
   `ml/__init__.py` does this.
 - **MPS has no float64.** Cast every NumPy or scikit-learn output to `float32` before `.to(device)`.
-- **No DataLoader worker processes.** The whole spectrogram cache (~0.8 GB, float16) is loaded once as one tensor
-  on the device. Batches are index slices of that tensor, cast to float32 on the device.
+- **No DataLoader worker processes.** The needed windows of the spectrogram cache (float16) are loaded once as one
+  tensor on the device: in development runs only the development-pool windows (≈ 0.32 GB); reserved-test windows are
+  never loaded onto the device. Batches are index slices of that tensor, cast to float32 on the device.
 - STFT and feature extraction run on **CPU** with `torch.stft`/NumPy, once, and are cached.
   No librosa or torchaudio in the hot path.
 - fp32 training, no AMP. Use batch 256 for the scratch CNN and the autoencoder, 64 for ResNet-18.
@@ -267,33 +268,37 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage 3A — scratch 2D CNN (early fusion) on cache C, Q2 development evaluation
+## 7. Current stage: Stage 3B — CNN seed replication and the healthy-only autoencoder (Q1) on cache C
 
-Dev pool and `results/dev_folds.csv` only (K = 3 outer folds, each pool recording scored once by its own fold's model);
-reserved tests sealed; the training process never imports LightGBM. Not in this stage: autoencoder, LOCO, arbitrator,
-ResNet, late fusion.
+Dev pool and `results/dev_folds.csv` only; reserved tests sealed; the training process never imports LightGBM; all
+Mac/MPS, precision and one-GPU-job rules of §2 apply. Not in this stage: LOCO, arbitrator, ResNet, late fusion.
 
-**Scope rules (fixed before running):**
-- **Q2 only.** These CNNs are trained on all ten classes; their embeddings and scores are for Q2 analysis ONLY and are
-  tagged "Q2-only; trained on all 10 classes; not valid for LOCO". Later LOCO experiments (Stage 3C) must retrain the
+**Standing scope rules (from Stage 3A):**
+- **Q2 only for the CNNs.** They are trained on all ten classes; their embeddings and scores are for Q2 analysis ONLY and
+  are tagged "Q2-only; trained on all 10 classes; not valid for LOCO". LOCO experiments (Stage 3C) must retrain the
   encoder without the withheld fault class and exclude that class from normalisation, calibration and threshold
-  selection. Stage 3A outputs must not be reused for Q3.
-- **Early fusion only** (all sensor channels into one CNN). Late fusion (separate sensor branches combined later) stays on
-  the roadmap; the fusion study is not complete after this stage. CNN-7 vs CNN-6 is an early-fusion preview.
-- **One training seed.** Bootstrap intervals describe uncertainty from the evaluated recordings and folders, not
-  variation between CNN training runs.
+  selection. Stage 3A/3B CNN outputs must not be reused for Q3.
+- **Early fusion only.** Late fusion (separate sensor branches combined later) remains on the roadmap; Stages 3A/3B do not
+  complete the fusion study. CNN-7 vs CNN-6 is an early-fusion preview.
+- **Seeds.** Stage 3A used one seed (42); Stage 3B adds seeds 43 and 44. Seed variation and bootstrap intervals are
+  different sources of uncertainty: report both, never merge them.
+- **Autoencoder.** It may not outperform the classical detector (B1s, per-fold AUROC 0.990); its value (an alternative
+  detector and sensor anomaly evidence) must be demonstrated by results, not assumed.
 
-0. Documentation fixes (Q3 recall labels, Q1 acceptance and AUROC wording, superseded energy value, §7b status,
-   microphone wording, development-finding labels).
-1. Training infrastructure: `ml/models/cnn.py`, `ml/train.py`, `ml/datasets.py` additions; normalisation from
-   `norm_stats` in development mode (fit_ids = the fold's training recordings); fixed epochs, AdamW + cosine, batch 256,
-   class-weighted cross-entropy, training-only augmentation; tests on CPU.
-2. Smoke run (one fold, few epochs, subset): loss decreases, MPS step time and memory, projected training time.
-3. Development evaluation: CNN-7 (vibration + mic) and CNN-6 (vibration only); recording-level mean log-probability;
-   class10/class6 macro-F1 and balanced accuracy with the mixed-unit bootstrap; paired comparisons vs logistic regression
-   and CNN-7 vs CNN-6.
-4. Notebook `06_cnn_scratch` (architecture, curves, per-fold results, confusion matrices, paired comparisons, one PCA
-   per fold model).
+**Notes of record:**
+- Only development-pool windows are loaded onto the device; reserved windows never are.
+- Two scripts share the number 06 (`06_bandstop.py`, `06_train_cnn.py`); they are not renamed.
+- Latency: about 4 ms is CNN prediction from an already prepared representation; building the representation adds about
+  0.5 s, so upload-to-result time is longer.
+- **Artifact paths.** Every existing seed-42 artifact of Stage 3A stays unchanged at its original path. From Stage 3B on,
+  every score, embedding, weight, normalisation-stat and result path, and every MLflow run name and tag, carries the
+  variant, the seed and (where applicable) the fold (`ml.paths.RunPaths`).
+
+0. Housekeeping (shared recording aggregation in `scripts/05_baselines.py`; these notes; the path scheme and its test).
+1. Seed replication of CNN-7 and CNN-6 (seeds 43, 44; same settings and folds).
+2. B1s recording-level scores reproduced from the saved Stage 2D.1 fit/calibration assignments.
+3. Healthy-only autoencoder (`ml/models/ae.py`), corrected Q1 protocol, AE-7 vs AE-6, compared with B1s within fold.
+4. Notebook `08_autoencoder_healthy`.
 
 ## 7b. Plan notes (planned controls)
 

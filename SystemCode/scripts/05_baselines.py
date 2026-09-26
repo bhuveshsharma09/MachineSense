@@ -39,7 +39,8 @@ from ml.cache import load_features, read_cache_metadata
 from ml.classical import logreg_pipeline
 from ml.config import BaselineConfig, Config, PreprocessConfig, load_config
 from ml.evaluation import (CLASS10_TO_6, aggregate_recordings, block_permutation_importance, metrics,
-                           metrics_mixed, mixed_bootstrap_draws, paired_bootstrap, paired_mixed, to_class6)
+                           metrics_mixed, mixed_bootstrap_draws, paired_bootstrap, paired_mixed, recording_predictions,
+                           to_class6)
 from ml.features import ACCEL_CHANNELS, feature_columns
 from ml.labels import CLASS6, CLASS10
 from ml.paths import CONFIGS_DIR, DEFAULT_CONFIG, SYSTEM_CODE_DIR, data_dir, results_dir
@@ -373,11 +374,7 @@ def oof_proba(name: str, bc: BaselineConfig, df: pd.DataFrame, cols: list[str], 
 
 def dev_recording_eval(proba: np.ndarray, df: pd.DataFrame, bc: BaselineConfig, draws) -> tuple[dict, pd.DataFrame]:
     """Recording-level class10/class6 metrics with mixed-unit intervals; also returns per-recording predictions."""
-    agg = aggregate_recordings(proba, df.rec_id.to_numpy(), bc.prob_floor)
-    rec = df.groupby("rec_id", sort=False)[["class10", "folder"]].first().loc[agg.index]
-    rec["pred10"] = agg.idxmax(axis=1)
-    rec["pred6"] = to_class6(agg).idxmax(axis=1).to_numpy()
-    rec["true6"] = rec.class10.map(CLASS10_TO_6)
+    rec = recording_predictions(proba, df, bc.prob_floor)
     win_pred = np.asarray(CLASS10)[proba.argmax(axis=1)]
     present = [c for c in CLASS10 if c in set(df.class10)]
     res = {"class10": metrics_mixed(rec.class10, rec.pred10, CLASS10, draws, rec.folder),

@@ -1,8 +1,9 @@
 """Scratch 2D CNN, early fusion, on cache C: Q2 development evaluation (Stage 3A). Never imports LightGBM.
 
     caffeinate -i env MACHINESENSE_DEVICE=mps python scripts/06_train_cnn.py smoke
-    caffeinate -i env MACHINESENSE_DEVICE=mps python scripts/06_train_cnn.py train --variant cnn7   # then cnn6
-    python scripts/06_train_cnn.py evaluate
+    caffeinate -i env MACHINESENSE_DEVICE=mps python scripts/06_train_cnn.py train --variant cnn7 --seed 43
+    python scripts/06_train_cnn.py evaluate          # Stage 3A, seed 42 (original paths)
+    python scripts/06_train_cnn.py seeds             # Stage 3B seed replication (42, 43, 44)
 
 Protocol (CLAUDE.md §5 rules 12–13, §7): development pool and results/dev_folds.csv only (K = 3). For each outer fold k
 the model is trained on the windows of the other folds for a FIXED number of epochs (no early stopping, nothing chosen
@@ -11,9 +12,11 @@ only: every pool recording is scored exactly once, by its own fold's model. One 
 
 SCOPE: trained on all ten classes → outputs are Q2-only and NOT valid for LOCO / Q3 (every output is tagged).
 
-Outputs: results/scores/<variant>_dev.parquet (per-window logits) and <variant>_dev_embeddings.npz (128-d z), each row
-with rec_id, window_idx, dev_fold, run_id; artifacts/cnn/<variant>_dev/fold<k>.pt (state_dict);
-results/cnn/<variant>_dev_train.json (history, timing, provenance); results/cnn/dev_eval.json (evaluate); MLflow runs.
+Outputs (Stage 3B path scheme, ml.paths.RunPaths, name = <variant>_s<seed>_dev): results/scores/<name>_logits.parquet
+(per-window logits) and <name>_embeddings.npz (128-d z), each row with rec_id, window_idx, dev_fold, run_id;
+artifacts/cnn/<name>/fold<k>.pt (state_dict); results/cnn/<name>/fold<k>_norm.json; results/cnn/<name>_train.json;
+MLflow runs <name> and <name>_fold<k>. Stage 3A's seed-42 outputs keep their original paths (<variant>_dev…, read by
+`evaluate` and, for seed 42, by `seeds`); results/cnn/dev_eval.json (evaluate), results/cnn/seed_replication.json (seeds).
 """
 from __future__ import annotations
 
@@ -34,7 +37,7 @@ from ml.datasets import NormContext, dev_window_rows, fold_fit_context, load_rep
 from ml.evaluation import metrics_mixed, mixed_bootstrap_draws, paired_mixed, recording_predictions
 from ml.features import feature_columns
 from ml.labels import CLASS6, CLASS10
-from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, data_dir, results_dir
+from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, RunPaths, data_dir, results_dir
 from ml.splits import development_pool, split_hash
 from ml.utils import git_sha
 
@@ -85,8 +88,13 @@ def resident(arr: np.ndarray, rows: pd.DataFrame, device):
 
 
 # ----------------------------------------------------------------------------------------------------------- outputs
-def write_scores(variant: str, rows: pd.DataFrame, idx: np.ndarray, logits: np.ndarray, emb: np.ndarray,
-                 run_ids: np.ndarray, prov: dict, suffix: str = "") -> tuple[Path, Path]:
+def legacy_seed42(variant: str) -> tuple[Path, Path]:
+    """Stage 3A seed-42 score and embedding paths (before the RunPaths scheme); never rewritten."""
+    return SCORES / f"{variant}_dev.parquet", SCORES / f"{variant}_dev_embeddings.npz"
+
+
+def write_scores(p1: Path, p2: Path, rows: pd.DataFrame, idx: np.ndarray, logits: np.ndarray, emb: np.ndarray,
+                 run_ids: np.ndarray, prov: dict) -> tuple[Path, Path]:
     import pyarrow as pa
     import pyarrow.parquet as pq
 
@@ -98,10 +106,8 @@ def write_scores(variant: str, rows: pd.DataFrame, idx: np.ndarray, logits: np.n
     table = pa.Table.from_pandas(df, preserve_index=False)
     md = {**(table.schema.metadata or {}),
           **{f"machinesense.{k}".encode(): str(v).encode() for k, v in {**prov, "scope": TAG}.items()}}
-    SCORES.mkdir(parents=True, exist_ok=True)
-    p1 = SCORES / f"{variant}_dev{suffix}.parquet"
+    p1.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(table.replace_schema_metadata(md), p1)
-    p2 = SCORES / f"{variant}_dev{suffix}_embeddings.npz"
     np.savez_compressed(p2, embedding=emb.astype(np.float32), rec_id=df.rec_id.to_numpy().astype(str),
                         window_idx=df.window_idx.to_numpy(), dev_fold=df.dev_fold.to_numpy(),
                         run_id=run_ids.astype(str), scope=np.array(TAG))
@@ -207,12 +213,13 @@ def run_smoke(cfg: Config) -> None:
     steps_full = int(np.ceil(full_train_windows / cc.batch_size))
     per_fold_s = steps_full * cc.epochs * step_s
     prov = {"run": "smoke", "split_hash": split_hash(meta), "cache_key": cache_key, "git_sha": git_sha()}
-    p1, p2 = write_scores("cnn7", rows, ev_idx, logits, emb, np.full(len(ev_idx), "cnn7_smoke_fold0"), prov,
-                          suffix="_smoke")
+    rp = RunPaths("cnn", "cnn7", cc.seed, protocol="smoke")
+    p1, p2 = write_scores(rp.scores("logits"), rp.embeddings(), rows, ev_idx, logits, emb,
+                          np.full(len(ev_idx), rp.run_name(0)), prov)
     check = check_outputs(p1, p2, len(ev_idx))
-    (ART / "smoke").mkdir(parents=True, exist_ok=True)
-    torch.save(model.state_dict(), ART / "smoke" / "fold0.pt")
-    sd = torch.load(ART / "smoke" / "fold0.pt", weights_only=True)
+    rp.weights(0).parent.mkdir(parents=True, exist_ok=True)
+    torch.save(model.state_dict(), rp.weights(0))
+    sd = torch.load(rp.weights(0), weights_only=True)
     check["state_dict_tensors"] = len(sd)
     out = {"device": str(device), "fold": k, "epochs": cc.smoke_epochs, "train_recordings": len(sub_ids),
            "train_windows": len(tr_idx), "resident_cache_mb": cache.numel() * 2 / 2**20, "resident_load_s": load_s,
@@ -225,12 +232,12 @@ def run_smoke(cfg: Config) -> None:
                           "train_minutes_both_variants": 6 * per_fold_s / 60},
            "outputs_check": check, **prov}
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "smoke.json").write_text(json.dumps(out, indent=1))
+    rp.result("train").write_text(json.dumps(out, indent=1))
     print(json.dumps({k2: out[k2] for k2 in ("loss_decreased", "median_step_ms", "memory", "projection",
                                              "outputs_check")}, indent=1))
 
 
-def run_train(cfg: Config, variant: str) -> None:
+def run_train(cfg: Config, variant: str, seed: int) -> None:
     import mlflow
     import torch
 
@@ -239,7 +246,8 @@ def run_train(cfg: Config, variant: str) -> None:
 
     from ml.models.cnn import n_parameters
 
-    cc, device = cfg.cnn, get_device()
+    cc, device = cfg.cnn.model_copy(update={"seed": seed}), get_device()
+    rp = RunPaths("cnn", variant, seed)
     meta, pool, arr, index, rows, cache_key = load_all(cfg)
     ch = channels_of(variant, cfg)
     prov = {"variant": variant, "split_hash": split_hash(meta), "cache_key": cache_key, "git_sha": git_sha(),
@@ -249,9 +257,10 @@ def run_train(cfg: Config, variant: str) -> None:
     all_logits, all_emb = np.zeros((n, len(CLASS10)), np.float32), np.zeros((n, cc.embedding_dim), np.float32)
     run_ids = np.empty(n, dtype=object)
     fold_info = []
-    (ART / f"{variant}_dev").mkdir(parents=True, exist_ok=True)
-    with gpu_job(device, ART, cc.mps_memory_fraction), mlflow_run(cfg, run_name=f"{variant}_dev") as parent:
-        mlflow.set_tags({"stage": "3A", "scope": TAG, "variant": variant, "split_hash": prov["split_hash"],
+    for p in (rp.weights(0), rp.norm_stats(0), rp.result("train")):
+        p.parent.mkdir(parents=True, exist_ok=True)
+    with gpu_job(device, ART, cc.mps_memory_fraction), mlflow_run(cfg, run_name=rp.run_name()) as parent:
+        mlflow.set_tags({"stage": "3B", "scope": TAG, **rp.tags(), "split_hash": prov["split_hash"],
                          "cache_key": cache_key, "protocol": "dev folder-grouped K=3; scored once by own fold model"})
         cache, y = resident(arr, rows, device)
         for k in folds:
@@ -261,11 +270,14 @@ def run_train(cfg: Config, variant: str) -> None:
             tr_idx = np.flatnonzero((rows.dev_fold != k).to_numpy())
             ev_idx = np.flatnonzero((rows.dev_fold == k).to_numpy())
             assert set(rows.rec_id.iloc[tr_idx]) == set(fit_ids)
-            run_id = f"{variant}_dev_fold{k}"
+            run_id = rp.run_name(k)
+            rp.norm_stats(k).write_text(json.dumps({"fit_ids_sha256": ids_hash(fit_ids), "n_fit_recordings": len(fit_ids),
+                                                     "n_windows": st["n_windows"], "channels": ch,
+                                                     "mean": mean.tolist(), "std": std.tolist()}, indent=1))
             with mlflow.start_run(run_name=run_id, nested=True, experiment_id=parent.info.experiment_id):
-                mlflow.set_tags({"stage": "3A", "scope": TAG, "variant": variant, "fold": str(k),
+                mlflow.set_tags({"stage": "3B", "scope": TAG, **rp.tags(k),
                                  "fit_ids_sha256": ids_hash(fit_ids), "split_hash": prov["split_hash"],
-                                 "cache_key": cache_key, "git_sha": prov["git_sha"], "seed": str(cc.seed)})
+                                 "cache_key": cache_key, "git_sha": prov["git_sha"]})
                 seed_everything(cc.seed)
                 t0 = time.perf_counter()
                 model, hist = train_model(cache, y, tr_idx, ch, mean, std, len(CLASS10), cc, device,
@@ -276,7 +288,7 @@ def run_train(cfg: Config, variant: str) -> None:
                 train_s = time.perf_counter() - t0
                 logits, emb = score_windows(model, cache, ev_idx, ch, mean, std, cc, device)
                 all_logits[ev_idx], all_emb[ev_idx], run_ids[ev_idx] = logits, emb, run_id
-                torch.save(model.state_dict(), ART / f"{variant}_dev" / f"fold{k}.pt")
+                torch.save(model.state_dict(), rp.weights(k))
                 cpu_rows = np.asarray(arr[np.sort(rows.row.to_numpy()[ev_idx])[:9 * 50]])
                 ms = cpu_latency_ms(model, cpu_rows, ch, mean, std, cc)
                 rec = recording_predictions(softmax(logits), rows.iloc[ev_idx], cfg.baselines.prob_floor)
@@ -292,7 +304,8 @@ def run_train(cfg: Config, variant: str) -> None:
                                   "history": hist, "metrics": fm})
                 model.to(device)
             release_device_memory(device)
-        p1, p2 = write_scores(variant, rows, np.arange(n), all_logits, all_emb, run_ids.astype(str), prov)
+        p1, p2 = write_scores(rp.scores("logits"), rp.embeddings(), rows, np.arange(n), all_logits, all_emb,
+                              run_ids.astype(str), prov)
         check = check_outputs(p1, p2, n)
         rec = recording_predictions(softmax(all_logits), rows, cfg.baselines.prob_floor)
         assert len(rec) == len(pool)
@@ -305,9 +318,9 @@ def run_train(cfg: Config, variant: str) -> None:
                               "mlflow_run_id": parent.info.run_id},
                "folds": fold_info, "pooled_point_metrics": pooled, "outputs_check": check}
         OUT.mkdir(parents=True, exist_ok=True)
-        (OUT / f"{variant}_dev_train.json").write_text(json.dumps(out, indent=1))
-        mlflow.log_artifact(str(OUT / f"{variant}_dev_train.json"))
-    print(f"{variant}: pooled class10 macro-F1 {pooled['class10_macro_f1']:.3f}, class6 {pooled['class6_macro_f1']:.3f}")
+        rp.result("train").write_text(json.dumps(out, indent=1))
+        mlflow.log_artifact(str(rp.result("train")))
+    print(f"{rp.name}: pooled class10 macro-F1 {pooled['class10_macro_f1']:.3f}, class6 {pooled['class6_macro_f1']:.3f}")
 
 
 def lr_oof(cfg: Config, meta: pd.DataFrame, pool: pd.DataFrame) -> tuple[np.ndarray, pd.DataFrame]:
@@ -327,6 +340,24 @@ def lr_oof(cfg: Config, meta: pd.DataFrame, pool: pd.DataFrame) -> tuple[np.ndar
     return proba, df
 
 
+def cnn_recordings(path: Path, pool: pd.DataFrame, floor: float) -> pd.DataFrame:
+    """Recording-level predictions (and dev_fold) from a saved per-window logits parquet; checks every pool recording is
+    scored exactly once."""
+    s = pd.read_parquet(path).sort_values(["rec_id", "window_idx"]).reset_index(drop=True)
+    s = s.merge(pool[["rec_id", "folder"]], on="rec_id").rename(columns={"y_true": "class10"})
+    assert s.rec_id.nunique() == len(pool) and not s.duplicated(["rec_id", "window_idx"]).any()
+    rec = recording_predictions(softmax(s[[f"logit_{c}" for c in CLASS10]].to_numpy()), s, floor)
+    rec["dev_fold"] = s.groupby("rec_id", sort=False).dev_fold.first().loc[rec.index]
+    return rec
+
+
+def lr_recordings(cfg: Config, meta: pd.DataFrame, pool: pd.DataFrame) -> pd.DataFrame:
+    lp, ldf = lr_oof(cfg, meta, pool)
+    rec = recording_predictions(lp, ldf, cfg.baselines.prob_floor)
+    rec["dev_fold"] = ldf.groupby("rec_id", sort=False).dev_fold.first().loc[rec.index]
+    return rec
+
+
 def run_evaluate(cfg: Config) -> None:
     """Recording-level metrics with mixed-unit intervals for CNN-7, CNN-6 and the refitted logistic regression; paired
     comparisons over identical draws. No torch needed."""
@@ -337,16 +368,8 @@ def run_evaluate(cfg: Config) -> None:
     bc = cfg.baselines
     meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
     pool = dev_pool(cfg, meta)
-    recs = {}
-    for v in VARIANTS:
-        s = pd.read_parquet(SCORES / f"{v}_dev.parquet").sort_values(["rec_id", "window_idx"]).reset_index(drop=True)
-        s = s.merge(pool[["rec_id", "folder"]], on="rec_id").rename(columns={"y_true": "class10"})
-        assert s.rec_id.nunique() == len(pool) and not s.duplicated(["rec_id", "window_idx"]).any()
-        recs[v] = recording_predictions(softmax(s[[f"logit_{c}" for c in CLASS10]].to_numpy()), s, bc.prob_floor)
-        recs[v]["dev_fold"] = s.groupby("rec_id", sort=False).dev_fold.first().loc[recs[v].index]
-    lp, ldf = lr_oof(cfg, meta, pool)
-    recs["logreg"] = recording_predictions(lp, ldf, bc.prob_floor)
-    recs["logreg"]["dev_fold"] = ldf.groupby("rec_id", sort=False).dev_fold.first().loc[recs["logreg"].index]
+    recs = {v: cnn_recordings(legacy_seed42(v)[0], pool, bc.prob_floor) for v in VARIANTS}
+    recs["logreg"] = lr_recordings(cfg, meta, pool)
     order = sorted(pool.rec_id)
     recs = {m: r.loc[order] for m, r in recs.items()}
     base = recs["cnn7"]
@@ -395,15 +418,83 @@ def run_evaluate(cfg: Config) -> None:
     print(folder_acc.sort_values("cnn7").head(8).round(3).to_string())
 
 
+SEEDS = (42, 43, 44)
+
+
+def run_seeds(cfg: Config) -> None:
+    """Seed replication (Stage 3B): per seed, pooled class10/class6 macro-F1 of CNN-7 and CNN-6 with mixed-unit
+    intervals and paired differences (CNN-7 − CNN-6, each CNN − logistic regression) over the SAME draws; then mean ±
+    std across seeds. Seed variation and bootstrap intervals are reported separately, never merged."""
+    bc = cfg.baselines
+    meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
+    pool = dev_pool(cfg, meta)
+    order = sorted(pool.rec_id)
+    lr = lr_recordings(cfg, meta, pool).loc[order]
+    draws = mixed_bootstrap_draws(lr.class10.to_numpy(), lr.folder.to_numpy(), bc.n_bootstrap, bc.seed)
+    per_seed, sources = {}, {}
+    for seed in SEEDS:
+        recs = {}
+        for v in VARIANTS:
+            p = RunPaths("cnn", v, seed).scores("logits")
+            if seed == 42 and not p.exists():
+                p = legacy_seed42(v)[0]
+            sources[f"{v}_s{seed}"] = str(p.relative_to(SYSTEM_CODE_DIR))
+            recs[v] = cnn_recordings(p, pool, bc.prob_floor).loc[order]
+        m = {v: {"class10": metrics_mixed(r.class10, r.pred10, CLASS10, draws, r.folder),
+                 "class6": metrics_mixed(r.true6, r.pred6, CLASS6, draws, r.folder)} for v, r in recs.items()}
+        recs["logreg"] = lr
+        paired = {f"{a}_minus_{b}": {
+            "class10": paired_mixed(lr.class10, recs[a].pred10, recs[b].pred10, CLASS10, draws),
+            "class6": paired_mixed(lr.true6, recs[a].pred6, recs[b].pred6, CLASS6, draws)}
+            for a, b in (("cnn7", "cnn6"), ("cnn7", "logreg"), ("cnn6", "logreg"))}
+        per_seed[seed] = {"models": {v: {view: {k: m[v][view][k] for k in ("macro_f1", "macro_f1_ci", "balanced_accuracy",
+                                                                            "balanced_accuracy_ci", "per_class_f1")}
+                                         for view in ("class10", "class6")} for v in m},
+                          "paired": paired,
+                          "per_folder_accuracy": {v: {f: d["accuracy"] for f, d in m[v]["class10"]["per_folder_accuracy"].items()}
+                                                  for v in m}}
+    across = {}
+    for v in VARIANTS:
+        for view in ("class10", "class6"):
+            vals = [per_seed[s]["models"][v][view]["macro_f1"] for s in SEEDS]
+            across[f"{v}_{view}_macro_f1"] = {"values": vals, "mean": float(np.mean(vals)), "std": float(np.std(vals, ddof=1))}
+    for name in per_seed[SEEDS[0]]["paired"]:
+        for view in ("class10", "class6"):
+            vals = [per_seed[s]["paired"][name][view]["diff"] for s in SEEDS]
+            across[f"{name}_{view}_diff"] = {"values": vals, "mean": float(np.mean(vals)), "std": float(np.std(vals, ddof=1)),
+                                             "same_sign_all_seeds": bool(len({np.sign(x) for x in vals}) == 1)}
+    out = {"provenance": {"split_hash": split_hash(meta), "git_sha": git_sha(), "scope": TAG, "seeds": list(SEEDS),
+                          "sources": sources, "n_bootstrap": bc.n_bootstrap, "bootstrap_seed": bc.seed,
+                          "uncertainty": "bootstrap intervals (per seed) describe the evaluated recordings and folders; "
+                                         "the std across seeds describes CNN training-run variation; they are different "
+                                         "sources and are reported separately, never merged",
+                          "logreg": "refitted on the same folds (deterministic; identical for every seed)"},
+           "per_seed": {str(k): v for k, v in per_seed.items()}, "across_seeds": across}
+    (OUT / "seed_replication.json").write_text(json.dumps(out, indent=1))
+    for seed in SEEDS:
+        ps = per_seed[seed]
+        line = " | ".join(f"{v} {ps['models'][v]['class10']['macro_f1']:.3f}/{ps['models'][v]['class6']['macro_f1']:.3f}"
+                          for v in VARIANTS)
+        d = ps["paired"]
+        print(f"seed {seed}: {line} | " + " | ".join(
+            f"{n} {d[n]['class10']['diff']:+.3f} [{d[n]['class10']['ci'][0]:+.3f}, {d[n]['class10']['ci'][1]:+.3f}]"
+            for n in d))
+    for k, v in across.items():
+        print(f"  {k:32s} {v['mean']:+.4f} ± {v['std']:.4f}" + (f"  same sign: {v['same_sign_all_seeds']}"
+                                                                 if "same_sign_all_seeds" in v else ""))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["smoke", "train", "evaluate"])
+    ap.add_argument("task", choices=["smoke", "train", "evaluate", "seeds"])
     ap.add_argument("--variant", choices=list(VARIANTS), default="cnn7")
+    ap.add_argument("--seed", type=int, default=None, help="training seed (default: cnn.seed in the config)")
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     a = ap.parse_args()
     cfg = load_config(a.config)
-    {"smoke": lambda: run_smoke(cfg), "train": lambda: run_train(cfg, a.variant),
-     "evaluate": lambda: run_evaluate(cfg)}[a.task]()
+    seed = cfg.cnn.seed if a.seed is None else a.seed
+    {"smoke": lambda: run_smoke(cfg), "train": lambda: run_train(cfg, a.variant, seed),
+     "evaluate": lambda: run_evaluate(cfg), "seeds": lambda: run_seeds(cfg)}[a.task]()
     return 0
 
 
