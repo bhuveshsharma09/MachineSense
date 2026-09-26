@@ -5,6 +5,7 @@ torch (CLAUDE.md §2).
     python scripts/05_baselines.py leaky    # deliberate leakage illustration: window-level vs recording-grouped CV
     python scripts/05_baselines.py dev-inventory  # development pool (Stage 2B.1): recordings by class and folder proxy
     python scripts/05_baselines.py dev-folds      # folder-grouped development folds → results/dev_folds.csv
+    python scripts/05_baselines.py dev            # out-of-fold evaluation of the classical models on the dev pool
 
 Train on split_closed train windows; evaluate on split_closed VAL. The test split stays sealed: its rows are dropped
 right after loading. Outputs: results/baselines/*.json|csv, results/scores/<run_name>.parquet (train/val windows only),
@@ -35,7 +36,7 @@ from sklearn.svm import SVC
 from ml.cache import load_features, read_cache_metadata
 from ml.config import BaselineConfig, Config, PreprocessConfig, load_config
 from ml.evaluation import (CLASS10_TO_6, aggregate_recordings, block_permutation_importance, metrics,
-                           paired_bootstrap, to_class6)
+                           metrics_mixed, mixed_bootstrap_draws, paired_bootstrap, paired_mixed, to_class6)
 from ml.features import ACCEL_CHANNELS, feature_columns
 from ml.labels import CLASS6, CLASS10
 from ml.paths import CONFIGS_DIR, DEFAULT_CONFIG, SYSTEM_CODE_DIR, data_dir, results_dir
@@ -340,14 +341,114 @@ def run_dev_folds(cfg: Config) -> None:
     print(f"→ {out.relative_to(SYSTEM_CODE_DIR)}")
 
 
+DEV_MODELS = ("lgbm", "rf", "logreg", "svm", "knn")
+
+
+def load_dev_table(cfg: Config, table: str, pre: PreprocessConfig, meta: pd.DataFrame) -> tuple[Path, pd.DataFrame, int]:
+    """Development-pool windows of a feature table with their dev_fold, ordered by recording and window."""
+    pool, k = dev_pool_with_folds(cfg, meta)
+    path, df = load_table(table, pre, meta)
+    df = df.merge(pool[["rec_id", "folder", "dev_fold"]], on="rec_id", how="inner")
+    assert df.rec_id.nunique() == len(pool)
+    return path, df.sort_values(["rec_id", "window_idx"]).reset_index(drop=True), k
+
+
+def oof_proba(name: str, bc: BaselineConfig, df: pd.DataFrame, cols: list[str], k: int,
+              keep_models: bool = False) -> tuple[np.ndarray, list]:
+    """Out-of-fold window probabilities: for each dev fold, fit on the other folds (scalers and calibration inside the
+    model, so refitted per fold) and predict the held-out fold. Every pool window is predicted exactly once."""
+    X, y = xy(df, cols)
+    out = np.zeros((len(df), len(CLASS10)))
+    models = []
+    for j in range(k):
+        tr, te = (df.dev_fold != j).to_numpy(), (df.dev_fold == j).to_numpy()
+        m = build(name, bc, df.rec_id.to_numpy()[tr], X[tr], y[tr]).fit(X[tr], y[tr])
+        out[te] = proba10(m, X[te])
+        if keep_models:
+            models.append(m)
+    return out, models
+
+
+def dev_recording_eval(proba: np.ndarray, df: pd.DataFrame, bc: BaselineConfig, draws) -> tuple[dict, pd.DataFrame]:
+    """Recording-level class10/class6 metrics with mixed-unit intervals; also returns per-recording predictions."""
+    agg = aggregate_recordings(proba, df.rec_id.to_numpy(), bc.prob_floor)
+    rec = df.groupby("rec_id", sort=False)[["class10", "folder"]].first().loc[agg.index]
+    rec["pred10"] = agg.idxmax(axis=1)
+    rec["pred6"] = to_class6(agg).idxmax(axis=1).to_numpy()
+    rec["true6"] = rec.class10.map(CLASS10_TO_6)
+    win_pred = np.asarray(CLASS10)[proba.argmax(axis=1)]
+    present = [c for c in CLASS10 if c in set(df.class10)]
+    res = {"class10": metrics_mixed(rec.class10, rec.pred10, CLASS10, draws, rec.folder),
+           "class6": metrics_mixed(rec.true6, rec.pred6, CLASS6, draws, rec.folder),
+           "window_macro_f1": float(f1_score(df.class10, win_pred, labels=present, average="macro", zero_division=0))}
+    return res, rec
+
+
+def dev_draws(rec: pd.DataFrame, bc: BaselineConfig):
+    return mixed_bootstrap_draws(rec.class10.to_numpy(), rec.folder.to_numpy(), bc.n_bootstrap, bc.seed)
+
+
+def run_dev(cfg: Config) -> None:
+    """Folder-grouped out-of-fold evaluation of the classical models on the development pool (Stage 2B.1)."""
+    bc, pre = cfg.baselines, cfg.preprocess
+    meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
+    path, df, k = load_dev_table(cfg, bc.feature_table, pre, meta)
+    cols = feature_columns(df)
+    rec0 = df.groupby("rec_id", sort=False)[["class10", "folder"]].first()
+    draws = dev_draws(rec0, bc)
+    folders_per_class = rec0.groupby("class10").folder.nunique().reindex(CLASS10).to_dict()
+    common = {"split_hash": split_hash(meta), "cache_key": read_cache_metadata(path)["cache_key"],
+              "feature_table": path.name, "git_sha": git_sha(), "protocol": f"dev folder-grouped K={k}"}
+    print(f"{path.name}: dev pool {df.rec_id.nunique()} recordings / {len(df)} windows, K = {k}; "
+          f"folder proxies per class {folders_per_class}")
+    results, probas = {}, {}
+    for name in DEV_MODELS:
+        t = time.perf_counter()
+        proba, _ = oof_proba(name, bc, df, cols, k)
+        secs = time.perf_counter() - t
+        res, rec = dev_recording_eval(proba, df, bc, draws)
+        res["seconds_total"] = secs
+        results[name], probas[name] = res, proba
+        print(f"  {name:8s} class10 macro-F1 {res['class10']['macro_f1']:.3f} [{res['class10']['macro_f1_ci'][0]:.3f}, "
+              f"{res['class10']['macro_f1_ci'][1]:.3f}]  class6 {res['class6']['macro_f1']:.3f} "
+              f"[{res['class6']['macro_f1_ci'][0]:.3f}, {res['class6']['macro_f1_ci'][1]:.3f}]  "
+              f"window {res['window_macro_f1']:.3f}  ({secs:.0f} s)")
+    pens = np.mean([probas[m] for m in DEV_MODELS], axis=0)
+    res, _ = dev_recording_eval(pens, df, bc, draws)
+    results["ensemble"] = res
+    print(f"  ensemble class10 macro-F1 {res['class10']['macro_f1']:.3f} [{res['class10']['macro_f1_ci'][0]:.3f}, "
+          f"{res['class10']['macro_f1_ci'][1]:.3f}]  class6 {res['class6']['macro_f1']:.3f}")
+    for name, proba in {**probas, "ensemble": pens}.items():
+        s_df = pd.DataFrame({"rec_id": df.rec_id, "window_idx": df.window_idx, "split": "dev_fold_" + df.dev_fold.astype(str),
+                             "y_true": df.class10})
+        for j, c in enumerate(CLASS10):
+            s_df[f"score_{c}"] = proba[:, j]
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+        table = pa.Table.from_pandas(s_df, preserve_index=False)
+        meta_b = {**(table.schema.metadata or {}),
+                  **{f"machinesense.{kk}".encode(): str(v).encode() for kk, v in {**common, "run_name": f"dev_{name}"}.items()}}
+        SCORES.mkdir(parents=True, exist_ok=True)
+        pq.write_table(table.replace_schema_metadata(meta_b), SCORES / f"dev_{bc.feature_table}_{name}.parquet")
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "dev_eval.json").write_text(json.dumps(
+        {"provenance": {**common, "k": k, "n_recordings": int(df.rec_id.nunique()), "n_windows": len(df),
+                        "folder_proxies_per_class": folders_per_class,
+                        "bootstrap": "stratified mixed-unit: fault folder proxies resampled within class with all their "
+                                     "recordings; normal recordings resampled individually (one folder: between-session "
+                                     "uncertainty for normal cannot be estimated); conditional on the fitted folds"},
+         "models": results}, indent=1))
+    print(f"→ {(OUT / 'dev_eval.json').relative_to(SYSTEM_CODE_DIR)}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["closed", "leaky", "dev-inventory", "dev-folds"])
+    ap.add_argument("task", choices=["closed", "leaky", "dev-inventory", "dev-folds", "dev"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     args = ap.parse_args()
     cfg = load_config(args.config)
     {"closed": run_closed, "leaky": run_leaky, "dev-inventory": run_dev_inventory,
-     "dev-folds": run_dev_folds}[args.task](cfg)
+     "dev-folds": run_dev_folds, "dev": run_dev}[args.task](cfg)
     return 0
 
 
