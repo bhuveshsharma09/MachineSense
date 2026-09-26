@@ -8,6 +8,7 @@ torch (CLAUDE.md §2).
     python scripts/05_baselines.py dev            # out-of-fold evaluation of the classical models on the dev pool
     python scripts/05_baselines.py dev-compare    # LightGBM comparisons (a)–(d) under the same folds
     python scripts/05_baselines.py dev-protocol   # evaluation-protocol comparison (for the deck; not a leakage estimate)
+    python scripts/05_baselines.py dev-lr-capped  # logistic regression vs LightGBM on the capped table, same dev folds
 
 Train on split_closed train windows; evaluate on split_closed VAL. The test split stays sealed: its rows are dropped
 right after loading. Outputs: results/baselines/*.json|csv, results/scores/<run_name>.parquet (train/val windows only),
@@ -587,16 +588,47 @@ def run_dev_protocol(cfg: Config) -> None:
     print(f"→ {(OUT / 'dev_protocol.json').relative_to(SYSTEM_CODE_DIR)}")
 
 
+def run_dev_lr_capped(cfg: Config) -> None:
+    """Capped logistic-regression reference (Stage 2C-1): logistic regression and LightGBM on the r1cap10 table, the
+    existing 2B.1 dev folds, no retuning; paired comparison over identical mixed-unit draws."""
+    bc, pre = cfg.baselines, cfg.preprocess
+    meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
+    path, df, k = load_dev_table(cfg, "r1cap10", pre, meta)
+    cols = feature_columns(df)
+    rec0 = df.groupby("rec_id", sort=False)[["class10", "folder"]].first()
+    draws = dev_draws(rec0, bc)
+    res, recs = {}, {}
+    for name in ("logreg", "lgbm"):
+        t = time.perf_counter()
+        proba, _ = oof_proba(name, bc, df, cols, k)
+        res[name], rec = dev_recording_eval(proba, df, bc, draws)
+        res[name]["seconds_total"] = time.perf_counter() - t
+        recs[name] = rec.loc[rec0.index]
+        print(f"  {name:7s} capped class10 {res[name]['class10']['macro_f1']:.3f} "
+              f"[{res[name]['class10']['macro_f1_ci'][0]:.3f}, {res[name]['class10']['macro_f1_ci'][1]:.3f}]  class6 "
+              f"{res[name]['class6']['macro_f1']:.3f} [{res[name]['class6']['macro_f1_ci'][0]:.3f}, "
+              f"{res[name]['class6']['macro_f1_ci'][1]:.3f}]")
+    d10 = paired_mixed(rec0.class10, recs["logreg"].pred10, recs["lgbm"].pred10, CLASS10, draws)
+    d6 = paired_mixed(rec0.class10.map(CLASS10_TO_6), recs["logreg"].pred6, recs["lgbm"].pred6, CLASS6, draws)
+    out = {"provenance": {"feature_table": path.name, "split_hash": split_hash(meta), "git_sha": git_sha(), "k": k,
+                          "folder_proxies_per_class": rec0.groupby("class10").folder.nunique().reindex(CLASS10).to_dict()},
+           "models": res, "logreg_minus_lgbm_class10": d10, "logreg_minus_lgbm_class6": d6}
+    (OUT / "dev_capped_lr.json").write_text(json.dumps(out, indent=1))
+    print(f"  logreg − lgbm class10 {d10['diff']:+.3f} [{d10['ci'][0]:+.3f}, {d10['ci'][1]:+.3f}] P(>0) {d10['p_positive']:.2f}; "
+          f"class6 {d6['diff']:+.3f} [{d6['ci'][0]:+.3f}, {d6['ci'][1]:+.3f}]")
+    print(f"→ {(OUT / 'dev_capped_lr.json').relative_to(SYSTEM_CODE_DIR)}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("task", choices=["closed", "leaky", "dev-inventory", "dev-folds", "dev", "dev-compare",
-                                         "dev-protocol"])
+                                         "dev-protocol", "dev-lr-capped"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     args = ap.parse_args()
     cfg = load_config(args.config)
     {"closed": run_closed, "leaky": run_leaky, "dev-inventory": run_dev_inventory,
      "dev-folds": run_dev_folds, "dev": run_dev, "dev-compare": run_dev_compare,
-     "dev-protocol": run_dev_protocol}[args.task](cfg)
+     "dev-protocol": run_dev_protocol, "dev-lr-capped": run_dev_lr_capped}[args.task](cfg)
     return 0
 
 

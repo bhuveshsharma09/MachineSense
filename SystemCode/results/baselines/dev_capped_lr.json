@@ -1,0 +1,1018 @@
+{
+ "provenance": {
+  "feature_table": "r1cap10_7dda9b7750ed.parquet",
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "6c931f9e5fb6be074b14567a117063888d9e0c53-dirty",
+  "k": 3,
+  "folder_proxies_per_class": {
+   "normal": 1,
+   "imbalance": 6,
+   "horizontal_misalignment": 3,
+   "vertical_misalignment": 5,
+   "underhang_ball": 3,
+   "underhang_cage": 3,
+   "underhang_outer": 3,
+   "overhang_ball": 3,
+   "overhang_cage": 3,
+   "overhang_outer": 3
+  }
+ },
+ "models": {
+  "logreg": {
+   "class10": {
+    "macro_f1": 0.948933386684733,
+    "macro_f1_ci": [
+     0.9076503892121625,
+     0.983463080423488
+    ],
+    "balanced_accuracy": 0.9506186597556461,
+    "balanced_accuracy_ci": [
+     0.911953933551083,
+     0.9831309578361325
+    ],
+    "per_class_f1": {
+     "normal": 0.9412,
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.9931,
+     "vertical_misalignment": 1.0,
+     "underhang_ball": 0.9935,
+     "underhang_cage": 0.8794,
+     "underhang_outer": 0.951,
+     "overhang_ball": 0.9517,
+     "overhang_cage": 0.8889,
+     "overhang_outer": 0.8904
+    },
+    "confusion": [
+     [
+      24,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      144,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      72,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      125,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      77,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      2,
+      0,
+      0,
+      0,
+      0,
+      62,
+      1,
+      0,
+      0,
+      7
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      68,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      69,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      7,
+      64,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      7,
+      65
+     ]
+    ],
+    "per_folder_accuracy": {
+     "horizontal_misalignment/0.5mm": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "horizontal_misalignment/1.5mm": {
+      "accuracy": 0.9523809523809523,
+      "n": 21
+     },
+     "horizontal_misalignment/1mm": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "imbalance/10g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "imbalance/15g": {
+      "accuracy": 1.0,
+      "n": 22
+     },
+     "imbalance/20g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "imbalance/25g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "imbalance/30g": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "imbalance/6g": {
+      "accuracy": 1.0,
+      "n": 23
+     },
+     "normal/-": {
+      "accuracy": 0.96,
+      "n": 25
+     },
+     "overhang_ball/0g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "overhang_ball/20g": {
+      "accuracy": 1.0,
+      "n": 20
+     },
+     "overhang_ball/6g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "overhang_cage/0g": {
+      "accuracy": 1.0,
+      "n": 21
+     },
+     "overhang_cage/20g": {
+      "accuracy": 0.6923076923076923,
+      "n": 26
+     },
+     "overhang_cage/6g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "overhang_outer/0g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "overhang_outer/20g": {
+      "accuracy": 0.5714285714285714,
+      "n": 21
+     },
+     "overhang_outer/6g": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "underhang_ball/0g": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "underhang_ball/20g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "underhang_ball/6g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "underhang_cage/0g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "underhang_cage/20g": {
+      "accuracy": 0.64,
+      "n": 25
+     },
+     "underhang_cage/6g": {
+      "accuracy": 0.9545454545454546,
+      "n": 22
+     },
+     "underhang_outer/0g": {
+      "accuracy": 1.0,
+      "n": 23
+     },
+     "underhang_outer/20g": {
+      "accuracy": 0.7916666666666666,
+      "n": 24
+     },
+     "underhang_outer/6g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "vertical_misalignment/0.51mm": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "vertical_misalignment/0.63mm": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "vertical_misalignment/1.27mm": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "vertical_misalignment/1.4mm": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "vertical_misalignment/1.78mm": {
+      "accuracy": 1.0,
+      "n": 25
+     }
+    },
+    "n": 804
+   },
+   "class6": {
+    "macro_f1": 0.9798966343796702,
+    "macro_f1_ci": [
+     0.956952179865646,
+     0.9977006656945898
+    ],
+    "balanced_accuracy": 0.9819678901583967,
+    "balanced_accuracy_ci": [
+     0.9618872811361615,
+     0.9975731086722012
+    ],
+    "per_class_f1": {
+     "normal": 0.9412,
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.9931,
+     "vertical_misalignment": 1.0,
+     "underhang_bearing": 0.9704,
+     "overhang_bearing": 0.9747
+    },
+    "confusion": [
+     [
+      24,
+      0,
+      0,
+      0,
+      1,
+      0
+     ],
+     [
+      0,
+      144,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      72,
+      0,
+      0,
+      1
+     ],
+     [
+      0,
+      0,
+      0,
+      125,
+      0,
+      0
+     ],
+     [
+      2,
+      0,
+      0,
+      0,
+      213,
+      7
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      3,
+      212
+     ]
+    ],
+    "per_folder_accuracy": {
+     "horizontal_misalignment/0.5mm": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "horizontal_misalignment/1.5mm": {
+      "accuracy": 0.9523809523809523,
+      "n": 21
+     },
+     "horizontal_misalignment/1mm": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "imbalance/10g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "imbalance/15g": {
+      "accuracy": 1.0,
+      "n": 22
+     },
+     "imbalance/20g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "imbalance/25g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "imbalance/30g": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "imbalance/6g": {
+      "accuracy": 1.0,
+      "n": 23
+     },
+     "normal/-": {
+      "accuracy": 0.96,
+      "n": 25
+     },
+     "overhang_ball/0g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "overhang_ball/20g": {
+      "accuracy": 1.0,
+      "n": 20
+     },
+     "overhang_ball/6g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "overhang_cage/0g": {
+      "accuracy": 1.0,
+      "n": 21
+     },
+     "overhang_cage/20g": {
+      "accuracy": 0.9615384615384616,
+      "n": 26
+     },
+     "overhang_cage/6g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "overhang_outer/0g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "overhang_outer/20g": {
+      "accuracy": 0.9047619047619048,
+      "n": 21
+     },
+     "overhang_outer/6g": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "underhang_ball/0g": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "underhang_ball/20g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "underhang_ball/6g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "underhang_cage/0g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "underhang_cage/20g": {
+      "accuracy": 0.64,
+      "n": 25
+     },
+     "underhang_cage/6g": {
+      "accuracy": 1.0,
+      "n": 22
+     },
+     "underhang_outer/0g": {
+      "accuracy": 1.0,
+      "n": 23
+     },
+     "underhang_outer/20g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "underhang_outer/6g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "vertical_misalignment/0.51mm": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "vertical_misalignment/0.63mm": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "vertical_misalignment/1.27mm": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "vertical_misalignment/1.4mm": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "vertical_misalignment/1.78mm": {
+      "accuracy": 1.0,
+      "n": 25
+     }
+    },
+    "n": 804
+   },
+   "window_macro_f1": 0.9386028141365739,
+   "seconds_total": 8.052545208018273
+  },
+  "lgbm": {
+   "class10": {
+    "macro_f1": 0.903054030198968,
+    "macro_f1_ci": [
+     0.8203455554222533,
+     0.9650784073704632
+    ],
+    "balanced_accuracy": 0.9054224978403062,
+    "balanced_accuracy_ci": [
+     0.8330961053085468,
+     0.9643703997694283
+    ],
+    "per_class_f1": {
+     "normal": 0.8679,
+     "imbalance": 0.993,
+     "horizontal_misalignment": 0.9078,
+     "vertical_misalignment": 0.9804,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.803,
+     "underhang_outer": 0.966,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.8027,
+     "overhang_outer": 0.7097
+    },
+    "confusion": [
+     [
+      23,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      142,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      4,
+      0,
+      64,
+      4,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      125,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      77,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      2,
+      0,
+      0,
+      53,
+      1,
+      0,
+      0,
+      15
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      71,
+      0,
+      2,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      69,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      59,
+      11
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      6,
+      0,
+      0,
+      13,
+      55
+     ]
+    ],
+    "per_folder_accuracy": {
+     "horizontal_misalignment/0.5mm": {
+      "accuracy": 0.96,
+      "n": 25
+     },
+     "horizontal_misalignment/1.5mm": {
+      "accuracy": 0.6190476190476191,
+      "n": 21
+     },
+     "horizontal_misalignment/1mm": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "imbalance/10g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "imbalance/15g": {
+      "accuracy": 1.0,
+      "n": 22
+     },
+     "imbalance/20g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "imbalance/25g": {
+      "accuracy": 0.9583333333333334,
+      "n": 24
+     },
+     "imbalance/30g": {
+      "accuracy": 0.9629629629629629,
+      "n": 27
+     },
+     "imbalance/6g": {
+      "accuracy": 1.0,
+      "n": 23
+     },
+     "normal/-": {
+      "accuracy": 0.92,
+      "n": 25
+     },
+     "overhang_ball/0g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "overhang_ball/20g": {
+      "accuracy": 1.0,
+      "n": 20
+     },
+     "overhang_ball/6g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "overhang_cage/0g": {
+      "accuracy": 0.9523809523809523,
+      "n": 21
+     },
+     "overhang_cage/20g": {
+      "accuracy": 0.5384615384615384,
+      "n": 26
+     },
+     "overhang_cage/6g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "overhang_outer/0g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "overhang_outer/20g": {
+      "accuracy": 0.09523809523809523,
+      "n": 21
+     },
+     "overhang_outer/6g": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "underhang_ball/0g": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "underhang_ball/20g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "underhang_ball/6g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "underhang_cage/0g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "underhang_cage/20g": {
+      "accuracy": 0.28,
+      "n": 25
+     },
+     "underhang_cage/6g": {
+      "accuracy": 0.9545454545454546,
+      "n": 22
+     },
+     "underhang_outer/0g": {
+      "accuracy": 1.0,
+      "n": 23
+     },
+     "underhang_outer/20g": {
+      "accuracy": 0.9166666666666666,
+      "n": 24
+     },
+     "underhang_outer/6g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "vertical_misalignment/0.51mm": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "vertical_misalignment/0.63mm": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "vertical_misalignment/1.27mm": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "vertical_misalignment/1.4mm": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "vertical_misalignment/1.78mm": {
+      "accuracy": 1.0,
+      "n": 25
+     }
+    },
+    "n": 804
+   },
+   "class6": {
+    "macro_f1": 0.940325222501964,
+    "macro_f1_ci": [
+     0.8880527495871229,
+     0.9845453319846874
+    ],
+    "balanced_accuracy": 0.9425873412437605,
+    "balanced_accuracy_ci": [
+     0.8958519726271507,
+     0.9804510196573718
+    ],
+    "per_class_f1": {
+     "normal": 0.8846,
+     "imbalance": 0.993,
+     "horizontal_misalignment": 0.9143,
+     "vertical_misalignment": 0.9804,
+     "underhang_bearing": 0.9309,
+     "overhang_bearing": 0.9388
+    },
+    "confusion": [
+     [
+      23,
+      0,
+      0,
+      0,
+      2,
+      0
+     ],
+     [
+      0,
+      142,
+      1,
+      1,
+      0,
+      0
+     ],
+     [
+      4,
+      0,
+      64,
+      4,
+      0,
+      1
+     ],
+     [
+      0,
+      0,
+      0,
+      125,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      2,
+      0,
+      202,
+      18
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      8,
+      207
+     ]
+    ],
+    "per_folder_accuracy": {
+     "horizontal_misalignment/0.5mm": {
+      "accuracy": 0.96,
+      "n": 25
+     },
+     "horizontal_misalignment/1.5mm": {
+      "accuracy": 0.6190476190476191,
+      "n": 21
+     },
+     "horizontal_misalignment/1mm": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "imbalance/10g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "imbalance/15g": {
+      "accuracy": 1.0,
+      "n": 22
+     },
+     "imbalance/20g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "imbalance/25g": {
+      "accuracy": 0.9583333333333334,
+      "n": 24
+     },
+     "imbalance/30g": {
+      "accuracy": 0.9629629629629629,
+      "n": 27
+     },
+     "imbalance/6g": {
+      "accuracy": 1.0,
+      "n": 23
+     },
+     "normal/-": {
+      "accuracy": 0.92,
+      "n": 25
+     },
+     "overhang_ball/0g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "overhang_ball/20g": {
+      "accuracy": 1.0,
+      "n": 20
+     },
+     "overhang_ball/6g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "overhang_cage/0g": {
+      "accuracy": 1.0,
+      "n": 21
+     },
+     "overhang_cage/20g": {
+      "accuracy": 0.9230769230769231,
+      "n": 26
+     },
+     "overhang_cage/6g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "overhang_outer/0g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "overhang_outer/20g": {
+      "accuracy": 0.7142857142857143,
+      "n": 21
+     },
+     "overhang_outer/6g": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "underhang_ball/0g": {
+      "accuracy": 1.0,
+      "n": 27
+     },
+     "underhang_ball/20g": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "underhang_ball/6g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "underhang_cage/0g": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "underhang_cage/20g": {
+      "accuracy": 0.28,
+      "n": 25
+     },
+     "underhang_cage/6g": {
+      "accuracy": 1.0,
+      "n": 22
+     },
+     "underhang_outer/0g": {
+      "accuracy": 1.0,
+      "n": 23
+     },
+     "underhang_outer/20g": {
+      "accuracy": 0.9166666666666666,
+      "n": 24
+     },
+     "underhang_outer/6g": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "vertical_misalignment/0.51mm": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "vertical_misalignment/0.63mm": {
+      "accuracy": 1.0,
+      "n": 25
+     },
+     "vertical_misalignment/1.27mm": {
+      "accuracy": 1.0,
+      "n": 24
+     },
+     "vertical_misalignment/1.4mm": {
+      "accuracy": 1.0,
+      "n": 26
+     },
+     "vertical_misalignment/1.78mm": {
+      "accuracy": 1.0,
+      "n": 25
+     }
+    },
+    "n": 804
+   },
+   "window_macro_f1": 0.8950875768837914,
+   "seconds_total": 31.355259708012454
+  }
+ },
+ "logreg_minus_lgbm_class10": {
+  "diff": 0.04587935648576502,
+  "ci": [
+   0.011163793852336967,
+   0.09528514238615929
+  ],
+  "p_positive": 0.999
+ },
+ "logreg_minus_lgbm_class6": {
+  "diff": 0.039571411877706186,
+  "ci": [
+   0.00927197334338449,
+   0.08595972306984019
+  ],
+  "p_positive": 1.0
+ }
+}
