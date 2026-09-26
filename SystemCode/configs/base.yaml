@@ -210,3 +210,26 @@ anomaly:
 openset:
   acceptance: 0.95
   scores: [msp, max_logit, energy]
+
+# Scratch 2D CNN, early fusion (Stage 3A), fixed before training: fixed epochs, no early stopping, one seed. Q2 only:
+# trained on all ten classes; outputs are not valid for LOCO (CLAUDE.md §7). Augmentation on training windows only.
+cnn:
+  seed: 42
+  widths: [32, 64, 128, 128]
+  pool_blocks: 3
+  embedding_dim: 128
+  dropout: 0.2
+  max_params: 1000000
+  vibration_channels: [0, 1, 2, 3, 4, 5]
+  epochs: 40
+  batch_size: 256
+  lr: 3.0e-3
+  weight_decay: 0.01
+  warmup_epochs: 1
+  gain_jitter_db: 1.0
+  time_shift_frames: 2
+  time_mask_frames: 4
+  eval_batch_size: 512
+  mps_memory_fraction: 0.7
+  smoke_epochs: 3
+  smoke_fraction: 0.25

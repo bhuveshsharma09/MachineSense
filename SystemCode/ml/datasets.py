@@ -128,3 +128,27 @@ def norm_stats(X: np.ndarray, index: pd.DataFrame, meta: pd.DataFrame, *, track:
         n += block.shape[0] * block.shape[2] * block.shape[3]
     mean = s / n
     return {**mode, "mean": mean, "std": np.sqrt(np.maximum(ss / n - mean**2, 0.0)), "n_windows": int(rows.size)}
+
+
+def dev_window_rows(index: pd.DataFrame, pool: pd.DataFrame) -> pd.DataFrame:
+    """Cache rows of the development pool: one row per window, ordered by rec_id then window_idx, with the cache row
+    position (`row`), class10, folder and dev_fold. `pool` needs rec_id, class10, folder and dev_fold."""
+    rows = index.reset_index(drop=True).rename_axis("row").reset_index()
+    out = rows.merge(pool[["rec_id", "class10", "folder", "dev_fold"]], on="rec_id", how="inner")
+    missing = set(pool.rec_id) - set(out.rec_id)
+    if missing:
+        raise ValueError(f"{len(missing)} pool recordings have no cached windows, e.g. {sorted(missing)[:3]}")
+    return out.sort_values(["rec_id", "window_idx"]).reset_index(drop=True)
+
+
+def fold_fit_context(pool: pd.DataFrame, fold: int) -> tuple[list[str], NormContext]:
+    """Development-mode normalisation IDs for outer dev fold `fold`: fit on the recordings of every other fold; the
+    fold's own recordings are the run's evaluation set (no calibration or withheld recordings in a Q2 run)."""
+    fit_ids = sorted(pool.loc[pool.dev_fold != fold, "rec_id"])
+    return fit_ids, NormContext(evaluation=frozenset(pool.loc[pool.dev_fold == fold, "rec_id"]))
+
+
+def fold_norm_stats(X: np.ndarray, index: pd.DataFrame, meta: pd.DataFrame, pool: pd.DataFrame, fold: int) -> dict:
+    """Per-channel statistics for outer dev fold `fold`, from norm_stats in DEVELOPMENT mode (fold_fit_context)."""
+    fit_ids, context = fold_fit_context(pool, fold)
+    return norm_stats(X, index, meta, fit_ids=fit_ids, context=context)

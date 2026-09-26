@@ -153,3 +153,15 @@ def paired_mixed(y_true: Sequence[str], pred_a: Sequence[str], pred_b: Sequence[
     d = np.array([f(y[i], a[i]) - f(y[i], b[i]) for i in draws])
     return {"diff": float(f(y, a) - f(y, b)), "ci": [float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))],
             "p_positive": float(np.mean(d > 0))}
+
+
+def recording_predictions(proba: np.ndarray, windows: pd.DataFrame, floor: float = 1e-6) -> pd.DataFrame:
+    """Per-recording decisions from window class10 probabilities (rows aligned with `windows`, which carries rec_id,
+    class10 and folder): clip, mean log-probability over the recording's windows, renormalise, argmax; class6 by
+    summing the recording-level class10 probabilities. Index = rec_id (first-seen order)."""
+    agg = aggregate_recordings(proba, windows.rec_id.to_numpy(), floor)
+    rec = windows.groupby("rec_id", sort=False)[["class10", "folder"]].first().loc[agg.index]
+    rec["pred10"] = agg.idxmax(axis=1)
+    rec["pred6"] = to_class6(agg).idxmax(axis=1).to_numpy()
+    rec["true6"] = rec.class10.map(CLASS10_TO_6)
+    return rec

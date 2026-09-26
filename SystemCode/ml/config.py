@@ -389,6 +389,34 @@ class RepresentationConfig(_Strict):
     version: str = "repC-1.0"  # part of the representation cache key
 
 
+class CnnConfig(_Strict):
+    """Scratch 2D CNN, early fusion (Stage 3A), on cache C (7 × 128 orders/Mel bins × 25 frames). Every setting is
+    fixed BEFORE training: fixed epochs, no early stopping, one seed. Augmentation acts on training windows only:
+    gain jitter (a constant dB offset per window and channel, before normalisation), a circular time shift and one
+    time mask (after normalisation, masked frames = 0 = the channel mean). No frequency masking (it would be allowed
+    only above 10 orders; not used)."""
+
+    seed: int = 42
+    widths: tuple[int, ...] = (32, 64, 128, 128)  # conv blocks; each: 2 × (conv 3×3 – BN – ReLU), then 2×2 max-pool
+    pool_blocks: int = 3  # the first 3 blocks pool (128×25 → 16×3); the last does not
+    embedding_dim: int = 128
+    dropout: float = 0.2  # before the linear head
+    max_params: int = 1_000_000
+    vibration_channels: tuple[int, ...] = (0, 1, 2, 3, 4, 5)  # CNN-6; CNN-7 uses all 7 (index 6 = microphone log-Mel)
+    epochs: int = 40
+    batch_size: int = 256
+    lr: float = 3e-3
+    weight_decay: float = 0.01
+    warmup_epochs: int = 1  # linear warm-up, then cosine decay to 0 over the remaining steps
+    gain_jitter_db: float = 1.0  # uniform in [−1, +1] dB
+    time_shift_frames: int = 2  # circular shift, uniform integer in [−2, +2] frames
+    time_mask_frames: int = 4  # one mask per window, width uniform integer in [0, 4] frames
+    eval_batch_size: int = 512
+    mps_memory_fraction: float = 0.7
+    smoke_epochs: int = 3
+    smoke_fraction: float = 0.25  # fraction of the fold's training recordings (stratified by class) in the smoke run
+
+
 class Config(_Strict):
     """Root config as loaded from configs/*.yaml."""
 
@@ -401,6 +429,7 @@ class Config(_Strict):
     representation: RepresentationConfig = Field(default_factory=RepresentationConfig)
     anomaly: AnomalyConfig = Field(default_factory=AnomalyConfig)
     openset: OpenSetConfig = Field(default_factory=OpenSetConfig)
+    cnn: CnnConfig = Field(default_factory=CnnConfig)
 
 
 def _deep_merge(base: dict, over: dict) -> dict:

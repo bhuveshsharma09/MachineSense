@@ -8,6 +8,7 @@ SystemCode/data/*
 *.npy
 **/*.pt
 **/artifacts/**/*.pt
+**/artifacts/**/gpu.lock
 *.safetensors
 
 # --- experiment tracking ---
