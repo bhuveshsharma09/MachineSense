@@ -4,7 +4,7 @@
     python scripts/07_features.py subset --fraction 0.1  # class-stratified subset of split_closed TRAIN → cache
 
 The subset cache is data/cache/r1_subset_shared_<key12>.parquet, keyed by ml.cache.feature_cache_key (full config,
-feature definitions, source npy checksums). Full caches are not built in Stage 2A.
+feature definitions, source npy checksums and speeds). Full caches are not built in Stage 2A.
 """
 from __future__ import annotations
 
@@ -17,11 +17,10 @@ from concurrent.futures import ProcessPoolExecutor
 import numpy as np
 import pandas as pd
 
-from ml.cache import feature_cache_key, feature_cache_path, write_feature_cache
+from ml.cache import feature_cache_key, feature_cache_path, sources_from_metadata, write_feature_cache
 from ml.config import PreprocessConfig, load_config
 from ml.features import batch_features, feature_dictionary
 from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, data_dir, results_dir
-from ml.splits import split_columns, split_hash
 from ml.utils import git_sha
 
 SEED = 0
@@ -55,16 +54,15 @@ def _one(args: tuple[pd.DataFrame, PreprocessConfig, tuple[str, ...]]) -> pd.Dat
 
 def run_subset(meta: pd.DataFrame, pre: PreprocessConfig, fraction: float, workers: int) -> None:
     sub = stratified_subset(meta, fraction)
-    keep = ("class10", "severity", "fr_measured_hz", *split_columns(meta))
+    keep = ()  # labels and splits are joined from metadata.csv at load time (ml.cache.load_features)
     t = time.perf_counter()
     with ProcessPoolExecutor(workers) as pool:
         parts = list(pool.map(_one, [(sub[sub.rec_id == r], pre, keep) for r in sub.rec_id], chunksize=1))
     wall = time.perf_counter() - t
     df = pd.concat(parts, ignore_index=True)
-    shas = dict(zip(meta.rec_id, meta.npy_sha256))
-    key = feature_cache_key(pre, {r: shas[r] for r in sub.rec_id})
+    key = feature_cache_key(pre, sources_from_metadata(meta, sub.rec_id))
     out = feature_cache_path(data_dir() / "cache", "r1_subset", key)
-    write_feature_cache(df, out, key, {"split_hash": split_hash(meta), "git_sha": git_sha(),
+    write_feature_cache(df, out, key, {"git_sha": git_sha(),
                                        "feature_version": pre.features.version, "fraction": fraction,
                                        "workers": workers, "wall_s": f"{wall:.1f}"})
     per = df.groupby("rec_id").compute_s.first()

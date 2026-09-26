@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ml.cache import feature_cache_key, feature_cache_path, read_feature_cache, write_feature_cache
+from ml.cache import (feature_cache_key, feature_cache_path, read_feature_cache, sources_from_metadata,
+                      write_feature_cache)
 from ml.config import load_config
 from ml.features import batch_features, feature_columns, recording_features
 from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, data_dir
@@ -33,8 +34,8 @@ def setup():
 
 def test_batch_cache_equals_online(setup, tmp_path):
     pre, meta, row, csv = setup
-    batch = batch_features(row, pre, lambda r: np.load(data_dir() / "raw_npy" / f"{r}.npy"), ("split_closed",))
-    shas = {REC: row.npy_sha256.iloc[0]}
+    batch = batch_features(row, pre, lambda r: np.load(data_dir() / "raw_npy" / f"{r}.npy"))
+    shas = sources_from_metadata(meta, [REC])
     key = feature_cache_key(pre, shas)
     path = feature_cache_path(tmp_path, "r1_test", key)
     write_feature_cache(batch, path, key, {})
