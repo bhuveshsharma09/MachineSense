@@ -193,7 +193,7 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   - 601A01: 0.27–10,000 Hz ±3 dB, resonance 16 kHz (spec sheet Revision G, ECN 14824).
 - Saved as the `healthy` entry of `results/demod_bands.json` with an empty recording list.
 
-### Bands against the sensor ratings (reporting only; bands are PROVISIONAL)
+### Bands against the sensor ratings (reporting only; the per-track bands are a comparison)
 - Ratings: IMI 604B31 triaxial, ±3 dB 0.5–5,000 Hz, resonance 10 kHz (spec sheet Revision B, ECN 49214); IMI 601A01,
   ±3 dB 0.27–10,000 Hz, resonance 16 kHz (spec sheet Revision G, ECN 14824). MAFAULDA
   (www02.smt.ufrj.br/~offshore/mfs/page_01.html) lists three 601A01 units and one 604B31 triaxial unit, and
@@ -223,8 +223,8 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   | under_radial | underhang outer (BPFO) | +1.78 (0.005) | −4.44 (0.97) |
 
   The selected bands give the stronger evidence for four of the five significant results; the in-range band gives
-  the only significant underhang-ball result, on the underhang-named channel. **Not switched**; `envelope.bands_provisional`
-  is true until a decision.
+  the only significant underhang-ball result, on the underhang-named channel. **Decided 26 Sep 2026:** the primary band for
+  every track is the in-range 1–5 kHz band; the per-track bands remain a separately reported comparison.
 
 ### Speed variability within a recording (audit columns)
 - `ml.preprocess.window_speeds`: speed per 1 s window (0.5 s hop, 9 windows) from the clean tacho intervals inside
@@ -251,7 +251,7 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
 
 - Largest: `imbalance__25g__15.1552` 4.46 %, `overhang__cage_fault__6g__16.1792` 4.02 % (the speed-disagreement file),
   `imbalance__15g__21.0944` 2.64 %. These are also the files whose speed methods disagreed most (section 2).
-- Whether Stage 2 uses per-window speed for the order axis is an open decision.
+- **Decided 26 Sep 2026:** the order axis uses per-window speed (`window_speeds`), falling back to the recording speed.
 
 ### Other anomalies (exploratory, time-boxed; unresolved unless stated)
 - **22 kHz tone, per recording** (train + val, 1,661 recordings): line at 22,028.8 Hz (IQR 22,027.0–22,030.0), ±60 Hz
@@ -287,16 +287,28 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   transitions of 192 Hz; synthetic tones at the band edges drop 80.9–81.0 dB; real train recordings: line attenuation
   ≥ 82.0 dB, change outside the stop band and transitions ≤ 0.0008 dB, measured edge effect 4–7 ms to −40 dB and
   8–11 ms to −60 dB at each recording end (filter half-length 12.6 ms).
-- **Shortcut test** (train + val, `cv_fold` RandomForest on per-channel stop-band energy): macro-F1 0.980 before,
-  0.906 after, permutation baseline 0.102 (max 0.111). Neighbouring untouched bands alone give 0.935, so what remains is
-  the session-dependent noise floor near 22 kHz, not the line: a shortcut risk for Stage 2C representations.
+- **Shortcut test** (train + val, `cv_fold` RandomForest on per-channel stop-band energy): macro-F1 0.980 before
+  filtering and 0.906 after, against a 0.10 permutation baseline (max of 10: 0.111); the untouched neighbouring bands
+  alone give 0.935. So after filtering, stop-band energy still predicts class. **The cause is not established**:
+  residual tone, background characteristics and other acquisition artefacts may all contribute. It remains a shortcut
+  risk for any representation that reaches these frequencies (Stage 2C).
+
+### Envelope feature pairs with limited independence
+- BPFO×2 / BPFI×1+1× and BPFO×3 / BPFI×2−1× sit 0.006 and 0.010 orders apart, inside each other's search windows at every
+  speed. On the 10 % train subset they are **highly correlated, not exact duplicates**: identical in 850–1,047 of 1,278
+  windows, r = 0.984–0.997 (per channel and pair). They are kept for the first baseline; their limited independence
+  is documented here, and any later feature selection uses training data only.
 
 ## 10. Open items and unresolved observations
-Decisions for Bhuvesh:
-- **Demodulation bands** are provisional: the closed-track bands lie above the rated range of at least one sensor
-  model (section 9). Keep them, or switch to an in-range band?
-- **Order axis**: whether Stage 2 uses per-window speed (section 9, speed variability).
-- **22 kHz tone**: apply the proposed notch (or exclude 21.8–22.3 kHz) before spectral representations? (section 9)
+Decided (26 Sep 2026, Bhuvesh):
+- **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the
+  recording speed; fallback flags and speed-variability statistics are never model inputs.
+- **Primary envelope band: 1–5 kHz for every track**, from the sensor ratings. The per-track bands in
+  `results/demod_bands.json` (section 9) are a separately reported comparison only.
+- **22 kHz line: a fixed band-stop**, 21,870–22,195 Hz, set from train normal recordings (section 9b), not an adaptive
+  notch.
+
+Still open:
 - **Channel names**: unchanged; the group pattern is an unresolved observation.
 
 Unresolved (documented, cause not proven):

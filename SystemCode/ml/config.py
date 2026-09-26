@@ -159,13 +159,14 @@ class EnvelopeConfig(_Strict):
     sk: SpectralKurtosisConfig = Field(default_factory=SpectralKurtosisConfig)
     selection: BandSelectionConfig = Field(default_factory=BandSelectionConfig)
     bands_hz: dict[str, tuple[float, float]] = Field(default_factory=lambda: {
-        # Closed-track band (PROVISIONAL): ml.features.select_demod_band on split_closed train. Other tracks
+        # Closed-track COMPARISON band (decided 26 Sep 2026: primary_band_hz is used for every track):
+        # ml.features.select_demod_band on split_closed train. Other tracks
         # have their own band in results/demod_bands.json; feature code must read the band per track there.
         "under_radial": (9000.0, 11000.0),
         "over_radial": (13000.0, 17000.0),
     })
     min_band_hz: float = 2000.0  # envelope must carry 12 orders at 61 Hz (≥ 1.46 kHz)
-    bands_provisional: bool = True  # bands above the rated sensor range await a decision (audit report §9)
+    bands_provisional: bool = True  # the per-track bands are a comparison only, not the pipeline's band
     sensors: dict[str, SensorSpec] = Field(default_factory=_default_sensors)
     # Healthy-only track (anomaly detectors): fixed a priori, never from recordings. The widest band that is
     # inside the ±3 dB range of BOTH sensor models (the model-to-channel mapping is undocumented), starts at the

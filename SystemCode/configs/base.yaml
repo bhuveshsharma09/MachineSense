@@ -70,8 +70,8 @@ preprocess:
       severities: [0.0]
       reference_class: normal
       min_recordings: 5
-    # PROVISIONAL closed-track bands (split_closed train). Other tracks: results/demod_bands.json.
-    # Both lie above the rated ±3 dB range of at least one sensor model; awaiting a decision.
+    # COMPARISON ONLY (decided 26 Sep 2026: the primary band is primary_band_hz, 1–5 kHz, for every track).
+    # Closed-track bands from select_demod_band on split_closed train; other tracks: results/demod_bands.json.
     bands_hz:
       under_radial: [9000.0, 11000.0]
       over_radial: [13000.0, 17000.0]
