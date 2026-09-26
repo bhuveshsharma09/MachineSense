@@ -7809,6 +7809,17 @@ Part B marks where Stage 2 (windows, features, spectrograms) will continue the j
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2fb7697a">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> Loads the tools, the settings, the data folder location and <code>metadata.csv</code>, and prints the data folder and a fingerprint (hash) of the preprocessing settings.</div>
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a9e26b11">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -7850,7 +7861,7 @@ Part B marks where Stage 2 (windows, features, spectrograms) will continue the j
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>data root /Users/bhuvesh/Documents/nus iss mtech ai/Module-2/MachineSense-Project/mafaulda
-preprocess config sha256 86933a5008237953…
+preprocess config sha256 860964ef53af0286…
 </pre>
 </div>
 </div>
@@ -7866,6 +7877,17 @@ preprocess config sha256 86933a5008237953…
 <h2 id="Part-A-%C2%B7-Three-recordings">Part A · Three recordings<a class="anchor-link" href="#Part-A-%C2%B7-Three-recordings">¶</a></h2><h3 id="Choosing-them">Choosing them<a class="anchor-link" href="#Choosing-them">¶</a></h3><p>One healthy machine and two faults, all at about 30 Hz shaft speed so their signals are comparable: normal,
 imbalance with a 20 g mass, and an outer-race bearing fault under the underhang bearing with no added mass.
 All three are in the closed-set <strong>train</strong> split and carry no quality flags.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d4af9aeb">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> Picks, for each of the three classes, the training recording closest to 30 Hz that has no quality flags, and lists the three chosen files.</div>
 </div>
 </div>
 </div>
@@ -7958,6 +7980,17 @@ All three are in the closed-set <strong>train</strong> split and carry no qualit
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Step-1-%C2%B7-Folder-path-%E2%86%92-labels">Step 1 · Folder path → labels<a class="anchor-link" href="#Step-1-%C2%B7-Folder-path-%E2%86%92-labels">¶</a></h3><p>The folder layout is the only source of labels. <code>ml.labels.parse_labels</code> reads the class from the folders and the
 nominal shaft speed from the file name. For bearing faults the <code>g</code> folder is extra imbalance mass, not damage size.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1d1ef938">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> Turns each file's folder path into its labels (fault family, type, severity, the 10-class and 6-class labels, and the nominal speed from the file name) and shows them side by side.</div>
 </div>
 </div>
 </div>
@@ -8068,6 +8101,17 @@ stored on disk. The columns are tacho, three underhang accelerometer axes, three
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c062ea48">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> Opens each CSV file as plain text and prints its first three lines exactly as stored, then the names of the 8 columns.</div>
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=523626e0">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -8127,6 +8171,17 @@ wander on the overhang channels.</p>
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c1d545c9">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> Loads the three recordings and plots all 8 channels for the first 0.2 s: one column per recording, one row per channel.</div>
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ef78fb7b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -8175,6 +8230,17 @@ wander on the overhang channels.</p>
 <h3 id="Step-4-%C2%B7-Tacho-pulses-and-shaft-speed">Step 4 · Tacho pulses and shaft speed<a class="anchor-link" href="#Step-4-%C2%B7-Tacho-pulses-and-shaft-speed">¶</a></h3><p>The speed estimator finds each pulse's rising edge (green) with hysteresis, drops double triggers, and turns the
 intervals into a speed. The tacho spectrum and a harmonic comb on the radial accelerometer give two independent
 cross-checks. Tacho edges win when another method confirms them within 0.2 %.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d9a06503">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> Plots the tachometer of each recording with the detected pulse edges in green, and computes the shaft speed with all three methods, showing which one was chosen and how closely they agree.</div>
 </div>
 </div>
 </div>
@@ -8305,6 +8371,17 @@ cross-checks. Tacho edges win when another method confirms them within 0.2 %.</p
 <h3 id="Step-5-%C2%B7-Quality-numbers">Step 5 · Quality numbers<a class="anchor-link" href="#Step-5-%C2%B7-Quality-numbers">¶</a></h3><p>For every channel: DC offset (mean), rail count (samples sitting exactly at the channel's max or min; a clean
 channel has about 2) and the largest robust z-score (a spike signature). These produce the audit flags, which are
 never model inputs.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3b674cf9">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> Computes the quality numbers for each recording: its size, missing values, and for every channel the DC offset, how many samples sit at the channel's limits, and the largest spike score.</div>
 </div>
 </div>
 </div>
@@ -8535,6 +8612,17 @@ and its values must be identical to the CSV.</p>
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=263cb654">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> Opens each converted <code>.npy</code> file and checks its shape, number type and size, that its checksum matches <code>metadata.csv</code>, and that its values are identical to the CSV.</div>
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=57914c87">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -8578,6 +8666,17 @@ underhang__outer_race__0g__30.72: shape (250000, 8), float32, 8.0 MB, sha matche
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Step-7-%C2%B7-The-metadata.csv-row">Step 7 · The <code>metadata.csv</code> row<a class="anchor-link" href="#Step-7-%C2%B7-The-metadata.csv-row">¶</a></h3><p>Everything above ends up as one row per recording: labels, the three speed estimates, quality numbers, the
 conversion checksum and the splits.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=71ca9e2d">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> Shows each recording's full row of <code>metadata.csv</code>, without the split columns.</div>
 </div>
 </div>
 </div>
@@ -8914,6 +9013,30 @@ conversion checksum and the splits.</p>
 <td>1</td>
 <td>1</td>
 </tr>
+<tr>
+<th>speed_min_hz</th>
+<td>29.937647</td>
+<td>29.848201</td>
+<td>29.916029</td>
+</tr>
+<tr>
+<th>speed_max_hz</th>
+<td>29.954345</td>
+<td>29.855663</td>
+<td>29.936411</td>
+</tr>
+<tr>
+<th>speed_range_pct</th>
+<td>0.055766</td>
+<td>0.025001</td>
+<td>0.068111</td>
+</tr>
+<tr>
+<th>speed_window_fallbacks</th>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -8931,6 +9054,17 @@ conversion checksum and the splits.</p>
 <h3 id="Step-8-%C2%B7-Split-columns">Step 8 · Split columns<a class="anchor-link" href="#Step-8-%C2%B7-Split-columns">¶</a></h3><p>Splits are by recording, assigned before any window exists, so no part of one recording can land in two splits.
 Each column is a different evaluation protocol: closed-set, leave-one-class-out (one per fault class), unseen
 speeds, unseen severity, and the cross-validation fold.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=58679cf2">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> Shows each recording's speed tercile and all its split columns: which split it belongs to under each evaluation protocol.</div>
 </div>
 </div>
 </div>
@@ -9078,6 +9212,17 @@ speeds, unseen severity, and the cross-validation fold.</p>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Step-9-%C2%B7-Summary">Step 9 · Summary<a class="anchor-link" href="#Step-9-%C2%B7-Summary">¶</a></h3>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5c5e62a6">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> Prints one line per recording that summarises its whole journey from folder to split.</div>
 </div>
 </div>
 </div>
