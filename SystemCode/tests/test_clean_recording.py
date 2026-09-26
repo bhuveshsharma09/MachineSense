@@ -13,7 +13,7 @@ T = np.arange(N) / FS
 BS = BandStopConfig(enabled=True, stop_lo_hz=21_850.0, stop_hi_hz=22_200.0, transition_hz=100.0, numtaps=2001,
                     window=("kaiser", 8.0))
 CFG_ON = PreprocessConfig(bandstop=BS)
-CFG_OFF = PreprocessConfig()
+CFG_OFF = PreprocessConfig(bandstop=PreprocessConfig().bandstop.model_copy(update={"enabled": False}))
 
 
 def _recording(seed=0):
