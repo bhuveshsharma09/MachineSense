@@ -179,6 +179,39 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   - 601A01: 0.27–10,000 Hz ±3 dB, resonance 16 kHz (spec sheet Revision G, ECN 14824).
 - Saved as the `healthy` entry of `results/demod_bands.json` with an empty recording list.
 
+### Bands against the sensor ratings (reporting only; bands are PROVISIONAL)
+- Ratings: IMI 604B31 triaxial, ±3 dB 0.5–5,000 Hz, resonance 10 kHz (spec sheet Revision B, ECN 49214); IMI 601A01,
+  ±3 dB 0.27–10,000 Hz, resonance 16 kHz (spec sheet Revision G, ECN 14824). MAFAULDA
+  (www02.smt.ufrj.br/~offshore/mfs/page_01.html) lists three 601A01 units and one 604B31 triaxial unit, and
+  columns 2–4 as the underhang and 5–7 as the overhang accelerometer, but **does not say which model is on which
+  bearing**. Each band is therefore checked against both.
+
+  | Band | Tracks | vs 601A01 | vs 604B31 |
+  | --- | --- | --- | --- |
+  | under_radial 9–11 kHz | closed + 7 LOCO | partly outside | outside, covers its 10 kHz resonance |
+  | over_radial 13–17 kHz | closed + 7 LOCO | outside, covers its 16 kHz resonance | outside |
+  | over_radial 1–3 kHz | loco_underhang_outer | inside | inside |
+  | under_radial 23–25 kHz | loco_overhang_outer | outside | outside |
+  | both channels 1–5 kHz | healthy | inside | inside |
+
+- Comb contrast, **train only** (0 g bearings vs normal), each fault's own comb (outer → BPFO, ball → 2×BSF,
+  cage → FTF), median minus normal median in dB (one-sided Mann–Whitney p):
+
+  | Channel | Class | Selected band | In range, 1–5 kHz |
+  | --- | --- | --- | --- |
+  | over_radial | underhang outer (BPFO) | **+8.99 (p < 0.001)** | +3.56 (p < 0.001) |
+  | over_radial | underhang cage (FTF) | +1.01 (0.38) | −1.10 (0.59) |
+  | over_radial | underhang ball (2×BSF) | −3.84 (1.0) | −1.15 (0.89) |
+  | under_radial | overhang ball (2×BSF) | **+2.71 (p < 0.001)** | −0.55 (0.72) |
+  | under_radial | overhang outer (BPFO) | +0.78 (0.033) | −4.55 (0.99) |
+  | under_radial | overhang cage (FTF) | −0.16 (0.83) | +0.08 (0.72) |
+  | under_radial | underhang ball (2×BSF) | +0.72 (0.064) | **+2.88 (p < 0.001)** |
+  | under_radial | underhang outer (BPFO) | +1.78 (0.005) | −4.44 (0.97) |
+
+  The selected bands give the stronger evidence for four of the five significant results; the in-range band gives
+  the only significant underhang-ball result, on the underhang-named channel. **Not switched**; `envelope.bands_provisional`
+  is true until a decision.
+
 ## 10. Open items
 - Decide whether to rename the accelerometer channel groups (section 8, swap evidence). This changes the
   representation, so it needs a decision.

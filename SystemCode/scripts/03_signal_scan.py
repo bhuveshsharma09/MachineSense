@@ -5,6 +5,7 @@
     python scripts/03_signal_scan.py sk         # spectral kurtosis band grid (train outer race 0 g + normal)
     python scripts/03_signal_scan.py envelope   # envelope order spectra (train + val, 0 g bearings + normal)
     python scripts/03_signal_scan.py sensor     # > 1 kHz RMS and kurtosis per accelerometer (train, 0 g bearings + normal)
+    python scripts/03_signal_scan.py bandcompare  # envelope spectra in the closed-track band and in 1–5 kHz (train only)
     python scripts/03_signal_scan.py all
 
 Test recordings are never read. Cache names carry the sha256 of the config sections each task depends on.
@@ -114,6 +115,16 @@ def envelope_one(args: tuple[str, float, PreprocessConfig]) -> np.ndarray:
                      for name, c in RADIAL.items()]).astype(np.float32)
 
 
+def bandcompare_one(args: tuple[str, float, PreprocessConfig]) -> np.ndarray:
+    """Envelope order spectra per radial channel in (selected closed-track band, in-range healthy band)."""
+    rec_id, fr, pre = args
+    x = load(rec_id)
+    orders = np.arange(0, pre.envelope.max_order + 1e-9, pre.envelope.order_step)
+    return np.stack([[envelope_order_spectrum(x[:, c], pre.fs_hz, fr, band, orders)
+                      for band in (tuple(pre.envelope.bands_hz[name]), tuple(pre.envelope.healthy_band_hz))]
+                     for name, c in RADIAL.items()]).astype(np.float32)  # (channel, band, order)
+
+
 def sensor_one(args: tuple[str, PreprocessConfig]) -> dict:
     """High-passed (> 1 kHz, FFT mask) RMS and kurtosis per accelerometer: which sensor hears the bearing."""
     rec_id, pre = args
@@ -165,6 +176,15 @@ def run(task: str, meta: pd.DataFrame, pre: PreprocessConfig, workers: int) -> P
                                 class10=sel.class10.to_numpy(), split=sel.split_closed.to_numpy(),
                                 channels=np.array(list(RADIAL)))
             n = len(sel)
+        elif task == "bandcompare":
+            out = cache_path(task, pre.envelope)
+            sel = train[((train.fault_family == "bearing") & (train.severity == 0)) | (train.class10 == "normal")]
+            specs = np.stack(list(pool.map(bandcompare_one, [(r, fr, pre) for r, fr in
+                                                            zip(sel.rec_id, sel.fr_measured_hz)], chunksize=2)))
+            np.savez_compressed(out, orders=np.arange(0, pre.envelope.max_order + 1e-9, pre.envelope.order_step),
+                                spec=specs, rec_id=sel.rec_id.to_numpy(), class10=sel.class10.to_numpy(),
+                                channels=np.array(list(RADIAL)), bands=np.array(["selected", "in_range_1_5k"]))
+            n = len(sel)
         elif task == "sensor":
             out = cache_path(task)  # depends on no config setting
             sel = train[((train.fault_family == "bearing") & (train.severity == 0)) | (train.class10 == "normal")]
@@ -179,7 +199,7 @@ def run(task: str, meta: pd.DataFrame, pre: PreprocessConfig, workers: int) -> P
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["mic", "meanspec", "sk", "envelope", "sensor", "all"])
+    ap.add_argument("task", choices=["mic", "meanspec", "sk", "envelope", "sensor", "bandcompare", "all"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 4) - 2))
     args = ap.parse_args()
@@ -187,7 +207,8 @@ def main() -> int:
     pre = load_config(args.config).preprocess
     meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
     (data_dir() / "cache").mkdir(parents=True, exist_ok=True)
-    for task in (["mic", "meanspec", "sk", "envelope", "sensor"] if args.task == "all" else [args.task]):
+    for task in (["mic", "meanspec", "sk", "envelope", "sensor", "bandcompare"] if args.task == "all"
+                 else [args.task]):
         run(task, meta, pre, args.workers)
     return 0
 
