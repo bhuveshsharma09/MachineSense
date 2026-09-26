@@ -119,3 +119,38 @@ def development_pool(meta: pd.DataFrame, allowed_closed=("train", "val"),
     out = meta[keep].copy()
     out["folder"] = folder_proxy(out)
     return out
+
+
+def assign_dev_folds(pool: pd.DataFrame, seed: int, min_k: int = 2) -> tuple[pd.Series, int]:
+    """Folder-grouped development folds. Returns (dev_fold per recording, indexed like `pool`; K).
+
+    Folders (class10 × severity) are PROXIES for acquisition sessions.
+    - K = the minimum number of distinct folders over FAULT classes (normal excluded); raises if K < min_k.
+    - Fault classes: folders are shuffled (seed), sorted by recording count (largest first, stable), and each goes
+      to the fold that currently holds the fewest recordings of that class. With ≥ K folders per class, every fold
+      receives at least one folder of every fault class, so every training fold and every held-out fold contains
+      all fault classes. All recordings of a folder stay in one fold.
+    - Normal is the exception (a single folder): its recordings are sorted by measured speed and dealt to the K folds
+      in consecutive blocks of K, in a random order per block, so each fold holds normal recordings across the speed
+      range. Normal is therefore evaluated within-folder.
+    """
+    rng = np.random.default_rng(seed)
+    faults = pool[pool["class10"] != "normal"]
+    k = int(faults.groupby("class10")["folder"].nunique().min())
+    if k < min_k:
+        raise ValueError(f"K = {k} < {min_k}: grouped folds are infeasible")
+    fold = pd.Series(-1, index=pool.index, dtype=int)
+    for _, g in faults.groupby("class10", sort=True):
+        sizes = g.groupby("folder").size()
+        order = sizes.index[rng.permutation(len(sizes))]
+        order = sorted(order, key=lambda f: -sizes[f])  # stable: ties keep the random order
+        load = np.zeros(k)
+        for f in order:
+            j = int(np.argmin(load))
+            fold[g.index[g["folder"] == f]] = j
+            load[j] += sizes[f]
+    normal = pool[pool["class10"] == "normal"].sort_values("fr_measured_hz")
+    for start in range(0, len(normal), k):
+        block = normal.index[start: start + k]
+        fold[block] = rng.permutation(k)[: len(block)]
+    return fold, k

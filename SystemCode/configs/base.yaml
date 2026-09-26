@@ -126,3 +126,8 @@ development:
   allowed_closed: [train, val]
   reserved_columns: [split_severity, split_speed_block]
   seed: 42
+  # Grouped folds: K = min eligible folder proxies over FAULT classes (normal excluded), K >= min_k. Fault folders go
+  # to folds within each class, largest first, each to the fold with the fewest recordings of that class so far.
+  # Normal (one folder) is the exception: its recordings go to the K folds individually, stratified by speed.
+  min_k: 2
+  folds_file: dev_folds.csv

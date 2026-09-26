@@ -276,6 +276,10 @@ class DevelopmentConfig(_Strict):
     allowed_closed: tuple[str, ...] = ("train", "val")
     reserved_columns: tuple[str, ...] = ("split_severity", "split_speed_block")
     seed: int = 42
+    # Grouped folds (ml.splits.assign_dev_folds): K = min number of eligible folder proxies over FAULT classes
+    # (normal excluded); infeasible below min_k.
+    min_k: int = 2
+    folds_file: str = "dev_folds.csv"  # results/<folds_file>: rec_id, class10, folder, dev_fold
 
 
 class Config(_Strict):

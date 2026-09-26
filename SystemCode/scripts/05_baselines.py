@@ -4,6 +4,7 @@ torch (CLAUDE.md §2).
     python scripts/05_baselines.py closed   # A0 + A1 rungs, sensitivity, envelope diagnostic, permutation importance
     python scripts/05_baselines.py leaky    # deliberate leakage illustration: window-level vs recording-grouped CV
     python scripts/05_baselines.py dev-inventory  # development pool (Stage 2B.1): recordings by class and folder proxy
+    python scripts/05_baselines.py dev-folds      # folder-grouped development folds → results/dev_folds.csv
 
 Train on split_closed train windows; evaluate on split_closed VAL. The test split stays sealed: its rows are dropped
 right after loading. Outputs: results/baselines/*.json|csv, results/scores/<run_name>.parquet (train/val windows only),
@@ -38,7 +39,7 @@ from ml.evaluation import (CLASS10_TO_6, aggregate_recordings, block_permutation
 from ml.features import ACCEL_CHANNELS, feature_columns
 from ml.labels import CLASS6, CLASS10
 from ml.paths import CONFIGS_DIR, DEFAULT_CONFIG, SYSTEM_CODE_DIR, data_dir, results_dir
-from ml.splits import development_pool, split_hash
+from ml.splits import assign_dev_folds, development_pool, split_hash
 from ml.utils import git_sha
 
 OUT = results_dir() / "baselines"
@@ -319,13 +320,34 @@ def run_dev_inventory(cfg: Config) -> None:
     print(f"→ {(OUT / 'dev_pool_inventory.csv').relative_to(SYSTEM_CODE_DIR)}")
 
 
+def dev_pool_with_folds(cfg: Config, meta: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+    dc = cfg.development
+    pool = development_pool(meta, dc.allowed_closed, dc.reserved_columns)
+    fold, k = assign_dev_folds(pool, dc.seed, dc.min_k)
+    return pool.assign(dev_fold=fold), k
+
+
+def run_dev_folds(cfg: Config) -> None:
+    """Write the development fold assignment (existing split columns are not touched)."""
+    meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
+    pool, k = dev_pool_with_folds(cfg, meta)
+    out = results_dir() / cfg.development.folds_file
+    pool[["rec_id", "class10", "folder", "dev_fold"]].sort_values(["dev_fold", "class10", "folder", "rec_id"]).to_csv(
+        out, index=False)
+    tab = pd.crosstab(pool.class10, pool.dev_fold).reindex(CLASS10)
+    print(f"K = {k}; recordings per class and fold:\n{tab.to_string()}")
+    print(f"folders per fold: {pool[pool.class10 != 'normal'].groupby('dev_fold').folder.nunique().to_dict()}")
+    print(f"→ {out.relative_to(SYSTEM_CODE_DIR)}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["closed", "leaky", "dev-inventory"])
+    ap.add_argument("task", choices=["closed", "leaky", "dev-inventory", "dev-folds"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     args = ap.parse_args()
     cfg = load_config(args.config)
-    {"closed": run_closed, "leaky": run_leaky, "dev-inventory": run_dev_inventory}[args.task](cfg)
+    {"closed": run_closed, "leaky": run_leaky, "dev-inventory": run_dev_inventory,
+     "dev-folds": run_dev_folds}[args.task](cfg)
     return 0
 
 
