@@ -206,6 +206,15 @@ into `ml/`, the scripts and the app.
   3. The work, in short cells with a markdown line above each explaining *what we are looking at and why*
   4. **Findings**: 3–6 bullets with numbers
   5. **Outputs written**
+- **Every code cell gets its own light-blue "What this code does" note directly above it** (a separate markdown cell,
+  after any section heading). It says in plain language what the code does, for a reader who doesn't read Python:
+  what it loads, computes or plots, and how to read the result. Use exactly this HTML (the text colour keeps it
+  readable in dark themes; GitHub's preview drops the styling):
+  ```html
+  <div style="background-color:#e3f2fd; color:#0d2538; padding:10px 14px; border-radius:6px; border-left:4px solid #64b5f6; margin:4px 0;"><b>What this code does:</b> …</div>
+  ```
+  Inside the div, use `<code>` and `<b>`, not Markdown backticks or `**` (Markdown isn't rendered inside HTML).
+  Check before committing that every code cell is preceded by such a note.
 - A notebook must run top to bottom from a fresh kernel, under a few minutes. Heavy computation calls a cached
   artifact or a script.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
