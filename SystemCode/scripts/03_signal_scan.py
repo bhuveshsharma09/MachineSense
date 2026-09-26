@@ -6,6 +6,7 @@
     python scripts/03_signal_scan.py envelope   # envelope order spectra (train + val, 0 g bearings + normal)
     python scripts/03_signal_scan.py sensor     # > 1 kHz RMS and kurtosis per accelerometer (train, 0 g bearings + normal)
     python scripts/03_signal_scan.py bandcompare  # envelope spectra in the closed-track band and in 1–5 kHz (train only)
+    python scripts/03_signal_scan.py micalign   # mic |robust z| aligned on flagged runs, raw and cleaned (train + val)
     python scripts/03_signal_scan.py all
 
 Test recordings are never read. Cache names carry the sha256 of the config sections each task depends on.
@@ -125,6 +126,33 @@ def bandcompare_one(args: tuple[str, float, PreprocessConfig]) -> np.ndarray:
                      for name, c in RADIAL.items()]).astype(np.float32)  # (channel, band, order)
 
 
+ALIGN_LAGS = np.arange(-60, 121)  # samples relative to the end (last sample) of a flagged run
+N_RANDOM_ALIGN = 200
+
+
+def micalign_one(args: tuple[str, PreprocessConfig]) -> dict:
+    """|robust z| of raw and cleaned mic around each flagged run, aligned on the run's last sample (after the run)
+    and, mirrored, on its first sample (before the run), plus the same profile at random positions (baseline)."""
+    rec_id, pre = args
+    mic = load(rec_id)[:, MIC].astype(np.float64)
+    clean = remove_mic_bursts(mic, pre.mic.burst_z, pre.mic.burst_pad)[0].astype(np.float64)
+    med = np.median(mic)
+    mad = 1.4826 * np.median(np.abs(mic - med))
+    z_raw, z_clean = np.abs(mic - med) / mad, np.abs(clean - med) / mad
+    hit = z_raw > pre.mic.burst_z
+    ends = np.flatnonzero(np.diff(hit.astype(np.int8), append=0) == -1)
+    starts = np.flatnonzero(np.diff(hit.astype(np.int8), prepend=0) == 1)
+    ok = ((ends + ALIGN_LAGS.min() >= 0) & (ends + ALIGN_LAGS.max() < mic.size)
+          & (starts - ALIGN_LAGS.max() >= 0) & (starts - ALIGN_LAGS.min() < mic.size))
+    idx = ends[ok][:, None] + ALIGN_LAGS[None, :]
+    idx_start = starts[ok][:, None] - ALIGN_LAGS[None, :]  # mirrored: positive lag = samples BEFORE the run
+    rng = np.random.default_rng(0)
+    rnd = rng.integers(-ALIGN_LAGS.min(), mic.size - ALIGN_LAGS.max(), N_RANDOM_ALIGN)[:, None] + ALIGN_LAGS[None, :]
+    return {"rec_id": rec_id, "raw": z_raw[idx].astype(np.float32), "clean": z_clean[idx].astype(np.float32),
+            "raw_pre": z_raw[idx_start].astype(np.float32), "clean_pre": z_clean[idx_start].astype(np.float32),
+            "run_len": (ends - starts + 1)[ok], "random": z_clean[rnd].astype(np.float32)}
+
+
 def sensor_one(args: tuple[str, PreprocessConfig]) -> dict:
     """High-passed (> 1 kHz, FFT mask) RMS and kurtosis per accelerometer: which sensor hears the bearing."""
     rec_id, pre = args
@@ -185,6 +213,19 @@ def run(task: str, meta: pd.DataFrame, pre: PreprocessConfig, workers: int) -> P
                                 spec=specs, rec_id=sel.rec_id.to_numpy(), class10=sel.class10.to_numpy(),
                                 channels=np.array(list(RADIAL)), bands=np.array(["selected", "in_range_1_5k"]))
             n = len(sel)
+        elif task == "micalign":
+            out = cache_path(task, pre.mic)
+            sel = trval[trval.peakz_mic > pre.mic.burst_z]
+            res = list(pool.map(micalign_one, [(r, pre) for r in sel.rec_id], chunksize=2))
+            np.savez_compressed(out, lags=ALIGN_LAGS,
+                                raw=np.concatenate([r["raw"] for r in res]),
+                                clean=np.concatenate([r["clean"] for r in res]),
+                                raw_pre=np.concatenate([r["raw_pre"] for r in res]),
+                                clean_pre=np.concatenate([r["clean_pre"] for r in res]),
+                                run_len=np.concatenate([r["run_len"] for r in res]),
+                                random=np.concatenate([r["random"] for r in res]),
+                                rec_id=np.concatenate([[r["rec_id"]] * len(r["run_len"]) for r in res]))
+            n = len(sel)
         elif task == "sensor":
             out = cache_path(task)  # depends on no config setting
             sel = train[((train.fault_family == "bearing") & (train.severity == 0)) | (train.class10 == "normal")]
@@ -199,7 +240,7 @@ def run(task: str, meta: pd.DataFrame, pre: PreprocessConfig, workers: int) -> P
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["mic", "meanspec", "sk", "envelope", "sensor", "bandcompare", "all"])
+    ap.add_argument("task", choices=["mic", "meanspec", "sk", "envelope", "sensor", "bandcompare", "micalign", "all"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 4) - 2))
     args = ap.parse_args()
@@ -207,7 +248,7 @@ def main() -> int:
     pre = load_config(args.config).preprocess
     meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
     (data_dir() / "cache").mkdir(parents=True, exist_ok=True)
-    for task in (["mic", "meanspec", "sk", "envelope", "sensor", "bandcompare"] if args.task == "all"
+    for task in (["mic", "meanspec", "sk", "envelope", "sensor", "bandcompare", "micalign"] if args.task == "all"
                  else [args.task]):
         run(task, meta, pre, args.workers)
     return 0

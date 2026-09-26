@@ -70,7 +70,9 @@ class MicConfig(_Strict):
 
     # 1.25 × the max whole-recording robust z of split_closed TRAIN normal mics (14.57); notebook 02 checks it.
     burst_z: float = 18.2
-    burst_pad: int = 5  # samples added on each side of a burst run before interpolation
+    # Samples added on each side of a flagged run before interpolation. Notebook 02: burst-aligned |z| of train+val
+    # flagged runs stays > 1.2 × baseline for 15 samples before and after each run (symmetric filter ringing).
+    burst_pad: int = 15
 
 
 class SensorSpec(_Strict):

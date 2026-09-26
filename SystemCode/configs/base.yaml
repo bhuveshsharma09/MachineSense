@@ -22,7 +22,8 @@ preprocess:
   # Notebook 02: 1.25 × max whole-recording robust z of split_closed TRAIN normal microphones (14.57).
   mic:
     burst_z: 18.2
-    burst_pad: 5
+    # Notebook 02: event-aligned ringing stays > 1.2 × baseline for 15 samples either side of a flagged run.
+    burst_pad: 15
 
   # Notebook 02: spectral kurtosis on train 0 g outer race vs train normal; band ≥ 2 kHz, never below 1 kHz.
   envelope:

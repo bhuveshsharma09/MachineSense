@@ -96,19 +96,30 @@ sensitive to microphone peaks (max, kurtosis, crest factor, unclipped spectrogra
 Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scripts/03_signal_scan.py`, figures
 `results/figures/02_*.png`. Parameters come from train recordings only; test recordings were not loaded.
 
-### Microphone bursts (resolves section 4)
+### Microphone events flagged by the burst threshold (resolves section 4)
 - Threshold `mic.burst_z = 18.2`: 1.25 × the largest `peakz_mic` of `split_closed` train normal recordings (14.57).
-  Clean gap: the largest burst-free file is 14.57, the smallest caught file 21.18.
-- Caught: 168 files, listed in `results/mic_burst_files.csv`: imbalance 20–35 g (83), underhang cage 6–35 g (84),
+  Clean gap: the largest unflagged file is 14.57, the smallest flagged file 21.18.
+- Flagged: 168 files, listed in `results/mic_burst_files.csv`: imbalance 20–35 g (83), underhang cage 6–35 g (84),
   and one overhang cage 35 g file (`overhang__cage_fault__35g__24.7808`, val, peak z 44.5).
-- Electrical, not acoustic: 1–2 samples up to about −160 V, then a ~0.2 ms anti-alias-filter ring; median run
-  7.5 samples; no accelerometer response (median robust z 2.5 at bursts, 2.5 at random times).
-- `ml.preprocess.remove_mic_bursts` removes them (widen ±5 samples, interpolate); CLAUDE.md §5 rule 10 requires it
-  everywhere.
-- Shortcut test (RandomForest on mic max, peak z, crest, kurtosis; 5-fold `cv_fold` CV on train + val): a burst
-  means imbalance or underhang cage with 99.3 % precision (32 % recall). Macro-F1 falls only from 0.628 to 0.620 after
-  cleaning. The shape statistics alone still reach 0.48, so these mic features carry class information even without
-  bursts; excluding them (rule 10) remains necessary.
+- The flagged events look electrical rather than acoustic: single samples down to about −200 V, symmetric ringing of
+  about 0.3 ms, median flagged run 7.5 samples, and no matching accelerometer response (median robust z 2.5 at the
+  events, 2.5 at random times). This is an interpretation, not a proof.
+- **Spot check** (visual, train + val, not an error-rate estimate): 14 of 15 random flagged files show that signature;
+  the 15th (`overhang__cage_fault__35g__24.7808`) has the same shape at −7 V. There are only 6 unflagged files with
+  peak z between 8 and 18.2, not 15; all 6 were inspected and none has the signature. Their events span several
+  samples, reach a few volts and do not ring; two coincide with accelerometer movement at z 24–26.
+- **Padding changed from 5 to 15 samples** on event-aligned evidence (rule fixed before looking: change only if the
+  cleaned signal, aligned on flagged runs, stays > 1.2 × its random-position baseline beyond the patch and decays).
+  With `pad = 5` the cleaned microphone was 7.8 × baseline one sample past the patch and returned within 1.2 × only
+  after 15 samples, identically before and after the run. With `pad = 15` it stays within 1.15 ×, and the post-event
+  RMS ratio fell from 1.32 to 1.00. Group comparisons with matched controls were not used: the most affected folders
+  have only 7–11 unflagged train + val files, before any speed matching.
+- Shortcut test (RandomForest on mic max, peak z, crest, kurtosis; 5-fold `cv_fold` CV on train + val): a flag means
+  imbalance or underhang cage with 99.3 % precision (32 % recall). Macro-F1 is 0.628 raw and 0.638 after cleaning
+  with `pad = 15` (0.620 with `pad = 5`); underhang cage F1 rises from 0.76 to 0.82. Replacing ~66 × 31 samples per
+  flagged file with straight lines lowers exactly those files' crest and kurtosis, so **cleaning may leave its own
+  trace**. Rule 10 keeps the ban on these features as a conservative policy; whether the Stage 2 microphone
+  representation carries such a trace is unresolved.
 
 ### Speed disagreement (section 2)
 - `overhang__cage_fault__6g__16.1792` is non-stationary: 15.47–16.35 Hz within 5 s (std 1.5 %), with every tacho

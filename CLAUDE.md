@@ -115,9 +115,9 @@ Graders run the app on a Linux or Windows CPU.
   - Tacho glitches (displaced pulses): 228 files have at least one, 94 are severe (> 20 % of revolutions
     glitched), and 63 of the severe ones are underhang ball. Speed is corrected in all of them. Keep these files
     and never feed quality flags to a model.
-  - Microphone bursts in ~168 files: short electrical-looking spikes up to ~160 V, almost all in imbalance 20–35 g
-    and underhang cage 6–35 g (plus one overhang cage 35 g). They are class-correlated, so they are removed
-    (rule 10 in §5).
+  - Microphone events flagged by the burst threshold in 168 files: single-sample spikes up to ~−200 V with symmetric
+    filter ringing, almost all in imbalance 20–35 g and underhang cage 6–35 g (plus one overhang cage 35 g). They are
+    class-correlated, so they are removed (rule 10 in §5).
   - Accelerometer saturation in 9 overhang-ball 6 g files at 47–55 Hz (underhang accelerometers on the rail).
   - The overhang accelerometers carry DC up to 2.2 V; DC is removed per window.
   - Full details: `SystemCode/results/audit_report.md`.
@@ -178,9 +178,11 @@ MachineSense-Project/                 repo root
 8. **Frozen means frozen.** After 1 Oct, split columns in `metadata.csv` change only with an explicit note in
    `results/CHANGELOG.md` and a re-run of everything downstream.
 9. Report metrics with uncertainty: bootstrap over test recordings, Clopper–Pearson for rates from few recordings.
-10. **Mic bursts are removed** with `ml.preprocess.remove_mic_bursts` before every representation, at training and
-    at serving. No mic peak, crest-factor or kurtosis features. The burst threshold comes from `split_closed`
-    TRAIN normal recordings only.
+10. **Microphone events flagged by the burst threshold are removed** with `ml.preprocess.remove_mic_bursts` before
+    every representation, at training and at serving. No mic peak, crest-factor or kurtosis features. The threshold
+    comes from `split_closed` TRAIN normal recordings only, and the padding from event-aligned residual ringing.
+    This is a **conservative policy**: the flagged events look electrical, but that is not proven, and the cleaning
+    itself may leave a trace, so the ban on mic peak statistics stays even after cleaning.
 
 ## 6. Working method: exploration → development
 
