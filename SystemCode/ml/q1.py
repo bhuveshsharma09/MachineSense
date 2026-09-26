@@ -105,3 +105,19 @@ def load_assignment(path) -> dict[int, pd.Series]:
     """Saved Stage 2D.1 healthy fit/calibration assignment → {outer fold: Series(rec_id → "fit" | "cal")}."""
     a = pd.read_csv(path)
     return {int(k): g.set_index("rec_id").part for k, g in a.groupby("outer_fold")}
+
+
+def fold_ids(assignment: dict[int, pd.Series], pool: pd.DataFrame, fold: int):
+    """Outer fold `fold` of the Q1 protocol: (fit IDs, calibration IDs, evaluation IDs, NormContext). Fit and calibration
+    are the saved Stage 2D.1 healthy parts of the folds ≠ fold; evaluation = every pool recording of `fold`. The context
+    excludes calibration and evaluation from normalisation. Raises if the assignment is inconsistent with the pool."""
+    from ml.datasets import NormContext
+
+    part = assignment[fold]
+    fit = sorted(part[part == "fit"].index)
+    cal = sorted(part[part == "cal"].index)
+    ev = sorted(pool.loc[pool.dev_fold == fold, "rec_id"])
+    normals_tr = set(pool.loc[(pool.class10 == "normal") & (pool.dev_fold != fold), "rec_id"])
+    if set(fit) | set(cal) != normals_tr or set(fit) & set(cal):
+        raise ValueError(f"fold {fold}: fit/cal assignment does not partition the outer-training normals")
+    return fit, cal, ev, NormContext(calibration=frozenset(cal), evaluation=frozenset(ev))

@@ -417,6 +417,46 @@ class CnnConfig(_Strict):
     smoke_fraction: float = 0.25  # fraction of the fold's training recordings (stratified by class) in the smoke run
 
 
+class AeConfig(_Strict):
+    """Healthy-only autoencoders (Q1, Stage 3B) on cache C, fixed BEFORE training (fixed epochs, no early stopping, one
+    seed). Trained on the Stage 2D.1 FIT normals of the outer-training folds only.
+
+    PRIMARY, frame level: each time frame of a window is one example, channels × spectral bins (7 × 128; vibration bins
+    are orders, microphone bins are Mel frequencies); 1D convolutions over the bin axis. It reconstructs individual
+    spectral slices and does NOT model temporal relationships across frames. Frames are not independent recordings (about
+    11 healthy fit recordings per fold); all frames and windows of a recording stay together in every split.
+    SECONDARY, window level: 7 × 128 × 25, 2D convolutions, 64-d bottleneck (as in the plan).
+
+    Reconstruction target: the SAME (gain-augmented) input the model receives, after normalisation. Gain augmentation
+    (training only): a constant dB offset per example and channel, uniform in [−gain_jitter_db, +gain_jitter_db], added
+    before normalisation. Evaluation: no augmentation.
+    Error (defined before training): squared error in units normalised with the healthy FIT recordings only; per-channel
+    error = mean over that channel's bins (and frames); total = equal-weight mean over channels; recording score = mean
+    over all frames of its 9 windows. Higher = more anomalous."""
+
+    seed: int = 42
+    # frame AE (primary)
+    conv_channels: tuple[int, ...] = (32, 64, 64)  # stride-2 Conv1d over the 128 bins: 128 → 64 → 32 → 16
+    kernel: int = 5
+    bottleneck: int = 16
+    max_params: int = 500_000
+    epochs: int = 150
+    batch_size: int = 256
+    # window AE (secondary)
+    w_conv_channels: tuple[int, ...] = (16, 32, 32)  # stride-2 Conv2d: 128×25 → 64×13 → 32×7 → 16×4
+    w_bottleneck: int = 64
+    w_epochs: int = 400
+    w_batch_size: int = 32
+    # shared
+    lr: float = 1e-3
+    weight_decay: float = 1e-4
+    warmup_epochs: int = 5
+    gain_jitter_db: float = 1.0
+    reconstruct: str = "augmented_input"  # the target is the same augmented input the model receives
+    eval_batch_size: int = 2048
+    mps_memory_fraction: float = 0.7
+
+
 class Config(_Strict):
     """Root config as loaded from configs/*.yaml."""
 
@@ -430,6 +470,7 @@ class Config(_Strict):
     anomaly: AnomalyConfig = Field(default_factory=AnomalyConfig)
     openset: OpenSetConfig = Field(default_factory=OpenSetConfig)
     cnn: CnnConfig = Field(default_factory=CnnConfig)
+    ae: AeConfig = Field(default_factory=AeConfig)
 
 
 def _deep_merge(base: dict, over: dict) -> dict:

@@ -1,0 +1,10 @@
+class10,under_axial,under_radial,under_tangential,over_axial,over_radial,over_tangential
+imbalance,0,2,1,136,0,5
+horizontal_misalignment,1,16,0,0,11,45
+vertical_misalignment,1,0,0,111,1,12
+underhang_ball,0,0,0,0,5,72
+underhang_cage,0,7,1,0,1,63
+underhang_outer,0,0,0,0,63,10
+overhang_ball,2,15,1,0,51,0
+overhang_cage,0,17,3,0,7,45
+overhang_outer,0,35,3,0,2,34

@@ -191,7 +191,7 @@ def run_smoke(cfg: Config) -> None:
     tr_idx = np.flatnonzero(rows.rec_id.isin(sub_ids).to_numpy())
     ev_idx = np.flatnonzero((rows.dev_fold == k).to_numpy())
     full_train_windows = int((rows.dev_fold != k).sum())
-    with gpu_job(device, ART, cc.mps_memory_fraction):
+    with gpu_job(device, ART.parent, cc.mps_memory_fraction):
         seed_everything(cc.seed)
         t0 = time.perf_counter()
         cache, y = resident(arr, rows, device)
@@ -259,7 +259,7 @@ def run_train(cfg: Config, variant: str, seed: int) -> None:
     fold_info = []
     for p in (rp.weights(0), rp.norm_stats(0), rp.result("train")):
         p.parent.mkdir(parents=True, exist_ok=True)
-    with gpu_job(device, ART, cc.mps_memory_fraction), mlflow_run(cfg, run_name=rp.run_name()) as parent:
+    with gpu_job(device, ART.parent, cc.mps_memory_fraction), mlflow_run(cfg, run_name=rp.run_name()) as parent:
         mlflow.set_tags({"stage": "3B", "scope": TAG, **rp.tags(), "split_hash": prov["split_hash"],
                          "cache_key": cache_key, "protocol": "dev folder-grouped K=3; scored once by own fold model"})
         cache, y = resident(arr, rows, device)

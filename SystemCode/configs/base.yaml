@@ -233,3 +233,26 @@ cnn:
   mps_memory_fraction: 0.7
   smoke_epochs: 3
   smoke_fraction: 0.25
+
+# Healthy-only autoencoders (Q1, Stage 3B), fixed before training; details and the error definition in ml.config.AeConfig.
+# Primary: frame level (7 × 128 per frame, 1D convs over bins; no temporal modelling). Secondary: window level (64-d).
+# Target = the same gain-augmented input; evaluation without augmentation.
+ae:
+  seed: 42
+  conv_channels: [32, 64, 64]
+  kernel: 5
+  bottleneck: 16
+  max_params: 500000
+  epochs: 150
+  batch_size: 256
+  w_conv_channels: [16, 32, 32]
+  w_bottleneck: 64
+  w_epochs: 400
+  w_batch_size: 32
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  warmup_epochs: 5
+  gain_jitter_db: 1.0
+  reconstruct: augmented_input
+  eval_batch_size: 2048
+  mps_memory_fraction: 0.7
