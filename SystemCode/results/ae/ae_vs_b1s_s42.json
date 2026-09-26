@@ -1,7 +1,7 @@
 {
  "provenance": {
   "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
-  "git_sha": "afe033cfb48410ea6756f6aa895e546926343a73-dirty",
+  "git_sha": "2826ef874c6a689ec3d0291956faddaac515d14d-dirty",
   "seed": 42,
   "basis": "within-fold comparisons; pooled raw-score AUROC is supplementary because different fold models have different score scales",
   "healthy_caveat": "25 held-out healthy recordings from ONE folder; B1s per-fold AUROC 0.990 leaves little room",
@@ -2033,5 +2033,43 @@
   "wae6": 0.9862901155327342,
   "b1s_all": 0.9799229781771501,
   "b1s_nomic": 0.9828498074454429
+ },
+ "pooled_paired_supplementary": {
+  "note": "SUPPLEMENTARY: pooled raw scores mix fold models with different score scales; the within-fold differences remain primary. Stratified mixed-unit bootstrap (fault folders within class, normal recordings individually), identical draws for both detectors.",
+  "n_bootstrap": 2000,
+  "comparisons": {
+   "ae7_minus_b1s_all": {
+    "diff": 0.011758664955070719,
+    "ci": [
+     -0.00875004021879025,
+     0.0509220454209566
+    ],
+    "p_positive": 0.659
+   },
+   "ae6_minus_b1s_nomic": {
+    "diff": 0.008575096277278482,
+    "ci": [
+     -0.009048637855499388,
+     0.04185404207380471
+    ],
+    "p_positive": 0.659
+   },
+   "wae7_minus_b1s_all": {
+    "diff": 0.008061617458279935,
+    "ci": [
+     -0.004243208279430702,
+     0.031418816298791445
+    ],
+    "p_positive": 0.697
+   },
+   "wae6_minus_b1s_nomic": {
+    "diff": 0.003440308087291233,
+    "ci": [
+     -0.005438911688706552,
+     0.01902837903460773
+    ],
+    "p_positive": 0.641
+   }
+  }
  }
 }

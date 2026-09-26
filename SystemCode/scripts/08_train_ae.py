@@ -32,6 +32,7 @@ import pandas as pd
 from sklearn.metrics import roc_auc_score
 
 from ml.config import Config, load_config
+from ml.evaluation import mixed_bootstrap_draws
 from ml.datasets import dev_window_rows, load_representation, norm_stats
 from ml.labels import CLASS10
 from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, RunPaths, artifacts_dir, data_dir, results_dir
@@ -230,6 +231,27 @@ def run_compare(cfg: Config, seed: int) -> None:
         t = s[s.role == "test"]
         pooled[name] = float(roc_auc_score((t.class10 != "normal").to_numpy(), t.score.to_numpy()))
     out["pooled_raw_score_auroc_supplementary"] = pooled
+    # Supplementary paired interval for the pooled difference: stratified mixed-unit bootstrap over the fold-k
+    # recordings (fault folders resampled within class, normal recordings individually), identical draws for both.
+    base = scores["b1s_all"]
+    base = base[base.role == "test"].set_index("rec_id").sort_index()
+    draws = mixed_bootstrap_draws(base.class10.to_numpy(), base.folder.to_numpy(), cfg.baselines.n_bootstrap,
+                                  cfg.baselines.seed)
+    y = (base.class10 != "normal").to_numpy()
+    paired = {}
+    for v in [v for v in VARIANTS if v in scores]:
+        b = B1S[v]
+        sa = scores[v][scores[v].role == "test"].set_index("rec_id").score.loc[base.index].to_numpy()
+        sb = scores[b][scores[b].role == "test"].set_index("rec_id").score.loc[base.index].to_numpy()
+        d = np.array([roc_auc_score(y[i], sa[i]) - roc_auc_score(y[i], sb[i]) for i in draws])
+        paired[f"{v}_minus_{b}"] = {"diff": pooled[v] - pooled[b], "ci": [float(np.percentile(d, 2.5)),
+                                                                          float(np.percentile(d, 97.5))],
+                                    "p_positive": float(np.mean(d > 0))}
+    out["pooled_paired_supplementary"] = {
+        "note": "SUPPLEMENTARY: pooled raw scores mix fold models with different score scales; the within-fold "
+                "differences remain primary. Stratified mixed-unit bootstrap (fault folders within class, normal "
+                "recordings individually), identical draws for both detectors.",
+        "n_bootstrap": cfg.baselines.n_bootstrap, "comparisons": paired}
     OUT.mkdir(parents=True, exist_ok=True)
     for v in [v for v in VARIANTS if v in scores]:
         s = scores[v]
@@ -257,6 +279,8 @@ def run_compare(cfg: Config, seed: int) -> None:
     print(pd.DataFrame(rows).set_index("detector").to_string())
     for k, v in out["differences"].items():
         print(f"  {k:22s} per-fold overall AUROC diff {np.round(v['per_fold_auroc_diff']['overall'], 4).tolist()}")
+    for k, v in paired.items():
+        print(f"  pooled (suppl.) {k:22s} {v['diff']:+.4f} [{v['ci'][0]:+.4f}, {v['ci'][1]:+.4f}] P(>0) {v['p_positive']:.2f}")
 
 
 def main() -> int:

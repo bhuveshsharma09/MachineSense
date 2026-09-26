@@ -443,6 +443,38 @@ rate by 4 points. About 0.85 acceptance is a theoretical reference under exchang
 leading detector (B1s) was 0.80 (5/25 false alarms), and 0.72–0.88 across detectors. Q3 calibration sets hold 71–83 recordings (attainable acceptance 0.950–0.962). Folders are proxies for sessions.
 These are classical development baselines, not final results.
 
+### Deep models on cache C: Q2 CNNs and the Q1 autoencoders (Stages 3A/3B, 27 Sep 2026)
+Development findings on the 804-recording pool (K = 3 folder-grouped folds); not reserved-test results.
+
+**Q2 (scratch CNN, early fusion; Q2-only outputs).** Class10 macro-F1 over three training seeds (42, 43, 44): CNN-7
+(vibration + microphone) 0.982 ± 0.003, CNN-6 (vibration only) 0.989 ± 0.006; logistic regression 0.949. Both CNNs exceed
+logistic regression on class10 for every seed (paired intervals exclude 0); on class6 mostly not. CNN-7 − CNN-6 is
+negative for every seed on class10 (−0.009, −0.003, −0.008), with an interval excluding 0 only for seed 42: the
+microphone does not help the early-fusion CNN here; that it hurts is not supported. Seed spread and bootstrap intervals
+are different sources of uncertainty and are reported separately. Late fusion remains on the roadmap.
+
+**Q1 (healthy-only autoencoders).** The autoencoders show similar observed separation to B1s; equivalence is not
+established. Per-fold AUROC (fold mean ± std): AE-7 0.990 ± 0.006, AE-6 0.991 ± 0.006, WAE-7 0.990 ± 0.009, WAE-6
+0.989 ± 0.010, B1s 0.990 ± 0.013; within-fold differences change sign (primary); supplementary pooled differences with
+paired mixed-unit intervals all include 0 (AE-7 − B1s +0.012 [−0.009, +0.051]). At each detector's own threshold:
+
+| Detector | False alarms / 25 | Detection | Horizontal 0.5 mm |
+| --- | --- | --- | --- |
+| AE-7 (frame, + mic) | 0 | 0.958 | 0.44 |
+| AE-6 (frame, vibration) | 2 | 0.965 | 0.36 |
+| WAE-7 (window, + mic) | 2 | 0.972 | 0.72 |
+| WAE-6 (window, vibration) | 2 | 0.986 | 0.80 |
+| B1s (all features) | 5 | 1.000 | 1.00 |
+
+With 25 healthy recordings from one folder these false-alarm counts do not rank the detectors reliably. An alarm-level
+combination of B1s and AE-7 is uninformative on these recordings (B1s flags every fault; AE-7 flags no healthy
+recording, so OR reproduces B1s and AND reproduces AE-7); deferred until more healthy data exist.
+
+**Sensor anomaly evidence.** Nearly every fault class, including the overhang faults, is reconstructed worst on an
+overhang channel (AE-7: 89 % of fault recordings; 59 % for overhang outer race up to 100 % for underhang ball and outer
+race). This weakens a simple swapped-channel explanation; it does not establish a mounting or sensor-type explanation.
+Per-channel reconstruction error is not usable as fault-location evidence.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the

@@ -130,6 +130,11 @@ Graders run the app on a Linux or Windows CPU.
   - Channel groups: bearing faults and misalignment respond most on the opposite-named accelerometer group. This is an
     unresolved observation; channel names do not change.
 - **Preprocessing decisions (26 Sep 2026):**
+    Stage 3B autoencoder reading: nearly every fault class, including the overhang faults, is reconstructed worst on an
+    overhang channel. This weakens a simple swapped-channel explanation; it does not establish a mounting or sensor-type
+    explanation. Per-channel reconstruction error is not usable as fault-location evidence.
+  - **App wording:** the app shows "predicted fault location according to the dataset labels"; the classifier does not
+    independently verify the physical sensor mapping.
   - **Primary envelope band: 1–5 kHz for every track**, fixed from the sensor specifications (inside both sensors'
     rated ranges). The per-track bands in `results/demod_bands.json` are a separately reported comparison only.
   - **Order axis: per-window speed** from `ml.preprocess.window_speeds`, computed from the untouched tachometer,
@@ -268,12 +273,14 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage 3B — CNN seed replication and the healthy-only autoencoder (Q1) on cache C
+## 7. Current stage: Stage 3C — deep unknown-fault test (Q3): LOCO-retrained CNN-6 and the three-way decision rule
 
-Dev pool and `results/dev_folds.csv` only; reserved tests sealed; the training process never imports LightGBM; all
-Mac/MPS, precision and one-GPU-job rules of §2 apply. Not in this stage: LOCO, arbitrator, ResNet, late fusion.
+Dev pool only; reserved tests sealed; the training process never imports LightGBM; all Mac/MPS, precision, path-scheme
+(variant / seed / fold / withheld class in every path) and one-GPU-job rules apply. Stage 3A/3B embeddings and scores are
+Q2-only and are NOT used here. Not in this stage: ResNet, late fusion, a learned meta-combiner (deferred), Q1 rule
+combination.
 
-**Standing scope rules (from Stage 3A):**
+**Standing scope rules (Stages 3A/3B):**
 - **Q2 only for the CNNs.** They are trained on all ten classes; their embeddings and scores are for Q2 analysis ONLY and
   are tagged "Q2-only; trained on all 10 classes; not valid for LOCO". LOCO experiments (Stage 3C) must retrain the
   encoder without the withheld fault class and exclude that class from normalisation, calibration and threshold
@@ -292,13 +299,44 @@ Mac/MPS, precision and one-GPU-job rules of §2 apply. Not in this stage: LOCO, 
   0.5 s, so upload-to-result time is longer.
 - **Artifact paths.** Every existing seed-42 artifact of Stage 3A stays unchanged at its original path. From Stage 3B on,
   every score, embedding, weight, normalisation-stat and result path, and every MLflow run name and tag, carries the
-  variant, the seed and (where applicable) the fold (`ml.paths.RunPaths`).
+  variant, the seed and (where applicable) the fold and the withheld class (`ml.paths.RunPaths`).
+- **Q1 alarm combination (deferred):** an alarm-level combination of B1s and AE-7 is uninformative on these recordings
+  (B1s flags every fault; AE-7 flags no healthy recording, so OR reproduces B1s and AND reproduces AE-7). Deferred until
+  more healthy data exist.
 
-0. Housekeeping (shared recording aggregation in `scripts/05_baselines.py`; these notes; the path scheme and its test).
-1. Seed replication of CNN-7 and CNN-6 (seeds 43, 44; same settings and folds).
-2. B1s recording-level scores reproduced from the saved Stage 2D.1 fit/calibration assignments.
-3. Healthy-only autoencoder (`ml/models/ae.py`), corrected Q1 protocol, AE-7 vs AE-6, compared with B1s within fold.
-4. Notebook `08_autoencoder_healthy`.
+**Stage 3C protocol (declared before running).**
+- **Split:** the SAVED Stage 2D.1 Q3 assignment (`results/q1q3/q3_fit_cal_eval_assignment.csv`): per withheld class c and
+  outer fold k, the known-class recordings of folds ≠ k are split within each folder 4:1:1 into fit / calibration /
+  seen-folder evaluation. Fold k (known classes and class c) is evaluated once per c.
+- **CNN-6 per (c, k):** the Stage 3A architecture and fixed settings, seed 42, 9 outputs (the known classes), trained on
+  the fit recordings only. `norm_stats` in development mode: fit_ids = those fit recordings; context excludes calibration,
+  seen-folder evaluation, fold k and every class-c recording.
+- **AE-6 per (c, k), not per k (deviation from the brief, reason):** the saved Q3 assignment splits the normal folder
+  differently for each withheld class, so one AE per k would have been trained on normals that are calibration or
+  seen-folder evaluation recordings in other runs. Each (c, k) run therefore retrains the frame-level AE-6 on ITS fit
+  normals only; its threshold uses ITS calibration normals.
+- **Scores (directions fixed):** MSP of the aggregated class probabilities (lower = more unknown); Mahalanobis distance in
+  the embedding (class centroids from fit windows; ONE shared Ledoit–Wolf covariance of fit-window embeddings minus their
+  own class centroid; per window the minimum distance over known classes; recording = mean over its 9 windows; higher =
+  more unknown); k-NN distance (cosine distance from a window to its 10th nearest fit-window embedding; recording = mean
+  over its 9 windows; higher = more unknown); AE reconstruction error (higher = more anomalous). AE error measures
+  departure from healthy behaviour, not unfamiliarity among fault types; a familiar severe fault can have a larger error
+  than an unfamiliar mild one.
+- **Three-way rule thresholds (calibration recordings only):** τ_p (MSP) and τ_d (Mahalanobis) are calibration targets
+  of 97.5 % marginal acceptance each on the calibration known recordings (order statistic r = ceil(0.975 (n + 1)); accept
+  iff MSP ≥ τ_p, resp. d ≤ τ_d; ties accepted); the joint acceptance is measured, not assumed. τ_e = the maximum
+  calibration-normal AE error (healthy iff error ≤ τ_e).
+- **Orderings:** PRIMARY = classifier-first (the AE misses some mild faults, and AE-first would declare them healthy);
+  AE-first is a comparison only; no choosing the best ordering afterwards. Never fall back to the second-highest class.
+- **Classical comparison:** logistic regression / MSP of Stage 2D.1 on the same split and recordings, reproduced per
+  recording (its per-fold results must match `results/q1q3/q3_per_fold.csv`). Observed differences only; no winner
+  claims without paired intervals.
+
+0. Stage 3B reporting corrections (WAE-6 in every table, wording, pooled paired interval, sensor-evidence reading, app
+   wording, Q1 combination note).
+1. Deep LOCO: 27 CNN-6 and 27 AE-6 trainings; scores; AUROC/OSCR per class, fold spread, macro.
+2. Three-way decision rule: joint acceptance, outcome tables (both orderings), AE override counts, classical comparison.
+3. Notebook `09_openset_loco`.
 
 ## 7b. Plan notes (planned controls)
 
