@@ -305,6 +305,18 @@ Source: `notebooks/01_data_layer/02_signal_exploration.ipynb`, caches from `scri
   values, normal waveform; the 13.1 Hz neighbour has the same 1× (0.020 V). **Not dead or disconnected; no quality flag;
   file kept.** Figure `results/figures/03_suspect_channel.png`.
 
+### Full feature tables and the r1cap10 sensitivity variant (Stage 2B)
+- PRIMARY `data/features/r1_<key>.parquet` and VARIANT `data/features/r1cap10_<key>.parquet` (declared in
+  `configs/variants/r1cap10.yaml` before any results): 1,951 recordings × 9 windows each, no NaN/inf; 144 and 142
+  features; 846 fallback-speed windows (the 94 severe tacho-glitch recordings). Labels and splits are joined at load.
+- r1cap10 adds a linear-phase Kaiser low-pass on channels 1–7 in `clean_recording` (pass ≤ 9.8 kHz, stop ≥ 10.2 kHz),
+  before every feature. A design target of 80 dB measured 79.73 dB, short of the ≥ 80 dB requirement, so the target
+  is 81 dB: 639 taps, β 7.9675, measured 80.75 dB stop band and 0.0008 dB pass-band ripple. Synthetic: a 12 kHz tone
+  drops ~100 dB, a 5 kHz tone changes by 0.0001 dB and 0.0003°. Measured edge effect (one train recording per class):
+  1–4 ms to −40 dB, 3–5 ms to −60 dB.
+- Interpretation rule: a sensitivity experiment. A performance drop would show dependence on the removed information,
+  not prove that information was an artefact.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the

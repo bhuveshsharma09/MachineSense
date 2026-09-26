@@ -22,7 +22,8 @@ import pandas as pd
 
 from ml.config import PreprocessConfig, load_config
 from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, cache_file, data_dir
-from ml.preprocess import apply_fir_centred, bandstop_taps, clean_recording, propose_stopband, remove_mic_bursts
+from ml.preprocess import (apply_fir_centred, bandstop_taps, clean_recording, measure_edge_effect, propose_stopband,
+                           remove_mic_bursts)
 
 SEARCH_HZ = (21_800.0, 22_300.0)  # main line search range (the line drifts by session; see notebook 03)
 SIDEBANDS = (-120.0, -60.0, 60.0, 120.0)
@@ -119,23 +120,8 @@ def verify_one(args: tuple[str, PreprocessConfig]) -> dict:
     ratios = np.abs(np.array(ratios))
     out["outside_change_db_max"] = float(ratios.max())
     out["outside_change_db_median"] = float(np.median(ratios))
-    # Edge extent, measured directly: filter a 2 s crop (samples 1–3 s) as if it were a recording, and compare it with
-    # the same 2 s cut from the filtered full recording, which had real signal on both sides. The difference is the
-    # edge effect. Relative RMS per 1 ms segment (largest channel), counted from each crop edge until it stays below
-    # −40 dB and −60 dB of the crop's own RMS.
-    taps = bandstop_taps(pre)
-    lo_i, hi_i = fs, 3 * fs
-    crop = x[lo_i:hi_i]
-    d = apply_fir_centred(crop, taps) - y[lo_i:hi_i]
-    n_seg = crop.shape[0] // EDGE_SEG
-    seg = lambda v: np.sqrt((v[: n_seg * EDGE_SEG].reshape(n_seg, EDGE_SEG, -1) ** 2).mean(axis=1))
-    rel = (seg(d) / seg(crop)).max(axis=1)
-    for db in (40, 60):
-        bad = rel > 10 ** (-db / 20)
-        out[f"edge_start_ms_{db}db"] = (int(np.flatnonzero(bad[: n_seg // 2]).max()) + 1 if bad[: n_seg // 2].any()
-                                         else 0) * EDGE_SEG / fs * 1e3
-        tail = bad[n_seg // 2:][::-1]
-        out[f"edge_end_ms_{db}db"] = (int(np.flatnonzero(tail).max()) + 1 if tail.any() else 0) * EDGE_SEG / fs * 1e3
+    # Edge extent, measured directly (ml.preprocess.measure_edge_effect: crop vs full-recording filtering).
+    out.update(measure_edge_effect(x, bandstop_taps(pre), fs, seg=EDGE_SEG))
     return out
 
 

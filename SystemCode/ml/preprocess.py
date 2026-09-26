@@ -331,6 +331,39 @@ def bandstop_taps(cfg: PreprocessConfig) -> np.ndarray:
     return firwin(b.numtaps, cut, window=tuple(b.window), pass_zero="bandstop", fs=cfg.fs_hz)
 
 
+def lowpass_taps(cfg: PreprocessConfig) -> np.ndarray:
+    """FIR taps of the optional low-pass (odd length, symmetric → linear phase), cutoff midway between its edges."""
+    from scipy.signal import firwin
+
+    lp = cfg.lowpass
+    if lp.numtaps % 2 == 0:
+        raise ValueError("lowpass.numtaps must be odd")
+    return firwin(lp.numtaps, (lp.pass_hz + lp.stop_hz) / 2, window=tuple(lp.window), fs=cfg.fs_hz)
+
+
+def measure_edge_effect(x: np.ndarray, taps: np.ndarray, fs: float, seg: int = 50,
+                        levels_db: tuple[float, ...] = (40.0, 60.0)) -> dict[str, float]:
+    """Measured recording-edge effect of a centred FIR: filter a 2 s crop (samples 1–3 s) as if it were a recording and
+    compare it with the same cut from the filtered full recording (which had real signal on both sides). Returns, per
+    level, the ms from each crop edge until the relative RMS error (per `seg`-sample segment, worst channel) stays
+    below −level dB."""
+    full = apply_fir_centred(x, taps)
+    lo, hi = int(fs), int(3 * fs)
+    crop = x[lo:hi]
+    d = apply_fir_centred(crop, taps) - full[lo:hi]
+    crop2, d2 = (crop[:, None], d[:, None]) if crop.ndim == 1 else (crop, d)
+    n_seg = crop2.shape[0] // seg
+    rms = lambda v: np.sqrt((v[: n_seg * seg].reshape(n_seg, seg, -1) ** 2).mean(axis=1))
+    rel = (rms(d2) / rms(crop2)).max(axis=1)
+    out = {}
+    for db in levels_db:
+        bad = rel > 10 ** (-db / 20)
+        head, tail = bad[: n_seg // 2], bad[n_seg // 2:][::-1]
+        out[f"edge_start_ms_{db:g}db"] = (int(np.flatnonzero(head).max()) + 1 if head.any() else 0) * seg / fs * 1e3
+        out[f"edge_end_ms_{db:g}db"] = (int(np.flatnonzero(tail).max()) + 1 if tail.any() else 0) * seg / fs * 1e3
+    return out
+
+
 def apply_fir_centred(x: np.ndarray, taps: np.ndarray) -> np.ndarray:
     """Convolve each column with a symmetric odd-length FIR and keep the centred part: the (numtaps − 1) / 2 sample
     group delay is removed, so filtered and original stay time-aligned (zero-phase alignment). Edges are
@@ -345,7 +378,8 @@ def apply_fir_centred(x: np.ndarray, taps: np.ndarray) -> np.ndarray:
 def clean_recording(x: np.ndarray, cfg: PreprocessConfig) -> tuple[np.ndarray, dict]:
     """Whole-recording cleaning before any windowing (CLAUDE.md §5 rules 10 and 11), at training and serving:
     1. microphone: remove events flagged by the burst threshold (remove_mic_bursts, cfg.mic);
-    2. channels 1–7: the fixed band-stop for the ~22 kHz line (cfg.bandstop), if enabled.
+    2. channels 1–7: the fixed band-stop for the ~22 kHz line (cfg.bandstop), if enabled;
+    3. channels 1–7: the optional low-pass (cfg.lowpass; sensitivity variant r1cap10 only), if enabled.
     The tachometer (channel 0) is returned untouched. Returns (float32 copy, report)."""
     mic = cfg.channels.index("mic")
     out = np.array(x, dtype=np.float32, copy=True)
@@ -355,6 +389,10 @@ def clean_recording(x: np.ndarray, cfg: PreprocessConfig) -> tuple[np.ndarray, d
         taps = bandstop_taps(cfg)
         out[:, 1:] = apply_fir_centred(out[:, 1:], taps).astype(np.float32)
         report.update(bandstop_applied=True, bandstop_numtaps=int(taps.size))
+    report["lowpass_applied"] = False
+    if cfg.lowpass.enabled:  # sensitivity variant: before every feature, including mic RMS and accelerometer stats
+        out[:, 1:] = apply_fir_centred(out[:, 1:], lowpass_taps(cfg)).astype(np.float32)
+        report["lowpass_applied"] = True
     return out, report
 
 

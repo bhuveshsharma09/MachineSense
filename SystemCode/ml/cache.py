@@ -59,7 +59,8 @@ def feature_cache_key(pre: PreprocessConfig, sources: Mapping[str, Source], trac
 
 
 def feature_cache_path(directory: Path, name: str, key: str, track: str | None = None) -> Path:
-    return Path(directory) / f"{name}_{track or 'shared'}_{key[:12]}.parquet"
+    """<name>_<key12>.parquet for track-independent features; <name>_<track>_<key12>.parquet per track."""
+    return Path(directory) / (f"{name}_{track}_{key[:12]}.parquet" if track else f"{name}_{key[:12]}.parquet")
 
 
 def write_feature_cache(df: pd.DataFrame, path: Path, key: str, extra: Mapping[str, str]) -> None:

@@ -1,0 +1,21 @@
+# Sensitivity variant r1cap10, declared 26 Sep 2026 BEFORE any results (Stage 2B item 4).
+# Same pipeline as base.yaml, plus a fixed zero-phase linear-phase FIR low-pass on channels 1–7 in clean_recording,
+# before every feature (including microphone RMS and all accelerometer statistics), and microphone bands up to 10 kHz.
+# Interpretation rule: a performance drop shows dependence on the removed information; it does not prove that
+# information was an artefact.
+extends: ../base.yaml
+
+preprocess:
+  lowpass:
+    enabled: true
+    pass_hz: 9800.0
+    stop_hz: 10200.0
+    # Requirement ≥ 80 dB and ≤ 0.01 dB ripple; kaiserord(81 dB, 400 Hz) → 639 taps, β 7.9675 (measured 80.75 dB,
+    # 0.0008 dB). A design at 80 dB measured 79.73 dB, just short.
+    atten_db: 81.0
+    numtaps: 639  # 6.4 ms half-length
+    window: [kaiser, 7.9675]
+  features:
+    version: r1cap10-1.0
+    mic_max_hz: 10000.0
+    mic_bands_hz: [[20, 250], [250, 500], [500, 1000], [1000, 2000], [2000, 4000], [4000, 8000], [8000, 10000]]

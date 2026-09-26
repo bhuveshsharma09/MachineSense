@@ -84,3 +84,32 @@ def test_propose_stopband_rule():
     band = propose_stopband(tone, present_db=20, margin_hz=25, round_hz=5)
     assert (band["observed_lo_hz"], band["observed_hi_hz"]) == (21_900.0, 22_140.0)
     assert (band["stop_lo_hz"], band["stop_hi_hz"]) == (21_875.0, 22_165.0)
+
+
+def test_lowpass_variant():
+    from ml.config import load_config
+    from ml.paths import CONFIGS_DIR
+
+    cap = load_config(CONFIGS_DIR / "variants" / "r1cap10.yaml").preprocess
+    assert cap.lowpass.enabled and not PreprocessConfig().lowpass.enabled
+    x = np.zeros((N, 8), np.float32)
+    x[:, 0] = np.where((T * 30) % 1 < 0.12, 4.6, -0.7)
+    keep = 0.3 * np.sin(2 * np.pi * 5_000 * T)
+    x[:, 1:] = (keep + 0.3 * np.sin(2 * np.pi * 12_000 * T))[:, None]
+    y, rep = clean_recording(x, cap)
+    assert rep["lowpass_applied"] and np.array_equal(y[:, 0], x[:, 0])
+    core = slice(5_000, N - 5_000)
+    assert _amp(y[core, 1], 12_000) < 0.3 * 10 ** (-80 / 20) * 1.5  # ≥ ~76 dB down (probe-limited)
+    assert np.max(np.abs(y[core, 1:] - keep[core, None])) < 1e-3  # 5 kHz kept, same amplitude and phase
+
+
+def test_config_extends(tmp_path):
+    from ml.config import load_config
+
+    base = tmp_path / "base.yaml"
+    base.write_text("seed: 1\npreprocess:\n  mic:\n    burst_pad: 7\n")
+    var = tmp_path / "v" / "var.yaml"
+    var.parent.mkdir()
+    var.write_text("extends: ../base.yaml\npreprocess:\n  features:\n    version: x\n")
+    cfg = load_config(var)
+    assert cfg.seed == 1 and cfg.preprocess.mic.burst_pad == 7 and cfg.preprocess.features.version == "x"

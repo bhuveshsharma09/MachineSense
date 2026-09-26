@@ -118,6 +118,20 @@ class BandStopConfig(_Strict):
     window: tuple[str, float] = ("kaiser", 7.8573)  # Kaiser beta for 80 dB
 
 
+class LowpassConfig(_Strict):
+    """Optional fixed low-pass on channels 1–7 in clean_recording (sensitivity variant r1cap10 only). Linear-phase
+    Kaiser FIR (firwin), cutoff midway between the pass-band and stop-band edges, applied by centred convolution."""
+
+    enabled: bool = False
+    pass_hz: float = 9800.0
+    stop_hz: float = 10200.0
+    # Requirement: ≥ 80 dB stop band, ≤ 0.01 dB pass-band ripple. kaiserord(80 dB) fell just short (79.73 dB measured),
+    # so the design target is 81 dB: kaiserord(81 dB, 400 Hz) → 639 taps, β 7.9675; measured 80.75 dB, 0.0008 dB.
+    atten_db: float = 81.0
+    numtaps: int = 639  # odd; 6.4 ms half-length
+    window: tuple[str, float] = ("kaiser", 7.9675)
+
+
 class SensorSpec(_Strict):
     """Manufacturer ratings of one accelerometer model (Hz)."""
 
@@ -211,6 +225,7 @@ class PreprocessConfig(_Strict):
     quality: QualityConfig = Field(default_factory=QualityConfig)
     mic: MicConfig = Field(default_factory=MicConfig)
     bandstop: BandStopConfig = Field(default_factory=BandStopConfig)
+    lowpass: LowpassConfig = Field(default_factory=LowpassConfig)
     window: WindowConfig = Field(default_factory=WindowConfig)
     features: FeatureConfig = Field(default_factory=FeatureConfig)
     envelope: EnvelopeConfig = Field(default_factory=EnvelopeConfig)
@@ -234,11 +249,24 @@ class Config(_Strict):
     preprocess: PreprocessConfig = Field(default_factory=PreprocessConfig)
 
 
-def load_config(path: str | Path) -> Config:
-    """Load and validate a YAML config; missing keys take the defaults above."""
+def _deep_merge(base: dict, over: dict) -> dict:
+    out = dict(base)
+    for k, v in over.items():
+        out[k] = _deep_merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
+
+
+def _load_raw(path: Path) -> dict:
     with open(path, encoding="utf-8") as fh:
         raw = yaml.safe_load(fh) or {}
-    return Config.model_validate(raw)
+    parent = raw.pop("extends", None)  # a variant lists only what it changes
+    return _deep_merge(_load_raw((path.parent / parent).resolve()), raw) if parent else raw
+
+
+def load_config(path: str | Path) -> Config:
+    """Load and validate a YAML config; missing keys take the defaults above. A file with `extends: <path>` starts
+    from that file (relative to itself) and overrides only the keys it lists."""
+    return Config.model_validate(_load_raw(Path(path)))
 
 
 def config_sha256(section: BaseModel) -> str:
