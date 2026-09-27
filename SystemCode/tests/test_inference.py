@@ -87,6 +87,14 @@ def test_class6_probabilities_follow_the_mapping():
 
 
 @needs_bundle
+def test_explanation_labels_and_priorities():
+    x = diagnose("normal__18.432")["xai"]
+    assert x["cnn"]["display_priority"] == "advanced" and "occlusion check did not confirm" in x["cnn"]["label"]
+    assert x["lr"]["display_priority"] == "primary"
+    assert x["lr"]["label"] == "feature contributions of the secondary logistic-regression model"
+
+
+@needs_bundle
 def test_wrong_shape_is_refused():
     with pytest.raises(InputError):
         diagnose(np.zeros((1000, 8)))

@@ -14,6 +14,8 @@ from ml.spectro import order_axis
 
 NOTE = ("What the model attended to; not proof of the fault's location. A predicted fault location is according to "
         "the dataset labels; per-channel attribution or reconstruction error is not fault-location evidence.")
+CNN_LABEL = "exploratory gradient attribution; an occlusion check did not confirm band-level importance"
+LR_LABEL = "feature contributions of the secondary logistic-regression model"
 VIB_NAMES = ["under_axial", "under_radial", "under_tangential", "over_axial", "over_radial", "over_tangential"]
 
 
@@ -87,5 +89,7 @@ def explain(bundle, x_norm_input, top_class: str, feats: pd.DataFrame, cfg) -> d
     xn = normalise(x_norm_input, torch.tensor(nc["mean"], dtype=torch.float32), torch.tensor(nc["std"], dtype=torch.float32))
     cls = bundle.manifest.class10.index(top_class)
     return {"note": NOTE,
-            "cnn": {"class": top_class, **cnn_attribution(bundle.cnn, xn, cls, order_axis(cfg.preprocess))},
-            "lr": lr_attribution(bundle.lr, feats, bundle.feature_dictionary)}
+            "cnn": {"class": top_class, "label": CNN_LABEL, "display_priority": "advanced",
+                    **cnn_attribution(bundle.cnn, xn, cls, order_axis(cfg.preprocess))},
+            "lr": {"label": LR_LABEL, "display_priority": "primary",
+                   **lr_attribution(bundle.lr, feats, bundle.feature_dictionary)}}

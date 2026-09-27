@@ -2058,6 +2058,7 @@
    "xai": {
     "cnn": {
      "class": "horizontal_misalignment",
+     "display_priority": "advanced",
      "gradcam_order_profile": {
       "order_segments": [
        [
@@ -2490,6 +2491,7 @@
        ]
       ]
      },
+     "label": "exploratory gradient attribution; an occlusion check did not confirm band-level importance",
      "method": "input \u00d7 gradient (channels \u00d7 order bins); Grad-CAM on the last convolution block (order profile)",
      "top_channels": [
       {
@@ -2531,6 +2533,8 @@
     },
     "lr": {
      "class": "horizontal_misalignment",
+     "display_priority": "primary",
+     "label": "feature contributions of the secondary logistic-regression model",
      "method": "coefficient \u00d7 QuantileTransformer value (mean over windows), for LR's top class",
      "top_features": [
       {
@@ -4633,6 +4637,7 @@
    "xai": {
     "cnn": {
      "class": "normal",
+     "display_priority": "advanced",
      "gradcam_order_profile": {
       "order_segments": [
        [
@@ -5065,6 +5070,7 @@
        ]
       ]
      },
+     "label": "exploratory gradient attribution; an occlusion check did not confirm band-level importance",
      "method": "input \u00d7 gradient (channels \u00d7 order bins); Grad-CAM on the last convolution block (order profile)",
      "top_channels": [
       {
@@ -5106,6 +5112,8 @@
     },
     "lr": {
      "class": "normal",
+     "display_priority": "primary",
+     "label": "feature contributions of the secondary logistic-regression model",
      "method": "coefficient \u00d7 QuantileTransformer value (mean over windows), for LR's top class",
      "top_features": [
       {
@@ -7210,6 +7218,7 @@
    "xai": {
     "cnn": {
      "class": "underhang_outer",
+     "display_priority": "advanced",
      "gradcam_order_profile": {
       "order_segments": [
        [
@@ -7642,6 +7651,7 @@
        ]
       ]
      },
+     "label": "exploratory gradient attribution; an occlusion check did not confirm band-level importance",
      "method": "input \u00d7 gradient (channels \u00d7 order bins); Grad-CAM on the last convolution block (order profile)",
      "top_channels": [
       {
@@ -7683,6 +7693,8 @@
     },
     "lr": {
      "class": "underhang_outer",
+     "display_priority": "primary",
+     "label": "feature contributions of the secondary logistic-regression model",
      "method": "coefficient \u00d7 QuantileTransformer value (mean over windows), for LR's top class",
      "top_features": [
       {
