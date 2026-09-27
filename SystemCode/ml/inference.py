@@ -130,6 +130,16 @@ def _physics(x: np.ndarray, fr: float, cfg: Config) -> dict:
             "cursors_hz": {k: [float(o * fr) for o in v] for k, v in {"shaft": [1.0, 2.0, 3.0], **lines}.items()}}
 
 
+def stable_output(d: dict) -> dict:
+    """diagnose() output without the run-dependent keys (timing and the current commit), for golden comparisons."""
+    import json
+
+    d = json.loads(json.dumps(d))
+    d.pop("timing_ms", None)
+    d["provenance"].pop("git_sha", None)
+    return d
+
+
 def diagnose(source, healthy_rule: str | None = None, nominal_speed_hz: float | None = None, bundle=None,
              with_xai: bool = True) -> dict:
     """Diagnose one recording: `source` is a development-pool rec_id or a raw (250000, 8) array at 50 kHz (columns:
@@ -143,10 +153,10 @@ def diagnose(source, healthy_rule: str | None = None, nominal_speed_hz: float | 
     t0 = time.perf_counter()
     cfg = _config()
     pre = cfg.preprocess
+    row = check_rec_id(source) if isinstance(source, str) else None  # refuse reserved rec_ids before loading anything
     b = bundle or get_bundle()
     rule = healthy_rule or b.rule.get("healthy_rule", DEFAULT_VARIANT)
     if isinstance(source, str):
-        row = check_rec_id(source)
         x = np.load(data_dir() / "raw_npy" / f"{source}.npy")
         fr, rec_id, origin = float(row["fr_measured_hz"]), source, "development-pool recording"
     else:

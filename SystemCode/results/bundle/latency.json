@@ -1,0 +1,37 @@
+{
+ "recordings": [
+  "horizontal-misalignment__0.5mm__15.36",
+  "horizontal-misalignment__0.5mm__20.48",
+  "imbalance__10g__13.9264",
+  "imbalance__10g__19.2512",
+  "normal__18.432",
+  "normal__19.6608",
+  "overhang__ball_fault__0g__32.768",
+  "overhang__ball_fault__0g__39.5264",
+  "overhang__cage_fault__0g__19.8656",
+  "overhang__cage_fault__0g__24.1664",
+  "overhang__outer_race__0g__16.7936",
+  "overhang__outer_race__0g__22.1184",
+  "underhang__ball_fault__0g__19.456",
+  "underhang__ball_fault__0g__22.7328",
+  "underhang__cage_fault__0g__13.312",
+  "underhang__cage_fault__0g__24.3712",
+  "underhang__outer_race__0g__14.7456",
+  "underhang__outer_race__0g__33.792",
+  "vertical-misalignment__0.51mm__18.0224",
+  "vertical-misalignment__0.51mm__21.504"
+ ],
+ "device": "cpu",
+ "torch_threads": 10,
+ "machine": "macOS-26.4.1-arm64-arm-64bit",
+ "processor": "arm",
+ "cpu_count": 14,
+ "bundle_load_s": 0.14232354098930955,
+ "median_ms_with_xai": 885.1502915495075,
+ "median_ms_without_xai": 851.223312492948,
+ "range_ms_with_xai": [
+  860.5853749904782,
+  1098.1801670277491
+ ],
+ "note": "from a raw 5 s, 8-channel recording already in memory as .npy: cleaning, speed, R1 features, the cache-C representation, all models, physics and (optionally) XAI; excludes reading a CSV upload"
+}
