@@ -289,7 +289,58 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage ML-4.2 — recalibrate on the deployment scoring path (Track A)
+## 7. Current stage: Stage ML-5 — ResNet-18 transfer learning (Track A, development experiment)
+
+Question: does an ImageNet-pretrained ResNet-18 on the order spectrogram match CNN-6 on closed-set diagnosis (Q2), and
+does it separate the imbalance / vertical-misalignment pair better when one is withheld (targeted Q3)? It does **not**
+change the frozen bundle or the app; ResNet-18 is not added to the bundle (Bhuvesh decides after the report).
+
+**Stage ML-5 protocol (declared before running; code `ml/models/resnet.py`, `configs/resnet.yaml`,
+`scripts/20_resnet.py`).**
+- **Input (as CNN-6):** cache C, the 6 vibration channels × 128 log order bins × 25 frames; global per-channel
+  normalisation from `norm_stats` in development mode fitted on the training recordings of each fold only.
+- **Architecture:** learnable 1×1 conv adapter 6 → 3 channels (with bias) → bilinear resize to 224 × 224
+  (align_corners = False) → ImageNet mean/std normalisation → torchvision ResNet-18 with
+  `ResNet18_Weights.IMAGENET1K_V1` (file `resnet18-f37072fd.pth`, sha256
+  f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec; torchvision 0.29.0) → the 512-d penultimate
+  embedding z (after global average pooling) → dropout 0.2 → new linear head (10 classes). The dropout matches CNN-6's head.
+- **Kept from CNN-6 (Stage 3A):** cross-entropy with balanced class weights n / (n_classes × count_c) from the training
+  windows; augmentation on training windows only (gain jitter ±1 dB per window and channel before normalisation; circular
+  time shift ±2 frames and one time mask of 0–4 frames after normalisation; applied to the 6 × 128 × 25 input, before
+  the adapter); AdamW with weight decay 0.01; linear warm-up for 1 epoch, then cosine decay to 0; fixed epochs, no
+  early stopping, no epoch or checkpoint selection on any evaluation data; window → recording aggregation = mean
+  log-probability over the 9 windows (`ml.evaluation.recording_predictions`, prob floor as 3A); every pool recording
+  scored exactly once by its own outer-fold model; fp32 on MPS, batch 64 (evaluation batch 256).
+- **Variants:** R18-probe: backbone frozen (no gradients; BatchNorm layers kept in eval mode with the ImageNet running
+  statistics); the adapter and the head are trained, lr 1e-3, 30 epochs. R18-ft: full fine-tune, backbone lr 1e-4,
+  adapter and head lr 1e-3, 30 epochs.
+- **Time guard:** R18-ft seed 42 runs first; after the first epoch of fold 0, the B1 seed-42 total (both variants,
+  3 folds) is estimated as 2 × (R18-ft estimate) (the probe costs no more than the fine-tune); if the estimate exceeds
+  90 minutes the run stops and is reported. Seeds 43 and 44 of R18-ft run only if seed 42 (both variants) took under
+  1 hour in total.
+- **B1 (Q2, dev folds K = 3, `results/dev_folds.csv`):** class10 and class6 macro-F1 and balanced accuracy with the 3A
+  mixed-unit bootstrap (same draws for every model); paired differences R18 − CNN-6 on the same folds and seeds (CNN-6
+  seed 42: the Stage 3A outputs; seeds 43 / 44: Stage 3B); per-class F1 and the class10 confusion matrix, with imbalance
+  vs vertical misalignment and horizontal misalignment at 0.5 mm reported separately. Seed variation and bootstrap
+  intervals are reported separately, never merged.
+- **B2 (targeted Q3, R18-ft seed 42 only, 6 runs):** withheld ∈ {imbalance, vertical_misalignment} × outer folds 0–2 on
+  the SAVED Stage 2D.1 Q3 assignment (`results/q1q3/q3_fit_cal_eval_assignment.csv`, `ml.openset.loco_run_ids`). The
+  withheld class is excluded from training, normalisation (fit ids = fit recordings; context as 3C), Mahalanobis
+  fitting and calibration. Scores: MSP (lower = more unknown) and Mahalanobis on the 512-d embedding of the fit windows
+  with **per-class Ledoit–Wolf covariances** (minimum over the known classes per window, mean over windows; the brief's
+  primary). Stage 3C's CNN-6 used one **shared** within-class Ledoit–Wolf covariance, so both Mahalanobis variants are
+  reported for both models (CNN-6 per-class recomputed from its saved 3C seed-42 embeddings). Threshold-free per-fold
+  AUROC and OSCR, fold k known vs fold k withheld, vs CNN-6 seed 42 on the same 6 runs; a withheld → assigned-class table
+  (the argmax over known classes). **Pre-declared reading:** "helps for class X" only if R18-ft's Mahalanobis (per-class)
+  or MSP AUROC for withheld X is higher than CNN-6's in at least 2 of 3 folds; exploratory: 6 runs cannot establish a
+  general Q3 improvement.
+- **B3 (cost):** training seconds per run, total and trainable parameters, median CPU latency for one recording (9
+  windows from the cached representation, as 3A).
+- Outputs: `ml.paths.RunPaths` (family "resnet", variants r18probe / r18ft; LOCO family "loco", variant r18ft, withheld in
+  the name); results under `results/resnet/`; weights (state_dict) under `artifacts/resnet/` and `artifacts/loco/`
+  (gitignored). The split hash is unchanged; reserved tests stay sealed; one GPU job at a time (`artifacts/gpu.lock`).
+
+## 7a. Previous stage: Stage ML-4.2 — recalibrate on the deployment scoring path (Track A)
 
 Decision (Bhuvesh, after ML-4.1 item 3): recalibrate the **unchanged** models on the exact CPU scoring path the
 application uses. No retraining, no change to model weights, rule variants or the default rule (B_with_caution).
