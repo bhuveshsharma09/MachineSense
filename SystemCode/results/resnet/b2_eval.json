@@ -1,0 +1,584 @@
+{
+ "provenance": {
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "22a953f3fa4da103abf502e1d4d7a2babb2f6e88-dirty",
+  "seed": 42,
+  "assignment": "results/q1q3/q3_fit_cal_eval_assignment.csv",
+  "cnn6": "Stage 3C seed-42 LOCO runs; MSP and shared Mahalanobis recomputed from its saved window outputs and checked equal to the saved 3C scores; per-class Mahalanobis added",
+  "mahalanobis": {
+   "maha_pc": "per-class Ledoit\u2013Wolf (brief's primary)",
+   "maha_shared": "one shared within-class Ledoit\u2013Wolf (Stage 3C)"
+  },
+  "reading": "exploratory; 6 runs cannot establish a general Q3 improvement"
+ },
+ "reading": {
+  "imbalance": {
+   "msp": {
+    "folds_r18ft_higher": 3,
+    "r18ft": [
+     0.7213,
+     0.8505,
+     0.7681
+    ],
+    "cnn6": [
+     0.6909,
+     0.1787,
+     0.482
+    ]
+   },
+   "maha_pc": {
+    "folds_r18ft_higher": 3,
+    "r18ft": [
+     0.7214,
+     0.8682,
+     0.7128
+    ],
+    "cnn6": [
+     0.6556,
+     0.6254,
+     0.6271
+    ]
+   },
+   "maha_shared": {
+    "folds_r18ft_higher": 1,
+    "r18ft": [
+     0.5255,
+     0.7277,
+     0.5769
+    ],
+    "cnn6": [
+     0.6177,
+     0.6628,
+     0.6313
+    ]
+   },
+   "helps (declared rule: per-class Mahalanobis or MSP higher in \u2265 2 of 3 folds)": true
+  },
+  "vertical_misalignment": {
+   "msp": {
+    "folds_r18ft_higher": 3,
+    "r18ft": [
+     0.7771,
+     0.7469,
+     0.785
+    ],
+    "cnn6": [
+     0.7216,
+     0.6656,
+     0.7412
+    ]
+   },
+   "maha_pc": {
+    "folds_r18ft_higher": 2,
+    "r18ft": [
+     0.6742,
+     0.7752,
+     0.7826
+    ],
+    "cnn6": [
+     0.6912,
+     0.6833,
+     0.5498
+    ]
+   },
+   "maha_shared": {
+    "folds_r18ft_higher": 3,
+    "r18ft": [
+     0.512,
+     0.5283,
+     0.5695
+    ],
+    "cnn6": [
+     0.4534,
+     0.51,
+     0.3982
+    ]
+   },
+   "helps (declared rule: per-class Mahalanobis or MSP higher in \u2265 2 of 3 folds)": true
+  }
+ },
+ "per_fold": [
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "score": "msp",
+   "auroc": 0.7213392269350136,
+   "oscr": 0.7197404307345059,
+   "n_known": 217,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9493087557603687
+  },
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "score": "maha_pc",
+   "auroc": 0.7214332737703376,
+   "oscr": 0.717765447192702,
+   "n_known": 217,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9493087557603687
+  },
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "score": "maha_shared",
+   "auroc": 0.5255337157904636,
+   "oscr": 0.5255337157904636,
+   "n_known": 217,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9493087557603687
+  },
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "score": "msp",
+   "auroc": 0.6908680522900406,
+   "oscr": 0.6908680522900406,
+   "n_known": 217,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9815668202764977
+  },
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "score": "maha_pc",
+   "auroc": 0.6556004890435436,
+   "oscr": 0.6554123953728958,
+   "n_known": 217,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9815668202764977
+  },
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "score": "maha_shared",
+   "auroc": 0.6176996144079752,
+   "oscr": 0.6176996144079752,
+   "n_known": 217,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9815668202764977
+  },
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "score": "msp",
+   "auroc": 0.8505007153075823,
+   "oscr": 0.8484442060085837,
+   "n_known": 233,
+   "n_withheld": 48,
+   "closed_set_accuracy_known": 0.9785407725321889
+  },
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "score": "maha_pc",
+   "auroc": 0.8682045779685265,
+   "oscr": 0.8652539341917024,
+   "n_known": 233,
+   "n_withheld": 48,
+   "closed_set_accuracy_known": 0.9785407725321889
+  },
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "score": "maha_shared",
+   "auroc": 0.7277360515021459,
+   "oscr": 0.7273783977110156,
+   "n_known": 233,
+   "n_withheld": 48,
+   "closed_set_accuracy_known": 0.9785407725321889
+  },
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "score": "msp",
+   "auroc": 0.17873748211731044,
+   "oscr": 0.17873748211731044,
+   "n_known": 233,
+   "n_withheld": 48,
+   "closed_set_accuracy_known": 0.9699570815450643
+  },
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "score": "maha_pc",
+   "auroc": 0.6254470672389127,
+   "oscr": 0.6194563662374821,
+   "n_known": 233,
+   "n_withheld": 48,
+   "closed_set_accuracy_known": 0.9699570815450643
+  },
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "score": "maha_shared",
+   "auroc": 0.6628218884120172,
+   "oscr": 0.6578147353361945,
+   "n_known": 233,
+   "n_withheld": 48,
+   "closed_set_accuracy_known": 0.9699570815450643
+  },
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "score": "msp",
+   "auroc": 0.7680851063829788,
+   "oscr": 0.7493414387031408,
+   "n_known": 210,
+   "n_withheld": 47,
+   "closed_set_accuracy_known": 0.9238095238095239
+  },
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "score": "maha_pc",
+   "auroc": 0.7127659574468085,
+   "oscr": 0.6782168186423505,
+   "n_known": 210,
+   "n_withheld": 47,
+   "closed_set_accuracy_known": 0.9238095238095239
+  },
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "score": "maha_shared",
+   "auroc": 0.5768996960486323,
+   "oscr": 0.5666666666666668,
+   "n_known": 210,
+   "n_withheld": 47,
+   "closed_set_accuracy_known": 0.9238095238095239
+  },
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "score": "msp",
+   "auroc": 0.4819655521783181,
+   "oscr": 0.4814589665653496,
+   "n_known": 210,
+   "n_withheld": 47,
+   "closed_set_accuracy_known": 0.9952380952380953
+  },
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "score": "maha_pc",
+   "auroc": 0.6270516717325227,
+   "oscr": 0.6269503546099291,
+   "n_known": 210,
+   "n_withheld": 47,
+   "closed_set_accuracy_known": 0.9952380952380953
+  },
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "score": "maha_shared",
+   "auroc": 0.631306990881459,
+   "oscr": 0.6299898682877406,
+   "n_known": 210,
+   "n_withheld": 47,
+   "closed_set_accuracy_known": 0.9952380952380953
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "score": "msp",
+   "auroc": 0.7770833333333333,
+   "oscr": 0.7746794871794872,
+   "n_known": 240,
+   "n_withheld": 26,
+   "closed_set_accuracy_known": 0.9625
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "score": "maha_pc",
+   "auroc": 0.6741987179487179,
+   "oscr": 0.6713141025641026,
+   "n_known": 240,
+   "n_withheld": 26,
+   "closed_set_accuracy_known": 0.9625
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "score": "maha_shared",
+   "auroc": 0.5120192307692308,
+   "oscr": 0.5120192307692307,
+   "n_known": 240,
+   "n_withheld": 26,
+   "closed_set_accuracy_known": 0.9625
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "score": "msp",
+   "auroc": 0.7216346153846154,
+   "oscr": 0.7216346153846154,
+   "n_known": 240,
+   "n_withheld": 26,
+   "closed_set_accuracy_known": 0.975
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "score": "maha_pc",
+   "auroc": 0.6911858974358973,
+   "oscr": 0.6889423076923077,
+   "n_known": 240,
+   "n_withheld": 26,
+   "closed_set_accuracy_known": 0.975
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "score": "maha_shared",
+   "auroc": 0.4533653846153846,
+   "oscr": 0.45336538461538467,
+   "n_known": 240,
+   "n_withheld": 26,
+   "closed_set_accuracy_known": 0.975
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "score": "msp",
+   "auroc": 0.7469264069264069,
+   "oscr": 0.7451948051948052,
+   "n_known": 231,
+   "n_withheld": 50,
+   "closed_set_accuracy_known": 0.9826839826839827
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "score": "maha_pc",
+   "auroc": 0.7752380952380953,
+   "oscr": 0.7703896103896105,
+   "n_known": 231,
+   "n_withheld": 50,
+   "closed_set_accuracy_known": 0.9826839826839827
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "score": "maha_shared",
+   "auroc": 0.5283116883116883,
+   "oscr": 0.527012987012987,
+   "n_known": 231,
+   "n_withheld": 50,
+   "closed_set_accuracy_known": 0.9826839826839827
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "score": "msp",
+   "auroc": 0.6656277056277056,
+   "oscr": 0.6656277056277057,
+   "n_known": 231,
+   "n_withheld": 50,
+   "closed_set_accuracy_known": 1.0
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "score": "maha_pc",
+   "auroc": 0.6832900432900433,
+   "oscr": 0.6832900432900434,
+   "n_known": 231,
+   "n_withheld": 50,
+   "closed_set_accuracy_known": 1.0
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "score": "maha_shared",
+   "auroc": 0.5099567099567099,
+   "oscr": 0.5099567099567099,
+   "n_known": 231,
+   "n_withheld": 50,
+   "closed_set_accuracy_known": 1.0
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "score": "msp",
+   "auroc": 0.7850274725274725,
+   "oscr": 0.7796310832025116,
+   "n_known": 208,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9615384615384616
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "score": "maha_pc",
+   "auroc": 0.782574568288854,
+   "oscr": 0.7676609105180534,
+   "n_known": 208,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9615384615384616
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "score": "maha_shared",
+   "auroc": 0.5694662480376766,
+   "oscr": 0.5638736263736264,
+   "n_known": 208,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9615384615384616
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "score": "msp",
+   "auroc": 0.7411695447409733,
+   "oscr": 0.7409733124018838,
+   "n_known": 208,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9951923076923077
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "score": "maha_pc",
+   "auroc": 0.5498430141287284,
+   "oscr": 0.5498430141287284,
+   "n_known": 208,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9951923076923077
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "score": "maha_shared",
+   "auroc": 0.3981554160125588,
+   "oscr": 0.3981554160125588,
+   "n_known": 208,
+   "n_withheld": 49,
+   "closed_set_accuracy_known": 0.9951923076923077
+  }
+ ],
+ "fold_mean": [
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "score": "maha_pc",
+   "auroc": 0.636033076004993,
+   "oscr": 0.6339397054067689
+  },
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "score": "maha_shared",
+   "auroc": 0.6372761645671504,
+   "oscr": 0.6351680726773035
+  },
+  {
+   "model": "cnn6",
+   "withheld": "imbalance",
+   "score": "msp",
+   "auroc": 0.45052369552855637,
+   "oscr": 0.4503548336575669
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "score": "maha_pc",
+   "auroc": 0.641439651618223,
+   "oscr": 0.6406917883703599
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "score": "maha_shared",
+   "auroc": 0.45382583686155115,
+   "oscr": 0.45382583686155115
+  },
+  {
+   "model": "cnn6",
+   "withheld": "vertical_misalignment",
+   "score": "msp",
+   "auroc": 0.7094772885844315,
+   "oscr": 0.7094118778047349
+  },
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "score": "maha_pc",
+   "auroc": 0.7674679363952243,
+   "oscr": 0.7537454000089183
+  },
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "score": "maha_shared",
+   "auroc": 0.610056487780414,
+   "oscr": 0.6065262600560487
+  },
+  {
+   "model": "r18ft",
+   "withheld": "imbalance",
+   "score": "msp",
+   "auroc": 0.7799750162085249,
+   "oscr": 0.7725086918154102
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "score": "maha_pc",
+   "auroc": 0.7440037938252223,
+   "oscr": 0.7364548744905889
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "score": "maha_shared",
+   "auroc": 0.5365990557061986,
+   "oscr": 0.5343019480519481
+  },
+  {
+   "model": "r18ft",
+   "withheld": "vertical_misalignment",
+   "score": "msp",
+   "auroc": 0.769679070929071,
+   "oscr": 0.7665017918589347
+  }
+ ]
+}

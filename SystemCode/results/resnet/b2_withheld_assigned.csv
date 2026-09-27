@@ -1,0 +1,5 @@
+withheld,model,horizontal_misalignment,imbalance,normal,overhang_cage,underhang_cage,vertical_misalignment
+imbalance,cnn6,0,0,0,0,0,144
+imbalance,r18ft,0,0,0,5,0,139
+vertical_misalignment,cnn6,1,118,5,1,0,0
+vertical_misalignment,r18ft,3,117,4,0,1,0

@@ -1,0 +1,11 @@
+,normal,imbalance,horizontal_misalignment,vertical_misalignment,underhang_ball,underhang_cage,underhang_outer,overhang_ball,overhang_cage,overhang_outer
+normal,20,0,3,0,0,1,0,0,1,0
+imbalance,0,142,0,0,0,0,1,0,1,0
+horizontal_misalignment,25,0,44,4,0,0,0,0,0,0
+vertical_misalignment,4,0,1,119,0,0,0,0,1,0
+underhang_ball,0,0,0,0,77,0,0,0,0,0
+underhang_cage,0,0,0,1,0,60,1,0,5,5
+underhang_outer,0,4,0,0,0,6,63,0,0,0
+overhang_ball,0,0,0,0,0,0,0,69,0,0
+overhang_cage,0,0,0,1,1,2,0,1,61,6
+overhang_outer,0,0,0,0,0,4,0,0,11,59

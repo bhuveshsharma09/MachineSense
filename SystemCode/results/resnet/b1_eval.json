@@ -1,0 +1,745 @@
+{
+ "provenance": {
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "22a953f3fa4da103abf502e1d4d7a2babb2f6e88-dirty",
+  "scope": "Q2-only; trained on all 10 classes; not valid for LOCO",
+  "k": 3,
+  "n_recordings": 804,
+  "n_bootstrap": 2000,
+  "bootstrap_seed": 42,
+  "bootstrap": "stratified mixed-unit as Stage 3A; identical draws for every model; intervals do not include training-run variation (seed spread reported separately)",
+  "cnn6_sources": {
+   "42": "results/scores/cnn6_dev.parquet",
+   "43": "results/scores/cnn6_s43_dev_logits.parquet",
+   "44": "results/scores/cnn6_s44_dev_logits.parquet"
+  }
+ },
+ "models": {
+  "cnn6_s42": {
+   "class10": {
+    "macro_f1": 0.9894923011409288,
+    "macro_f1_ci": [
+     0.9804438575904099,
+     0.9977036266407391
+    ],
+    "balanced_accuracy": 0.9900666666666668,
+    "balanced_accuracy_ci": [
+     0.9813492063492063,
+     0.9983613167636172
+    ],
+    "per_class_f1": {
+     "normal": 1.0,
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.9865,
+     "vertical_misalignment": 0.9919,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.964,
+     "underhang_outer": 0.9932,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.966,
+     "overhang_outer": 0.9933
+    }
+   },
+   "class6": {
+    "macro_f1": 0.993352411900799,
+    "macro_f1_ci": [
+     0.9856459856270773,
+     1.0
+    ],
+    "balanced_accuracy": 0.9943303303303304,
+    "balanced_accuracy_ci": [
+     0.9883023374637226,
+     1.0
+    ],
+    "per_class_f1": {
+     "normal": 1.0,
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.9865,
+     "vertical_misalignment": 0.9919,
+     "underhang_bearing": 0.9909,
+     "overhang_bearing": 0.9908
+    }
+   },
+   "per_fold": {
+    "0": {
+     "class10_macro_f1": 0.980395256916996,
+     "class10_balanced_accuracy": 0.9801538461538462,
+     "class6_macro_f1": 0.9914473684210526,
+     "class6_balanced_accuracy": 0.9914529914529915,
+     "n_recordings": 266
+    },
+    "1": {
+     "class10_macro_f1": 0.9941130298273155,
+     "class10_balanced_accuracy": 0.9960000000000001,
+     "class6_macro_f1": 0.9901883830455259,
+     "class6_balanced_accuracy": 0.9933333333333333,
+     "n_recordings": 281
+    },
+    "2": {
+     "class10_macro_f1": 0.9955467590301831,
+     "class10_balanced_accuracy": 0.9954545454545455,
+     "class6_macro_f1": 1.0,
+     "class6_balanced_accuracy": 1.0,
+     "n_recordings": 257
+    }
+   }
+  },
+  "cnn6_s43": {
+   "class10": {
+    "macro_f1": 0.9828696478722321,
+    "macro_f1_ci": [
+     0.9686005289670745,
+     0.9960422742435278
+    ],
+    "balanced_accuracy": 0.9859,
+    "balanced_accuracy_ci": [
+     0.9737797832089171,
+     0.9971014492753623
+    ],
+    "per_class_f1": {
+     "normal": 0.9615,
+     "imbalance": 1.0,
+     "horizontal_misalignment": 1.0,
+     "vertical_misalignment": 0.9919,
+     "underhang_ball": 0.9872,
+     "underhang_cage": 0.9496,
+     "underhang_outer": 0.9932,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9452,
+     "overhang_outer": 1.0
+    }
+   },
+   "class6": {
+    "macro_f1": 0.9861426465632666,
+    "macro_f1_ci": [
+     0.9703089250073978,
+     1.0
+    ],
+    "balanced_accuracy": 0.9912539981842308,
+    "balanced_accuracy_ci": [
+     0.9826628375893082,
+     1.0
+    ],
+    "per_class_f1": {
+     "normal": 0.9615,
+     "imbalance": 1.0,
+     "horizontal_misalignment": 1.0,
+     "vertical_misalignment": 0.9919,
+     "underhang_bearing": 0.9819,
+     "overhang_bearing": 0.9815
+    }
+   },
+   "per_fold": {
+    "0": {
+     "class10_macro_f1": 0.9685702783528869,
+     "class10_balanced_accuracy": 0.9684615384615384,
+     "class6_macro_f1": 0.9829031727765903,
+     "class6_balanced_accuracy": 0.982905982905983,
+     "n_recordings": 266
+    },
+    "1": {
+     "class10_macro_f1": 0.9868480725623583,
+     "class10_balanced_accuracy": 0.9960000000000001,
+     "class6_macro_f1": 0.9780801209372637,
+     "class6_balanced_accuracy": 0.9933333333333333,
+     "n_recordings": 281
+    },
+    "2": {
+     "class10_macro_f1": 0.9955467590301831,
+     "class10_balanced_accuracy": 0.9954545454545455,
+     "class6_macro_f1": 1.0,
+     "class6_balanced_accuracy": 1.0,
+     "n_recordings": 257
+    }
+   }
+  },
+  "cnn6_s44": {
+   "class10": {
+    "macro_f1": 0.9944971345561987,
+    "macro_f1_ci": [
+     0.9892914986276027,
+     0.99868369777008
+    ],
+    "balanced_accuracy": 0.9944444444444445,
+    "balanced_accuracy_ci": [
+     0.9895299145299145,
+     0.9986666666666666
+    ],
+    "per_class_f1": {
+     "normal": 1.0,
+     "imbalance": 1.0,
+     "horizontal_misalignment": 1.0,
+     "vertical_misalignment": 1.0,
+     "underhang_ball": 0.9935,
+     "underhang_cage": 0.979,
+     "underhang_outer": 0.9865,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9859,
+     "overhang_outer": 1.0
+    }
+   },
+   "class6": {
+    "macro_f1": 0.9984737996451671,
+    "macro_f1_ci": [
+     0.9955142518053627,
+     1.0
+    ],
+    "balanced_accuracy": 0.9984496124031007,
+    "balanced_accuracy_ci": [
+     0.9955156950672647,
+     1.0
+    ],
+    "per_class_f1": {
+     "normal": 1.0,
+     "imbalance": 1.0,
+     "horizontal_misalignment": 1.0,
+     "vertical_misalignment": 1.0,
+     "underhang_bearing": 0.9955,
+     "overhang_bearing": 0.9953
+    }
+   },
+   "per_fold": {
+    "0": {
+     "class10_macro_f1": 0.9882950257289881,
+     "class10_balanced_accuracy": 0.9883076923076924,
+     "class6_macro_f1": 0.9957257931941476,
+     "class6_balanced_accuracy": 0.9957264957264957,
+     "n_recordings": 266
+    },
+    "1": {
+     "class10_macro_f1": 1.0,
+     "class10_balanced_accuracy": 1.0,
+     "class6_macro_f1": 1.0,
+     "class6_balanced_accuracy": 1.0,
+     "n_recordings": 281
+    },
+    "2": {
+     "class10_macro_f1": 0.9955467590301831,
+     "class10_balanced_accuracy": 0.9954545454545455,
+     "class6_macro_f1": 1.0,
+     "class6_balanced_accuracy": 1.0,
+     "n_recordings": 257
+    }
+   }
+  },
+  "r18ft_s42": {
+   "class10": {
+    "macro_f1": 0.947758844255288,
+    "macro_f1_ci": [
+     0.9159387496525372,
+     0.9747662364271698
+    ],
+    "balanced_accuracy": 0.9464996544489696,
+    "balanced_accuracy_ci": [
+     0.9129308353074298,
+     0.9744720417895285
+    ],
+    "per_class_f1": {
+     "normal": 0.8627,
+     "imbalance": 0.9897,
+     "horizontal_misalignment": 0.9286,
+     "vertical_misalignment": 0.9609,
+     "underhang_ball": 0.9935,
+     "underhang_cage": 0.9286,
+     "underhang_outer": 0.9865,
+     "overhang_ball": 1.0,
+     "overhang_cage": 0.9143,
+     "overhang_outer": 0.9128
+    }
+   },
+   "class6": {
+    "macro_f1": 0.9487482319891116,
+    "macro_f1_ci": [
+     0.9176333906106137,
+     0.9746574188214623
+    ],
+    "balanced_accuracy": 0.9491376320570332,
+    "balanced_accuracy_ci": [
+     0.914501953507624,
+     0.9769696538567664
+    ],
+    "per_class_f1": {
+     "normal": 0.8627,
+     "imbalance": 0.9931,
+     "horizontal_misalignment": 0.9286,
+     "vertical_misalignment": 0.9609,
+     "underhang_bearing": 0.9752,
+     "overhang_bearing": 0.972
+    }
+   },
+   "per_fold": {
+    "0": {
+     "class10_macro_f1": 0.9342062212201216,
+     "class10_balanced_accuracy": 0.9290270655270655,
+     "class6_macro_f1": 0.9508361164501515,
+     "class6_balanced_accuracy": 0.9494895536562203,
+     "n_recordings": 266
+    },
+    "1": {
+     "class10_macro_f1": 0.9717369614512471,
+     "class10_balanced_accuracy": 0.9795000000000001,
+     "class6_macro_f1": 0.9528949357520786,
+     "class6_balanced_accuracy": 0.9658333333333333,
+     "n_recordings": 281
+    },
+    "2": {
+     "class10_macro_f1": 0.9311822227012225,
+     "class10_balanced_accuracy": 0.9272005772005774,
+     "class6_macro_f1": 0.9393347490890337,
+     "class6_balanced_accuracy": 0.9284860897764124,
+     "n_recordings": 257
+    }
+   }
+  },
+  "r18ft_s43": {
+   "class10": {
+    "macro_f1": 0.9796770338783221,
+    "macro_f1_ci": [
+     0.96399280651451,
+     0.9946184746381892
+    ],
+    "balanced_accuracy": 0.9792808219178083,
+    "balanced_accuracy_ci": [
+     0.9639780648517428,
+     0.9941163746484966
+    ],
+    "per_class_f1": {
+     "normal": 1.0,
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.9571,
+     "vertical_misalignment": 0.996,
+     "underhang_ball": 0.9872,
+     "underhang_cage": 0.9565,
+     "underhang_outer": 0.9932,
+     "overhang_ball": 0.9928,
+     "overhang_cage": 0.9139,
+     "overhang_outer": 1.0
+    }
+   },
+   "class6": {
+    "macro_f1": 0.9849814195418082,
+    "macro_f1_ci": [
+     0.9716340567694138,
+     0.9966405237631808
+    ],
+    "balanced_accuracy": 0.9809972285123608,
+    "balanced_accuracy_ci": [
+     0.9638565963811062,
+     0.9962470841377091
+    ],
+    "per_class_f1": {
+     "normal": 1.0,
+     "imbalance": 1.0,
+     "horizontal_misalignment": 0.9571,
+     "vertical_misalignment": 0.996,
+     "underhang_bearing": 0.9841,
+     "overhang_bearing": 0.9726
+    }
+   },
+   "per_fold": {
+    "0": {
+     "class10_macro_f1": 0.951118696065997,
+     "class10_balanced_accuracy": 0.9499430199430201,
+     "class6_macro_f1": 0.9631728029965374,
+     "class6_balanced_accuracy": 0.9541785375118709,
+     "n_recordings": 266
+    },
+    "1": {
+     "class10_macro_f1": 1.0,
+     "class10_balanced_accuracy": 1.0,
+     "class6_macro_f1": 1.0,
+     "class6_balanced_accuracy": 1.0,
+     "n_recordings": 281
+    },
+    "2": {
+     "class10_macro_f1": 0.992097633629838,
+     "class10_balanced_accuracy": 0.9906926406926407,
+     "class6_macro_f1": 0.9942514576660919,
+     "class6_balanced_accuracy": 0.9920634920634921,
+     "n_recordings": 257
+    }
+   }
+  },
+  "r18ft_s44": {
+   "class10": {
+    "macro_f1": 0.9786960843716072,
+    "macro_f1_ci": [
+     0.961039905790467,
+     0.9935609301353784
+    ],
+    "balanced_accuracy": 0.977367674523839,
+    "balanced_accuracy_ci": [
+     0.9591350568852378,
+     0.9938056808147739
+    ],
+    "per_class_f1": {
+     "normal": 0.9388,
+     "imbalance": 0.9965,
+     "horizontal_misalignment": 0.973,
+     "vertical_misalignment": 0.996,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.9859,
+     "underhang_outer": 0.9932,
+     "overhang_ball": 0.9928,
+     "overhang_cage": 0.9565,
+     "overhang_outer": 0.9542
+    }
+   },
+   "class6": {
+    "macro_f1": 0.9828939520289595,
+    "macro_f1_ci": [
+     0.9671327097864787,
+     0.9956437512516497
+    ],
+    "balanced_accuracy": 0.9815242837613019,
+    "balanced_accuracy_ci": [
+     0.9614189465844905,
+     0.9970948452068817
+    ],
+    "per_class_f1": {
+     "normal": 0.9388,
+     "imbalance": 0.9965,
+     "horizontal_misalignment": 0.973,
+     "vertical_misalignment": 0.996,
+     "underhang_bearing": 0.9977,
+     "overhang_bearing": 0.9953
+    }
+   },
+   "per_fold": {
+    "0": {
+     "class10_macro_f1": 0.9527385746022045,
+     "class10_balanced_accuracy": 0.9527193732193732,
+     "class6_macro_f1": 0.970856987218024,
+     "class6_balanced_accuracy": 0.9708570750237416,
+     "n_recordings": 266
+    },
+    "1": {
+     "class10_macro_f1": 0.9970291146761735,
+     "class10_balanced_accuracy": 0.998,
+     "class6_macro_f1": 0.9950485244602891,
+     "class6_balanced_accuracy": 0.9966666666666667,
+     "n_recordings": 281
+    },
+    "2": {
+     "class10_macro_f1": 0.9883004096942833,
+     "class10_balanced_accuracy": 0.9841269841269842,
+     "class6_macro_f1": 0.9832107099240767,
+     "class6_balanced_accuracy": 0.9787933094384708,
+     "n_recordings": 257
+    }
+   }
+  },
+  "r18probe_s42": {
+   "class10": {
+    "macro_f1": 0.8548183463682545,
+    "macro_f1_ci": [
+     0.7878917180772127,
+     0.9114514585049796
+    ],
+    "balanced_accuracy": 0.8681717388621498,
+    "balanced_accuracy_ci": [
+     0.8059427605742365,
+     0.9228627773524175
+    ],
+    "per_class_f1": {
+     "normal": 0.5405,
+     "imbalance": 0.9793,
+     "horizontal_misalignment": 0.7273,
+     "vertical_misalignment": 0.952,
+     "underhang_ball": 0.9935,
+     "underhang_cage": 0.8276,
+     "underhang_outer": 0.913,
+     "overhang_ball": 0.9928,
+     "overhang_cage": 0.8026,
+     "overhang_outer": 0.8194
+    }
+   },
+   "class6": {
+    "macro_f1": 0.848574360355642,
+    "macro_f1_ci": [
+     0.7766297818733167,
+     0.9155104857628321
+    ],
+    "balanced_accuracy": 0.8719282437901424,
+    "balanced_accuracy_ci": [
+     0.8155984623810328,
+     0.9280481751518772
+    ],
+    "per_class_f1": {
+     "normal": 0.5405,
+     "imbalance": 0.9793,
+     "horizontal_misalignment": 0.7273,
+     "vertical_misalignment": 0.952,
+     "underhang_bearing": 0.945,
+     "overhang_bearing": 0.9474
+    }
+   },
+   "per_fold": {
+    "0": {
+     "class10_macro_f1": 0.7985370328766747,
+     "class10_balanced_accuracy": 0.8347289086574801,
+     "class6_macro_f1": 0.7732764924575269,
+     "class6_balanced_accuracy": 0.8294389693199218,
+     "n_recordings": 266
+    },
+    "1": {
+     "class10_macro_f1": 0.8827357923205579,
+     "class10_balanced_accuracy": 0.8908333333333334,
+     "class6_macro_f1": 0.8693432441729656,
+     "class6_balanced_accuracy": 0.8875000000000001,
+     "n_recordings": 281
+    },
+    "2": {
+     "class10_macro_f1": 0.8563922400136482,
+     "class10_balanced_accuracy": 0.877757163471449,
+     "class6_macro_f1": 0.8914973527377917,
+     "class6_balanced_accuracy": 0.9069409593352691,
+     "n_recordings": 257
+    }
+   }
+  }
+ },
+ "paired": {
+  "r18ft_s42_minus_cnn6_s42": {
+   "class10": {
+    "diff": -0.041733456885640785,
+    "ci": [
+     -0.0691189035565574,
+     -0.018829244122677863
+    ],
+    "p_positive": 0.0
+   },
+   "class6": {
+    "diff": -0.044604179911687414,
+    "ci": [
+     -0.07252373097672138,
+     -0.021188880473041453
+    ],
+    "p_positive": 0.0
+   }
+  },
+  "r18ft_s43_minus_cnn6_s43": {
+   "class10": {
+    "diff": -0.0031926139939100207,
+    "ci": [
+     -0.014502988249616374,
+     0.00901971691746683
+    ],
+    "p_positive": 0.2855
+   },
+   "class6": {
+    "diff": -0.0011612270214583775,
+    "ci": [
+     -0.01681958672397598,
+     0.015557249486266965
+    ],
+    "p_positive": 0.397
+   }
+  },
+  "r18ft_s44_minus_cnn6_s44": {
+   "class10": {
+    "diff": -0.015801050184591547,
+    "ci": [
+     -0.029670599501051095,
+     -0.0035730250121320632
+    ],
+    "p_positive": 0.0025
+   },
+   "class6": {
+    "diff": -0.015579847616207676,
+    "ci": [
+     -0.03179357583210062,
+     -0.0020267343557675665
+    ],
+    "p_positive": 0.011
+   }
+  },
+  "r18probe_s42_minus_cnn6_s42": {
+   "class10": {
+    "diff": -0.1346739547726743,
+    "ci": [
+     -0.19774715504079687,
+     -0.08064061771214749
+    ],
+    "p_positive": 0.0
+   },
+   "class6": {
+    "diff": -0.144778051545157,
+    "ci": [
+     -0.2161518700523847,
+     -0.08108897749232426
+    ],
+    "p_positive": 0.0
+   }
+  }
+ },
+ "pairs": {
+  "cnn6_s42": {
+   "imbalance_called_vertical_misalignment": 0,
+   "n_imbalance": 144,
+   "vertical_misalignment_called_imbalance": 0,
+   "n_vertical_misalignment": 125,
+   "horizontal_misalignment_0p5mm_correct": 25,
+   "n_horizontal_misalignment_0p5mm": 25,
+   "horizontal_misalignment_0p5mm_predictions": {
+    "horizontal_misalignment": 25
+   }
+  },
+  "cnn6_s43": {
+   "imbalance_called_vertical_misalignment": 0,
+   "n_imbalance": 144,
+   "vertical_misalignment_called_imbalance": 0,
+   "n_vertical_misalignment": 125,
+   "horizontal_misalignment_0p5mm_correct": 25,
+   "n_horizontal_misalignment_0p5mm": 25,
+   "horizontal_misalignment_0p5mm_predictions": {
+    "horizontal_misalignment": 25
+   }
+  },
+  "cnn6_s44": {
+   "imbalance_called_vertical_misalignment": 0,
+   "n_imbalance": 144,
+   "vertical_misalignment_called_imbalance": 0,
+   "n_vertical_misalignment": 125,
+   "horizontal_misalignment_0p5mm_correct": 25,
+   "n_horizontal_misalignment_0p5mm": 25,
+   "horizontal_misalignment_0p5mm_predictions": {
+    "horizontal_misalignment": 25
+   }
+  },
+  "r18ft_s42": {
+   "imbalance_called_vertical_misalignment": 0,
+   "n_imbalance": 144,
+   "vertical_misalignment_called_imbalance": 0,
+   "n_vertical_misalignment": 125,
+   "horizontal_misalignment_0p5mm_correct": 24,
+   "n_horizontal_misalignment_0p5mm": 25,
+   "horizontal_misalignment_0p5mm_predictions": {
+    "horizontal_misalignment": 24,
+    "normal": 1
+   }
+  },
+  "r18ft_s43": {
+   "imbalance_called_vertical_misalignment": 0,
+   "n_imbalance": 144,
+   "vertical_misalignment_called_imbalance": 0,
+   "n_vertical_misalignment": 125,
+   "horizontal_misalignment_0p5mm_correct": 25,
+   "n_horizontal_misalignment_0p5mm": 25,
+   "horizontal_misalignment_0p5mm_predictions": {
+    "horizontal_misalignment": 25
+   }
+  },
+  "r18ft_s44": {
+   "imbalance_called_vertical_misalignment": 0,
+   "n_imbalance": 144,
+   "vertical_misalignment_called_imbalance": 0,
+   "n_vertical_misalignment": 125,
+   "horizontal_misalignment_0p5mm_correct": 25,
+   "n_horizontal_misalignment_0p5mm": 25,
+   "horizontal_misalignment_0p5mm_predictions": {
+    "horizontal_misalignment": 25
+   }
+  },
+  "r18probe_s42": {
+   "imbalance_called_vertical_misalignment": 0,
+   "n_imbalance": 144,
+   "vertical_misalignment_called_imbalance": 0,
+   "n_vertical_misalignment": 125,
+   "horizontal_misalignment_0p5mm_correct": 22,
+   "n_horizontal_misalignment_0p5mm": 25,
+   "horizontal_misalignment_0p5mm_predictions": {
+    "horizontal_misalignment": 22,
+    "normal": 3
+   }
+  }
+ },
+ "across_seeds": {
+  "r18ft_class10_macro_f1": {
+   "seeds": [
+    42,
+    43,
+    44
+   ],
+   "values": [
+    0.947758844255288,
+    0.9796770338783221,
+    0.9786960843716072
+   ],
+   "mean": 0.9687106541684057,
+   "std": 0.01815142747720534
+  },
+  "cnn6_class10_macro_f1": {
+   "seeds": [
+    42,
+    43,
+    44
+   ],
+   "values": [
+    0.9894923011409288,
+    0.9828696478722321,
+    0.9944971345561987
+   ],
+   "mean": 0.9889530278564531,
+   "std": 0.005832471466108267
+  },
+  "r18ft_minus_cnn6_class10_diff": {
+   "seeds": [
+    42,
+    43,
+    44
+   ],
+   "values": [
+    -0.041733456885640785,
+    -0.0031926139939100207,
+    -0.015801050184591547
+   ],
+   "mean": -0.02024237368804745,
+   "std": 0.01965052565576888,
+   "same_sign_all_seeds": true
+  },
+  "r18ft_class6_macro_f1": {
+   "seeds": [
+    42,
+    43,
+    44
+   ],
+   "values": [
+    0.9487482319891116,
+    0.9849814195418082,
+    0.9828939520289595
+   ],
+   "mean": 0.9722078678532932,
+   "std": 0.020343433002182585
+  },
+  "cnn6_class6_macro_f1": {
+   "seeds": [
+    42,
+    43,
+    44
+   ],
+   "values": [
+    0.993352411900799,
+    0.9861426465632666,
+    0.9984737996451671
+   ],
+   "mean": 0.9926562860364109,
+   "std": 0.006194980023907998
+  },
+  "r18ft_minus_cnn6_class6_diff": {
+   "seeds": [
+    42,
+    43,
+    44
+   ],
+   "values": [
+    -0.044604179911687414,
+    -0.0011612270214583775,
+    -0.015579847616207676
+   ],
+   "mean": -0.020448418183117822,
+   "std": 0.022126901578833912,
+   "same_sign_all_seeds": true
+  }
+ }
+}
