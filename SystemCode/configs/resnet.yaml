@@ -1,0 +1,23 @@
+# Stage ML-5: ImageNet-pretrained ResNet-18 on the order spectrogram (development experiment; not in the bundle).
+# Separate from base.yaml on purpose: adding a section to the main Config would change the packaged bundle config's hash.
+# Declared in CLAUDE.md §7 before running; field names mirror cnn: so ml.train.train_model can run it unchanged.
+seed: 42
+weights: IMAGENET1K_V1
+weights_file: resnet18-f37072fd.pth
+weights_sha256: f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec
+input_size: 224
+dropout: 0.2
+vibration_channels: [0, 1, 2, 3, 4, 5]
+epochs: 30
+batch_size: 64
+lr: 1.0e-3            # adapter and head (both variants)
+backbone_lr: 1.0e-4   # R18-ft only; R18-probe freezes the backbone
+weight_decay: 0.01
+warmup_epochs: 1
+gain_jitter_db: 1.0
+time_shift_frames: 2
+time_mask_frames: 4
+eval_batch_size: 256
+mps_memory_fraction: 0.7
+time_guard_minutes: 90
+extra_seeds_if_under_minutes: 60

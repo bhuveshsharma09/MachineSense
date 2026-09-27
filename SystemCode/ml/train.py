@@ -114,19 +114,24 @@ def lr_lambda(step: int, warmup: int, total: int) -> float:
 
 def train_model(cache: torch.Tensor, y: torch.Tensor, train_idx: np.ndarray, channels: list[int], mean: np.ndarray,
                 std: np.ndarray, n_classes: int, cfg: CnnConfig, device: torch.device, epochs: int | None = None,
-                augment: bool = True, on_epoch: Callable[[int, dict], None] | None = None) -> tuple[ScratchCNN, list]:
+                augment: bool = True, on_epoch: Callable[[int, dict], None] | None = None,
+                model: nn.Module | None = None, param_groups: list | None = None) -> tuple[nn.Module, list]:
     """Train a fresh ScratchCNN for a fixed number of epochs on the rows `train_idx` of the resident `cache`
     (N × 7 × 128 × T, any float dtype, on `device`) with labels `y` (N, int64, on `device`). mean/std: per-channel
     statistics of the selected channels. Returns the model (eval mode) and the per-epoch history (train loss, train
-    accuracy on the augmented batches, seconds, mean step seconds)."""
+    accuracy on the augmented batches, seconds, mean step seconds).
+    Stage ML-5: `model` (any module returning (logits, z), already on `device`) and `param_groups` (AdamW groups with
+    their own lr) replace the ScratchCNN and the single learning rate; the loop, loss, class weights, augmentation and
+    schedule are unchanged. `cfg` needs the CnnConfig fields used here (same names in ResNetConfig)."""
     epochs = cfg.epochs if epochs is None else epochs
     gen = torch.Generator().manual_seed(cfg.seed)
     ch = torch.tensor(channels, device=device)
     mu, sd = to_device_f32(mean, device), to_device_f32(std, device)
     y_np = y[torch.as_tensor(train_idx, device=device)].cpu().numpy()
-    model = ScratchCNN(len(channels), n_classes, cfg).to(device)
+    model = ScratchCNN(len(channels), n_classes, cfg).to(device) if model is None else model
     loss_fn = nn.CrossEntropyLoss(weight=to_device_f32(class_weights(y_np, n_classes), device))
-    opt = torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+    opt = torch.optim.AdamW(model.parameters() if param_groups is None else param_groups, lr=cfg.lr,
+                            weight_decay=cfg.weight_decay)
     steps_per_epoch = math.ceil(len(train_idx) / cfg.batch_size)
     total = steps_per_epoch * epochs
     sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: lr_lambda(s, cfg.warmup_epochs * steps_per_epoch, total))

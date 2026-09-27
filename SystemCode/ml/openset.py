@@ -92,6 +92,24 @@ def mahalanobis_min(fit_emb: np.ndarray, fit_labels, emb: np.ndarray) -> tuple[n
     return np.sqrt(np.maximum(d2.min(axis=1), 0.0)), {"classes": params["classes"], "shrinkage": params["shrinkage"]}
 
 
+def mahalanobis_min_per_class(fit_emb: np.ndarray, fit_labels, emb: np.ndarray) -> tuple[np.ndarray, dict]:
+    """Per window of `emb`: the minimum Mahalanobis distance over the known classes, each class with its OWN
+    Ledoit–Wolf covariance fitted on its fit windows (Stage ML-5; mahalanobis_min uses one shared covariance)."""
+    from sklearn.covariance import LedoitWolf
+
+    labels = np.asarray(fit_labels)
+    classes = sorted(set(labels))
+    d2, shrink = [], {}
+    for c in classes:
+        xc = np.asarray(fit_emb[labels == c], dtype=np.float64)
+        lw = LedoitWolf().fit(xc)
+        diff = np.asarray(emb, dtype=np.float64) - lw.location_
+        d2.append(np.einsum("ij,jk,ik->i", diff, lw.precision_, diff))
+        shrink[c] = float(lw.shrinkage_)
+    d2 = np.stack(d2, axis=1)
+    return np.sqrt(np.maximum(d2.min(axis=1), 0.0)), {"classes": classes, "shrinkage": shrink}
+
+
 def knn_kth_cosine(fit_emb: np.ndarray, emb: np.ndarray, k: int = 10) -> np.ndarray:
     """Per window of `emb`: cosine distance (1 − cosine similarity) to its k-th nearest fit-window embedding."""
     a = fit_emb / np.linalg.norm(fit_emb, axis=1, keepdims=True)
