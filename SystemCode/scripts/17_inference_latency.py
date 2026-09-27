@@ -1,7 +1,7 @@
 """CPU latency of ml.inference.diagnose over 20 development recordings (two calibration recordings per class, chosen by
-name), with the bundle loaded once and one warm-up call; also writes the golden outputs for tests/test_inference.py.
+name), with the bundle loaded once and one warm-up call. (The golden reference is updated by scripts/16_update_golden.py.)
 
-    python scripts/16_inference_latency.py
+    python scripts/17_inference_latency.py
 """
 from __future__ import annotations
 
@@ -15,12 +15,9 @@ import numpy as np
 import pandas as pd
 
 from ml.config import load_config
-from ml.inference import diagnose, get_bundle, stable_output
+from ml.inference import diagnose, get_bundle
 from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, results_dir
 from ml.splits import development_pool
-
-GOLDEN_RECS = ["normal__18.432", "underhang__outer_race__0g__14.7456", "horizontal-misalignment__0.5mm__15.36"]
-
 
 def main() -> int:
     import torch
@@ -32,7 +29,7 @@ def main() -> int:
     recs = cal.groupby("class10").rec_id.apply(lambda s: list(s)[:2]).sum()
     assert len(recs) == 20
     t0 = time.perf_counter()
-    b = get_bundle()
+    get_bundle()
     load_s = time.perf_counter() - t0
     diagnose(recs[0])  # warm-up
     full, no_xai = [], []
@@ -46,9 +43,6 @@ def main() -> int:
            "note": "from a raw 5 s, 8-channel recording already in memory as .npy: cleaning, speed, R1 features, the cache-C "
                    "representation, all models, physics and (optionally) XAI; excludes reading a CSV upload"}
     (results_dir() / "bundle" / "latency.json").write_text(json.dumps(out, indent=1))
-    outs = {r: stable_output(diagnose(r)) for r in GOLDEN_RECS}
-    gold = {"manifest_sha256": b.manifest_sha256, "outputs": outs}
-    (SYSTEM_CODE_DIR / "tests" / "golden" / "diagnose_golden.json").write_text(json.dumps(gold, indent=1, sort_keys=True))
     print(json.dumps({k: out[k] for k in ("bundle_load_s", "median_ms_with_xai", "median_ms_without_xai", "range_ms_with_xai")}, indent=1))
     return 0
 

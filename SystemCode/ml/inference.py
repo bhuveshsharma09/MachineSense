@@ -28,6 +28,7 @@ from ml.preprocess import (TACHO, clean_recording, estimate_speed, quality_stats
 from ml.spectro import stacked_representation
 from ml.utils import git_sha
 
+GOLDEN_RECORDINGS = ("normal__18.432", "underhang__outer_race__0g__14.7456", "horizontal-misalignment__0.5mm__15.36")
 SPEED_WARNING = "speed outside the range the model was trained on; results less reliable"
 ENVELOPE_ORDERS = np.round(np.arange(0.0, 12.0 + 1e-9, 0.02), 4)  # downsampled envelope order axis (0.02-order step)
 UNSTABLE_SPEED_PCT = 1.0  # window-speed range above this % of the median → "speed not stable within the recording"

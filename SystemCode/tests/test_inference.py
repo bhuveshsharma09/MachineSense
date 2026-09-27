@@ -7,13 +7,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ml.inference import (SPEED_WARNING, InputError, ReservedRecordingError, check_rec_id, diagnose, speed_warnings,
+from ml.inference import (GOLDEN_RECORDINGS, SPEED_WARNING, InputError, ReservedRecordingError, check_rec_id, diagnose, speed_warnings,
                           stable_output as stable)
 from ml.paths import SYSTEM_CODE_DIR, artifacts_dir, data_dir
 
 BUNDLE = artifacts_dir() / "bundle"
 GOLDEN = SYSTEM_CODE_DIR / "tests" / "golden" / "diagnose_golden.json"
-GOLDEN_RECS = ["normal__18.432", "underhang__outer_race__0g__14.7456", "horizontal-misalignment__0.5mm__15.36"]
+GOLDEN_RECS = list(GOLDEN_RECORDINGS)
 needs_bundle = pytest.mark.skipif(not (BUNDLE / "manifest.json").exists() or not (data_dir() / "raw_npy").exists(),
                                   reason="bundle or raw recordings not available")
 
@@ -58,10 +58,13 @@ def test_golden_outputs_are_identical_across_runs(rec_id):
     assert set(a) == {"input", "signal_quality", "diagnosis", "physics", "xai", "limitations", "provenance"}
     assert a["diagnosis"]["decision"] in ("healthy", "known_fault", "unknown")
     assert set(a["diagnosis"]["rule_comparison"]) == {"A", "B", "C", "D"}
-    if GOLDEN.exists():
-        g = json.loads(GOLDEN.read_text())
-        if g["manifest_sha256"] == a["provenance"]["manifest_sha256"]:  # a rebuilt bundle has its own golden file
-            assert a == g["outputs"][rec_id]
+    if not GOLDEN.exists():
+        pytest.fail("no golden reference; run scripts/16_update_golden.py after checking the change")
+    g = json.loads(GOLDEN.read_text())
+    if g["manifest_sha256"] != a["provenance"]["manifest_sha256"]:
+        pytest.fail(f"the golden reference belongs to manifest {g['manifest_sha256'][:12]}, the bundle is "
+                    f"{a['provenance']['manifest_sha256'][:12]}; run scripts/16_update_golden.py after checking the change")
+    assert a == g["outputs"][rec_id]
 
 
 @needs_bundle
