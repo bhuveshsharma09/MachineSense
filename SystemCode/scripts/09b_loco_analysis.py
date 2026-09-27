@@ -274,14 +274,74 @@ def run_confusion() -> None:
     print(bt.pivot_table(index="class10", columns="added_mass_g", values="median").round(1).to_string())
 
 
+VARIANT_LABEL = {"A": "A: 3C primary (classifier-first with the AE override)",
+                 "B": "B: A without the AE override",
+                 "C": "C: strict healthy (identified post hoc during review on 27 Sep; exploratory)"}
+
+
+def variant_deltas(dec: pd.DataFrame, v: str) -> dict:
+    """Relative to A: withheld-fault → healthy instances removed, normal → unknown instances added (fold k and seen
+    folder), and any known fault → healthy change. Counts only; no ratio."""
+    out = {}
+    w = dec[dec.role == "foldk_withheld"]
+    out["withheld_to_healthy_removed"] = int(((w.decision_A == "healthy") & (w[f"decision_{v}"] != "healthy")).sum())
+    out["withheld_to_healthy_added"] = int(((w.decision_A != "healthy") & (w[f"decision_{v}"] == "healthy")).sum())
+    for name, role in (("normal_foldk", "foldk_known"), ("normal_seen_folder", "eval")):
+        n = dec[(dec.role == role) & (dec.class10 == "normal")]
+        added = (n[f"decision_{v}"] == "unknown") & (n.decision_A != "unknown")
+        out[f"{name}_to_unknown_added"] = int(added.sum())
+        out[f"{name}_to_unknown_added_distinct"] = int(n.loc[added, "rec_id"].nunique())
+    kf = dec[(dec.role != "foldk_withheld") & (dec.role != "cal") & (dec.class10 != "normal")]
+    out["known_fault_to_healthy_removed"] = int(((kf.decision_A == "healthy") & (kf[f"decision_{v}"] != "healthy")).sum())
+    return out
+
+
+def run_variants(seed: int = 42) -> dict:
+    """Item 3: healthy-rule variants A / B / C from saved scores (thresholds exactly as in 3C)."""
+    dec = decide(recordings(seed))
+    res = {"provenance": provenance(), "seed": seed, "labels": VARIANT_LABEL,
+           "definitions": {"both_classifier_checks_pass": "MSP ≥ τ_p AND Mahalanobis ≤ τ_d",
+                           "ae_healthy": "AE error ≤ τ_e", "thresholds": "exactly as in 3C"},
+           "tau_e_limitation": f"τ_e rests on {int(dec.n_cal_normals.min())}–{int(dec.n_cal_normals.max())} calibration "
+                               "normals per run",
+           "normal_instances_note": "the normal instances repeat 25 distinct healthy recordings",
+           "variants": {v: group_table(dec, f"outcome_{v}") for v in ("A", "B", "C")},
+           "relative_to_A": {v: variant_deltas(dec, v) for v in ("B", "C")},
+           "app_rule": "App healthy rule pending Bhuvesh's decision after 3C.1; not inferred from pooled experimental counts"}
+    return res
+
+
+def run_variants_report() -> None:
+    res = run_variants(42)
+    (OUT / "item3_healthy_rule_variants.json").write_text(json.dumps(res, indent=1))
+    rows = []
+    for v, t in res["variants"].items():
+        for g, e in t.items():
+            for cat, p in e["pooled"].items():
+                rows.append({"variant": v, "group": g, "outcome": cat, "instances": p["instances"], "of": e["instances"],
+                             "distinct": p["distinct_recordings"], "of_distinct": e["distinct_recordings"],
+                             "rate": p["rate"]})
+    t = pd.DataFrame(rows)
+    t.to_csv(OUT / "item3_healthy_rule_variants.csv", index=False)
+    piv = t.pivot_table(index=["group", "outcome"], columns="variant", values="instances").astype(int)
+    print(piv.to_string())
+    print(json.dumps(res["relative_to_A"], indent=1))
+    exp = {("withheld", "healthy"): (28, 19, 8), ("normal_foldk", "healthy"): (192, 184, 161),
+           ("normal_seen_folder", "healthy"): (68, 66, 55)}
+    for key, e in exp.items():
+        got = tuple(int(piv.loc[key, v]) for v in "ABC")
+        print(key, "reproduced", got, "expected", e, "match" if got == e else "MISMATCH")
+    print(res["tau_e_limitation"])
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["counts", "confusion"])
+    ap.add_argument("task", choices=["counts", "confusion", "variants"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     a = ap.parse_args()
     load_config(a.config)
     OUT.mkdir(parents=True, exist_ok=True)
-    {"counts": run_counts, "confusion": run_confusion}[a.task]()
+    {"counts": run_counts, "confusion": run_confusion, "variants": run_variants_report}[a.task]()
     return 0
 
 
