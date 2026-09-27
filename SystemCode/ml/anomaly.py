@@ -35,6 +35,28 @@ class Prep:
         return self.sc.transform(self._t(X))
 
 
+class SpeedPoly:
+    """B1s, the speed-aware polynomial healthy baseline, as a fitted object (so it can be saved in the bundle): Prep on the
+    healthy training windows, a per-feature polynomial in log(speed) fitted by least squares, and the residual standard
+    deviation. Window score = mean over features of |residual| / residual sd (higher = more anomalous)."""
+
+    def __init__(self, degree: int):
+        self.degree = degree
+
+    def fit(self, Xtr: np.ndarray, speed_tr: np.ndarray) -> "SpeedPoly":
+        self.prep = Prep().fit(Xtr)
+        A = self.prep(Xtr)
+        V = np.vander(np.log(speed_tr), self.degree + 1)
+        self.coef, *_ = np.linalg.lstsq(V, A, rcond=None)
+        self.resid_sd = (A - V @ self.coef).std(axis=0, ddof=self.degree + 1)
+        return self
+
+    def score(self, X: np.ndarray, speed: np.ndarray) -> np.ndarray:
+        B = self.prep(X)
+        pred = np.vander(np.log(speed), self.degree + 1) @ self.coef
+        return (np.abs(B - pred) / np.maximum(self.resid_sd, 1e-9)).mean(axis=1)
+
+
 def window_scores(rung: str, ac: AnomalyConfig, Xtr, str_, Xte, ste, cols):
     """Anomaly score per test window (higher = more anomalous) for window-level rungs."""
     prep = Prep().fit(Xtr)
@@ -51,11 +73,7 @@ def window_scores(rung: str, ac: AnomalyConfig, Xtr, str_, Xte, ste, cols):
         g = GaussianMixture(ac.gmm_components, covariance_type=ac.gmm_covariance, random_state=ac.seed).fit(A)
         return -g.score_samples(B)
     if rung == "B1s_speed_poly":
-        ls_tr, ls_te = np.log(str_), np.log(ste)
-        V_tr = np.vander(ls_tr, ac.b1s_degree + 1)
-        coef, *_ = np.linalg.lstsq(V_tr, A, rcond=None)
-        resid_sd = (A - V_tr @ coef).std(axis=0, ddof=ac.b1s_degree + 1)
-        return (np.abs(B - np.vander(ls_te, ac.b1s_degree + 1) @ coef) / np.maximum(resid_sd, 1e-9)).mean(axis=1)
+        return SpeedPoly(ac.b1s_degree).fit(Xtr, str_).score(Xte, ste)
     if rung == "B2_pca":
         p = PCA(n_components=ac.pca_variance, svd_solver="full").fit(A)
         return ((B - p.inverse_transform(p.transform(B))) ** 2).mean(axis=1)

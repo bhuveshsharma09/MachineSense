@@ -68,18 +68,28 @@ def js_divergence(p: np.ndarray, q: np.ndarray) -> np.ndarray:
     return 0.5 * kl(p, m) + 0.5 * kl(q, m)
 
 
-def mahalanobis_min(fit_emb: np.ndarray, fit_labels, emb: np.ndarray) -> tuple[np.ndarray, dict]:
-    """Per window of `emb`: the minimum Mahalanobis distance over the known classes. Class centroids = mean fit-window
-    embedding per class; ONE shared covariance = Ledoit–Wolf fitted to the fit-window embeddings after subtracting each
-    window's own class centroid (within-class variation only; never the overall covariance)."""
+def fit_mahalanobis(fit_emb: np.ndarray, fit_labels) -> dict:
+    """Class centroids = mean fit-window embedding per class; ONE shared precision = inverse of the Ledoit–Wolf covariance
+    of the fit-window embeddings after subtracting each window's own class centroid (within-class variation only)."""
     fit_labels = np.asarray(fit_labels)
     classes = sorted(set(fit_labels))
     mu = np.stack([fit_emb[fit_labels == c].mean(axis=0) for c in classes])
-    resid = fit_emb - mu[np.searchsorted(classes, fit_labels)]
-    lw = LedoitWolf().fit(resid)
-    prec = lw.precision_
-    d2 = np.stack([np.einsum("ij,jk,ik->i", emb - m, prec, emb - m) for m in mu], axis=1)
-    return np.sqrt(np.maximum(d2.min(axis=1), 0.0)), {"classes": classes, "shrinkage": float(lw.shrinkage_)}
+    lw = LedoitWolf().fit(fit_emb - mu[np.searchsorted(classes, fit_labels)])
+    return {"classes": classes, "centroids": mu, "precision": lw.precision_, "shrinkage": float(lw.shrinkage_)}
+
+
+def mahalanobis_distances(params: dict, emb: np.ndarray) -> np.ndarray:
+    """Per window: Mahalanobis distance to every class centroid (n × classes), with the shared precision."""
+    prec = params["precision"]
+    d2 = np.stack([np.einsum("ij,jk,ik->i", emb - m, prec, emb - m) for m in params["centroids"]], axis=1)
+    return np.sqrt(np.maximum(d2, 0.0))
+
+
+def mahalanobis_min(fit_emb: np.ndarray, fit_labels, emb: np.ndarray) -> tuple[np.ndarray, dict]:
+    """Per window of `emb`: the minimum Mahalanobis distance over the known classes (fit_mahalanobis parameters)."""
+    params = fit_mahalanobis(fit_emb, fit_labels)
+    d2 = np.stack([np.einsum("ij,jk,ik->i", emb - m, params["precision"], emb - m) for m in params["centroids"]], axis=1)
+    return np.sqrt(np.maximum(d2.min(axis=1), 0.0)), {"classes": params["classes"], "shrinkage": params["shrinkage"]}
 
 
 def knn_kth_cosine(fit_emb: np.ndarray, emb: np.ndarray, k: int = 10) -> np.ndarray:

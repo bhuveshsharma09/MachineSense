@@ -147,3 +147,13 @@ def test_empirical_rank_and_js():
     pr = recording_probs(logits, ["r1", "r1", "r2"], ["x", "y"])
     ms = recording_msp(logits, ["r1", "r1", "r2"], ["x", "y"])
     assert np.allclose(pr.sum(axis=1), 1) and np.allclose(pr.max(axis=1), ms.msp) and (pr.idxmax(axis=1) == ms.pred).all()
+
+
+def test_mahalanobis_parameters_reproduce_mahalanobis_min():
+    from ml.openset import fit_mahalanobis, mahalanobis_distances, mahalanobis_min
+    rng = np.random.default_rng(3)
+    fit, lab = rng.normal(size=(200, 5)), np.repeat(["a", "b", "c", "d"], 50)
+    q = rng.normal(size=(30, 5))
+    d_min, _ = mahalanobis_min(fit, lab, q)
+    params = fit_mahalanobis(fit, lab)
+    assert np.array_equal(mahalanobis_distances(params, q).min(axis=1), d_min)

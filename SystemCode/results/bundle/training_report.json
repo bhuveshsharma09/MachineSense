@@ -1,0 +1,116 @@
+{
+ "git_sha": "0686f7c137b686a18e49d605e4a5c7d9efa0173f-dirty",
+ "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+ "seed": 42,
+ "device": "mps",
+ "data": {
+  "train_recordings": 660,
+  "train_normals": 20,
+  "calibration_recordings": 144,
+  "calibration_normals": 5,
+  "train_speed_range_hz": [
+   11.799506048264048,
+   39.7509211317511
+  ],
+  "calibration_speed_range_hz": [
+   11.911656582833247,
+   39.99549799419563
+  ],
+  "severities": {
+   "horizontal_misalignment": [
+    0.5,
+    1.0,
+    1.5
+   ],
+   "imbalance": [
+    6.0,
+    10.0,
+    15.0,
+    20.0,
+    25.0,
+    30.0
+   ],
+   "normal": [
+    0.0
+   ],
+   "overhang_ball": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "overhang_cage": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "overhang_outer": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "underhang_ball": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "underhang_cage": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "underhang_outer": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "vertical_misalignment": [
+    0.51,
+    0.63,
+    1.27,
+    1.4,
+    1.78
+   ]
+  },
+  "train_windows": 5940,
+  "train_normal_windows": 180
+ },
+ "thresholds": {
+  "tau_p": 0.998895059402817,
+  "tau_d": 30.042536981460426,
+  "tau_e": 0.24307193993418308,
+  "tau_b": 0.8721431922050336,
+  "acceptance_target": 0.975,
+  "n_calibration": 144,
+  "order_statistic_r": 142,
+  "n_calibration_normals_tau_e": 5,
+  "n_calibration_normals_tau_b": 5,
+  "rule": "accept MSP iff \u2265 tau_p; accept Mahalanobis iff \u2264 tau_d (ties accepted); AE healthy iff \u2264 tau_e; B1s healthy iff \u2264 tau_b"
+ },
+ "training_seconds": {
+  "cnn6": 72.30597166600637,
+  "ae6": 11.795014333096333
+ },
+ "history": {
+  "cnn6_final_loss": 0.0004544052975064125,
+  "ae6_final_loss": 0.0839717273513476
+ },
+ "calibration_sanity_not_evaluation": {
+  "cnn6_recording_accuracy": 1.0,
+  "lr_recording_accuracy": 1.0,
+  "joint_acceptance": 0.9791666666666666,
+  "ae_errors_calibration_normals": {
+   "normal__18.432": 0.2431,
+   "normal__19.6608": 0.1559,
+   "normal__24.576": 0.1325,
+   "normal__34.2016": 0.1126,
+   "normal__39.3216": 0.1248
+  },
+  "b1s_scores_calibration_normals": {
+   "normal__18.432": 0.8721,
+   "normal__19.6608": 0.8464,
+   "normal__24.576": 0.7092,
+   "normal__34.2016": 0.7922,
+   "normal__39.3216": 0.8049
+  }
+ }
+}

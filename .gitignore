@@ -33,3 +33,6 @@ __pycache__/
 
 # --- derived model outputs (reproducible with scripts/05_baselines.py) ---
 SystemCode/results/scores/
+
+# --- deployable model bundle (Stage ML-4; weights and joblib files, rebuilt by scripts/14_train_bundle.py) ---
+SystemCode/artifacts/bundle/
