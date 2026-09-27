@@ -1,0 +1,10 @@
+withheld,healthy,imbalance,overhang_cage,overhang_outer,underhang_cage,underhang_outer,unknown,vertical_misalignment
+horizontal_misalignment,8,0,1,0,0,0,64,0
+imbalance,0,0,0,0,0,0,47,97
+overhang_ball,0,0,0,1,0,20,48,0
+overhang_cage,0,0,0,0,0,0,72,0
+overhang_outer,0,0,10,0,0,0,64,0
+underhang_ball,0,0,0,29,0,0,48,0
+underhang_cage,24,0,0,0,0,1,47,0
+underhang_outer,0,0,15,0,2,0,56,0
+vertical_misalignment,1,27,0,0,0,0,97,0

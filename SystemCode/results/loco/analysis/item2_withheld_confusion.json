@@ -1,0 +1,823 @@
+{
+ "provenance": {
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "eddd221e196f1ebbd45931a2d9605173150c9045-dirty",
+  "note": "Development results on one partition; reserved tests sealed.",
+  "instances_vs_distinct": "a recording evaluated in several withheld-class runs counts once per run as an instance and once as a distinct recording"
+ },
+ "wording": "these tables show what the model confuses, not the physical cause",
+ "cnn_rule_A": {
+  "instances": {
+   "horizontal_misalignment": {
+    "healthy": 22,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_outer": 0,
+    "unknown": 51,
+    "vertical_misalignment": 0
+   },
+   "imbalance": {
+    "healthy": 0,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_outer": 0,
+    "unknown": 5,
+    "vertical_misalignment": 139
+   },
+   "overhang_ball": {
+    "healthy": 0,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_outer": 11,
+    "unknown": 58,
+    "vertical_misalignment": 0
+   },
+   "overhang_cage": {
+    "healthy": 0,
+    "horizontal_misalignment": 4,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 2,
+    "underhang_outer": 0,
+    "unknown": 66,
+    "vertical_misalignment": 0
+   },
+   "overhang_outer": {
+    "healthy": 0,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 2,
+    "overhang_outer": 0,
+    "underhang_outer": 0,
+    "unknown": 72,
+    "vertical_misalignment": 0
+   },
+   "underhang_ball": {
+    "healthy": 0,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 11,
+    "underhang_outer": 0,
+    "unknown": 66,
+    "vertical_misalignment": 0
+   },
+   "underhang_cage": {
+    "healthy": 2,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 4,
+    "underhang_outer": 1,
+    "unknown": 65,
+    "vertical_misalignment": 0
+   },
+   "underhang_outer": {
+    "healthy": 0,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_outer": 0,
+    "unknown": 73,
+    "vertical_misalignment": 0
+   },
+   "vertical_misalignment": {
+    "healthy": 4,
+    "horizontal_misalignment": 0,
+    "imbalance": 109,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_outer": 0,
+    "unknown": 12,
+    "vertical_misalignment": 0
+   }
+  },
+  "distinct": {
+   "horizontal_misalignment": {
+    "healthy": 22,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_outer": 0,
+    "unknown": 51,
+    "vertical_misalignment": 0
+   },
+   "imbalance": {
+    "healthy": 0,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_outer": 0,
+    "unknown": 5,
+    "vertical_misalignment": 139
+   },
+   "overhang_ball": {
+    "healthy": 0,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_outer": 11,
+    "unknown": 58,
+    "vertical_misalignment": 0
+   },
+   "overhang_cage": {
+    "healthy": 0,
+    "horizontal_misalignment": 4,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 2,
+    "underhang_outer": 0,
+    "unknown": 66,
+    "vertical_misalignment": 0
+   },
+   "overhang_outer": {
+    "healthy": 0,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 2,
+    "overhang_outer": 0,
+    "underhang_outer": 0,
+    "unknown": 72,
+    "vertical_misalignment": 0
+   },
+   "underhang_ball": {
+    "healthy": 0,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 11,
+    "underhang_outer": 0,
+    "unknown": 66,
+    "vertical_misalignment": 0
+   },
+   "underhang_cage": {
+    "healthy": 2,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 4,
+    "underhang_outer": 1,
+    "unknown": 65,
+    "vertical_misalignment": 0
+   },
+   "underhang_outer": {
+    "healthy": 0,
+    "horizontal_misalignment": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_outer": 0,
+    "unknown": 73,
+    "vertical_misalignment": 0
+   },
+   "vertical_misalignment": {
+    "healthy": 4,
+    "horizontal_misalignment": 0,
+    "imbalance": 109,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_outer": 0,
+    "unknown": 12,
+    "vertical_misalignment": 0
+   }
+  }
+ },
+ "lr_msp": {
+  "instances": {
+   "horizontal_misalignment": {
+    "healthy": 8,
+    "imbalance": 0,
+    "overhang_cage": 1,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 64,
+    "vertical_misalignment": 0
+   },
+   "imbalance": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 47,
+    "vertical_misalignment": 97
+   },
+   "overhang_ball": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 1,
+    "underhang_cage": 0,
+    "underhang_outer": 20,
+    "unknown": 48,
+    "vertical_misalignment": 0
+   },
+   "overhang_cage": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 72,
+    "vertical_misalignment": 0
+   },
+   "overhang_outer": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 10,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 64,
+    "vertical_misalignment": 0
+   },
+   "underhang_ball": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 29,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 48,
+    "vertical_misalignment": 0
+   },
+   "underhang_cage": {
+    "healthy": 24,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 1,
+    "unknown": 47,
+    "vertical_misalignment": 0
+   },
+   "underhang_outer": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 15,
+    "overhang_outer": 0,
+    "underhang_cage": 2,
+    "underhang_outer": 0,
+    "unknown": 56,
+    "vertical_misalignment": 0
+   },
+   "vertical_misalignment": {
+    "healthy": 1,
+    "imbalance": 27,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 97,
+    "vertical_misalignment": 0
+   }
+  },
+  "distinct": {
+   "horizontal_misalignment": {
+    "healthy": 8,
+    "imbalance": 0,
+    "overhang_cage": 1,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 64,
+    "vertical_misalignment": 0
+   },
+   "imbalance": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 47,
+    "vertical_misalignment": 97
+   },
+   "overhang_ball": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 1,
+    "underhang_cage": 0,
+    "underhang_outer": 20,
+    "unknown": 48,
+    "vertical_misalignment": 0
+   },
+   "overhang_cage": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 72,
+    "vertical_misalignment": 0
+   },
+   "overhang_outer": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 10,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 64,
+    "vertical_misalignment": 0
+   },
+   "underhang_ball": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 29,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 48,
+    "vertical_misalignment": 0
+   },
+   "underhang_cage": {
+    "healthy": 24,
+    "imbalance": 0,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 1,
+    "unknown": 47,
+    "vertical_misalignment": 0
+   },
+   "underhang_outer": {
+    "healthy": 0,
+    "imbalance": 0,
+    "overhang_cage": 15,
+    "overhang_outer": 0,
+    "underhang_cage": 2,
+    "underhang_outer": 0,
+    "unknown": 56,
+    "vertical_misalignment": 0
+   },
+   "vertical_misalignment": {
+    "healthy": 1,
+    "imbalance": 27,
+    "overhang_cage": 0,
+    "overhang_outer": 0,
+    "underhang_cage": 0,
+    "underhang_outer": 0,
+    "unknown": 97,
+    "vertical_misalignment": 0
+   }
+  }
+ },
+ "expected_checks": [
+  {
+   "check": "imbalance \u2192 vertical_misalignment",
+   "reproduced": 139,
+   "expected": 139,
+   "match": true
+  },
+  {
+   "check": "imbalance \u2192 unknown",
+   "reproduced": 5,
+   "expected": 5,
+   "match": true
+  },
+  {
+   "check": "vertical_misalignment \u2192 imbalance",
+   "reproduced": 109,
+   "expected": 109,
+   "match": true
+  },
+  {
+   "check": "vertical_misalignment \u2192 unknown",
+   "reproduced": 12,
+   "expected": 12,
+   "match": true
+  },
+  {
+   "check": "vertical_misalignment \u2192 healthy",
+   "reproduced": 4,
+   "expected": 4,
+   "match": true
+  },
+  {
+   "check": "horizontal_misalignment \u2192 healthy",
+   "reproduced": 22,
+   "expected": 22,
+   "match": true
+  },
+  {
+   "check": "horizontal_misalignment \u2192 healthy at 0.5 mm",
+   "reproduced": 10,
+   "expected": 10,
+   "match": true
+  },
+  {
+   "check": "horizontal_misalignment \u2192 healthy at 1.0 mm",
+   "reproduced": 7,
+   "expected": 7,
+   "match": true
+  },
+  {
+   "check": "horizontal_misalignment \u2192 healthy at 1.5 mm",
+   "reproduced": 5,
+   "expected": 5,
+   "match": true
+  },
+  {
+   "check": "horizontal_misalignment \u2192 healthy via the AE override",
+   "reproduced": 7,
+   "expected": 7,
+   "match": true
+  },
+  {
+   "check": "horizontal_misalignment \u2192 unknown",
+   "reproduced": 51,
+   "expected": 51,
+   "match": true
+  },
+  {
+   "check": "overhang_ball \u2192 underhang_outer",
+   "reproduced": 11,
+   "expected": 11,
+   "match": true
+  },
+  {
+   "check": "underhang_ball \u2192 overhang_outer",
+   "reproduced": 11,
+   "expected": 11,
+   "match": true
+  }
+ ],
+ "post_hoc_subset": {
+  "label": "POST HOC failure analysis, not a headline result: withheld classes other than imbalance and vertical misalignment",
+  "instances": 510,
+  "distinct": 510,
+  "healthy": 24,
+  "known_fault": 35,
+  "unknown": 451
+ },
+ "exploratory_distances": {
+  "label": "EXPLORATORY and descriptive only; no causal claims",
+  "to_known_centroids": [
+   {
+    "fold": 0,
+    "known_class": "horizontal_misalignment",
+    "median": 85.52991371497919,
+    "mean": 85.20269572664255,
+    "nearest_share": 0.0,
+    "n_recordings": 49
+   },
+   {
+    "fold": 0,
+    "known_class": "normal",
+    "median": 101.46733817769079,
+    "mean": 101.39756727109909,
+    "nearest_share": 0.0,
+    "n_recordings": 49
+   },
+   {
+    "fold": 0,
+    "known_class": "overhang_ball",
+    "median": 145.83552800909388,
+    "mean": 145.43663947208896,
+    "nearest_share": 0.0,
+    "n_recordings": 49
+   },
+   {
+    "fold": 0,
+    "known_class": "overhang_cage",
+    "median": 106.06546396773425,
+    "mean": 104.5933742150115,
+    "nearest_share": 0.0,
+    "n_recordings": 49
+   },
+   {
+    "fold": 0,
+    "known_class": "overhang_outer",
+    "median": 92.2125919842295,
+    "mean": 91.91545023899027,
+    "nearest_share": 0.0,
+    "n_recordings": 49
+   },
+   {
+    "fold": 0,
+    "known_class": "underhang_ball",
+    "median": 113.22373731560779,
+    "mean": 112.75204689096165,
+    "nearest_share": 0.0,
+    "n_recordings": 49
+   },
+   {
+    "fold": 0,
+    "known_class": "underhang_cage",
+    "median": 106.68013540351278,
+    "mean": 106.30173986025378,
+    "nearest_share": 0.0,
+    "n_recordings": 49
+   },
+   {
+    "fold": 0,
+    "known_class": "underhang_outer",
+    "median": 122.5067222765414,
+    "mean": 122.53885941545582,
+    "nearest_share": 0.0,
+    "n_recordings": 49
+   },
+   {
+    "fold": 0,
+    "known_class": "vertical_misalignment",
+    "median": 18.640216803619122,
+    "mean": 21.741082747880775,
+    "nearest_share": 1.0,
+    "n_recordings": 49
+   },
+   {
+    "fold": 1,
+    "known_class": "horizontal_misalignment",
+    "median": 43.75322225901034,
+    "mean": 45.343889008412596,
+    "nearest_share": 0.0,
+    "n_recordings": 48
+   },
+   {
+    "fold": 1,
+    "known_class": "normal",
+    "median": 49.56611390740133,
+    "mean": 50.532991971242474,
+    "nearest_share": 0.0,
+    "n_recordings": 48
+   },
+   {
+    "fold": 1,
+    "known_class": "overhang_ball",
+    "median": 92.01851403518668,
+    "mean": 93.15801471403806,
+    "nearest_share": 0.0,
+    "n_recordings": 48
+   },
+   {
+    "fold": 1,
+    "known_class": "overhang_cage",
+    "median": 49.03942353394011,
+    "mean": 50.58139609117274,
+    "nearest_share": 0.0,
+    "n_recordings": 48
+   },
+   {
+    "fold": 1,
+    "known_class": "overhang_outer",
+    "median": 50.032430841711125,
+    "mean": 51.509684291088355,
+    "nearest_share": 0.0,
+    "n_recordings": 48
+   },
+   {
+    "fold": 1,
+    "known_class": "underhang_ball",
+    "median": 52.9427050374472,
+    "mean": 53.77156953915983,
+    "nearest_share": 0.0,
+    "n_recordings": 48
+   },
+   {
+    "fold": 1,
+    "known_class": "underhang_cage",
+    "median": 49.055404443168385,
+    "mean": 50.44360269401715,
+    "nearest_share": 0.0,
+    "n_recordings": 48
+   },
+   {
+    "fold": 1,
+    "known_class": "underhang_outer",
+    "median": 73.68303356947615,
+    "mean": 74.61637713955182,
+    "nearest_share": 0.0,
+    "n_recordings": 48
+   },
+   {
+    "fold": 1,
+    "known_class": "vertical_misalignment",
+    "median": 17.903732764922804,
+    "mean": 18.869058275830238,
+    "nearest_share": 1.0,
+    "n_recordings": 48
+   },
+   {
+    "fold": 2,
+    "known_class": "horizontal_misalignment",
+    "median": 88.07179237216371,
+    "mean": 88.90561060757122,
+    "nearest_share": 0.0,
+    "n_recordings": 47
+   },
+   {
+    "fold": 2,
+    "known_class": "normal",
+    "median": 100.28690573363194,
+    "mean": 101.13224186219706,
+    "nearest_share": 0.0,
+    "n_recordings": 47
+   },
+   {
+    "fold": 2,
+    "known_class": "overhang_ball",
+    "median": 151.34234710480087,
+    "mean": 151.64073367722622,
+    "nearest_share": 0.0,
+    "n_recordings": 47
+   },
+   {
+    "fold": 2,
+    "known_class": "overhang_cage",
+    "median": 91.78584258356939,
+    "mean": 92.66813685954934,
+    "nearest_share": 0.0,
+    "n_recordings": 47
+   },
+   {
+    "fold": 2,
+    "known_class": "overhang_outer",
+    "median": 90.83655238359503,
+    "mean": 91.87444531589941,
+    "nearest_share": 0.0,
+    "n_recordings": 47
+   },
+   {
+    "fold": 2,
+    "known_class": "underhang_ball",
+    "median": 116.5381353439649,
+    "mean": 116.83342696734361,
+    "nearest_share": 0.0,
+    "n_recordings": 47
+   },
+   {
+    "fold": 2,
+    "known_class": "underhang_cage",
+    "median": 100.6260379637964,
+    "mean": 101.3110497903194,
+    "nearest_share": 0.0,
+    "n_recordings": 47
+   },
+   {
+    "fold": 2,
+    "known_class": "underhang_outer",
+    "median": 143.1550019104649,
+    "mean": 143.7205119691574,
+    "nearest_share": 0.0,
+    "n_recordings": 47
+   },
+   {
+    "fold": 2,
+    "known_class": "vertical_misalignment",
+    "median": 17.6149044995457,
+    "mean": 18.74517540303229,
+    "nearest_share": 1.0,
+    "n_recordings": 47
+   }
+  ],
+  "bearing_to_withheld_imbalance": [
+   {
+    "fold": 0,
+    "class10": "overhang_ball",
+    "added_mass_g": 0.0,
+    "median": 143.54886782656433,
+    "n_recordings": 25
+   },
+   {
+    "fold": 0,
+    "class10": "overhang_cage",
+    "added_mass_g": 20.0,
+    "median": 97.26499198016838,
+    "n_recordings": 26
+   },
+   {
+    "fold": 0,
+    "class10": "overhang_outer",
+    "added_mass_g": 6.0,
+    "median": 91.96860642568898,
+    "n_recordings": 27
+   },
+   {
+    "fold": 0,
+    "class10": "underhang_ball",
+    "added_mass_g": 0.0,
+    "median": 110.64631654897003,
+    "n_recordings": 27
+   },
+   {
+    "fold": 0,
+    "class10": "underhang_cage",
+    "added_mass_g": 20.0,
+    "median": 94.61684590709723,
+    "n_recordings": 25
+   },
+   {
+    "fold": 0,
+    "class10": "underhang_outer",
+    "added_mass_g": 6.0,
+    "median": 121.05242240067285,
+    "n_recordings": 26
+   },
+   {
+    "fold": 1,
+    "class10": "overhang_ball",
+    "added_mass_g": 6.0,
+    "median": 92.95950901050954,
+    "n_recordings": 24
+   },
+   {
+    "fold": 1,
+    "class10": "overhang_cage",
+    "added_mass_g": 6.0,
+    "median": 49.6092256572749,
+    "n_recordings": 25
+   },
+   {
+    "fold": 1,
+    "class10": "overhang_outer",
+    "added_mass_g": 0.0,
+    "median": 52.925783607320966,
+    "n_recordings": 26
+   },
+   {
+    "fold": 1,
+    "class10": "underhang_ball",
+    "added_mass_g": 6.0,
+    "median": 50.18491876526178,
+    "n_recordings": 26
+   },
+   {
+    "fold": 1,
+    "class10": "underhang_cage",
+    "added_mass_g": 0.0,
+    "median": 54.57516886422035,
+    "n_recordings": 25
+   },
+   {
+    "fold": 1,
+    "class10": "underhang_outer",
+    "added_mass_g": 20.0,
+    "median": 70.09525590219826,
+    "n_recordings": 24
+   },
+   {
+    "fold": 2,
+    "class10": "overhang_ball",
+    "added_mass_g": 20.0,
+    "median": 151.53706966973465,
+    "n_recordings": 20
+   },
+   {
+    "fold": 2,
+    "class10": "overhang_cage",
+    "added_mass_g": 0.0,
+    "median": 90.03697823565778,
+    "n_recordings": 21
+   },
+   {
+    "fold": 2,
+    "class10": "overhang_outer",
+    "added_mass_g": 20.0,
+    "median": 85.96860094391003,
+    "n_recordings": 21
+   },
+   {
+    "fold": 2,
+    "class10": "underhang_ball",
+    "added_mass_g": 20.0,
+    "median": 118.52858885258084,
+    "n_recordings": 24
+   },
+   {
+    "fold": 2,
+    "class10": "underhang_cage",
+    "added_mass_g": 6.0,
+    "median": 99.47815502425433,
+    "n_recordings": 22
+   },
+   {
+    "fold": 2,
+    "class10": "underhang_outer",
+    "added_mass_g": 0.0,
+    "median": 140.44118178701393,
+    "n_recordings": 23
+   }
+  ],
+  "sanity_min_equals_saved": [
+   0.002191443951044647,
+   0.001139632508458277,
+   0.0018924377823381633
+  ]
+ }
+}

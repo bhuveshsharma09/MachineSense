@@ -166,13 +166,122 @@ def run_counts() -> None:
     print(t[t.method == "CNN rule A (primary)"].round(3).to_string(index=False))
 
 
+def expected_checks(cnn: pd.DataFrame, dec: pd.DataFrame) -> list[dict]:
+    """The counts Bhuvesh read from cnn6ae6_s42_loco_decisions.parquet (Stage 3C.1 brief), reproduced."""
+    def n(c, d):
+        return int(cnn.loc[c].get(d, 0)) if c in cnn.index else 0
+    hm = dec[(dec.role == "foldk_withheld") & (dec.withheld == "horizontal_misalignment") & (dec.decision_A == "healthy")]
+    sev = hm.severity.round(2).value_counts().to_dict()
+    checks = [("imbalance → vertical_misalignment", n("imbalance", "vertical_misalignment"), 139),
+              ("imbalance → unknown", n("imbalance", "unknown"), 5),
+              ("vertical_misalignment → imbalance", n("vertical_misalignment", "imbalance"), 109),
+              ("vertical_misalignment → unknown", n("vertical_misalignment", "unknown"), 12),
+              ("vertical_misalignment → healthy", n("vertical_misalignment", "healthy"), 4),
+              ("horizontal_misalignment → healthy", n("horizontal_misalignment", "healthy"), 22),
+              ("horizontal_misalignment → healthy at 0.5 mm", int(sev.get(0.5, 0)), 10),
+              ("horizontal_misalignment → healthy at 1.0 mm", int(sev.get(1.0, 0)), 7),
+              ("horizontal_misalignment → healthy at 1.5 mm", int(sev.get(1.5, 0)), 5),
+              ("horizontal_misalignment → healthy via the AE override", int(hm.override_A.sum()), 7),
+              ("horizontal_misalignment → unknown", n("horizontal_misalignment", "unknown"), 51),
+              ("overhang_ball → underhang_outer", n("overhang_ball", "underhang_outer"), 11),
+              ("underhang_ball → overhang_outer", n("underhang_ball", "overhang_outer"), 11)]
+    return [{"check": c, "reproduced": int(a), "expected": b, "match": int(a) == b} for c, a, b in checks]
+
+
+def exploratory_distances(seed: int = 42) -> dict:
+    """EXPLORATORY, descriptive only (no causal claims). In the imbalance-withheld runs: (i) Mahalanobis distance of the
+    withheld imbalance recordings to EACH known-class centroid (same centroids and shared within-class Ledoit–Wolf
+    covariance as 3C; per window, then the mean over the recording's windows); (ii) distance of the fold-k known bearing
+    recordings to the centroid of the withheld imbalance windows of that run, by added imbalance mass."""
+    from sklearn.covariance import LedoitWolf
+
+    out = {"to_known_centroids": [], "bearing_to_withheld_imbalance": [], "sanity_min_equals_saved": []}
+    for k in (0, 1, 2):
+        rp = RunPaths("loco", "cnn6", seed, protocol="loco", withheld="imbalance")
+        w = pd.read_parquet(rp.scores(f"fold{k}_logits"))
+        z = np.load(rp.embeddings(k))
+        emb = z["embedding"].astype(np.float64)
+        assert (z["rec_id"] == w.rec_id.to_numpy()).all()
+        fit = (w.role == "fit").to_numpy()
+        classes = sorted(set(w.class10[fit]))
+        mu = np.stack([emb[fit & (w.class10 == c).to_numpy()].mean(axis=0) for c in classes])
+        lab = w.class10[fit].to_numpy()
+        prec = LedoitWolf().fit(emb[fit] - mu[np.searchsorted(classes, lab)]).precision_
+
+        def dist(x, m):
+            return np.sqrt(np.maximum(np.einsum("ij,jk,ik->i", x - m, prec, x - m), 0.0))
+
+        wh = (w.role == "foldk_withheld").to_numpy()
+        per_class = pd.DataFrame({c: dist(emb[wh], mu[i]) for i, c in enumerate(classes)}).assign(rec_id=w.rec_id[wh].to_numpy())
+        rec_d = per_class.groupby("rec_id").mean()
+        saved = pd.read_parquet(rp.scores(f"fold{k}_recording")).set_index("rec_id").maha
+        win_min = per_class[classes].min(axis=1).groupby(per_class.rec_id).mean()
+        out["sanity_min_equals_saved"].append(float(np.max(np.abs(win_min - saved.loc[win_min.index]))))
+        for c in classes:
+            out["to_known_centroids"].append({"fold": k, "known_class": c, "median": float(rec_d[c].median()),
+                                              "mean": float(rec_d[c].mean()),
+                                              "nearest_share": float((rec_d[classes].idxmin(axis=1) == c).mean()),
+                                              "n_recordings": len(rec_d)})
+        centre = emb[wh].mean(axis=0)
+        kb = ((w.role == "foldk_known") & w.class10.str.contains("hang_")).to_numpy()
+        d_b = pd.DataFrame({"d": dist(emb[kb], centre), "rec_id": w.rec_id[kb].to_numpy(),
+                            "class10": w.class10[kb].to_numpy()}).groupby(["rec_id", "class10"]).d.mean().reset_index()
+        meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv").set_index("rec_id")
+        d_b["added_mass_g"] = meta.loc[d_b.rec_id, "severity"].to_numpy()
+        for (c, m), g in d_b.groupby(["class10", "added_mass_g"]):
+            out["bearing_to_withheld_imbalance"].append({"fold": k, "class10": c, "added_mass_g": float(m),
+                                                         "median": float(g.d.median()), "n_recordings": len(g)})
+    return out
+
+
+def run_confusion() -> None:
+    """Item 2: withheld class → final decision (unknown / healthy / each known class), CNN rule A and LR/MSP, in instances
+    and distinct recordings; the counts from the brief reproduced; the post-hoc subset; exploratory distances."""
+    dec = decide(recordings(42))
+    lr = lr_decisions()
+    tabs = {}
+    for name, df, col in (("cnn_rule_A", dec, "decision_A"), ("lr_msp", lr, "decision")):
+        w = df[df.role == "foldk_withheld"]
+        inst = pd.crosstab(w.withheld, w[col])
+        dist = w.groupby(["withheld", col]).rec_id.nunique().unstack(fill_value=0)
+        tabs[name] = {"instances": inst, "distinct": dist}
+        inst.to_csv(OUT / f"item2_withheld_to_assigned_{name}_instances.csv")
+        dist.to_csv(OUT / f"item2_withheld_to_assigned_{name}_distinct.csv")
+    checks = expected_checks(tabs["cnn_rule_A"]["instances"], dec)
+    w = dec[(dec.role == "foldk_withheld") & ~dec.withheld.isin(["imbalance", "vertical_misalignment"])]
+    subset = {"label": "POST HOC failure analysis, not a headline result: withheld classes other than imbalance and "
+                       "vertical misalignment",
+              "instances": len(w), "distinct": int(w.rec_id.nunique()),
+              **{k: int((w.outcome_A == k).sum()) for k in CATS["withheld"]}}
+    expl = exploratory_distances()
+    out = {"provenance": provenance(), "wording": "these tables show what the model confuses, not the physical cause",
+           "cnn_rule_A": {k: v.to_dict(orient="index") for k, v in tabs["cnn_rule_A"].items()},
+           "lr_msp": {k: v.to_dict(orient="index") for k, v in tabs["lr_msp"].items()},
+           "expected_checks": checks, "post_hoc_subset": subset,
+           "exploratory_distances": {"label": "EXPLORATORY and descriptive only; no causal claims", **expl}}
+    (OUT / "item2_withheld_confusion.json").write_text(json.dumps(out, indent=1))
+    pd.DataFrame(expl["to_known_centroids"]).to_csv(OUT / "item2_imbalance_to_known_centroids.csv", index=False)
+    pd.DataFrame(expl["bearing_to_withheld_imbalance"]).to_csv(OUT / "item2_bearing_to_withheld_imbalance.csv", index=False)
+    for name in tabs:
+        print(f"== {name} (instances; distinct recordings are identical for withheld rows)")
+        print(tabs[name]["instances"].to_string())
+    print(pd.DataFrame(checks).to_string(index=False))
+    print(subset)
+    print("sanity: max |recomputed min distance − saved| per fold:", expl["sanity_min_equals_saved"])
+    tk = pd.DataFrame(expl["to_known_centroids"])
+    print(tk.groupby("known_class")[["median", "nearest_share"]].mean().sort_values("median").round(2).to_string())
+    bt = pd.DataFrame(expl["bearing_to_withheld_imbalance"])
+    print(bt.pivot_table(index="class10", columns="added_mass_g", values="median").round(1).to_string())
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["counts"])
+    ap.add_argument("task", choices=["counts", "confusion"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     a = ap.parse_args()
     load_config(a.config)
-    {"counts": run_counts}[a.task]()
+    OUT.mkdir(parents=True, exist_ok=True)
+    {"counts": run_counts, "confusion": run_confusion}[a.task]()
     return 0
 
 
