@@ -17,6 +17,26 @@
      "underhang_outer": 6.173269814689776e-06,
      "vertical_misalignment": 3.1640421692770222e-06
     },
+    "class6_mapping": {
+     "horizontal_misalignment": "horizontal_misalignment",
+     "imbalance": "imbalance",
+     "normal": "normal",
+     "overhang_ball": "overhang_bearing",
+     "overhang_cage": "overhang_bearing",
+     "overhang_outer": "overhang_bearing",
+     "underhang_ball": "underhang_bearing",
+     "underhang_cage": "underhang_bearing",
+     "underhang_outer": "underhang_bearing",
+     "vertical_misalignment": "vertical_misalignment"
+    },
+    "class6_probabilities": {
+     "horizontal_misalignment": 0.9998709459868319,
+     "imbalance": 1.0000062956152077e-06,
+     "normal": 3.595038660981104e-05,
+     "overhang_bearing": 1.7285657889301343e-05,
+     "underhang_bearing": 7.165392020394095e-05,
+     "vertical_misalignment": 3.1640421692770222e-06
+    },
     "decision": "known_fault",
     "display_label": "known fault: horizontal misalignment",
     "fault_class": "horizontal_misalignment",
@@ -2574,6 +2594,26 @@
      "underhang_outer": 2.1451688770219426e-05,
      "vertical_misalignment": 1.485362455652392e-05
     },
+    "class6_mapping": {
+     "horizontal_misalignment": "horizontal_misalignment",
+     "imbalance": "imbalance",
+     "normal": "normal",
+     "overhang_ball": "overhang_bearing",
+     "overhang_cage": "overhang_bearing",
+     "overhang_outer": "overhang_bearing",
+     "underhang_ball": "underhang_bearing",
+     "underhang_cage": "underhang_bearing",
+     "underhang_outer": "underhang_bearing",
+     "vertical_misalignment": "vertical_misalignment"
+    },
+    "class6_probabilities": {
+     "horizontal_misalignment": 0.00023856691110459057,
+     "imbalance": 0.00012533784469418002,
+     "normal": 0.9995024751100654,
+     "overhang_bearing": 7.328533980728786e-05,
+     "underhang_bearing": 4.548116977196922e-05,
+     "vertical_misalignment": 1.485362455652392e-05
+    },
     "decision": "healthy",
     "display_label": "healthy \u2014 caution: a healthy-baseline check disagrees; consider a recheck",
     "fault_class": null,
@@ -5127,6 +5167,26 @@
      "underhang_ball": 2.2394726437732985e-05,
      "underhang_cage": 8.980681375595556e-06,
      "underhang_outer": 0.99972295552877,
+     "vertical_misalignment": 1.4735159910940335e-05
+    },
+    "class6_mapping": {
+     "horizontal_misalignment": "horizontal_misalignment",
+     "imbalance": "imbalance",
+     "normal": "normal",
+     "overhang_ball": "overhang_bearing",
+     "overhang_cage": "overhang_bearing",
+     "overhang_outer": "overhang_bearing",
+     "underhang_ball": "underhang_bearing",
+     "underhang_cage": "underhang_bearing",
+     "underhang_outer": "underhang_bearing",
+     "vertical_misalignment": "vertical_misalignment"
+    },
+    "class6_probabilities": {
+     "horizontal_misalignment": 1.8429902901272993e-05,
+     "imbalance": 3.5574934127185755e-05,
+     "normal": 2.8107605133284187e-05,
+     "overhang_bearing": 0.0001488214613439553,
+     "underhang_bearing": 0.9997543309365833,
      "vertical_misalignment": 1.4735159910940335e-05
     },
     "decision": "known_fault",

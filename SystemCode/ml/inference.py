@@ -18,7 +18,7 @@ import pandas as pd
 
 from ml.arbitrator import DEFAULT_VARIANT, decide, rule_comparison
 from ml.config import Config, config_sha256, load_config
-from ml.evaluation import aggregate_recordings
+from ml.evaluation import CLASS10_TO_6, aggregate_recordings, to_class6
 from ml.features import comb_lines, envelope_order_spectrum, recording_features
 from ml.labels import CLASS10
 from ml.openset import mahalanobis_distances, recording_probs
@@ -216,6 +216,8 @@ def diagnose(source, healthy_rule: str | None = None, nominal_speed_hz: float | 
     verdict = decide(rule, top, msp, maha, ae_err, b1s, thr)
     diagnosis = {"model_name": "CNN-6 (scratch 2D CNN, vibration order spectrograms) + AE-6 + B1s; LR secondary",
                  "class10_probabilities": {c: float(probs[c]) for c in CLASS10}, "top_class": top,
+                 "class6_probabilities": {c: float(v) for c, v in to_class6(probs.to_frame().T).iloc[0].items()},
+                 "class6_mapping": dict(CLASS10_TO_6),
                  **{k: verdict[k] for k in ("decision", "fault_class", "display_label", "caution", "rule_variant")},
                  "ae_override": verdict["ae_override"],
                  "rule_comparison": rule_comparison(top, msp, maha, ae_err, b1s, thr),

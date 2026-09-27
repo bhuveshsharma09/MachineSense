@@ -75,6 +75,18 @@ def test_manifest_records_per_task_eligibility():
 
 
 @needs_bundle
+def test_class6_probabilities_follow_the_mapping():
+    from ml.evaluation import CLASS10_TO_6
+    from ml.labels import CLASS6
+    d = diagnose("underhang__outer_race__0g__14.7456", with_xai=False)["diagnosis"]
+    p10, p6 = d["class10_probabilities"], d["class6_probabilities"]
+    assert list(p6) == list(CLASS6) and abs(sum(p6.values()) - 1) < 1e-12
+    for c6 in CLASS6:
+        assert abs(p6[c6] - sum(p for c10, p in p10.items() if CLASS10_TO_6[c10] == c6)) < 1e-12
+    assert d["class6_mapping"]["underhang_outer"] == "underhang_bearing"
+
+
+@needs_bundle
 def test_wrong_shape_is_refused():
     with pytest.raises(InputError):
         diagnose(np.zeros((1000, 8)))
