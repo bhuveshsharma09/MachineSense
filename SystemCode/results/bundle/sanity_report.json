@@ -1,5 +1,5 @@
 {
- "label": "not an independent test — these recordings were used for calibration (not for epoch selection: the epochs were fixed in advance); the bundle's training and calibration sets together use the full development pool; the only independent evaluation left is the reserved tests",
+ "label": "calibration recordings, not an independent test; expected to be optimistic. These recordings were used for calibration (not for epoch selection: the epochs were fixed in advance); the bundle's training and calibration sets together use the full development pool; the only independent evaluation left is the reserved tests",
  "n_recordings": 144,
  "split": "closed val ∩ development pool",
  "path": "diagnose() on CPU",

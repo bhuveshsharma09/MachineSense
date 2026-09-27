@@ -326,6 +326,13 @@ application uses. No retraining, no change to model weights, rule variants or th
    (`scripts/16_update_golden.py`), and the sanity report, labelled "calibration recordings, not an independent test;
    expected to be optimistic".
 
+**Stage ML-4.2 outcome (recorded):** repeated CPU runs of `score_recording` are bit-identical, so **no tolerance** is
+declared; all threshold comparisons are exact with ties accepted (`thresholds.json` → `tolerance: null`). A tolerance
+could not guarantee identical behaviour on every CPU either; other CPUs/BLAS builds may differ in the last digits.
+**Bundle rebuild order:** `scripts/14_train_bundle.py` (models; thresholds left pending) → `scripts/15_bundle_manifest.py`
+→ `scripts/19_recalibrate.py` (thresholds on the deployment scoring path; rebuilds the manifest) →
+`scripts/16_update_golden.py` → `scripts/18_calibration_checks.py`.
+
 **Previous stage (ML-4.1, completed except item 3, which this stage completes):**
 **Stage ML-4.1 protocol (declared before running).**
 1. **Configuration drift.** The complete inference configuration (the full `Config`: preprocessing, cleaning, windowing,
