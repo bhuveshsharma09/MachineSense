@@ -1,5 +1,5 @@
 {
- "manifest_sha256": "054ca348acc4e2b396d4382f4aff554d20e72e7c68456c057ba5fe0e6d42614e",
+ "manifest_sha256": "1d5a296dd5eed4eb93aa7df3eb2cb1d79c5e4233b3b81ea99a7a172fb17fb57e",
  "outputs": {
   "horizontal-misalignment__0.5mm__15.36": {
    "diagnosis": {
@@ -75,7 +75,8 @@
     "Calibrated on 5 healthy recordings; trained on speeds below 40 Hz and on the development pool only.",
     "Decision rule is a provisional demo default (B_with_caution), not a final rule selection.",
     "The tested scores and rules do not consistently distinguish the imbalance / vertical-misalignment pair when one class is withheld. The classifier distinguishes them well when both are represented in training. This does not establish that no representation, training objective or decision method could help.",
-    "Predicted fault location is according to the dataset labels; the classifier does not independently verify the physical sensor mapping. Per-channel reconstruction error is not fault-location evidence."
+    "Predicted fault location is according to the dataset labels; the classifier does not independently verify the physical sensor mapping. Per-channel reconstruction error is not fault-location evidence.",
+    "Reserved-test eligibility: this bundle may be used for the final Q1 (healthy vs fault), Q2 (closed-set known condition) and severity / speed-block extrapolation tests, since no reserved recording was used; it is NOT eligible for the Q3 leave-one-class-out evaluation, because it was trained on all ten classes."
    ],
    "physics": {
     "bearing_frequencies_hz": {
@@ -1971,9 +1972,9 @@
     "shaft_speed_rpm": 902.0613320439002
    },
    "provenance": {
-    "bundle_git_sha": "659b2053174784b98648f587e4583988f7ae1803",
+    "bundle_git_sha": "b1d5afbfdd5a7a74e05683f856aa4d41e880cd04",
     "bundle_preprocess_config_sha256": "d87f5c86efe4ec56178fe332c2d90ccaab3b9cf875d0dfd2b58fdfb6e9502947",
-    "manifest_sha256": "054ca348acc4e2b396d4382f4aff554d20e72e7c68456c057ba5fe0e6d42614e",
+    "manifest_sha256": "1d5a296dd5eed4eb93aa7df3eb2cb1d79c5e4233b3b81ea99a7a172fb17fb57e",
     "model_sha256": {
      "ae6": "b02505b50162eab23e9bffc655e3bee90b424091d2b5bc768fc3133934d01b83",
      "b1s_vib": "05975c690d52587a32f09952000b80501867486f653b19979cad964a985bd774",
@@ -2631,7 +2632,8 @@
     "Calibrated on 5 healthy recordings; trained on speeds below 40 Hz and on the development pool only.",
     "Decision rule is a provisional demo default (B_with_caution), not a final rule selection.",
     "The tested scores and rules do not consistently distinguish the imbalance / vertical-misalignment pair when one class is withheld. The classifier distinguishes them well when both are represented in training. This does not establish that no representation, training objective or decision method could help.",
-    "Predicted fault location is according to the dataset labels; the classifier does not independently verify the physical sensor mapping. Per-channel reconstruction error is not fault-location evidence."
+    "Predicted fault location is according to the dataset labels; the classifier does not independently verify the physical sensor mapping. Per-channel reconstruction error is not fault-location evidence.",
+    "Reserved-test eligibility: this bundle may be used for the final Q1 (healthy vs fault), Q2 (closed-set known condition) and severity / speed-block extrapolation tests, since no reserved recording was used; it is NOT eligible for the Q3 leave-one-class-out evaluation, because it was trained on all ten classes."
    ],
    "physics": {
     "bearing_frequencies_hz": {
@@ -4527,9 +4529,9 @@
     "shaft_speed_rpm": 1084.6383523246604
    },
    "provenance": {
-    "bundle_git_sha": "659b2053174784b98648f587e4583988f7ae1803",
+    "bundle_git_sha": "b1d5afbfdd5a7a74e05683f856aa4d41e880cd04",
     "bundle_preprocess_config_sha256": "d87f5c86efe4ec56178fe332c2d90ccaab3b9cf875d0dfd2b58fdfb6e9502947",
-    "manifest_sha256": "054ca348acc4e2b396d4382f4aff554d20e72e7c68456c057ba5fe0e6d42614e",
+    "manifest_sha256": "1d5a296dd5eed4eb93aa7df3eb2cb1d79c5e4233b3b81ea99a7a172fb17fb57e",
     "model_sha256": {
      "ae6": "b02505b50162eab23e9bffc655e3bee90b424091d2b5bc768fc3133934d01b83",
      "b1s_vib": "05975c690d52587a32f09952000b80501867486f653b19979cad964a985bd774",
@@ -5185,7 +5187,8 @@
     "Calibrated on 5 healthy recordings; trained on speeds below 40 Hz and on the development pool only.",
     "Decision rule is a provisional demo default (B_with_caution), not a final rule selection.",
     "The tested scores and rules do not consistently distinguish the imbalance / vertical-misalignment pair when one class is withheld. The classifier distinguishes them well when both are represented in training. This does not establish that no representation, training objective or decision method could help.",
-    "Predicted fault location is according to the dataset labels; the classifier does not independently verify the physical sensor mapping. Per-channel reconstruction error is not fault-location evidence."
+    "Predicted fault location is according to the dataset labels; the classifier does not independently verify the physical sensor mapping. Per-channel reconstruction error is not fault-location evidence.",
+    "Reserved-test eligibility: this bundle may be used for the final Q1 (healthy vs fault), Q2 (closed-set known condition) and severity / speed-block extrapolation tests, since no reserved recording was used; it is NOT eligible for the Q3 leave-one-class-out evaluation, because it was trained on all ten classes."
    ],
    "physics": {
     "bearing_frequencies_hz": {
@@ -7081,9 +7084,9 @@
     "shaft_speed_rpm": 869.0509239701144
    },
    "provenance": {
-    "bundle_git_sha": "659b2053174784b98648f587e4583988f7ae1803",
+    "bundle_git_sha": "b1d5afbfdd5a7a74e05683f856aa4d41e880cd04",
     "bundle_preprocess_config_sha256": "d87f5c86efe4ec56178fe332c2d90ccaab3b9cf875d0dfd2b58fdfb6e9502947",
-    "manifest_sha256": "054ca348acc4e2b396d4382f4aff554d20e72e7c68456c057ba5fe0e6d42614e",
+    "manifest_sha256": "1d5a296dd5eed4eb93aa7df3eb2cb1d79c5e4233b3b81ea99a7a172fb17fb57e",
     "model_sha256": {
      "ae6": "b02505b50162eab23e9bffc655e3bee90b424091d2b5bc768fc3133934d01b83",
      "b1s_vib": "05975c690d52587a32f09952000b80501867486f653b19979cad964a985bd774",

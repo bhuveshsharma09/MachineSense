@@ -64,6 +64,17 @@ def test_speed_warning_in_diagnose():
 
 
 @needs_bundle
+def test_manifest_records_per_task_eligibility():
+    m = json.loads((BUNDLE / "manifest.json").read_text())
+    e = m["test_eligibility"]
+    assert e["q3_leave_one_class_out_unfamiliar_fault"]["eligible"] is False
+    assert all(e[k]["eligible"] for k in ("q1_healthy_vs_fault", "q2_closed_set_known_condition",
+                                          "severity_extrapolation", "speed_block_extrapolation"))
+    assert "eligibility" not in m["data"]  # the earlier "every reserved test" wording is gone
+    assert any("NOT eligible" in x and "Q3" in x for x in m["limitations"])
+
+
+@needs_bundle
 def test_wrong_shape_is_refused():
     with pytest.raises(InputError):
         diagnose(np.zeros((1000, 8)))

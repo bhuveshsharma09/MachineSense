@@ -32,7 +32,23 @@ LIMITATIONS = [
     "establish that no representation, training objective or decision method could help.",
     "Predicted fault location is according to the dataset labels; the classifier does not independently verify the "
     "physical sensor mapping. Per-channel reconstruction error is not fault-location evidence.",
+    "Reserved-test eligibility: this bundle may be used for the final Q1 (healthy vs fault), Q2 (closed-set known "
+    "condition) and severity / speed-block extrapolation tests, since no reserved recording was used; it is NOT eligible "
+    "for the Q3 leave-one-class-out evaluation, because it was trained on all ten classes.",
 ]
+TEST_ELIGIBILITY = {
+    "basis": "no reserved-test recording (split_closed, split_severity or split_speed_block = test) was used for "
+             "training, calibration or inference",
+    "q2_closed_set_known_condition": {"eligible": True, "reserved_column": "split_closed"},
+    "q1_healthy_vs_fault": {"eligible": True, "reserved_column": "split_closed"},
+    "severity_extrapolation": {"eligible": True, "reserved_column": "split_severity", "note": "on its declared task"},
+    "speed_block_extrapolation": {"eligible": True, "reserved_column": "split_speed_block", "note": "on its declared task"},
+    "q3_leave_one_class_out_unfamiliar_fault": {
+        "eligible": False, "reserved_columns": "loco_<class>",
+        "reason": "the bundle was trained on all ten classes; the Q3 final evaluation needs the separate LOCO models "
+                  "trained without the withheld class"},
+    "evaluation_rule": "each reserved test is opened once, at the end",
+}
 
 
 def cal_normal_range(cfg, meta) -> list[float]:
@@ -101,10 +117,8 @@ def main() -> int:
               "tau_e_normals": thr["n_calibration_normals_tau_e"], "tau_b_normals": thr["n_calibration_normals_tau_b"],
               "train_speed_range_hz": d["train_speed_range_hz"], "severities": d["severities"],
               "calibration_normal_speed_range_hz": cal_normal_range(cfg, meta),
-              "reserved_recordings_used": 0,
-              "eligibility": "no reserved-test recording was used for training, calibration or inference, so this bundle "
-                             "is eligible for one final evaluation on every reserved test"},
-        test_eligibility={}, limitations=LIMITATIONS)
+              "reserved_recordings_used": 0},
+        test_eligibility=TEST_ELIGIBILITY, limitations=LIMITATIONS)
     write_manifest(B, manifest)
     verify_bundle(B)
     shutil.copy(B / "manifest.json", results_dir() / "bundle" / "manifest.example.json")
