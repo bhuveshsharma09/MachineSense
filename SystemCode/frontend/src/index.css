@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #0f172a; }
+.card { @apply bg-white border border-slate-200 rounded-lg p-4 shadow-sm; }
+.card-title { @apply text-sm font-semibold uppercase tracking-wide text-slate-500 mb-2; }
