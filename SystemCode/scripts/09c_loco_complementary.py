@@ -159,12 +159,90 @@ def run_e2() -> None:
     print(acc.groupby(["seed", "group"])[["msp_acceptance", "s_acceptance", "joint_acceptance"]].mean().round(3).to_string())
 
 
+B1S = "B1s_speed_poly"
+
+
+def b1s_scores() -> pd.DataFrame:
+    """B1s refitted per run on exactly that run's AE fit normals (vibration-only capped R1 features); recording scores for
+    the calibration, seen-folder and fold-k recordings; τ_b = maximum calibration-normal score. Seed-independent."""
+    from ml.cache import load_features
+    from ml.config import load_config
+    from ml.features import feature_columns
+    from ml.openset import loco_run_ids
+    from ml.paths import DEFAULT_CONFIG, data_dir
+    from ml.q1 import classical_scores
+    from ml.splits import development_pool
+
+    cfg = load_config(DEFAULT_CONFIG)
+    meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
+    dc = cfg.development
+    pool = development_pool(meta, dc.allowed_closed, dc.reserved_columns).merge(
+        pd.read_csv(results_dir() / dc.folds_file)[["rec_id", "dev_fold"]], on="rec_id")
+    path = max((data_dir() / "features").glob(f"{cfg.baselines.feature_table}_*.parquet"),
+               key=lambda p: p.stat().st_mtime)
+    df = load_features(path, meta, cfg.preprocess).merge(pool[["rec_id", "folder", "dev_fold"]], on="rec_id")
+    df = df.sort_values(["rec_id", "window_idx"]).reset_index(drop=True)
+    cols = [c for c in feature_columns(df) if not c.startswith("f_mic_")]
+    assignment = pd.read_csv(results_dir() / "q1q3" / "q3_fit_cal_eval_assignment.csv")
+    normals = set(pool.loc[pool.class10 == "normal", "rec_id"])
+    rows = []
+    for c in FAULT_CLASSES:
+        for k in (0, 1, 2):
+            ids = loco_run_ids(assignment, pool, c, k)
+            fit_n = sorted(set(ids["fit"]) & normals)
+            saved = json.loads(RunPaths("loco", "ae6", 42, protocol="loco", withheld=c).norm_stats(k).read_text())["fit_ids"]
+            assert fit_n == sorted(saved), f"{c}/{k}: not the AE's fit normals"
+            role_of = {r: role for role in ROLES for r in ids[role]}
+            target = df[df.rec_id.isin(role_of)]
+            sc = classical_scores(B1S, cfg.anomaly, df[df.rec_id.isin(fit_n)], target, cols)
+            t = pd.DataFrame({"rec_id": sc.index, "b1s": sc.to_numpy(), "withheld": c, "outer_fold": k,
+                              "is_normal": sc.index.isin(normals)})
+            t["role"] = t.rec_id.map(role_of)
+            cal_n = t[(t.role == "cal") & t.rec_id.isin(normals)]
+            t["tau_b"] = float(cal_n.b1s.max())
+            t["n_cal_normals"] = len(cal_n)
+            t["n_fit_normals"] = len(fit_n)
+            rows.append(t)
+    return pd.concat(rows, ignore_index=True)
+
+
+def run_e3() -> None:
+    """E3 per seed: D (rule B's checks + B1s healthy veto) and D′ (D + AE ≤ τ_e for healthy)."""
+    b = b1s_scores()
+    b.to_parquet(results_dir() / "scores" / "b1s_nomic_loco_q3fit_scores.parquet", index=False)
+    key = ["withheld", "outer_fold", "rec_id"]
+    fa_rows = []
+    for (c, k), g in b.groupby(["withheld", "outer_fold"]):
+        for grp, role in (("normal_foldk", "foldk_known"), ("normal_seen_folder", "eval")):
+            n = g[(g.role == role) & g.is_normal]
+            fa_rows.append({"withheld": c, "outer_fold": k, "group": grp, "n": len(n), "false_alarms": int((n.b1s > n.tau_b).sum()),
+                            "n_cal_normals": int(g.n_cal_normals.iloc[0]), "n_fit_normals": int(g.n_fit_normals.iloc[0])})
+    fa = pd.DataFrame(fa_rows)
+    fa.to_csv(OUT / "e3_b1s_false_alarms_per_run.csv", index=False)
+    for seed in SEEDS:
+        d = decide(recordings(seed)).merge(b[key + ["b1s", "tau_b"]], on=key, how="left")
+        assert d.b1s.notna().all()
+        b1s_ok = (d.b1s <= d.tau_b).to_numpy()
+        ae_ok = (d.ae <= d.tau_e).to_numpy()
+        conf, pred = d.confident.to_numpy(), d.pred.to_numpy()
+        d["decision_D"] = rule_decisions(conf, pred, b1s_ok)
+        d["decision_Dp"] = rule_decisions(conf, pred, b1s_ok & ae_ok)
+        for v in ("D", "Dp"):
+            d[f"outcome_{v}"] = outcomes(d[f"decision_{v}"].to_numpy(), d)
+        save("e3_b1s_veto", seed, d)
+        w = d[d.role == "foldk_withheld"]
+        print(f"seed {seed}: withheld D", w.outcome_D.value_counts().to_dict(), "D′", w.outcome_Dp.value_counts().to_dict(),
+              "B", w.outcome_B.value_counts().to_dict())
+    print(fa.groupby("group")[["false_alarms", "n"]].sum().to_string())
+    print("calibration normals per run:", sorted(fa.n_cal_normals.unique()), "fit normals:", sorted(fa.n_fit_normals.unique()))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["e1", "e2"])
+    ap.add_argument("task", choices=["e1", "e2", "e3"])
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
-    {"e1": run_e1, "e2": run_e2}[a.task]()
+    {"e1": run_e1, "e2": run_e2, "e3": run_e3}[a.task]()
     return 0
 
 
