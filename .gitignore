@@ -36,3 +36,9 @@ SystemCode/results/scores/
 
 # --- deployable model bundle (Stage ML-4; weights and joblib files, rebuilt by scripts/14_train_bundle.py) ---
 SystemCode/artifacts/bundle/
+
+# --- app runtime state (Stage App-2a): case history, uploaded arrays, reserved-fingerprint index, showcase sweep ---
+SystemCode/backend/data/
+# --- design reference: mood-board uploads and a rig photo of unknown licence are never committed ---
+SystemCode/design/prototype_v2/uploads/
+SystemCode/design/prototype_v2/assets/machine.jpg
