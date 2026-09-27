@@ -1,0 +1,1 @@
+{"status": 422, "detail": "expected 8 columns (tacho, 6 accelerometer axes, microphone), got 3"}

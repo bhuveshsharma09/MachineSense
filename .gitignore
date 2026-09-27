@@ -42,3 +42,13 @@ SystemCode/backend/data/
 # --- design reference: mood-board uploads and a rig photo of unknown licence are never committed ---
 SystemCode/design/prototype_v2/uploads/
 SystemCode/design/prototype_v2/assets/machine.jpg
+# prototype screenshots that show the rig photo (unknown licence)
+SystemCode/design/prototype_v2/screenshots/01-check.jpg
+SystemCode/design/prototype_v2/screenshots/01-check2.jpg
+SystemCode/design/prototype_v2/screenshots/01-v2a.jpg
+SystemCode/design/prototype_v2/screenshots/02-check.jpg
+SystemCode/design/prototype_v2/screenshots/02-check2.jpg
+SystemCode/design/prototype_v2/screenshots/02-v2a.jpg
+
+# --- frontend smoke-test build output ---
+SystemCode/frontend/tests/.ssr/
