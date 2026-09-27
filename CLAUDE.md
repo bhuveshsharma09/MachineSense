@@ -146,6 +146,8 @@ Graders run the app on a Linux or Windows CPU.
     explanation. Per-channel reconstruction error is not usable as fault-location evidence.
   - **App wording:** the app shows "predicted fault location according to the dataset labels"; the classifier does not
     independently verify the physical sensor mapping.
+  - **Unknown-fault wording (Stage 3C.1; report and app):** "On these development folds, embedding distance separates withheld bearing classes more successfully than withheld imbalance and vertical misalignment. When either of those two classes is withheld, the model frequently assigns the other label. The existing class labels are kept. This is a limitation of unfamiliar-fault detection, not a new physical diagnosis or merged class." "Withheld horizontal misalignment is sometimes declared healthy (see the healthy-rule variants)." "Development results on one partition; reserved tests sealed." App healthy rule pending Bhuvesh's
+    decision after 3C.1 (see §7).
   - **Primary envelope band: 1–5 kHz for every track**, fixed from the sensor specifications (inside both sensors'
     rated ranges). The per-track bands in `results/demod_bands.json` are a separately reported comparison only.
   - **Order axis: per-window speed** from `ml.preprocess.window_speeds`, computed from the untouched tachometer,

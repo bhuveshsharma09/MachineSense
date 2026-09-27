@@ -498,6 +498,21 @@ over runs are the std over the 27 class × fold runs (they mix between-class and
 uncertainty); the std over the 3 folds of the per-fold macro is reported separately in `results/loco/analysis/`. In
 Stage 3C one known-fault instance declared healthy (via the AE override) was misreported as none; corrected here.
 
+**Stage 3C.1 analysis (saved scores; nothing here selects a model, variant or threshold).** On these development folds, embedding distance separates withheld bearing classes more successfully than withheld imbalance and vertical misalignment. When either of those two classes is withheld, the model frequently assigns the other label. The existing class labels are kept. This is a limitation of unfamiliar-fault detection, not a new physical diagnosis or merged class. Withheld horizontal misalignment is sometimes declared healthy (see the healthy-rule variants). Development results on one partition; reserved tests sealed.
+- Withheld → assigned class (what the model confuses, not the physical cause): imbalance → vertical misalignment 139 of 144
+  instances; vertical misalignment → imbalance 109 of 125; horizontal misalignment → healthy 22 of 73 (7 through the AE
+  override). Post hoc, without those two classes as withheld: 451 of 510 unknown (failure analysis, not a headline).
+- Healthy-rule variants (thresholds as in 3C): withheld → healthy A 28, B 19, C 8 instances; fold-k normals healthy 192,
+  184, 161 of 225 instances (25 distinct recordings); seen-folder normals 68, 66, 55 of 74. C was identified post hoc on
+  27 Sep and is exploratory. τ_e rests on 2–3 calibration normals per run. The app's healthy rule is pending Bhuvesh's
+  decision, under stated assumptions about fault frequency and the costs of missed faults vs unnecessary inspections.
+- CNN rule vs LR/MSP: threshold-free macro AUROC difference (CNN Mahalanobis − LR MSP) +0.035, paired mixed-unit
+  bootstrap interval [+0.001, +0.071]; OSCR +0.042 [+0.005, +0.081]. An interval excluding zero supports a specific
+  metric difference under this protocol, not an overall winner. At an LR threshold matched to the CNN rule's calibration
+  acceptance, LR sends more withheld faults to healthy (61 vs 28) and to a known fault (331 vs 283).
+- Seeds 42 / 43 / 44 (training variability only; no new recordings): Mahalanobis macro AUROC 0.877 / 0.877 / 0.868, MSP
+  0.782 / 0.809 / 0.827; rule A withheld → healthy 28 / 26 / 36 instances.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the
