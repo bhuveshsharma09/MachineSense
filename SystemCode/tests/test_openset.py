@@ -116,3 +116,21 @@ def test_healthy_rule_variants_b_and_c():
     assert a.tolist() == ["healthy", "healthy", "healthy", "imbalance", "unknown"]
     assert b.tolist() == ["healthy", "healthy", "unknown", "imbalance", "unknown"]  # no AE override
     assert c.tolist() == ["healthy", "unknown", "unknown", "imbalance", "unknown"]  # healthy also needs AE healthy
+
+
+def test_weighted_auroc_and_oscr_match_the_unweighted_versions():
+    from sklearn.metrics import roc_auc_score
+
+    from ml.openset import oscr, weighted_auroc, weighted_oscr
+    rng = np.random.default_rng(1)
+    neg, pos = np.round(rng.normal(0, 1, 60), 1), np.round(rng.normal(0.8, 1, 25), 1)  # rounded: ties present
+    ones_n, ones_p = np.ones(60), np.ones(25)
+    assert np.isclose(weighted_auroc(neg, ones_n, pos, ones_p), roc_auc_score(np.r_[np.zeros(60), np.ones(25)], np.r_[neg, pos]))
+    correct = rng.random(60) > 0.2
+    assert np.isclose(weighted_oscr(neg, correct, ones_n, pos, ones_p), oscr(neg, correct, pos))
+    # integer weights = repeating the rows
+    wn, wp = rng.integers(0, 3, 60).astype(float), rng.integers(1, 3, 25).astype(float)
+    rn, rp_ = np.repeat(neg, wn.astype(int)), np.repeat(pos, wp.astype(int))
+    assert np.isclose(weighted_auroc(neg, wn, pos, wp),
+                      roc_auc_score(np.r_[np.zeros(len(rn)), np.ones(len(rp_))], np.r_[rn, rp_]))
+    assert np.isclose(weighted_oscr(neg, correct, wn, pos, wp), oscr(rn, np.repeat(correct, wn.astype(int)), rp_))

@@ -334,14 +334,148 @@ def run_variants_report() -> None:
     print(res["tau_e_limitation"])
 
 
+RETRO = ("RETROSPECTIVE and EXPLORATORY: thresholds matched on evaluation data; they must not be deployed or used for "
+         "model selection")
+
+
+def run_metrics(cnn: pd.DataFrame, lr: pd.DataFrame, weights: pd.Series | None = None) -> pd.DataFrame:
+    """Per run: CNN Mahalanobis and LR −MSP AUROC and OSCR, withheld vs fold-k known; OSCR correctness = each method's own
+    top class. Optional recording weights (bootstrap multiplicities); runs lacking either group are dropped."""
+    from ml.openset import weighted_auroc, weighted_oscr
+
+    rows = []
+    for (c, k), g in cnn.groupby(["withheld", "outer_fold"]):
+        h = lr[(lr.withheld == c) & (lr.outer_fold == k)]
+        r = {"withheld": c, "outer_fold": int(k)}
+        for name, df, u in (("cnn_maha", g, g.maha.to_numpy()), ("lr_msp", h, -h.msp.to_numpy())):
+            kn = (df.role == "foldk_known").to_numpy()
+            un = (df.role == "foldk_withheld").to_numpy()
+            w = np.ones(len(df)) if weights is None else weights.reindex(df.rec_id).fillna(0).to_numpy()
+            if w[kn].sum() == 0 or w[un].sum() == 0:
+                r = None
+                break
+            correct = (df.pred == df.class10).to_numpy()
+            r[f"{name}_auroc"] = weighted_auroc(u[kn], w[kn], u[un], w[un])
+            r[f"{name}_oscr"] = weighted_oscr(u[kn], correct[kn], w[kn], u[un], w[un])
+        if r is not None:
+            rows.append(r)
+    return pd.DataFrame(rows)
+
+
+def macro(df: pd.DataFrame, col: str) -> float:
+    """Macro over withheld classes of the mean over available folds."""
+    return float(df.groupby("withheld")[col].mean().mean())
+
+
+def lr_outcomes(lr: pd.DataFrame, accept: np.ndarray) -> pd.DataFrame:
+    d = np.where(accept, np.where(lr.pred == "normal", "healthy", lr.pred), "unknown")
+    return lr.assign(decision_x=d, outcome_x=outcomes(d, lr))
+
+
+def run_compare() -> None:
+    """Item 4: CNN rule vs LR on the saved scores (seed 42)."""
+    from ml.config import load_config as _lc
+    from ml.evaluation import mixed_bootstrap_draws
+
+    cfg = _lc(DEFAULT_CONFIG)
+    dec = decide(recordings(42))
+    lr = lr_decisions()
+    cnn_eval = dec[dec.role.isin(["foldk_known", "foldk_withheld"])]
+    lr_eval = lr[lr.role.isin(["foldk_known", "foldk_withheld"])]
+    per_run = run_metrics(cnn_eval, lr_eval)
+    for m in ("auroc", "oscr"):
+        per_run[f"diff_{m}"] = per_run[f"cnn_maha_{m}"] - per_run[f"lr_msp_{m}"]
+    per_run.to_csv(OUT / "item4_per_run_threshold_free.csv", index=False)
+    point = {m: {"cnn_maha_macro": macro(per_run, f"cnn_maha_{m}"), "lr_msp_macro": macro(per_run, f"lr_msp_{m}"),
+                 "diff_macro": macro(per_run, f"diff_{m}"), "diff_mean_over_runs": float(per_run[f"diff_{m}"].mean()),
+                 "diff_std_over_runs": float(per_run[f"diff_{m}"].std()), "runs_cnn_higher": int((per_run[f"diff_{m}"] > 0).sum()),
+                 "runs": len(per_run)} for m in ("auroc", "oscr")}
+    # paired bootstrap: one mixed-unit draw over the whole pool applied to all 27 runs (recording multiplicities)
+    pool = pd.read_csv(results_dir() / cfg.development.folds_file).sort_values("rec_id").reset_index(drop=True)
+    draws = mixed_bootstrap_draws(pool.class10.to_numpy(), pool.folder.to_numpy(), cfg.baselines.n_bootstrap, cfg.baselines.seed)
+    boot, dropped = {m: [] for m in ("auroc", "oscr")}, []
+    for idx in draws:
+        wts = pd.Series(np.bincount(idx, minlength=len(pool)).astype(float), index=pool.rec_id)
+        pr = run_metrics(cnn_eval, lr_eval, wts)
+        dropped.append(27 - len(pr))
+        for m in ("auroc", "oscr"):
+            boot[m].append(macro(pr.assign(d=pr[f"cnn_maha_{m}"] - pr[f"lr_msp_{m}"]), "d"))
+    for m in ("auroc", "oscr"):
+        b = np.array(boot[m])
+        point[m]["paired_bootstrap_ci95"] = [float(np.percentile(b, 2.5)), float(np.percentile(b, 97.5))]
+        point[m]["p_cnn_higher"] = float(np.mean(b > 0))
+    point["bootstrap"] = {"n": len(draws), "runs_dropped_per_draw_mean": float(np.mean(dropped)),
+                          "runs_dropped_per_draw_max": int(np.max(dropped)),
+                          "scheme": "stratified mixed-unit over the whole development pool (fault folders within class, "
+                                    "normal recordings individually); one draw weights every run's recordings by their "
+                                    "multiplicity, so recordings reused across withheld-class runs are resampled jointly"}
+    # operating point matched on CALIBRATION: LR acceptance count = CNN joint-acceptance count per run
+    op_rows, parts = [], []
+    for (c, k), g in dec.groupby(["withheld", "outer_fold"]):
+        cal = g[g.role == "cal"]
+        h = lr[(lr.withheld == c) & (lr.outer_fold == k)]
+        hc = h[h.role == "cal"]
+        assert set(hc.rec_id) == set(cal.rec_id)
+        m, n = int(cal.confident.sum()), len(cal)
+        u = np.sort(-hc.msp.to_numpy())
+        if m == 0:
+            thr, unattainable = -np.inf, True
+        else:
+            thr, unattainable = float(u[m - 1]), False
+        achieved = float(np.mean(-hc.msp.to_numpy() <= thr))
+        op_rows.append({"withheld": c, "outer_fold": int(k), "n_cal": n, "cnn_joint_accepted": m, "target": m / n,
+                        "lr_achieved": achieved, "ties_at_threshold": int(np.sum(u == thr)) if m else 0,
+                        "unattainable": unattainable, "lr_threshold_neg_msp": thr})
+        parts.append(lr_outcomes(h, (-h.msp.to_numpy()) <= thr))
+    op = pd.DataFrame(op_rows)
+    op.to_csv(OUT / "item4_calibration_matched_thresholds.csv", index=False)
+    lr_cal = pd.concat(parts, ignore_index=True)
+    # retrospective diagnostic: LR false-unknown count on (a), then (b), matched to the CNN rule's per run
+    retro = {}
+    for label, role in (("a_seen_folder", "eval"), ("b_unseen_foldk", "foldk_known")):
+        parts, rows = [], []
+        for (c, k), g in dec.groupby(["withheld", "outer_fold"]):
+            h = lr[(lr.withheld == c) & (lr.outer_fold == k)]
+            kf = g[(g.role == role) & (g.class10 != "normal")]
+            target = int((kf.decision_A == "unknown").sum())
+            hk = h[(h.role == role) & (h.class10 != "normal")]
+            ud = np.sort(-hk.msp.to_numpy())[::-1]
+            thr = -np.inf if target >= len(ud) else float(ud[target])
+            got = int(np.sum(-hk.msp.to_numpy() > thr))
+            rows.append({"withheld": c, "outer_fold": int(k), "cnn_false_unknowns": target, "lr_false_unknowns": got,
+                         "ties": int(np.sum(ud == thr))})
+            parts.append(lr_outcomes(h, (-h.msp.to_numpy()) <= thr))
+        retro[label] = {"label": RETRO, "matching": pd.DataFrame(rows).to_dict(orient="records"),
+                        "outcomes": group_table(pd.concat(parts, ignore_index=True), "outcome_x")}
+    out = {"provenance": provenance(),
+           "wording": "an interval excluding zero supports a specific metric difference under this protocol, not an "
+                      "overall winner",
+           "threshold_free": point,
+           "calibration_matched_operating_point": {
+               "rule": "per run, LR threshold = the m-th smallest LR −MSP of the calibration recordings, m = number of "
+                       "calibration recordings passing both CNN checks; accept iff ≤ (ties accepted)",
+               "summary": {"target_mean": float(op.target.mean()), "lr_achieved_mean": float(op.lr_achieved.mean()),
+                           "runs_with_ties": int((op.ties_at_threshold > 1).sum()), "unattainable": int(op.unattainable.sum())},
+               "cnn_rule_A": group_table(dec, "outcome_A"), "lr_matched": group_table(lr_cal, "outcome_x")},
+           "retrospective_diagnostic": retro}
+    (OUT / "item4_cnn_vs_lr.json").write_text(json.dumps(out, indent=1))
+    print(json.dumps(point, indent=1))
+    print(out["calibration_matched_operating_point"]["summary"])
+    for name, t in (("CNN A", out["calibration_matched_operating_point"]["cnn_rule_A"]),
+                    ("LR cal-matched", out["calibration_matched_operating_point"]["lr_matched"]),
+                    ("LR retro (a)", retro["a_seen_folder"]["outcomes"]), ("LR retro (b)", retro["b_unseen_foldk"]["outcomes"])):
+        print(name, {g: {k: v["instances"] for k, v in e["pooled"].items()} for g, e in t.items()})
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["counts", "confusion", "variants"])
+    ap.add_argument("task", choices=["counts", "confusion", "variants", "compare"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     a = ap.parse_args()
     load_config(a.config)
     OUT.mkdir(parents=True, exist_ok=True)
-    {"counts": run_counts, "confusion": run_confusion, "variants": run_variants_report}[a.task]()
+    {"counts": run_counts, "confusion": run_confusion, "variants": run_variants_report,
+     "compare": run_compare}[a.task]()
     return 0
 
 

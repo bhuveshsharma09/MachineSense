@@ -139,3 +139,28 @@ def outcome_category(decision, true_class, withheld: bool) -> np.ndarray:
                      np.where(d == "unknown", "unknown", np.where(d == t, "correct", "wrong_fault")))
     healthy_rec = np.where(d == "healthy", "healthy", np.where(d == "unknown", "unknown", "fault"))
     return np.where(normal, healthy_rec, known)
+
+
+def weighted_auroc(u_neg: np.ndarray, w_neg: np.ndarray, u_pos: np.ndarray, w_pos: np.ndarray) -> float:
+    """AUROC of positives (higher = more positive) vs negatives with case weights (ties count one half); equals the
+    unweighted AUROC when every weight is 1."""
+    o = np.argsort(u_neg, kind="mergesort")
+    un, wn = u_neg[o], w_neg[o]
+    cw = np.r_[0.0, np.cumsum(wn)]
+    lo = np.searchsorted(un, u_pos, side="left")
+    hi = np.searchsorted(un, u_pos, side="right")
+    below, equal = cw[lo], cw[hi] - cw[lo]
+    return float(np.sum(w_pos * (below + 0.5 * equal)) / (w_pos.sum() * w_neg.sum()))
+
+
+def weighted_oscr(u_known: np.ndarray, correct: np.ndarray, w_known: np.ndarray, u_unknown: np.ndarray,
+                  w_unknown: np.ndarray) -> float:
+    """OSCR with case weights (see oscr); equals oscr() when every weight is 1."""
+    t = np.unique(np.r_[u_known, u_unknown])
+    ok = np.argsort(u_known, kind="mergesort")
+    ck = np.r_[0.0, np.cumsum((w_known * correct)[ok])]
+    ou = np.argsort(u_unknown, kind="mergesort")
+    cu = np.r_[0.0, np.cumsum(w_unknown[ou])]
+    ccr = np.r_[0.0, ck[np.searchsorted(u_known[ok], t, side="right")] / w_known.sum()]
+    fpr = np.r_[0.0, cu[np.searchsorted(u_unknown[ou], t, side="right")] / w_unknown.sum()]
+    return float(np.trapezoid(ccr, fpr))

@@ -1,0 +1,2484 @@
+{
+ "provenance": {
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "d54b984bb7ff106885c6f45f68d2fa31e6b169ae-dirty",
+  "note": "Development results on one partition; reserved tests sealed.",
+  "instances_vs_distinct": "a recording evaluated in several withheld-class runs counts once per run as an instance and once as a distinct recording"
+ },
+ "wording": "an interval excluding zero supports a specific metric difference under this protocol, not an overall winner",
+ "threshold_free": {
+  "auroc": {
+   "cnn_maha_macro": 0.8769158787865375,
+   "lr_msp_macro": 0.8423684884220979,
+   "diff_macro": 0.03454739036443959,
+   "diff_mean_over_runs": 0.0345473903644396,
+   "diff_std_over_runs": 0.179257897573452,
+   "runs_cnn_higher": 22,
+   "runs": 27,
+   "paired_bootstrap_ci95": [
+    0.0010993029433089036,
+    0.0710582374048035
+   ],
+   "p_cnn_higher": 0.98
+  },
+  "oscr": {
+   "cnn_maha_macro": 0.8704020378672458,
+   "lr_msp_macro": 0.8280445176708001,
+   "diff_macro": 0.04235752019644566,
+   "diff_mean_over_runs": 0.04235752019644567,
+   "diff_std_over_runs": 0.17467863841738626,
+   "runs_cnn_higher": 22,
+   "runs": 27,
+   "paired_bootstrap_ci95": [
+    0.005044651776367863,
+    0.08111183169067279
+   ],
+   "p_cnn_higher": 0.986
+  },
+  "bootstrap": {
+   "n": 2000,
+   "runs_dropped_per_draw_mean": 6.963,
+   "runs_dropped_per_draw_max": 13,
+   "scheme": "stratified mixed-unit over the whole development pool (fault folders within class, normal recordings individually); one draw weights every run's recordings by their multiplicity, so recordings reused across withheld-class runs are resampled jointly"
+  }
+ },
+ "calibration_matched_operating_point": {
+  "rule": "per run, LR threshold = the m-th smallest LR \u2212MSP of the calibration recordings, m = number of calibration recordings passing both CNN checks; accept iff \u2264 (ties accepted)",
+  "summary": {
+   "target_mean": 0.9877109426980042,
+   "lr_achieved_mean": 0.9877109426980042,
+   "runs_with_ties": 0,
+   "unattainable": 0
+  },
+  "cnn_rule_A": {
+   "withheld": {
+    "instances": 779,
+    "distinct_recordings": 779,
+    "pooled": {
+     "healthy": {
+      "instances": 28,
+      "rate": 0.03594351732991014,
+      "distinct_recordings": 28
+     },
+     "known_fault": {
+      "instances": 283,
+      "rate": 0.3632862644415918,
+      "distinct_recordings": 283
+     },
+     "unknown": {
+      "instances": 468,
+      "rate": 0.6007702182284981,
+      "distinct_recordings": 468
+     }
+    },
+    "per_class": {
+     "horizontal_misalignment": {
+      "healthy": 0.3013698630136986,
+      "known_fault": 0.0,
+      "unknown": 0.6986301369863014,
+      "instances": 73,
+      "distinct": 73
+     },
+     "imbalance": {
+      "healthy": 0.0,
+      "known_fault": 0.9652777777777778,
+      "unknown": 0.034722222222222224,
+      "instances": 144,
+      "distinct": 144
+     },
+     "overhang_ball": {
+      "healthy": 0.0,
+      "known_fault": 0.15942028985507245,
+      "unknown": 0.8405797101449275,
+      "instances": 69,
+      "distinct": 69
+     },
+     "overhang_cage": {
+      "healthy": 0.0,
+      "known_fault": 0.08333333333333333,
+      "unknown": 0.9166666666666666,
+      "instances": 72,
+      "distinct": 72
+     },
+     "overhang_outer": {
+      "healthy": 0.0,
+      "known_fault": 0.02702702702702703,
+      "unknown": 0.972972972972973,
+      "instances": 74,
+      "distinct": 74
+     },
+     "underhang_ball": {
+      "healthy": 0.0,
+      "known_fault": 0.14285714285714285,
+      "unknown": 0.8571428571428571,
+      "instances": 77,
+      "distinct": 77
+     },
+     "underhang_cage": {
+      "healthy": 0.027777777777777776,
+      "known_fault": 0.06944444444444445,
+      "unknown": 0.9027777777777778,
+      "instances": 72,
+      "distinct": 72
+     },
+     "underhang_outer": {
+      "healthy": 0.0,
+      "known_fault": 0.0,
+      "unknown": 1.0,
+      "instances": 73,
+      "distinct": 73
+     },
+     "vertical_misalignment": {
+      "healthy": 0.032,
+      "known_fault": 0.872,
+      "unknown": 0.096,
+      "instances": 125,
+      "distinct": 125
+     }
+    },
+    "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+     "healthy": 0.09928648913782001,
+     "known_fault": 0.3755320824126187,
+     "unknown": 0.36985505470936975
+    },
+    "per_fold_macro": {
+     "0": {
+      "healthy": 0.028806584362139915,
+      "known_fault": 0.2698017326588755,
+      "unknown": 0.7013916829789846
+     },
+     "1": {
+      "healthy": 0.05333333333333334,
+      "known_fault": 0.2525925925925926,
+      "unknown": 0.6940740740740741
+     },
+     "2": {
+      "healthy": 0.03655603655603655,
+      "known_fault": 0.2521988593417165,
+      "unknown": 0.711245104102247
+     }
+    },
+    "std over the 3 folds of the per-fold macro value": {
+     "healthy": 0.012537231961607529,
+     "known_fault": 0.010051290768799629,
+     "unknown": 0.008616665829909633
+    },
+    "macro_over_withheld_classes": {
+     "healthy": 0.04012751564349738,
+     "known_fault": 0.2577066683660887,
+     "unknown": 0.702165815990414
+    }
+   },
+   "known_a_seen_folder": {
+    "instances": 2087,
+    "distinct_recordings": 738,
+    "pooled": {
+     "healthy": {
+      "instances": 0,
+      "rate": 0.0,
+      "distinct_recordings": 0
+     },
+     "correct": {
+      "instances": 2033,
+      "rate": 0.9741255390512698,
+      "distinct_recordings": 733
+     },
+     "wrong_fault": {
+      "instances": 2,
+      "rate": 0.0009583133684714902,
+      "distinct_recordings": 1
+     },
+     "unknown": {
+      "instances": 52,
+      "rate": 0.024916147580258743,
+      "distinct_recordings": 35
+     }
+    },
+    "per_class": {
+     "horizontal_misalignment": {
+      "healthy": 0.0,
+      "correct": 0.9593908629441624,
+      "wrong_fault": 0.0,
+      "unknown": 0.04060913705583756,
+      "instances": 197,
+      "distinct": 70
+     },
+     "imbalance": {
+      "healthy": 0.0,
+      "correct": 0.961038961038961,
+      "wrong_fault": 0.0,
+      "unknown": 0.03896103896103896,
+      "instances": 385,
+      "distinct": 137
+     },
+     "overhang_ball": {
+      "healthy": 0.0,
+      "correct": 1.0,
+      "wrong_fault": 0.0,
+      "unknown": 0.0,
+      "instances": 182,
+      "distinct": 65
+     },
+     "overhang_cage": {
+      "healthy": 0.0,
+      "correct": 0.9593908629441624,
+      "wrong_fault": 0.0,
+      "unknown": 0.04060913705583756,
+      "instances": 197,
+      "distinct": 68
+     },
+     "overhang_outer": {
+      "healthy": 0.0,
+      "correct": 0.9897959183673469,
+      "wrong_fault": 0.0,
+      "unknown": 0.01020408163265306,
+      "instances": 196,
+      "distinct": 70
+     },
+     "underhang_ball": {
+      "healthy": 0.0,
+      "correct": 0.9855072463768116,
+      "wrong_fault": 0.0,
+      "unknown": 0.014492753623188406,
+      "instances": 207,
+      "distinct": 71
+     },
+     "underhang_cage": {
+      "healthy": 0.0,
+      "correct": 0.9543147208121827,
+      "wrong_fault": 0.01015228426395939,
+      "unknown": 0.03553299492385787,
+      "instances": 197,
+      "distinct": 69
+     },
+     "underhang_outer": {
+      "healthy": 0.0,
+      "correct": 1.0,
+      "wrong_fault": 0.0,
+      "unknown": 0.0,
+      "instances": 188,
+      "distinct": 71
+     },
+     "vertical_misalignment": {
+      "healthy": 0.0,
+      "correct": 0.9733727810650887,
+      "wrong_fault": 0.0,
+      "unknown": 0.026627218934911243,
+      "instances": 338,
+      "distinct": 117
+     }
+    },
+    "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+     "healthy": 0.0,
+     "correct": 0.023539306738504538,
+     "wrong_fault": 0.004271787905290231,
+     "unknown": 0.023786446620481808
+    },
+    "per_fold_macro": {
+     "0": {
+      "healthy": 0.0,
+      "correct": 0.9756106377736279,
+      "wrong_fault": 0.001984126984126984,
+      "unknown": 0.022405235242245043
+     },
+     "1": {
+      "healthy": 0.0,
+      "correct": 0.9742872754514911,
+      "wrong_fault": 0.0015432098765432098,
+      "unknown": 0.024169514671965653
+     },
+     "2": {
+      "healthy": 0.0,
+      "correct": 0.977496568427941,
+      "wrong_fault": 0.0,
+      "unknown": 0.022503431572059023
+     }
+    },
+    "std over the 3 folds of the per-fold macro value": {
+     "healthy": 0.0,
+     "correct": 0.0016128434351180187,
+     "wrong_fault": 0.0010418464784507514,
+     "unknown": 0.0009914767875177162
+    },
+    "macro_over_known_fault_classes": {
+     "healthy": 0.0,
+     "correct": 0.9758679281720796,
+     "wrong_fault": 0.0011280315848843767,
+     "unknown": 0.023004040243036074
+    }
+   },
+   "known_b_unseen_foldk": {
+    "instances": 6232,
+    "distinct_recordings": 779,
+    "pooled": {
+     "healthy": {
+      "instances": 1,
+      "rate": 0.00016046213093709883,
+      "distinct_recordings": 1
+     },
+     "correct": {
+      "instances": 5391,
+      "rate": 0.8650513478818999,
+      "distinct_recordings": 762
+     },
+     "wrong_fault": {
+      "instances": 7,
+      "rate": 0.001123234916559692,
+      "distinct_recordings": 3
+     },
+     "unknown": {
+      "instances": 833,
+      "rate": 0.13366495507060333,
+      "distinct_recordings": 253
+     }
+    },
+    "per_class": {
+     "horizontal_misalignment": {
+      "healthy": 0.0,
+      "correct": 0.6541095890410958,
+      "wrong_fault": 0.0017123287671232876,
+      "unknown": 0.3441780821917808,
+      "instances": 584,
+      "distinct": 73
+     },
+     "imbalance": {
+      "healthy": 0.0,
+      "correct": 0.8394097222222222,
+      "wrong_fault": 0.0,
+      "unknown": 0.1605902777777778,
+      "instances": 1152,
+      "distinct": 144
+     },
+     "overhang_ball": {
+      "healthy": 0.0,
+      "correct": 1.0,
+      "wrong_fault": 0.0,
+      "unknown": 0.0,
+      "instances": 552,
+      "distinct": 69
+     },
+     "overhang_cage": {
+      "healthy": 0.0,
+      "correct": 0.8229166666666666,
+      "wrong_fault": 0.0,
+      "unknown": 0.17708333333333334,
+      "instances": 576,
+      "distinct": 72
+     },
+     "overhang_outer": {
+      "healthy": 0.0,
+      "correct": 0.8158783783783784,
+      "wrong_fault": 0.0,
+      "unknown": 0.18412162162162163,
+      "instances": 592,
+      "distinct": 74
+     },
+     "underhang_ball": {
+      "healthy": 0.0,
+      "correct": 0.9025974025974026,
+      "wrong_fault": 0.0,
+      "unknown": 0.09740259740259741,
+      "instances": 616,
+      "distinct": 77
+     },
+     "underhang_cage": {
+      "healthy": 0.0,
+      "correct": 0.8350694444444444,
+      "wrong_fault": 0.008680555555555556,
+      "unknown": 0.15625,
+      "instances": 576,
+      "distinct": 72
+     },
+     "underhang_outer": {
+      "healthy": 0.0,
+      "correct": 0.9537671232876712,
+      "wrong_fault": 0.0,
+      "unknown": 0.046232876712328765,
+      "instances": 584,
+      "distinct": 73
+     },
+     "vertical_misalignment": {
+      "healthy": 0.001,
+      "correct": 0.939,
+      "wrong_fault": 0.001,
+      "unknown": 0.059,
+      "instances": 1000,
+      "distinct": 125
+     }
+    },
+    "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+     "healthy": 0.00048112522432468816,
+     "correct": 0.09847208423945278,
+     "wrong_fault": 0.002556345102856867,
+     "unknown": 0.09926823944635704
+    },
+    "per_fold_macro": {
+     "0": {
+      "healthy": 0.0,
+      "correct": 0.8283032605254828,
+      "wrong_fault": 0.0,
+      "unknown": 0.17169673947451725
+     },
+     "1": {
+      "healthy": 0.0002777777777777778,
+      "correct": 0.9349884259259258,
+      "wrong_fault": 0.0008333333333333333,
+      "unknown": 0.06390046296296296
+     },
+     "2": {
+      "healthy": 0.0,
+      "correct": 0.8185834779370031,
+      "wrong_fault": 0.003156565656565657,
+      "unknown": 0.17825995640643122
+     }
+    },
+    "std over the 3 folds of the per-fold macro value": {
+     "healthy": 0.00016037507477489605,
+     "correct": 0.06458368035140016,
+     "wrong_fault": 0.001635836158073585,
+     "unknown": 0.06421475270125172
+    },
+    "macro_over_known_fault_classes": {
+     "healthy": 0.00011111111111111112,
+     "correct": 0.8625275918486535,
+     "wrong_fault": 0.001265876035853205,
+     "unknown": 0.13609542100438218
+    }
+   },
+   "normal_foldk": {
+    "instances": 225,
+    "distinct_recordings": 25,
+    "pooled": {
+     "healthy": {
+      "instances": 192,
+      "rate": 0.8533333333333334,
+      "distinct_recordings": 25
+     },
+     "fault": {
+      "instances": 0,
+      "rate": 0.0,
+      "distinct_recordings": 0
+     },
+     "unknown": {
+      "instances": 33,
+      "rate": 0.14666666666666667,
+      "distinct_recordings": 7
+     }
+    },
+    "per_class": {
+     "normal": {
+      "healthy": 0.8533333333333334,
+      "fault": 0.0,
+      "unknown": 0.14666666666666667,
+      "instances": 225,
+      "distinct": 25
+     }
+    },
+    "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+     "healthy": 0.12108960373140187,
+     "fault": 0.0,
+     "unknown": 0.12108960373140187
+    },
+    "per_fold_macro": {
+     "0": {
+      "healthy": 0.7638888888888888,
+      "fault": 0.0,
+      "unknown": 0.2361111111111111
+     },
+     "1": {
+      "healthy": 0.9166666666666666,
+      "fault": 0.0,
+      "unknown": 0.08333333333333333
+     },
+     "2": {
+      "healthy": 0.8765432098765431,
+      "fault": 0.0,
+      "unknown": 0.1234567901234568
+     }
+    },
+    "std over the 3 folds of the per-fold macro value": {
+     "healthy": 0.07920641514916832,
+     "fault": 0.0,
+     "unknown": 0.07920641514916832
+    }
+   },
+   "normal_seen_folder": {
+    "instances": 74,
+    "distinct_recordings": 25,
+    "pooled": {
+     "healthy": {
+      "instances": 68,
+      "rate": 0.918918918918919,
+      "distinct_recordings": 23
+     },
+     "fault": {
+      "instances": 0,
+      "rate": 0.0,
+      "distinct_recordings": 0
+     },
+     "unknown": {
+      "instances": 6,
+      "rate": 0.08108108108108109,
+      "distinct_recordings": 4
+     }
+    },
+    "per_class": {
+     "normal": {
+      "healthy": 0.918918918918919,
+      "fault": 0.0,
+      "unknown": 0.08108108108108109,
+      "instances": 74,
+      "distinct": 25
+     }
+    },
+    "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+     "healthy": 0.16902416234981418,
+     "fault": 0.0,
+     "unknown": 0.16902416234981418
+    },
+    "per_fold_macro": {
+     "0": {
+      "healthy": 0.9629629629629629,
+      "fault": 0.0,
+      "unknown": 0.037037037037037035
+     },
+     "1": {
+      "healthy": 0.9629629629629629,
+      "fault": 0.0,
+      "unknown": 0.037037037037037035
+     },
+     "2": {
+      "healthy": 0.8148148148148148,
+      "fault": 0.0,
+      "unknown": 0.18518518518518517
+     }
+    },
+    "std over the 3 folds of the per-fold macro value": {
+     "healthy": 0.08553337321327789,
+     "fault": 0.0,
+     "unknown": 0.08553337321327789
+    }
+   }
+  },
+  "lr_matched": {
+   "withheld": {
+    "instances": 779,
+    "distinct_recordings": 779,
+    "pooled": {
+     "healthy": {
+      "instances": 61,
+      "rate": 0.07830551989730423,
+      "distinct_recordings": 61
+     },
+     "known_fault": {
+      "instances": 331,
+      "rate": 0.4249037227214377,
+      "distinct_recordings": 331
+     },
+     "unknown": {
+      "instances": 387,
+      "rate": 0.496790757381258,
+      "distinct_recordings": 387
+     }
+    },
+    "per_class": {
+     "horizontal_misalignment": {
+      "healthy": 0.3424657534246575,
+      "known_fault": 0.1780821917808219,
+      "unknown": 0.4794520547945205,
+      "instances": 73,
+      "distinct": 73
+     },
+     "imbalance": {
+      "healthy": 0.006944444444444444,
+      "known_fault": 0.8472222222222222,
+      "unknown": 0.14583333333333334,
+      "instances": 144,
+      "distinct": 144
+     },
+     "overhang_ball": {
+      "healthy": 0.0,
+      "known_fault": 0.4492753623188406,
+      "unknown": 0.5507246376811594,
+      "instances": 69,
+      "distinct": 69
+     },
+     "overhang_cage": {
+      "healthy": 0.0,
+      "known_fault": 0.0,
+      "unknown": 1.0,
+      "instances": 72,
+      "distinct": 72
+     },
+     "overhang_outer": {
+      "healthy": 0.0,
+      "known_fault": 0.33783783783783783,
+      "unknown": 0.6621621621621622,
+      "instances": 74,
+      "distinct": 74
+     },
+     "underhang_ball": {
+      "healthy": 0.012987012987012988,
+      "known_fault": 0.6233766233766234,
+      "unknown": 0.36363636363636365,
+      "instances": 77,
+      "distinct": 77
+     },
+     "underhang_cage": {
+      "healthy": 0.4583333333333333,
+      "known_fault": 0.027777777777777776,
+      "unknown": 0.5138888888888888,
+      "instances": 72,
+      "distinct": 72
+     },
+     "underhang_outer": {
+      "healthy": 0.0,
+      "known_fault": 0.2602739726027397,
+      "unknown": 0.7397260273972602,
+      "instances": 73,
+      "distinct": 73
+     },
+     "vertical_misalignment": {
+      "healthy": 0.008,
+      "known_fault": 0.568,
+      "unknown": 0.424,
+      "instances": 125,
+      "distinct": 125
+     }
+    },
+    "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+     "healthy": 0.22735575232377525,
+     "known_fault": 0.35821137191354574,
+     "unknown": 0.3527048637133011
+    },
+    "per_fold_macro": {
+     "0": {
+      "healthy": 0.016460905349794237,
+      "known_fault": 0.45409978616327823,
+      "unknown": 0.5294393084869276
+     },
+     "1": {
+      "healthy": 0.1664957264957265,
+      "known_fault": 0.43634615384615383,
+      "unknown": 0.39715811965811965
+     },
+     "2": {
+      "healthy": 0.09567815950794673,
+      "known_fault": 0.208897930452047,
+      "unknown": 0.6954239100400063
+     }
+    },
+    "std over the 3 folds of the per-fold macro value": {
+     "healthy": 0.07505658832587349,
+     "known_fault": 0.13673077916707868,
+     "unknown": 0.14944992616415514
+    },
+    "macro_over_withheld_classes": {
+     "healthy": 0.09208117157660536,
+     "known_fault": 0.3657606653240959,
+     "unknown": 0.5421581630992987
+    }
+   },
+   "known_a_seen_folder": {
+    "instances": 2087,
+    "distinct_recordings": 738,
+    "pooled": {
+     "healthy": {
+      "instances": 0,
+      "rate": 0.0,
+      "distinct_recordings": 0
+     },
+     "correct": {
+      "instances": 2036,
+      "rate": 0.975563009103977,
+      "distinct_recordings": 731
+     },
+     "wrong_fault": {
+      "instances": 6,
+      "rate": 0.0028749401054144704,
+      "distinct_recordings": 3
+     },
+     "unknown": {
+      "instances": 45,
+      "rate": 0.02156205079060853,
+      "distinct_recordings": 25
+     }
+    },
+    "per_class": {
+     "horizontal_misalignment": {
+      "healthy": 0.0,
+      "correct": 0.9543147208121827,
+      "wrong_fault": 0.0,
+      "unknown": 0.04568527918781726,
+      "instances": 197,
+      "distinct": 70
+     },
+     "imbalance": {
+      "healthy": 0.0,
+      "correct": 0.9818181818181818,
+      "wrong_fault": 0.0,
+      "unknown": 0.01818181818181818,
+      "instances": 385,
+      "distinct": 137
+     },
+     "overhang_ball": {
+      "healthy": 0.0,
+      "correct": 1.0,
+      "wrong_fault": 0.0,
+      "unknown": 0.0,
+      "instances": 182,
+      "distinct": 65
+     },
+     "overhang_cage": {
+      "healthy": 0.0,
+      "correct": 0.9289340101522843,
+      "wrong_fault": 0.005076142131979695,
+      "unknown": 0.06598984771573604,
+      "instances": 197,
+      "distinct": 68
+     },
+     "overhang_outer": {
+      "healthy": 0.0,
+      "correct": 0.9744897959183674,
+      "wrong_fault": 0.0,
+      "unknown": 0.025510204081632654,
+      "instances": 196,
+      "distinct": 70
+     },
+     "underhang_ball": {
+      "healthy": 0.0,
+      "correct": 1.0,
+      "wrong_fault": 0.0,
+      "unknown": 0.0,
+      "instances": 207,
+      "distinct": 71
+     },
+     "underhang_cage": {
+      "healthy": 0.0,
+      "correct": 0.949238578680203,
+      "wrong_fault": 0.025380710659898477,
+      "unknown": 0.025380710659898477,
+      "instances": 197,
+      "distinct": 69
+     },
+     "underhang_outer": {
+      "healthy": 0.0,
+      "correct": 1.0,
+      "wrong_fault": 0.0,
+      "unknown": 0.0,
+      "instances": 188,
+      "distinct": 71
+     },
+     "vertical_misalignment": {
+      "healthy": 0.0,
+      "correct": 0.9822485207100592,
+      "wrong_fault": 0.0,
+      "unknown": 0.01775147928994083,
+      "instances": 338,
+      "distinct": 117
+     }
+    },
+    "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+     "healthy": 0.0,
+     "correct": 0.019329258306490658,
+     "wrong_fault": 0.007510208607725669,
+     "unknown": 0.01973724421539066
+    },
+    "per_fold_macro": {
+     "0": {
+      "healthy": 0.0,
+      "correct": 0.978520690683681,
+      "wrong_fault": 0.005263447971781305,
+      "unknown": 0.016215861344537816
+     },
+     "1": {
+      "healthy": 0.0,
+      "correct": 0.9732337379396204,
+      "wrong_fault": 0.004822530864197531,
+      "unknown": 0.021943731196182176
+     },
+     "2": {
+      "healthy": 0.0,
+      "correct": 0.9728087442241855,
+      "wrong_fault": 0.0,
+      "unknown": 0.027191255775814598
+     }
+    },
+    "std over the 3 folds of the per-fold macro value": {
+     "healthy": 0.0,
+     "correct": 0.003182211530058703,
+     "wrong_fault": 0.002919905717186389,
+     "unknown": 0.005489448821349981
+    },
+    "macro_over_known_fault_classes": {
+     "healthy": 0.0,
+     "correct": 0.9745604231212531,
+     "wrong_fault": 0.0033840947546531306,
+     "unknown": 0.022055482124093716
+    }
+   },
+   "known_b_unseen_foldk": {
+    "instances": 6232,
+    "distinct_recordings": 779,
+    "pooled": {
+     "healthy": {
+      "instances": 1,
+      "rate": 0.00016046213093709883,
+      "distinct_recordings": 1
+     },
+     "correct": {
+      "instances": 5337,
+      "rate": 0.8563863928112966,
+      "distinct_recordings": 743
+     },
+     "wrong_fault": {
+      "instances": 78,
+      "rate": 0.01251604621309371,
+      "distinct_recordings": 26
+     },
+     "unknown": {
+      "instances": 816,
+      "rate": 0.13093709884467267,
+      "distinct_recordings": 248
+     }
+    },
+    "per_class": {
+     "horizontal_misalignment": {
+      "healthy": 0.0,
+      "correct": 0.7157534246575342,
+      "wrong_fault": 0.003424657534246575,
+      "unknown": 0.2808219178082192,
+      "instances": 584,
+      "distinct": 73
+     },
+     "imbalance": {
+      "healthy": 0.0,
+      "correct": 0.9105902777777778,
+      "wrong_fault": 0.0,
+      "unknown": 0.08940972222222222,
+      "instances": 1152,
+      "distinct": 144
+     },
+     "overhang_ball": {
+      "healthy": 0.0,
+      "correct": 1.0,
+      "wrong_fault": 0.0,
+      "unknown": 0.0,
+      "instances": 552,
+      "distinct": 69
+     },
+     "overhang_cage": {
+      "healthy": 0.0,
+      "correct": 0.6163194444444444,
+      "wrong_fault": 0.020833333333333332,
+      "unknown": 0.3628472222222222,
+      "instances": 576,
+      "distinct": 72
+     },
+     "overhang_outer": {
+      "healthy": 0.0,
+      "correct": 0.7415540540540541,
+      "wrong_fault": 0.03885135135135135,
+      "unknown": 0.2195945945945946,
+      "instances": 592,
+      "distinct": 74
+     },
+     "underhang_ball": {
+      "healthy": 0.0,
+      "correct": 0.9756493506493507,
+      "wrong_fault": 0.0,
+      "unknown": 0.024350649350649352,
+      "instances": 616,
+      "distinct": 77
+     },
+     "underhang_cage": {
+      "healthy": 0.001736111111111111,
+      "correct": 0.7378472222222222,
+      "wrong_fault": 0.057291666666666664,
+      "unknown": 0.203125,
+      "instances": 576,
+      "distinct": 72
+     },
+     "underhang_outer": {
+      "healthy": 0.0,
+      "correct": 0.916095890410959,
+      "wrong_fault": 0.0136986301369863,
+      "unknown": 0.0702054794520548,
+      "instances": 584,
+      "distinct": 73
+     },
+     "vertical_misalignment": {
+      "healthy": 0.0,
+      "correct": 0.963,
+      "wrong_fault": 0.0,
+      "unknown": 0.037,
+      "instances": 1000,
+      "distinct": 125
+     }
+    },
+    "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+     "healthy": 0.0009622504486493762,
+     "correct": 0.10934661710690377,
+     "wrong_fault": 0.017169420589038087,
+     "unknown": 0.11346537783358177
+    },
+    "per_fold_macro": {
+     "0": {
+      "healthy": 0.0005555555555555556,
+      "correct": 0.8292472430567668,
+      "wrong_fault": 0.023076923076923078,
+      "unknown": 0.1471202783107545
+     },
+     "1": {
+      "healthy": 0.0,
+      "correct": 0.9237090455840455,
+      "wrong_fault": 0.004629629629629629,
+      "unknown": 0.07166132478632478
+     },
+     "2": {
+      "healthy": 0.0,
+      "correct": 0.7558221957360486,
+      "wrong_fault": 0.01842833092833093,
+      "unknown": 0.2257494733356204
+     }
+    },
+    "std over the 3 folds of the per-fold macro value": {
+     "healthy": 0.0003207501495497921,
+     "correct": 0.0841628026135816,
+     "wrong_fault": 0.009594409848320438,
+     "unknown": 0.07704950951672808
+    },
+    "macro_over_known_fault_classes": {
+     "healthy": 0.00019290123456790122,
+     "correct": 0.8418677404684825,
+     "wrong_fault": 0.014899959891398244,
+     "unknown": 0.14303939840555138
+    }
+   },
+   "normal_foldk": {
+    "instances": 225,
+    "distinct_recordings": 25,
+    "pooled": {
+     "healthy": {
+      "instances": 198,
+      "rate": 0.88,
+      "distinct_recordings": 24
+     },
+     "fault": {
+      "instances": 1,
+      "rate": 0.0044444444444444444,
+      "distinct_recordings": 1
+     },
+     "unknown": {
+      "instances": 26,
+      "rate": 0.11555555555555555,
+      "distinct_recordings": 7
+     }
+    },
+    "per_class": {
+     "normal": {
+      "healthy": 0.88,
+      "fault": 0.0044444444444444444,
+      "unknown": 0.11555555555555555,
+      "instances": 225,
+      "distinct": 25
+     }
+    },
+    "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+     "healthy": 0.114928297622109,
+     "fault": 0.024056261216234408,
+     "unknown": 0.11720817140030107
+    },
+    "per_fold_macro": {
+     "0": {
+      "healthy": 0.8333333333333334,
+      "fault": 0.013888888888888888,
+      "unknown": 0.1527777777777778
+     },
+     "1": {
+      "healthy": 0.9305555555555556,
+      "fault": 0.0,
+      "unknown": 0.06944444444444445
+     },
+     "2": {
+      "healthy": 0.8765432098765432,
+      "fault": 0.0,
+      "unknown": 0.1234567901234568
+     }
+    },
+    "std over the 3 folds of the per-fold macro value": {
+     "healthy": 0.04871103128049423,
+     "fault": 0.008018753738744801,
+     "unknown": 0.04227193365031226
+    }
+   },
+   "normal_seen_folder": {
+    "instances": 74,
+    "distinct_recordings": 25,
+    "pooled": {
+     "healthy": {
+      "instances": 71,
+      "rate": 0.9594594594594594,
+      "distinct_recordings": 24
+     },
+     "fault": {
+      "instances": 0,
+      "rate": 0.0,
+      "distinct_recordings": 0
+     },
+     "unknown": {
+      "instances": 3,
+      "rate": 0.04054054054054054,
+      "distinct_recordings": 3
+     }
+    },
+    "per_class": {
+     "normal": {
+      "healthy": 0.9594594594594594,
+      "fault": 0.0,
+      "unknown": 0.04054054054054054,
+      "instances": 74,
+      "distinct": 25
+     }
+    },
+    "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+     "healthy": 0.14481652712098192,
+     "fault": 0.0,
+     "unknown": 0.14481652712098192
+    },
+    "per_fold_macro": {
+     "0": {
+      "healthy": 1.0,
+      "fault": 0.0,
+      "unknown": 0.0
+     },
+     "1": {
+      "healthy": 0.9074074074074073,
+      "fault": 0.0,
+      "unknown": 0.09259259259259259
+     },
+     "2": {
+      "healthy": 0.9444444444444444,
+      "fault": 0.0,
+      "unknown": 0.05555555555555555
+     }
+    },
+    "std over the 3 folds of the per-fold macro value": {
+     "healthy": 0.04660391626710343,
+     "fault": 0.0,
+     "unknown": 0.04660391626710339
+    }
+   }
+  }
+ },
+ "retrospective_diagnostic": {
+  "a_seen_folder": {
+   "label": "RETROSPECTIVE and EXPLORATORY: thresholds matched on evaluation data; they must not be deployed or used for model selection",
+   "matching": [
+    {
+     "withheld": "horizontal_misalignment",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 0,
+     "lr_false_unknowns": 0,
+     "ties": 1
+    },
+    {
+     "withheld": "horizontal_misalignment",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 7,
+     "lr_false_unknowns": 7,
+     "ties": 1
+    },
+    {
+     "withheld": "horizontal_misalignment",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 4,
+     "lr_false_unknowns": 4,
+     "ties": 1
+    },
+    {
+     "withheld": "imbalance",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 2,
+     "lr_false_unknowns": 2,
+     "ties": 1
+    },
+    {
+     "withheld": "imbalance",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 1,
+     "lr_false_unknowns": 1,
+     "ties": 1
+    },
+    {
+     "withheld": "imbalance",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 0,
+     "lr_false_unknowns": 0,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_ball",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 1,
+     "lr_false_unknowns": 1,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_ball",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 0,
+     "lr_false_unknowns": 0,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_ball",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 5,
+     "lr_false_unknowns": 5,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_cage",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 0,
+     "lr_false_unknowns": 0,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_cage",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 2,
+     "lr_false_unknowns": 2,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_cage",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 0,
+     "lr_false_unknowns": 0,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_outer",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 1,
+     "lr_false_unknowns": 1,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_outer",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 3,
+     "lr_false_unknowns": 3,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_outer",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 2,
+     "lr_false_unknowns": 2,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_ball",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 0,
+     "lr_false_unknowns": 0,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_ball",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 1,
+     "lr_false_unknowns": 1,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_ball",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 0,
+     "lr_false_unknowns": 0,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_cage",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 7,
+     "lr_false_unknowns": 7,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_cage",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 1,
+     "lr_false_unknowns": 1,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_cage",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 2,
+     "lr_false_unknowns": 2,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_outer",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 2,
+     "lr_false_unknowns": 2,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_outer",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 1,
+     "lr_false_unknowns": 1,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_outer",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 3,
+     "lr_false_unknowns": 3,
+     "ties": 1
+    },
+    {
+     "withheld": "vertical_misalignment",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 2,
+     "lr_false_unknowns": 2,
+     "ties": 1
+    },
+    {
+     "withheld": "vertical_misalignment",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 1,
+     "lr_false_unknowns": 1,
+     "ties": 1
+    },
+    {
+     "withheld": "vertical_misalignment",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 4,
+     "lr_false_unknowns": 4,
+     "ties": 1
+    }
+   ],
+   "outcomes": {
+    "withheld": {
+     "instances": 779,
+     "distinct_recordings": 779,
+     "pooled": {
+      "healthy": {
+       "instances": 29,
+       "rate": 0.037227214377406934,
+       "distinct_recordings": 29
+      },
+      "known_fault": {
+       "instances": 284,
+       "rate": 0.3645699614890886,
+       "distinct_recordings": 284
+      },
+      "unknown": {
+       "instances": 466,
+       "rate": 0.5982028241335045,
+       "distinct_recordings": 466
+      }
+     },
+     "per_class": {
+      "horizontal_misalignment": {
+       "healthy": 0.0547945205479452,
+       "known_fault": 0.0136986301369863,
+       "unknown": 0.9315068493150684,
+       "instances": 73,
+       "distinct": 73
+      },
+      "imbalance": {
+       "healthy": 0.006944444444444444,
+       "known_fault": 0.8541666666666666,
+       "unknown": 0.1388888888888889,
+       "instances": 144,
+       "distinct": 144
+      },
+      "overhang_ball": {
+       "healthy": 0.0,
+       "known_fault": 0.37681159420289856,
+       "unknown": 0.6231884057971014,
+       "instances": 69,
+       "distinct": 69
+      },
+      "overhang_cage": {
+       "healthy": 0.0,
+       "known_fault": 0.2916666666666667,
+       "unknown": 0.7083333333333334,
+       "instances": 72,
+       "distinct": 72
+      },
+      "overhang_outer": {
+       "healthy": 0.0,
+       "known_fault": 0.17567567567567569,
+       "unknown": 0.8243243243243243,
+       "instances": 74,
+       "distinct": 74
+      },
+      "underhang_ball": {
+       "healthy": 0.012987012987012988,
+       "known_fault": 0.5454545454545454,
+       "unknown": 0.44155844155844154,
+       "instances": 77,
+       "distinct": 77
+      },
+      "underhang_cage": {
+       "healthy": 0.3055555555555556,
+       "known_fault": 0.013888888888888888,
+       "unknown": 0.6805555555555556,
+       "instances": 72,
+       "distinct": 72
+      },
+      "underhang_outer": {
+       "healthy": 0.0,
+       "known_fault": 0.2191780821917808,
+       "unknown": 0.7808219178082192,
+       "instances": 73,
+       "distinct": 73
+      },
+      "vertical_misalignment": {
+       "healthy": 0.008,
+       "known_fault": 0.328,
+       "unknown": 0.664,
+       "instances": 125,
+       "distinct": 125
+      }
+     },
+     "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+      "healthy": 0.17050766358035685,
+      "known_fault": 0.3676300262027996,
+      "unknown": 0.37735713930043085
+     },
+     "per_fold_macro": {
+      "0": {
+       "healthy": 0.0,
+       "known_fault": 0.2802852879043355,
+       "unknown": 0.7197147120956644
+      },
+      "1": {
+       "healthy": 0.12205128205128205,
+       "known_fault": 0.38144586894586896,
+       "unknown": 0.496502849002849
+      },
+      "2": {
+       "healthy": 0.002364066193853428,
+       "known_fault": 0.2632910867184688,
+       "unknown": 0.7343448470876778
+      }
+     },
+     "std over the 3 folds of the per-fold macro value": {
+      "healthy": 0.06979390362468778,
+      "known_fault": 0.06387855481799132,
+      "unknown": 0.13329565679860814
+     },
+     "macro_over_withheld_classes": {
+      "healthy": 0.043142392614995355,
+      "known_fault": 0.3131711944315676,
+      "unknown": 0.643686412953437
+     }
+    },
+    "known_a_seen_folder": {
+     "instances": 2087,
+     "distinct_recordings": 738,
+     "pooled": {
+      "healthy": {
+       "instances": 1,
+       "rate": 0.0004791566842357451,
+       "distinct_recordings": 1
+      },
+      "correct": {
+       "instances": 2030,
+       "rate": 0.9726880689985625,
+       "distinct_recordings": 733
+      },
+      "wrong_fault": {
+       "instances": 4,
+       "rate": 0.0019166267369429804,
+       "distinct_recordings": 1
+      },
+      "unknown": {
+       "instances": 52,
+       "rate": 0.024916147580258743,
+       "distinct_recordings": 29
+      }
+     },
+     "per_class": {
+      "horizontal_misalignment": {
+       "healthy": 0.0,
+       "correct": 0.9695431472081218,
+       "wrong_fault": 0.0,
+       "unknown": 0.030456852791878174,
+       "instances": 197,
+       "distinct": 70
+      },
+      "imbalance": {
+       "healthy": 0.0,
+       "correct": 0.9818181818181818,
+       "wrong_fault": 0.0,
+       "unknown": 0.01818181818181818,
+       "instances": 385,
+       "distinct": 137
+      },
+      "overhang_ball": {
+       "healthy": 0.0,
+       "correct": 1.0,
+       "wrong_fault": 0.0,
+       "unknown": 0.0,
+       "instances": 182,
+       "distinct": 65
+      },
+      "overhang_cage": {
+       "healthy": 0.0,
+       "correct": 0.9137055837563451,
+       "wrong_fault": 0.0,
+       "unknown": 0.08629441624365482,
+       "instances": 197,
+       "distinct": 68
+      },
+      "overhang_outer": {
+       "healthy": 0.0,
+       "correct": 0.9489795918367347,
+       "wrong_fault": 0.0,
+       "unknown": 0.05102040816326531,
+       "instances": 196,
+       "distinct": 70
+      },
+      "underhang_ball": {
+       "healthy": 0.0,
+       "correct": 0.9806763285024155,
+       "wrong_fault": 0.0,
+       "unknown": 0.01932367149758454,
+       "instances": 207,
+       "distinct": 71
+      },
+      "underhang_cage": {
+       "healthy": 0.0,
+       "correct": 0.9593908629441624,
+       "wrong_fault": 0.02030456852791878,
+       "unknown": 0.02030456852791878,
+       "instances": 197,
+       "distinct": 69
+      },
+      "underhang_outer": {
+       "healthy": 0.0,
+       "correct": 1.0,
+       "wrong_fault": 0.0,
+       "unknown": 0.0,
+       "instances": 188,
+       "distinct": 71
+      },
+      "vertical_misalignment": {
+       "healthy": 0.0029585798816568047,
+       "correct": 0.985207100591716,
+       "wrong_fault": 0.0,
+       "unknown": 0.011834319526627219,
+       "instances": 338,
+       "distinct": 117
+      }
+     },
+     "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+      "healthy": 0.0017183043725881716,
+      "correct": 0.026741242998729854,
+      "wrong_fault": 0.005728063686540304,
+      "unknown": 0.02735107297325183
+     },
+     "per_fold_macro": {
+      "0": {
+       "healthy": 0.0,
+       "correct": 0.9733123573503476,
+       "wrong_fault": 0.003720238095238095,
+       "unknown": 0.02296740455441436
+      },
+      "1": {
+       "healthy": 0.0,
+       "correct": 0.9700922035480859,
+       "wrong_fault": 0.003279320987654321,
+       "unknown": 0.026628475464259775
+      },
+      "2": {
+       "healthy": 0.000992063492063492,
+       "correct": 0.9710800523913269,
+       "wrong_fault": 0.0,
+       "unknown": 0.027927884116609607
+      }
+     },
+     "std over the 3 folds of the per-fold macro value": {
+      "healthy": 0.0005727681241960573,
+      "correct": 0.0016496677078218687,
+      "wrong_fault": 0.002032589707782124,
+      "unknown": 0.0025722318629183595
+     },
+     "macro_over_known_fault_classes": {
+      "healthy": 0.0003287310979618672,
+      "correct": 0.9710356440730753,
+      "wrong_fault": 0.0022560631697687533,
+      "unknown": 0.026379561659194115
+     }
+    },
+    "known_b_unseen_foldk": {
+     "instances": 6232,
+     "distinct_recordings": 779,
+     "pooled": {
+      "healthy": {
+       "instances": 2,
+       "rate": 0.00032092426187419767,
+       "distinct_recordings": 2
+      },
+      "correct": {
+       "instances": 5063,
+       "rate": 0.8124197689345315,
+       "distinct_recordings": 740
+      },
+      "wrong_fault": {
+       "instances": 40,
+       "rate": 0.006418485237483954,
+       "distinct_recordings": 19
+      },
+      "unknown": {
+       "instances": 1127,
+       "rate": 0.1808408215661104,
+       "distinct_recordings": 283
+      }
+     },
+     "per_class": {
+      "horizontal_misalignment": {
+       "healthy": 0.003424657534246575,
+       "correct": 0.660958904109589,
+       "wrong_fault": 0.0017123287671232876,
+       "unknown": 0.3339041095890411,
+       "instances": 584,
+       "distinct": 73
+      },
+      "imbalance": {
+       "healthy": 0.0,
+       "correct": 0.8854166666666666,
+       "wrong_fault": 0.0,
+       "unknown": 0.11458333333333333,
+       "instances": 1152,
+       "distinct": 144
+      },
+      "overhang_ball": {
+       "healthy": 0.0,
+       "correct": 1.0,
+       "wrong_fault": 0.0,
+       "unknown": 0.0,
+       "instances": 552,
+       "distinct": 69
+      },
+      "overhang_cage": {
+       "healthy": 0.0,
+       "correct": 0.4982638888888889,
+       "wrong_fault": 0.005208333333333333,
+       "unknown": 0.4965277777777778,
+       "instances": 576,
+       "distinct": 72
+      },
+      "overhang_outer": {
+       "healthy": 0.0,
+       "correct": 0.714527027027027,
+       "wrong_fault": 0.02027027027027027,
+       "unknown": 0.2652027027027027,
+       "instances": 592,
+       "distinct": 74
+      },
+      "underhang_ball": {
+       "healthy": 0.0,
+       "correct": 0.9431818181818182,
+       "wrong_fault": 0.0,
+       "unknown": 0.056818181818181816,
+       "instances": 616,
+       "distinct": 77
+      },
+      "underhang_cage": {
+       "healthy": 0.0,
+       "correct": 0.6736111111111112,
+       "wrong_fault": 0.03819444444444445,
+       "unknown": 0.2881944444444444,
+       "instances": 576,
+       "distinct": 72
+      },
+      "underhang_outer": {
+       "healthy": 0.0,
+       "correct": 0.8373287671232876,
+       "wrong_fault": 0.003424657534246575,
+       "unknown": 0.15924657534246575,
+       "instances": 584,
+       "distinct": 73
+      },
+      "vertical_misalignment": {
+       "healthy": 0.0,
+       "correct": 0.937,
+       "wrong_fault": 0.0,
+       "unknown": 0.063,
+       "instances": 1000,
+       "distinct": 125
+      }
+     },
+     "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+      "healthy": 0.0022910724967842295,
+      "correct": 0.1258550128662326,
+      "wrong_fault": 0.011433691132298154,
+      "unknown": 0.12973209151387094
+     },
+     "per_fold_macro": {
+      "0": {
+       "healthy": 0.0,
+       "correct": 0.7900543474749824,
+       "wrong_fault": 0.012158119658119658,
+       "unknown": 0.19778753286689796
+      },
+      "1": {
+       "healthy": 0.0,
+       "correct": 0.8738470441595442,
+       "wrong_fault": 0.0011574074074074073,
+       "unknown": 0.12499554843304844
+      },
+      "2": {
+       "healthy": 0.0013227513227513227,
+       "correct": 0.7029792680417928,
+       "wrong_fault": 0.010491822991822991,
+       "unknown": 0.28520615764363283
+      }
+     },
+     "std over the 3 folds of the per-fold macro value": {
+      "healthy": 0.0007636908322614097,
+      "correct": 0.08543914246545438,
+      "wrong_fault": 0.00592907425187753,
+      "unknown": 0.08021650729878893
+     },
+     "macro_over_known_fault_classes": {
+      "healthy": 0.000380517503805175,
+      "correct": 0.7944764647898209,
+      "wrong_fault": 0.007645559372157547,
+      "unknown": 0.1974974583342163
+     }
+    },
+    "normal_foldk": {
+     "instances": 225,
+     "distinct_recordings": 25,
+     "pooled": {
+      "healthy": {
+       "instances": 187,
+       "rate": 0.8311111111111111,
+       "distinct_recordings": 24
+      },
+      "fault": {
+       "instances": 0,
+       "rate": 0.0,
+       "distinct_recordings": 0
+      },
+      "unknown": {
+       "instances": 38,
+       "rate": 0.1688888888888889,
+       "distinct_recordings": 9
+      }
+     },
+     "per_class": {
+      "normal": {
+       "healthy": 0.8311111111111111,
+       "fault": 0.0,
+       "unknown": 0.1688888888888889,
+       "instances": 225,
+       "distinct": 25
+      }
+     },
+     "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+      "healthy": 0.10452810040054299,
+      "fault": 0.0,
+      "unknown": 0.10452810040054299
+     },
+     "per_fold_macro": {
+      "0": {
+       "healthy": 0.8333333333333334,
+       "fault": 0.0,
+       "unknown": 0.16666666666666666
+      },
+      "1": {
+       "healthy": 0.8472222222222222,
+       "fault": 0.0,
+       "unknown": 0.1527777777777778
+      },
+      "2": {
+       "healthy": 0.8148148148148148,
+       "fault": 0.0,
+       "unknown": 0.18518518518518517
+      }
+     },
+     "std over the 3 folds of the per-fold macro value": {
+      "healthy": 0.0162587249272419,
+      "fault": 0.0,
+      "unknown": 0.01625872492724187
+     }
+    },
+    "normal_seen_folder": {
+     "instances": 74,
+     "distinct_recordings": 25,
+     "pooled": {
+      "healthy": {
+       "instances": 70,
+       "rate": 0.9459459459459459,
+       "distinct_recordings": 24
+      },
+      "fault": {
+       "instances": 0,
+       "rate": 0.0,
+       "distinct_recordings": 0
+      },
+      "unknown": {
+       "instances": 4,
+       "rate": 0.05405405405405406,
+       "distinct_recordings": 3
+      }
+     },
+     "per_class": {
+      "normal": {
+       "healthy": 0.9459459459459459,
+       "fault": 0.0,
+       "unknown": 0.05405405405405406,
+       "instances": 74,
+       "distinct": 25
+      }
+     },
+     "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+      "healthy": 0.1683203806850875,
+      "fault": 0.0,
+      "unknown": 0.1683203806850875
+     },
+     "per_fold_macro": {
+      "0": {
+       "healthy": 1.0,
+       "fault": 0.0,
+       "unknown": 0.0
+      },
+      "1": {
+       "healthy": 0.9074074074074073,
+       "fault": 0.0,
+       "unknown": 0.09259259259259259
+      },
+      "2": {
+       "healthy": 0.8888888888888888,
+       "fault": 0.0,
+       "unknown": 0.1111111111111111
+      }
+     },
+     "std over the 3 folds of the per-fold macro value": {
+      "healthy": 0.059528708401191115,
+      "fault": 0.0,
+      "unknown": 0.05952870840119107
+     }
+    }
+   }
+  },
+  "b_unseen_foldk": {
+   "label": "RETROSPECTIVE and EXPLORATORY: thresholds matched on evaluation data; they must not be deployed or used for model selection",
+   "matching": [
+    {
+     "withheld": "horizontal_misalignment",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 35,
+     "lr_false_unknowns": 35,
+     "ties": 1
+    },
+    {
+     "withheld": "horizontal_misalignment",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 23,
+     "lr_false_unknowns": 23,
+     "ties": 1
+    },
+    {
+     "withheld": "horizontal_misalignment",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 37,
+     "lr_false_unknowns": 37,
+     "ties": 1
+    },
+    {
+     "withheld": "imbalance",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 30,
+     "lr_false_unknowns": 30,
+     "ties": 1
+    },
+    {
+     "withheld": "imbalance",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 14,
+     "lr_false_unknowns": 14,
+     "ties": 1
+    },
+    {
+     "withheld": "imbalance",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 2,
+     "lr_false_unknowns": 2,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_ball",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 45,
+     "lr_false_unknowns": 45,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_ball",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 10,
+     "lr_false_unknowns": 10,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_ball",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 86,
+     "lr_false_unknowns": 86,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_cage",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 14,
+     "lr_false_unknowns": 14,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_cage",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 24,
+     "lr_false_unknowns": 24,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_cage",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 23,
+     "lr_false_unknowns": 23,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_outer",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 51,
+     "lr_false_unknowns": 51,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_outer",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 23,
+     "lr_false_unknowns": 23,
+     "ties": 1
+    },
+    {
+     "withheld": "overhang_outer",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 26,
+     "lr_false_unknowns": 26,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_ball",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 24,
+     "lr_false_unknowns": 24,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_ball",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 7,
+     "lr_false_unknowns": 7,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_ball",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 12,
+     "lr_false_unknowns": 12,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_cage",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 72,
+     "lr_false_unknowns": 72,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_cage",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 10,
+     "lr_false_unknowns": 10,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_cage",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 34,
+     "lr_false_unknowns": 34,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_outer",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 54,
+     "lr_false_unknowns": 54,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_outer",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 29,
+     "lr_false_unknowns": 29,
+     "ties": 1
+    },
+    {
+     "withheld": "underhang_outer",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 64,
+     "lr_false_unknowns": 64,
+     "ties": 1
+    },
+    {
+     "withheld": "vertical_misalignment",
+     "outer_fold": 0,
+     "cnn_false_unknowns": 44,
+     "lr_false_unknowns": 44,
+     "ties": 1
+    },
+    {
+     "withheld": "vertical_misalignment",
+     "outer_fold": 1,
+     "cnn_false_unknowns": 1,
+     "lr_false_unknowns": 1,
+     "ties": 1
+    },
+    {
+     "withheld": "vertical_misalignment",
+     "outer_fold": 2,
+     "cnn_false_unknowns": 39,
+     "lr_false_unknowns": 39,
+     "ties": 1
+    }
+   ],
+   "outcomes": {
+    "withheld": {
+     "instances": 779,
+     "distinct_recordings": 779,
+     "pooled": {
+      "healthy": {
+       "instances": 40,
+       "rate": 0.051347881899871634,
+       "distinct_recordings": 40
+      },
+      "known_fault": {
+       "instances": 314,
+       "rate": 0.4030808729139923,
+       "distinct_recordings": 314
+      },
+      "unknown": {
+       "instances": 425,
+       "rate": 0.5455712451861361,
+       "distinct_recordings": 425
+      }
+     },
+     "per_class": {
+      "horizontal_misalignment": {
+       "healthy": 0.1232876712328767,
+       "known_fault": 0.0410958904109589,
+       "unknown": 0.8356164383561644,
+       "instances": 73,
+       "distinct": 73
+      },
+      "imbalance": {
+       "healthy": 0.006944444444444444,
+       "known_fault": 0.8611111111111112,
+       "unknown": 0.13194444444444445,
+       "instances": 144,
+       "distinct": 144
+      },
+      "overhang_ball": {
+       "healthy": 0.0,
+       "known_fault": 0.4057971014492754,
+       "unknown": 0.5942028985507246,
+       "instances": 69,
+       "distinct": 69
+      },
+      "overhang_cage": {
+       "healthy": 0.0,
+       "known_fault": 0.16666666666666666,
+       "unknown": 0.8333333333333334,
+       "instances": 72,
+       "distinct": 72
+      },
+      "overhang_outer": {
+       "healthy": 0.0,
+       "known_fault": 0.17567567567567569,
+       "unknown": 0.8243243243243243,
+       "instances": 74,
+       "distinct": 74
+      },
+      "underhang_ball": {
+       "healthy": 0.0,
+       "known_fault": 0.6103896103896104,
+       "unknown": 0.38961038961038963,
+       "instances": 77,
+       "distinct": 77
+      },
+      "underhang_cage": {
+       "healthy": 0.4027777777777778,
+       "known_fault": 0.027777777777777776,
+       "unknown": 0.5694444444444444,
+       "instances": 72,
+       "distinct": 72
+      },
+      "underhang_outer": {
+       "healthy": 0.0,
+       "known_fault": 0.273972602739726,
+       "unknown": 0.726027397260274,
+       "instances": 73,
+       "distinct": 73
+      },
+      "vertical_misalignment": {
+       "healthy": 0.008,
+       "known_fault": 0.52,
+       "unknown": 0.472,
+       "instances": 125,
+       "distinct": 125
+      }
+     },
+     "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+      "healthy": 0.19148244229977956,
+      "known_fault": 0.3383773825207421,
+      "unknown": 0.33662516823476196
+     },
+     "per_fold_macro": {
+      "0": {
+       "healthy": 0.0,
+       "known_fault": 0.3469719815751562,
+       "unknown": 0.6530280184248438
+      },
+      "1": {
+       "healthy": 0.1311111111111111,
+       "known_fault": 0.38052706552706556,
+       "unknown": 0.4883618233618233
+      },
+      "2": {
+       "healthy": 0.04878061261039984,
+       "known_fault": 0.29517655743372667,
+       "unknown": 0.6560428299558735
+      }
+     },
+     "std over the 3 folds of the per-fold macro value": {
+      "healthy": 0.06626711427600122,
+      "known_fault": 0.0429988737309893,
+      "unknown": 0.09595221454583026
+     },
+     "macro_over_withheld_classes": {
+      "healthy": 0.06011221038389988,
+      "known_fault": 0.34249849291342244,
+      "unknown": 0.5973892967026777
+     }
+    },
+    "known_a_seen_folder": {
+     "instances": 2087,
+     "distinct_recordings": 738,
+     "pooled": {
+      "healthy": {
+       "instances": 1,
+       "rate": 0.0004791566842357451,
+       "distinct_recordings": 1
+      },
+      "correct": {
+       "instances": 2036,
+       "rate": 0.975563009103977,
+       "distinct_recordings": 733
+      },
+      "wrong_fault": {
+       "instances": 3,
+       "rate": 0.0014374700527072352,
+       "distinct_recordings": 2
+      },
+      "unknown": {
+       "instances": 47,
+       "rate": 0.022520364159080018,
+       "distinct_recordings": 26
+      }
+     },
+     "per_class": {
+      "horizontal_misalignment": {
+       "healthy": 0.0,
+       "correct": 0.9593908629441624,
+       "wrong_fault": 0.0,
+       "unknown": 0.04060913705583756,
+       "instances": 197,
+       "distinct": 70
+      },
+      "imbalance": {
+       "healthy": 0.0,
+       "correct": 0.9818181818181818,
+       "wrong_fault": 0.0,
+       "unknown": 0.01818181818181818,
+       "instances": 385,
+       "distinct": 137
+      },
+      "overhang_ball": {
+       "healthy": 0.0,
+       "correct": 1.0,
+       "wrong_fault": 0.0,
+       "unknown": 0.0,
+       "instances": 182,
+       "distinct": 65
+      },
+      "overhang_cage": {
+       "healthy": 0.0,
+       "correct": 0.9137055837563451,
+       "wrong_fault": 0.0,
+       "unknown": 0.08629441624365482,
+       "instances": 197,
+       "distinct": 68
+      },
+      "overhang_outer": {
+       "healthy": 0.0,
+       "correct": 0.9846938775510204,
+       "wrong_fault": 0.0,
+       "unknown": 0.015306122448979591,
+       "instances": 196,
+       "distinct": 70
+      },
+      "underhang_ball": {
+       "healthy": 0.0,
+       "correct": 1.0,
+       "wrong_fault": 0.0,
+       "unknown": 0.0,
+       "instances": 207,
+       "distinct": 71
+      },
+      "underhang_cage": {
+       "healthy": 0.0,
+       "correct": 0.9543147208121827,
+       "wrong_fault": 0.015228426395939087,
+       "unknown": 0.030456852791878174,
+       "instances": 197,
+       "distinct": 69
+      },
+      "underhang_outer": {
+       "healthy": 0.0,
+       "correct": 1.0,
+       "wrong_fault": 0.0,
+       "unknown": 0.0,
+       "instances": 188,
+       "distinct": 71
+      },
+      "vertical_misalignment": {
+       "healthy": 0.0029585798816568047,
+       "correct": 0.9792899408284024,
+       "wrong_fault": 0.0,
+       "unknown": 0.01775147928994083,
+       "instances": 338,
+       "distinct": 117
+      }
+     },
+     "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+      "healthy": 0.0017183043725881716,
+      "correct": 0.02672959917486678,
+      "wrong_fault": 0.00603188690806295,
+      "unknown": 0.027232383636460335
+     },
+     "per_fold_macro": {
+      "0": {
+       "healthy": 0.0,
+       "correct": 0.9704601748106652,
+       "wrong_fault": 0.001736111111111111,
+       "unknown": 0.027803714078223882
+      },
+      "1": {
+       "healthy": 0.0,
+       "correct": 0.9767610748002906,
+       "wrong_fault": 0.0030864197530864196,
+       "unknown": 0.020152505446623094
+      },
+      "2": {
+       "healthy": 0.000992063492063492,
+       "correct": 0.9776698553352965,
+       "wrong_fault": 0.0,
+       "unknown": 0.021338081172639998
+      }
+     },
+     "std over the 3 folds of the per-fold macro value": {
+      "healthy": 0.0005727681241960573,
+      "correct": 0.003926548866526347,
+      "wrong_fault": 0.0015472234330653246,
+      "unknown": 0.00411806977835029
+     },
+     "macro_over_known_fault_classes": {
+      "healthy": 0.0003287310979618672,
+      "correct": 0.9748014630789217,
+      "wrong_fault": 0.0016920473773265653,
+      "unknown": 0.023177758445789908
+     }
+    },
+    "known_b_unseen_foldk": {
+     "instances": 6232,
+     "distinct_recordings": 779,
+     "pooled": {
+      "healthy": {
+       "instances": 0,
+       "rate": 0.0,
+       "distinct_recordings": 0
+      },
+      "correct": {
+       "instances": 5339,
+       "rate": 0.8567073170731707,
+       "distinct_recordings": 743
+      },
+      "wrong_fault": {
+       "instances": 60,
+       "rate": 0.009627727856225931,
+       "distinct_recordings": 21
+      },
+      "unknown": {
+       "instances": 833,
+       "rate": 0.13366495507060333,
+       "distinct_recordings": 229
+      }
+     },
+     "per_class": {
+      "horizontal_misalignment": {
+       "healthy": 0.0,
+       "correct": 0.738013698630137,
+       "wrong_fault": 0.003424657534246575,
+       "unknown": 0.2585616438356164,
+       "instances": 584,
+       "distinct": 73
+      },
+      "imbalance": {
+       "healthy": 0.0,
+       "correct": 0.9236111111111112,
+       "wrong_fault": 0.0,
+       "unknown": 0.0763888888888889,
+       "instances": 1152,
+       "distinct": 144
+      },
+      "overhang_ball": {
+       "healthy": 0.0,
+       "correct": 1.0,
+       "wrong_fault": 0.0,
+       "unknown": 0.0,
+       "instances": 552,
+       "distinct": 69
+      },
+      "overhang_cage": {
+       "healthy": 0.0,
+       "correct": 0.5920138888888888,
+       "wrong_fault": 0.005208333333333333,
+       "unknown": 0.4027777777777778,
+       "instances": 576,
+       "distinct": 72
+      },
+      "overhang_outer": {
+       "healthy": 0.0,
+       "correct": 0.7516891891891891,
+       "wrong_fault": 0.04560810810810811,
+       "unknown": 0.20270270270270271,
+       "instances": 592,
+       "distinct": 74
+      },
+      "underhang_ball": {
+       "healthy": 0.0,
+       "correct": 0.9675324675324676,
+       "wrong_fault": 0.0,
+       "unknown": 0.032467532467532464,
+       "instances": 616,
+       "distinct": 77
+      },
+      "underhang_cage": {
+       "healthy": 0.0,
+       "correct": 0.7204861111111112,
+       "wrong_fault": 0.041666666666666664,
+       "unknown": 0.2378472222222222,
+       "instances": 576,
+       "distinct": 72
+      },
+      "underhang_outer": {
+       "healthy": 0.0,
+       "correct": 0.9075342465753424,
+       "wrong_fault": 0.00684931506849315,
+       "unknown": 0.08561643835616438,
+       "instances": 584,
+       "distinct": 73
+      },
+      "vertical_misalignment": {
+       "healthy": 0.0,
+       "correct": 0.965,
+       "wrong_fault": 0.0,
+       "unknown": 0.035,
+       "instances": 1000,
+       "distinct": 125
+      }
+     },
+     "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+      "healthy": 0.0,
+      "correct": 0.1012394334900184,
+      "wrong_fault": 0.015649444506817052,
+      "unknown": 0.10417179014869009
+     },
+     "per_fold_macro": {
+      "0": {
+       "healthy": 0.0,
+       "correct": 0.7992444651174809,
+       "wrong_fault": 0.012713675213675215,
+       "unknown": 0.1880418596688438
+      },
+      "1": {
+       "healthy": 0.0,
+       "correct": 0.9266960470085469,
+       "wrong_fault": 0.0023148148148148147,
+       "unknown": 0.07098913817663817
+      },
+      "2": {
+       "healthy": 0.0,
+       "correct": 0.7841757929309139,
+       "wrong_fault": 0.021705146705146703,
+       "unknown": 0.19411906036393944
+      }
+     },
+     "std over the 3 folds of the per-fold macro value": {
+      "healthy": 0.0,
+      "correct": 0.07829750254675474,
+      "wrong_fault": 0.009703674802140282,
+      "unknown": 0.0694013084829472
+     },
+     "macro_over_known_fault_classes": {
+      "healthy": 0.0,
+      "correct": 0.8406534125598052,
+      "wrong_fault": 0.011417453412316425,
+      "unknown": 0.14792913402787833
+     }
+    },
+    "normal_foldk": {
+     "instances": 225,
+     "distinct_recordings": 25,
+     "pooled": {
+      "healthy": {
+       "instances": 191,
+       "rate": 0.8488888888888889,
+       "distinct_recordings": 24
+      },
+      "fault": {
+       "instances": 0,
+       "rate": 0.0,
+       "distinct_recordings": 0
+      },
+      "unknown": {
+       "instances": 34,
+       "rate": 0.1511111111111111,
+       "distinct_recordings": 8
+      }
+     },
+     "per_class": {
+      "normal": {
+       "healthy": 0.8488888888888889,
+       "fault": 0.0,
+       "unknown": 0.1511111111111111,
+       "instances": 225,
+       "distinct": 25
+      }
+     },
+     "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+      "healthy": 0.1044676194880893,
+      "fault": 0.0,
+      "unknown": 0.10446761948808928
+     },
+     "per_fold_macro": {
+      "0": {
+       "healthy": 0.8055555555555556,
+       "fault": 0.0,
+       "unknown": 0.19444444444444445
+      },
+      "1": {
+       "healthy": 0.8611111111111112,
+       "fault": 0.0,
+       "unknown": 0.1388888888888889
+      },
+      "2": {
+       "healthy": 0.8765432098765432,
+       "fault": 0.0,
+       "unknown": 0.1234567901234568
+      }
+     },
+     "std over the 3 folds of the per-fold macro value": {
+      "healthy": 0.037335899818156486,
+      "fault": 0.0,
+      "unknown": 0.03733589981815649
+     }
+    },
+    "normal_seen_folder": {
+     "instances": 74,
+     "distinct_recordings": 25,
+     "pooled": {
+      "healthy": {
+       "instances": 71,
+       "rate": 0.9594594594594594,
+       "distinct_recordings": 24
+      },
+      "fault": {
+       "instances": 0,
+       "rate": 0.0,
+       "distinct_recordings": 0
+      },
+      "unknown": {
+       "instances": 3,
+       "rate": 0.04054054054054054,
+       "distinct_recordings": 3
+      }
+     },
+     "per_class": {
+      "normal": {
+       "healthy": 0.9594594594594594,
+       "fault": 0.0,
+       "unknown": 0.04054054054054054,
+       "instances": 74,
+       "distinct": 25
+      }
+     },
+     "std over the 27 class \u00d7 fold runs (mixes between-class and between-fold variation; not seed uncertainty)": {
+      "healthy": 0.14481652712098192,
+      "fault": 0.0,
+      "unknown": 0.14481652712098192
+     },
+     "per_fold_macro": {
+      "0": {
+       "healthy": 0.9629629629629629,
+       "fault": 0.0,
+       "unknown": 0.037037037037037035
+      },
+      "1": {
+       "healthy": 0.9444444444444444,
+       "fault": 0.0,
+       "unknown": 0.05555555555555555
+      },
+      "2": {
+       "healthy": 0.9444444444444444,
+       "fault": 0.0,
+       "unknown": 0.05555555555555555
+      }
+     },
+     "std over the 3 folds of the per-fold macro value": {
+      "healthy": 0.010691671651659719,
+      "fault": 0.0,
+      "unknown": 0.010691671651659736
+     }
+    }
+   }
+  }
+ }
+}
