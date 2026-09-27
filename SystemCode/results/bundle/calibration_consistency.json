@@ -1,0 +1,160 @@
+{
+ "status": "FOUND ISSUE \u2014 pending Bhuvesh's decision; no threshold, rule or model changed",
+ "thresholds": {
+  "tau_p": 0.998895059402817,
+  "tau_d": 30.042536981460426,
+  "tau_e": 0.24307193993418308,
+  "tau_b": 0.8721431922050336
+ },
+ "threshold_setting_device": "mps",
+ "saved_joint_acceptance_rate": 0.9791666666666666,
+ "saved_joint_acceptance_count": 141,
+ "joint_acceptance": {
+  "threshold_setting": {
+   "count": 141,
+   "rate": 0.9791666666666666
+  },
+  "inference": {
+   "count": 139,
+   "rate": 0.9652777777777778
+  }
+ },
+ "recordings_whose_check_differs": [
+  "overhang__cage_fault__6g__13.1072",
+  "overhang__outer_race__20g__18.2272"
+ ],
+ "threshold_defining_recordings": {
+  "tau_p": [
+   "overhang__outer_race__20g__18.2272"
+  ],
+  "tau_d": [
+   "overhang__cage_fault__6g__13.1072"
+  ],
+  "tau_e": [
+   "normal__18.432"
+  ],
+  "tau_b": [
+   "normal__18.432"
+  ]
+ },
+ "max_abs_score_difference_threshold_setting_vs_inference": {
+  "msp": 3.2144497175146114e-08,
+  "maha": 1.9639284168704307e-05,
+  "ae": 1.7660635487359855e-07,
+  "b1s": 1.7763568394002505e-15
+ },
+ "tau_e_recomputed_on_threshold_setting_path": 0.24307194158986764,
+ "normals": [
+  {
+   "rec_id": "normal__18.432",
+   "measured_speed_hz": 18.077305872077673,
+   "pred10": "normal",
+   "msp": 0.9995024751100654,
+   "msp_ge_tau_p": true,
+   "maha": 24.84079579537669,
+   "maha_le_tau_d": true,
+   "ae": 0.24307194628097395,
+   "ae_threshold_setting": 0.24307194158986764,
+   "ae_le_tau_e": false,
+   "b1s": 0.8721431922050334,
+   "b1s_threshold_setting": 0.8721431922050336,
+   "b1s_le_tau_b": true,
+   "verdicts": {
+    "A": "healthy",
+    "B": "healthy",
+    "C": "unknown",
+    "D": "healthy",
+    "B_with_caution": "healthy (caution: ae_disagrees)"
+   }
+  },
+  {
+   "rec_id": "normal__19.6608",
+   "measured_speed_hz": 19.185317925209915,
+   "pred10": "normal",
+   "msp": 0.9996106689494129,
+   "msp_ge_tau_p": true,
+   "maha": 23.58852006669703,
+   "maha_le_tau_d": true,
+   "ae": 0.15587568559028486,
+   "ae_threshold_setting": 0.1558756832447317,
+   "ae_le_tau_e": true,
+   "b1s": 0.8464208858192812,
+   "b1s_threshold_setting": 0.8464208858192812,
+   "b1s_le_tau_b": true,
+   "verdicts": {
+    "A": "healthy",
+    "B": "healthy",
+    "C": "healthy",
+    "D": "healthy",
+    "B_with_caution": "healthy"
+   }
+  },
+  {
+   "rec_id": "normal__24.576",
+   "measured_speed_hz": 24.10507381419242,
+   "pred10": "normal",
+   "msp": 0.9999657812023182,
+   "msp_ge_tau_p": true,
+   "maha": 13.3993119067174,
+   "maha_le_tau_d": true,
+   "ae": 0.13247375438610715,
+   "ae_threshold_setting": 0.13247375024689567,
+   "ae_le_tau_e": true,
+   "b1s": 0.7091587343789933,
+   "b1s_threshold_setting": 0.7091587343789935,
+   "b1s_le_tau_b": true,
+   "verdicts": {
+    "A": "healthy",
+    "B": "healthy",
+    "C": "healthy",
+    "D": "healthy",
+    "B_with_caution": "healthy"
+   }
+  },
+  {
+   "rec_id": "normal__34.2016",
+   "measured_speed_hz": 33.48826700235628,
+   "pred10": "normal",
+   "msp": 0.9999368053582662,
+   "msp_ge_tau_p": true,
+   "maha": 13.819456145003402,
+   "maha_le_tau_d": true,
+   "ae": 0.11264431069570557,
+   "ae_threshold_setting": 0.11264431131658731,
+   "ae_le_tau_e": true,
+   "b1s": 0.7921599170067917,
+   "b1s_threshold_setting": 0.7921599170067917,
+   "b1s_le_tau_b": true,
+   "verdicts": {
+    "A": "healthy",
+    "B": "healthy",
+    "C": "healthy",
+    "D": "healthy",
+    "B_with_caution": "healthy"
+   }
+  },
+  {
+   "rec_id": "normal__39.3216",
+   "measured_speed_hz": 38.341546496188045,
+   "pred10": "normal",
+   "msp": 0.9999604816353013,
+   "msp_ge_tau_p": true,
+   "maha": 16.377495082754997,
+   "maha_le_tau_d": true,
+   "ae": 0.12482056408016769,
+   "ae_threshold_setting": 0.12482056794343172,
+   "ae_le_tau_e": true,
+   "b1s": 0.8048624129895593,
+   "b1s_threshold_setting": 0.8048624129895593,
+   "b1s_le_tau_b": true,
+   "verdicts": {
+    "A": "healthy",
+    "B": "healthy",
+    "C": "healthy",
+    "D": "healthy",
+    "B_with_caution": "healthy"
+   }
+  }
+ ],
+ "cause": "each threshold equals one calibration recording's own score (order statistic for \u03c4_p, \u03c4_d; maximum for \u03c4_e, \u03c4_b), so that recording sits exactly on the boundary; the inference path (CPU, recording by recording, online features) reproduces the threshold-setting scores only to float precision (MSP within ~1e-8, Mahalanobis within ~2e-5, AE within ~2e-7, B1s within ~2e-15), and a difference in the wrong direction flips exactly those boundary recordings"
+}
