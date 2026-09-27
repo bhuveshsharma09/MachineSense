@@ -418,15 +418,64 @@ def run_seeds() -> None:
                        index=[*map(str, SEEDS), "mean", "std"]).T.round(3).to_string())
 
 
+# Stage ML-4.2 item 5: the ML-4.1 measured cross-path differences (bundle models, threshold-setting path vs CPU inference;
+# results/bundle/calibration_consistency.json at commit a9cfc9e), used here as SCREENING tolerances.
+SCREEN_TOL = {"msp": 3.2144497175146114e-08, "maha": 1.9639284168704307e-05, "ae": 1.7660635487359855e-07,
+              "b1s": 1.7763568394002505e-15}
+SCREEN_LABEL = ("screening tolerance, not a proven numerical bound for the separately trained development models; nearby "
+                "scores identify cases worth investigating, and finding none does not establish numerical stability; "
+                "development results are not recomputed")
+
+
+def run_screen() -> None:
+    """Read-only: evaluation instances (not calibration) of the saved 3C / 3C.1 / 3D decisions whose scores lie within the
+    screening tolerance of their run's thresholds. Rank-based scores (E1 Mahalanobis rank, E2 combined rank) have no
+    measured cross-path difference and are not screened; LR/MSP is a different (scikit-learn) path and is not screened."""
+    ev_roles = ["eval", "foldk_known", "foldk_withheld"]
+    checks = [("msp", "tau_p"), ("maha", "tau_d"), ("ae", "tau_e"), ("b1s", "tau_b")]
+    uses = {"msp": "A, B, C, D, D′ (classifier check)", "maha": "A, B, C, D, D′ (classifier check)",
+            "ae": "A (AE override), C, D′, B_with_caution flag", "b1s": "D, D′"}
+    rows, counts = [], {}
+    for seed in SEEDS:
+        d = pd.read_parquet(RunPaths("loco3d", "e3_b1s_veto", seed, protocol="loco").scores("decisions"))
+        d = d[d.role.isin(ev_roles)]
+        for sc, tau in checks:
+            dist = (d[sc] - d[tau]).abs()
+            hit = d[dist <= SCREEN_TOL[sc]]
+            counts[f"s{seed}_{sc}"] = {"instances_screened": int(len(d)), "within_tolerance": int(len(hit))}
+            for _, r in hit.iterrows():
+                rows.append({"source": f"rules A/B/C/D/D′, seed {seed}", "withheld": r.withheld, "outer_fold": int(r.outer_fold),
+                             "rec_id": r.rec_id, "role": r.role, "class10": r.class10, "score": sc, "value": float(r[sc]),
+                             "threshold": float(r[tau]), "abs_distance": float(abs(r[sc] - r[tau])), "affects": uses[sc]})
+    e1 = pd.read_parquet(results_dir() / "scores" / "e1_ensemble_s42-43-44_loco_decisions.parquet")
+    th = pd.read_csv(results_dir() / "loco" / "complementary" / "e1_thresholds.csv")
+    e1 = e1[e1.role.isin(ev_roles)].merge(th[["withheld", "outer_fold", "tau_p_ens"]], on=["withheld", "outer_fold"])
+    dist = (e1.ens_msp - e1.tau_p_ens).abs()
+    hit = e1[dist <= SCREEN_TOL["msp"]]
+    counts["e1_ens_msp"] = {"instances_screened": int(len(e1)), "within_tolerance": int(len(hit))}
+    for _, r in hit.iterrows():
+        rows.append({"source": "E1 ensemble", "withheld": r.withheld, "outer_fold": int(r.outer_fold), "rec_id": r.rec_id,
+                     "role": r.role, "class10": r.class10, "score": "ens_msp", "value": float(r.ens_msp),
+                     "threshold": float(r.tau_p_ens), "abs_distance": float(abs(r.ens_msp - r.tau_p_ens)), "affects": "E1"})
+    out = {"provenance": provenance(), "label": SCREEN_LABEL, "tolerances": SCREEN_TOL, "counts": counts,
+           "not_screened": ["E1 ens_maha_rank and E2 s (empirical ranks; no measured cross-path difference)",
+                            "LR/MSP (scikit-learn path, not the CNN/AE path the differences were measured on)"],
+           "instances": rows}
+    (OUT / "ml42_boundary_screen.json").write_text(json.dumps(out, indent=1, default=float))
+    pd.DataFrame(rows).to_csv(OUT / "ml42_boundary_screen.csv", index=False)
+    print(json.dumps(counts, indent=0))
+    print(pd.DataFrame(rows).to_string() if rows else "no evaluation instance within the screening tolerance")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["counts", "confusion", "variants", "compare", "seeds"])
+    ap.add_argument("task", choices=["counts", "confusion", "variants", "compare", "seeds", "screen"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     a = ap.parse_args()
     load_config(a.config)
     OUT.mkdir(parents=True, exist_ok=True)
     {"counts": run_counts, "confusion": run_confusion, "variants": run_variants_report,
-     "compare": run_compare, "seeds": run_seeds}[a.task]()
+     "compare": run_compare, "seeds": run_seeds, "screen": run_screen}[a.task]()
     return 0
 
 

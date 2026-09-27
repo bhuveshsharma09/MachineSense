@@ -1,0 +1,74 @@
+{
+ "provenance": {
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "160a01167f928e11b486faee4d10edd230f4c102-dirty",
+  "note": "Development results on one partition; reserved tests sealed.",
+  "instances_vs_distinct": "a recording evaluated in several withheld-class runs counts once per run as an instance and once as a distinct recording"
+ },
+ "label": "screening tolerance, not a proven numerical bound for the separately trained development models; nearby scores identify cases worth investigating, and finding none does not establish numerical stability; development results are not recomputed",
+ "tolerances": {
+  "msp": 3.2144497175146114e-08,
+  "maha": 1.9639284168704307e-05,
+  "ae": 1.7660635487359855e-07,
+  "b1s": 1.7763568394002505e-15
+ },
+ "counts": {
+  "s42_msp": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "s42_maha": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "s42_ae": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "s42_b1s": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "s43_msp": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "s43_maha": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "s43_ae": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "s43_b1s": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "s44_msp": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "s44_maha": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "s44_ae": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "s44_b1s": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  },
+  "e1_ens_msp": {
+   "instances_screened": 9397,
+   "within_tolerance": 0
+  }
+ },
+ "not_screened": [
+  "E1 ens_maha_rank and E2 s (empirical ranks; no measured cross-path difference)",
+  "LR/MSP (scikit-learn path, not the CNN/AE path the differences were measured on)"
+ ],
+ "instances": []
+}
