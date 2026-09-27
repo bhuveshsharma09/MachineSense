@@ -286,57 +286,73 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage 3D — complementary evidence for Q3, from saved scores (CPU only)
+## 7. Current stage: Stage ML-4 — deployable inference, decision rule, bundle v1 and XAI (Track A)
 
-Exploratory improvements to the Q3 decision on the development LOCO runs (Stage 3C/3C.1 split, 27 runs × seeds 42/43/44).
-No neural-network training; reserved tests sealed; split hash unchanged. **The candidate list, formulas and success
-criteria below are fixed before running; no variant is added or tuned after seeing results; nothing is selected.**
-Wording: exploratory development results on one partition; the candidates were chosen after seeing the 3C.1 results. Any
-final claim uses the existing reserved-recording protocol (the `loco_*` and other reserved-test columns in
-`metadata.csv`), opened once at the end. All nine fault classes have informed development decisions; reserved recordings
-test those decisions, they do not establish performance on entirely new fault families.
+Stages 3C, 3C.1 and 3D are accepted as completed development experiments. Track A (this session) owns `ml/`, `scripts/`,
+`notebooks/`, `tests/` (except `tests/backend/`), `configs/` and this file; Track B builds `backend/` and `frontend/` on
+branch `app-skeleton` in a separate worktree — never touch `backend/`, `frontend/` or `knowledge/` here. LightGBM is never
+imported by inference, the bundle or the app; fp32; inference defaults to CPU; one GPU job at a time. Framing for all
+wording: development findings on one partition; reserved tests stay sealed; **the app is a research demonstration with
+documented limitations, not a dependable real-machine system.**
 
-**Stage 3D protocol (declared before running; script `scripts/09c_loco_complementary.py`).**
-- **Common.** Per run (withheld class × fold) and per seed unless stated. Calibration = the run's calibration recordings
-  of all known classes, normal included (as in 3C); the healthy-only thresholds τ_e, τ_b use the run's calibration
-  normals (maximum). Empirical rank of an unfamiliarity score x against the n calibration scores c_i:
-  r(x) = #{i : c_i ≤ x} / (n + 1) (ties count as ≤; calibration recordings are ranked against the set that includes them;
-  higher = more unfamiliar). Order-statistic threshold as in 3C: τ = the k-th smallest calibration value,
-  k = ceil(0.975 (n + 1)), accept iff score ≤ τ (ties accepted); k > n is reported as unattainable. Confidence scores are
-  negated (τ_p = −τ on −MSP; accept iff MSP ≥ τ_p). Recording-level scores use the existing window → recording
-  aggregation. References: rules A, B, C of 3C.1. B_with_caution = B's decisions; only the number of caution flags
-  (verdict healthy and AE > τ_e) is reported.
-- **E1 deep ensemble (one predictor per run).** Per seed, recording class probabilities from the window logits (softmax,
-  clip at the probability floor, mean log-probability over the windows, renormalise), aligned by class name; ens_prob =
-  mean over the three seeds; ens_msp = max, predicted label = argmax. ens_maha_rank = mean over seeds of r(Mahalanobis),
-  each against that seed's own calibration distances. Disagreement = mean pairwise Jensen–Shannon divergence (base 2)
-  between the seeds' recording probabilities; reported only. τ_p(ens) on −ens_msp, τ_d(ens) on ens_maha_rank. Both checks
-  pass → healthy (label normal) or that fault; otherwise unknown. No AE override. Reported once per run and compared with
-  each seed's rule B and with the seed mean; never as three results.
-- **E2 LR + CNN combined unfamiliarity (per seed).** s = max(r(1 − LR MSP), r(CNN Mahalanobis)), ranks against the run's
-  calibration recordings; τ_s by the order-statistic rule. The CNN MSP check is unchanged (MSP ≥ τ_p). MSP check and
-  s ≤ τ_s pass → healthy (CNN label normal) or that fault; otherwise unknown. No AE override. Joint acceptance measured
-  on calibration, seen-folder evaluation and unseen-folder fold k.
-- **E3 B1s healthy veto (per seed).** B1s (speed-aware polynomial, Stage 2D.1 settings) refitted per run on exactly that
-  run's AE fit normals, on the **vibration-only** capped R1 features (no microphone features), matching the vibration-only
-  CNN-6/AE-6 of this track; τ_b = maximum calibration-normal B1s score. D: rule B's checks pass and label normal and
-  B1s ≤ τ_b → healthy; rule B's checks pass and label a fault → that fault; otherwise unknown. D′: as D, healthy also
-  requires AE ≤ τ_e. B1s false alarms on normals and the calibration-normal count per run are reported. B1s is
-  deterministic, so its scores are identical across seeds; only the rule-B checks vary by seed.
-- **Evaluation.** The 3C.1 tables and wording, in instances and distinct recordings, per seed and seed mean (E1 once):
-  withheld unknown / known fault / healthy per class; known faults (a) seen folder and (b) unseen folder: unknown and
-  wrong fault; normals fold k and seen folder: healthy / unknown. Threshold-free AUROC and OSCR per run for −ens_msp,
-  ens_maha_rank and s, paired against CNN Mahalanobis (seed-matched; E1 against each seed), with the 3C.1 bootstrap
-  (one stratified mixed-unit draw over the development pool applied to all 27 runs; runs without withheld or known
-  instances in a draw are dropped) and its wording. OSCR correctness uses each score's own predicted label (E1: the
-  ensemble label; s and Mahalanobis: the seed's CNN label).
-- **Success criteria (pass / fail per candidate; no selection).** Baseline = the same seed's rule B (per-seed candidates;
-  seed-mean candidate vs seed-mean B also shown); E1 vs the seed mean of rule B (and each seed shown). False-unknown rates
-  = macro over known fault classes (3C convention); pooled instance rates are shown alongside.
-  - Problem 1 (withheld → known fault): fewer withheld instances passed as known than rule B, with the known-fault
-    false-unknown rates on (a) and (b) each at most 2 percentage points above rule B's.
-  - Problem 2 (withheld → healthy): fewer withheld instances called healthy than rule B, reported with the change in
-    normal instances sent to unknown. No ratio or cost conclusion.
+**Bundle data (Bhuvesh's decision, 27 Sep, before any training):** the bundle trains on **closed train ∩ development
+pool** (660 recordings: `split_closed` = train and no reserved-test column = test; 20 normals) and calibrates on **closed
+val ∩ development pool** (144 recordings; **5 normals**, so τ_e and τ_b each come from 5 healthy recordings). No
+reserved recording (any of `split_closed`, `split_severity`, `split_speed_block` = test) is used for training,
+calibration or inference, so **this bundle is eligible for one final evaluation on every reserved test**. Training speed
+range (measured recording speed) 11.80–39.75 Hz; severities present: imbalance 6–30 g, horizontal misalignment 0.5–1.5 mm,
+vertical misalignment 0.51–1.78 mm, bearing faults 0 / 6 / 20 g added mass (the largest severity of each family is
+reserved). The existing 3A CNN-6 and 3B AE-6 artifacts were trained on development-pool folds that include closed-val
+recordings, so they do not satisfy this rule and are retrained.
+
+**Stage ML-4 protocol (declared before running).**
+- **Models (bundle v1, seed 42, fixed settings from `configs/base.yaml`):** CNN-6 (Stage 3A architecture and settings,
+  10 classes, vibration only) on the bundle-train windows; normalisation from `norm_stats` in development mode (fit_ids =
+  bundle train; context: calibration = bundle val). AE-6 (frame level, Stage 3B settings) on the bundle-train normals
+  (normalisation on those normals). R1 logistic regression (the classical reference: capped R1 table, all features,
+  `baselines.logreg`) on bundle train, secondary evidence. B1s (speed-aware polynomial, Stage 2D.1 settings,
+  vibration-only features as in Stage 3D) on the bundle-train normals. scikit-learn / numpy only outside torch.
+- **Thresholds on bundle val (calibration only), as in 3C:** τ_p and τ_d at 97.5 % marginal targets over all known
+  classes including normal (order statistic r = ceil(0.975 (n + 1)); ties accepted), Mahalanobis with class centroids and
+  one shared Ledoit–Wolf within-class covariance fitted on bundle-train window embeddings; τ_e = maximum AE error and
+  τ_b = maximum B1s score of the 5 bundle-val normals.
+- **App healthy rule (provisional demo default, NOT a final rule selection; chosen after the Stage 3D results; the final
+  choice is made later under stated assumptions about fault frequency and costs):** configurable
+  `healthy_rule ∈ {A, B, C, D, B_with_caution}`, default **B_with_caution**. B_with_caution = rule B's decisions
+  (classifier-first, no AE override); when B says healthy and B1s > τ_b and/or AE > τ_e, caution = "b1s_disagrees",
+  "ae_disagrees" or "both", display label "healthy — caution: a healthy-baseline check disagrees; consider a recheck".
+  D (strict, selectable) = B, and healthy also requires B1s ≤ τ_b. Unknown is shown as "further inspection needed".
+  Every diagnosis reports `rule_comparison` for A, B, C, D. Logic lives in `ml/arbitrator.py`, reusing
+  `ml.openset.three_way`.
+- **Inference (`ml/inference.py`):** `diagnose(rec_id | raw 8-channel array, 50 kHz, 5 s)` → plain dict (no Pydantic):
+  signal_quality, diagnosis, physics, xai, limitations, provenance; every number from existing `ml/` functions. A rec_id
+  is accepted only if it is in the development pool; every reserved-test rec_id is refused with a clear error (a raw
+  array cannot be checked and is the user's own upload). Signal-quality warning when the recording's measured speed lies
+  outside the training range: "speed outside the range the model was trained on; results less reliable". Limitations
+  include: "calibrated on 5 healthy recordings; trained on speeds below 40 Hz and on the development pool only", the Q3
+  wording below, "decision rule is a provisional demo default", "research demonstration; development results; not
+  validated for real machines". CPU latency = median over 20 development recordings.
+- **Bundle v1 (`ml/bundle.py`, schema "1.0"):** `artifacts/bundle/` (gitignored): safetensors weights (state_dict),
+  documented joblib files for LR and B1s, thresholds, rule config, `manifest.json` with a sha256 per file plus the data
+  facts above; `load_bundle()` verifies every hash and refuses on mismatch. Only code and a manifest example are committed.
+- **XAI (minimal):** Grad-CAM on the CNN's last convolution block (input × gradient if unstable) → top channels and order
+  bands and a coarse channels × order-bin map; LR: top R1 features by coefficient × transformed value for the recording,
+  with feature-dictionary names. Labelled "what the model attended to", not proof of fault location.
+- **Tests:** golden (3 fixed development recordings: normal, a bearing fault, a misalignment; identical output on CPU
+  across runs, timestamps excluded), bundle hash mismatch, reserved-recording refusal, out-of-range speed warning, every
+  arbitrator branch including ties.
+- **Stretch (only after the above is committed):** ResNet-18 fine-tune, reported next to CNN-6, not added to the bundle.
+
+**Wording and open items recorded in this stage.**
+- Q3: "The tested scores and rules do not consistently distinguish the imbalance / vertical-misalignment pair when one
+  class is withheld. The classifier distinguishes them well when both are represented in training. This does not
+  establish that no representation, training objective or decision method could help." (No attribution to missing
+  cross-axis information; that is a hypothesis only.)
+- **Open item — 3C.1 bootstrap:** suggestive, conditional evidence. Each draw drops runs lacking withheld or known
+  recordings (mean 7, max 13 of 27) and averages the remaining folds within class, so draws use different fold
+  combinations. The handling of missing folds needs validation before any publication claim.
+- Stage 3D E2 did not test whether combining LR and CNN evidence helps (its combined check was non-restrictive in most
+  runs); any redesigned combination is a separately declared experiment. D is a candidate only, not selected.
 
 **Standing scope rules (Stages 3A/3B):**
 - **Q2 only for the CNNs.** They are trained on all ten classes; their embeddings and scores are for Q2 analysis ONLY and
@@ -362,80 +378,9 @@ test those decisions, they do not establish performance on entirely new fault fa
   (B1s flags every fault; AE-7 flags no healthy recording, so OR reproduces B1s and AND reproduces AE-7). Deferred until
   more healthy data exist.
 
-**Stage 3C protocol (unchanged; declared 27 Sep before running 3C).**
-- **Split:** the SAVED Stage 2D.1 Q3 assignment (`results/q1q3/q3_fit_cal_eval_assignment.csv`): per withheld class c and
-  outer fold k, the known-class recordings of folds ≠ k are split within each folder 4:1:1 into fit / calibration /
-  seen-folder evaluation. Fold k (known classes and class c) is evaluated once per c.
-- **CNN-6 per (c, k):** the Stage 3A architecture and fixed settings, seed 42, 9 outputs (the known classes), trained on
-  the fit recordings only. `norm_stats` in development mode: fit_ids = those fit recordings; context excludes calibration,
-  seen-folder evaluation, fold k and every class-c recording.
-- **AE-6 per (c, k), not per k (deviation from the brief, reason):** the saved Q3 assignment splits the normal folder
-  differently for each withheld class, so one AE per k would have been trained on normals that are calibration or
-  seen-folder evaluation recordings in other runs. Each (c, k) run therefore retrains the frame-level AE-6 on ITS fit
-  normals only; its threshold uses ITS calibration normals.
-- **Scores (directions fixed):** MSP of the aggregated class probabilities (lower = more unknown); Mahalanobis distance in
-  the embedding (class centroids from fit windows; ONE shared Ledoit–Wolf covariance of fit-window embeddings minus their
-  own class centroid; per window the minimum distance over known classes; recording = mean over its 9 windows; higher =
-  more unknown); k-NN distance (cosine distance from a window to its 10th nearest fit-window embedding; recording = mean
-  over its 9 windows; higher = more unknown); AE reconstruction error (higher = more anomalous). AE error measures
-  departure from healthy behaviour, not unfamiliarity among fault types; a familiar severe fault can have a larger error
-  than an unfamiliar mild one.
-- **Three-way rule thresholds (calibration recordings only):** τ_p (MSP) and τ_d (Mahalanobis) are calibration targets
-  of 97.5 % marginal acceptance each on the calibration known recordings (order statistic r = ceil(0.975 (n + 1)); accept
-  iff MSP ≥ τ_p, resp. d ≤ τ_d; ties accepted); the joint acceptance is measured, not assumed. τ_e = the maximum
-  calibration-normal AE error (healthy iff error ≤ τ_e).
-- **Orderings:** PRIMARY = classifier-first (the AE misses some mild faults, and AE-first would declare them healthy);
-  AE-first is a comparison only; no choosing the best ordering afterwards. Never fall back to the second-highest class.
-- **Classical comparison:** logistic regression / MSP of Stage 2D.1 on the same split and recordings, reproduced per
-  recording (its per-fold results must match `results/q1q3/q3_per_fold.csv`). Observed differences only; no winner
-  claims without paired intervals.
-
-**Stage 3C.1 protocol (declared before running; analysis script `scripts/09b_loco_analysis.py`).**
-- **Counting.** Every count is given as evaluation *instances* and *distinct recordings*: a recording evaluated in
-  several withheld-class runs (the 25 healthy recordings, known faults of fold k) counts once per run as an instance and
-  once as a distinct recording. "Std over the 27 class × fold runs" mixes between-class and between-fold variation and is
-  not seed uncertainty; the std over the 3 folds of the per-fold macro value is reported separately.
-- **Item 2 (withheld → assigned class).** Final decisions per withheld class (unknown / healthy / each known class) for
-  the CNN classifier-first rule and for LR/MSP on the same split; they show what the model confuses, not the physical
-  cause. Post-hoc subset without imbalance and vertical misalignment as withheld classes = failure analysis, not a
-  headline. Exploratory, descriptive only: in the imbalance-withheld runs, recompute from the saved seed-42 embeddings
-  (same centroids and shared within-class Ledoit–Wolf covariance as 3C) the Mahalanobis distance of withheld imbalance
-  recordings to EACH known-class centroid (per window, mean over the recording's windows); and the distance of fold-k
-  known bearing recordings to the centroid of the withheld imbalance windows of that run, compared by added mass
-  (0 / 6 / 20 / 35 g).
-- **Item 3 (healthy-rule variants, saved scores only, thresholds exactly as in 3C).** Both classifier checks pass =
-  MSP ≥ τ_p AND d ≤ τ_d; AE healthy = error ≤ τ_e. A = 3C primary (classifier-first with the AE override). B = A without
-  the AE override. C = healthy only if top prediction normal, both checks pass AND AE healthy; known fault if top
-  prediction a fault and both checks pass; otherwise unknown — **identified post hoc during review on 27 Sep;
-  exploratory**. For B and C relative to A: counts of withheld-fault → healthy instances removed and normal → unknown
-  instances added, no ratio. τ_e rests on 2–3 calibration normals per run.
-- **Item 4 (CNN rule vs LR, saved scores).** Threshold-free per run: CNN Mahalanobis vs LR (−MSP) AUROC and OSCR, withheld
-  vs fold-k known (OSCR correctness = each method's own top class). Paired bootstrap: the existing stratified mixed-unit
-  scheme over the WHOLE development pool (fault folders resampled within class, normal recordings individually; 2,000
-  draws, seed 42); one draw is applied to all 27 runs at once, each recording weighted by its multiplicity in the draw, so
-  recordings reused across withheld-class runs are resampled jointly. Per draw, metric = macro over classes of the mean
-  over folds; a run left with no withheld or no known instances in a draw is dropped from that draw. Operating point,
-  calibration only: per run, m = number of calibration recordings that pass both CNN checks; LR's threshold = the m-th
-  smallest LR unknown score (−MSP) of the same calibration recordings, accept iff ≤ (ties accepted); achieved
-  calibration acceptance and ties are reported; m = 0 is unattainable and reported. Retrospective diagnostic, per run,
-  matching LR's false-unknown count on (a), then on (b), to the CNN rule's: **retrospective and exploratory; these
-  thresholds must not be deployed or used for model selection.** An interval excluding zero supports a specific metric
-  difference under this protocol, not an overall winner.
-- **Item 5 (seeds).** Seeds 43 and 44: the 27 LOCO CNN-6 and 27 AE-6 runs retrained on the same saved Q3 split, same
-  settings; outputs under the RunPaths seed names. Seed 42 is not retrained; its metrics are recomputed from saved outputs
-  and checked against the 3C report. Item-3 variants and threshold-free scores per seed and the mean over seeds. Seeds
-  measure training variability only; they add no independent healthy or fault recordings.
-- **Wording (report, app, notebook 09).** "On these development folds, embedding distance separates withheld bearing
-  classes more successfully than withheld imbalance and vertical misalignment. When either of those two classes is
-  withheld, the model frequently assigns the other label. The existing class labels are kept. This is a limitation of
-  unfamiliar-fault detection, not a new physical diagnosis or merged class." "Withheld horizontal misalignment is
-  sometimes declared healthy (see the healthy-rule variants)." "Development results on one partition; reserved tests
-  sealed."
-
-0. Protocol declaration (this section).
-1. E1 deep ensemble. 2. E2 LR + CNN combined unfamiliarity. 3. E3 B1s healthy veto (D, D′).
-4. Evaluation against rules A / B / C, threshold-free paired comparisons, success criteria.
-5. Notebook `09b_openset_complementary`, audit report and wording.
+0. 3C.1 reporting fixes. 0b. Stage 3D reporting corrections. 1. Deployable models (bundle data above).
+1b. B1s in the bundle. 2. `ml/arbitrator.py`. 3. `ml/inference.py`. 4. Bundle v1. 5. XAI + notebook
+`10_xai_ablations_selection`. 6. Tests. 7. Stretch: ResNet-18.
 
 ## 7b. Plan notes (planned controls)
 
