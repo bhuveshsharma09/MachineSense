@@ -1,4 +1,4 @@
-# MachineSense backend (Stages App-1, App-2a)
+# MachineSense backend (Stages App-1, App-2a, App-2a.1)
 
 A FastAPI service that serves `ml.inference.diagnose()` from the **approved, hash-verified model bundle** as the evidence
 record in `backend/schemas.py`, plus measured evidence views computed with existing `ml` functions. Research
@@ -17,12 +17,19 @@ Every path is an environment variable with a default relative to `SystemCode/` (
 | raw development recordings | fixed by `ml.paths.data_dir()` | `SystemCode/data/raw_npy` |
 | fail (not skip) tests without the bundle | `MACHINESENSE_REQUIRE_BUNDLE=1` | off |
 
-`SystemCode/backend/data/` is gitignored. The `app-skeleton` branch will be merged into `main` at a stable point, so a
-single checkout holds the bundle, the data and the app; until then, a worktree needs `MACHINESENSE_BUNDLE_DIR` and
-links for `SystemCode/data/` pointing at the main checkout.
+`SystemCode/backend/data/` is gitignored. The app lives on `main` (merged from `app-skeleton`), so one checkout holds
+the code, the bundle and the data: with the defaults above, no environment variable and no data links are needed.
+
+## Setup (one checkout)
+What must exist in `SystemCode/` before the first start (none of it is committed):
+- `artifacts/bundle/`: the approved bundle (rebuild order in CLAUDE.md §7; never rebuilt by the app);
+- `data/raw_npy/`: the converted recordings (`scripts/00_convert.py`), read for dataset recordings and to build the
+  reserved-fingerprint index;
+- `.venv/` with `requirements.txt`, and Node 18+ for the frontend.
+The frontend needs no internet connection: its fonts are self-hosted (`frontend/src/fonts/`, SIL OFL 1.1).
 
 ## Run
-From `SystemCode/` with the project venv:
+From `SystemCode/` with the project venv (`source .venv/bin/activate`):
 
 1. API: `uvicorn backend.app:create_app --factory --port 8000`. At startup the bundle is verified with
    `ml.bundle.load_bundle()` (every file hash and the packaged-config hash); on any mismatch the server refuses to start.
@@ -64,3 +71,6 @@ own 3D rig (`?capture=1`), not a photo.
 Backend:
 `MACHINESENSE_REQUIRE_BUNDLE=1 python -m pytest tests/backend` — use this mode before every commit: without the
 bundle or the raw recordings the bundle-dependent tests fail instead of skipping. Without the variable they skip.
+
+Everything, from `SystemCode/` in the main checkout: `MACHINESENSE_REQUIRE_BUNDLE=1 python -m pytest tests` (expected:
+no skips; the `ml` bundle tests also read `artifacts/bundle`) and `cd frontend && npm test`.
