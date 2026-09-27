@@ -286,13 +286,57 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage 3C.1 — Q3 analysis, reporting corrections and healthy-rule variants
+## 7. Current stage: Stage 3D — complementary evidence for Q3, from saved scores (CPU only)
 
-Stage 3C is accepted as a completed development experiment. Stage 3C.1 is analysis and reporting on saved scores plus
-one retraining item (extra seeds). No new model types; no change to how the primary rule's thresholds are defined; no
-reserved-test access. **Nothing in this stage selects a model, a variant or an application threshold.** App healthy rule
-pending Bhuvesh's decision after 3C.1. The choice will be made under stated assumptions about fault frequency and the
-relative cost of missed faults vs unnecessary inspections; it is not inferred from pooled experimental counts.
+Exploratory improvements to the Q3 decision on the development LOCO runs (Stage 3C/3C.1 split, 27 runs × seeds 42/43/44).
+No neural-network training; reserved tests sealed; split hash unchanged. **The candidate list, formulas and success
+criteria below are fixed before running; no variant is added or tuned after seeing results; nothing is selected.**
+Wording: exploratory development results on one partition; the candidates were chosen after seeing the 3C.1 results. Any
+final claim uses the existing reserved-recording protocol (the `loco_*` and other reserved-test columns in
+`metadata.csv`), opened once at the end. All nine fault classes have informed development decisions; reserved recordings
+test those decisions, they do not establish performance on entirely new fault families.
+
+**Stage 3D protocol (declared before running; script `scripts/09c_loco_complementary.py`).**
+- **Common.** Per run (withheld class × fold) and per seed unless stated. Calibration = the run's calibration recordings
+  of all known classes, normal included (as in 3C); the healthy-only thresholds τ_e, τ_b use the run's calibration
+  normals (maximum). Empirical rank of an unfamiliarity score x against the n calibration scores c_i:
+  r(x) = #{i : c_i ≤ x} / (n + 1) (ties count as ≤; calibration recordings are ranked against the set that includes them;
+  higher = more unfamiliar). Order-statistic threshold as in 3C: τ = the k-th smallest calibration value,
+  k = ceil(0.975 (n + 1)), accept iff score ≤ τ (ties accepted); k > n is reported as unattainable. Confidence scores are
+  negated (τ_p = −τ on −MSP; accept iff MSP ≥ τ_p). Recording-level scores use the existing window → recording
+  aggregation. References: rules A, B, C of 3C.1. B_with_caution = B's decisions; only the number of caution flags
+  (verdict healthy and AE > τ_e) is reported.
+- **E1 deep ensemble (one predictor per run).** Per seed, recording class probabilities from the window logits (softmax,
+  clip at the probability floor, mean log-probability over the windows, renormalise), aligned by class name; ens_prob =
+  mean over the three seeds; ens_msp = max, predicted label = argmax. ens_maha_rank = mean over seeds of r(Mahalanobis),
+  each against that seed's own calibration distances. Disagreement = mean pairwise Jensen–Shannon divergence (base 2)
+  between the seeds' recording probabilities; reported only. τ_p(ens) on −ens_msp, τ_d(ens) on ens_maha_rank. Both checks
+  pass → healthy (label normal) or that fault; otherwise unknown. No AE override. Reported once per run and compared with
+  each seed's rule B and with the seed mean; never as three results.
+- **E2 LR + CNN combined unfamiliarity (per seed).** s = max(r(1 − LR MSP), r(CNN Mahalanobis)), ranks against the run's
+  calibration recordings; τ_s by the order-statistic rule. The CNN MSP check is unchanged (MSP ≥ τ_p). MSP check and
+  s ≤ τ_s pass → healthy (CNN label normal) or that fault; otherwise unknown. No AE override. Joint acceptance measured
+  on calibration, seen-folder evaluation and unseen-folder fold k.
+- **E3 B1s healthy veto (per seed).** B1s (speed-aware polynomial, Stage 2D.1 settings) refitted per run on exactly that
+  run's AE fit normals, on the **vibration-only** capped R1 features (no microphone features), matching the vibration-only
+  CNN-6/AE-6 of this track; τ_b = maximum calibration-normal B1s score. D: rule B's checks pass and label normal and
+  B1s ≤ τ_b → healthy; rule B's checks pass and label a fault → that fault; otherwise unknown. D′: as D, healthy also
+  requires AE ≤ τ_e. B1s false alarms on normals and the calibration-normal count per run are reported. B1s is
+  deterministic, so its scores are identical across seeds; only the rule-B checks vary by seed.
+- **Evaluation.** The 3C.1 tables and wording, in instances and distinct recordings, per seed and seed mean (E1 once):
+  withheld unknown / known fault / healthy per class; known faults (a) seen folder and (b) unseen folder: unknown and
+  wrong fault; normals fold k and seen folder: healthy / unknown. Threshold-free AUROC and OSCR per run for −ens_msp,
+  ens_maha_rank and s, paired against CNN Mahalanobis (seed-matched; E1 against each seed), with the 3C.1 bootstrap
+  (one stratified mixed-unit draw over the development pool applied to all 27 runs; runs without withheld or known
+  instances in a draw are dropped) and its wording. OSCR correctness uses each score's own predicted label (E1: the
+  ensemble label; s and Mahalanobis: the seed's CNN label).
+- **Success criteria (pass / fail per candidate; no selection).** Baseline = the same seed's rule B (per-seed candidates;
+  seed-mean candidate vs seed-mean B also shown); E1 vs the seed mean of rule B (and each seed shown). False-unknown rates
+  = macro over known fault classes (3C convention); pooled instance rates are shown alongside.
+  - Problem 1 (withheld → known fault): fewer withheld instances passed as known than rule B, with the known-fault
+    false-unknown rates on (a) and (b) each at most 2 percentage points above rule B's.
+  - Problem 2 (withheld → healthy): fewer withheld instances called healthy than rule B, reported with the change in
+    normal instances sent to unknown. No ratio or cost conclusion.
 
 **Standing scope rules (Stages 3A/3B):**
 - **Q2 only for the CNNs.** They are trained on all ten classes; their embeddings and scores are for Q2 analysis ONLY and
@@ -388,13 +432,10 @@ relative cost of missed faults vs unnecessary inspections; it is not inferred fr
   sometimes declared healthy (see the healthy-rule variants)." "Development results on one partition; reserved tests
   sealed."
 
-0. Housekeeping (Bhuvesh's planning text committed unchanged; this declaration).
-1. Reporting corrections (instances vs distinct recordings; std labels).
-2. Withheld → assigned-class tables (CNN rule and LR/MSP); post-hoc subset; exploratory distances.
-3. Healthy-rule variants A / B / C from saved scores.
-4. CNN rule vs LR: paired bootstrap, calibration-matched operating point, retrospective diagnostic.
-5. Seed variability (seeds 43, 44).
-6. Wording in CLAUDE.md, the audit report and notebook 09.
+0. Protocol declaration (this section).
+1. E1 deep ensemble. 2. E2 LR + CNN combined unfamiliarity. 3. E3 B1s healthy veto (D, D′).
+4. Evaluation against rules A / B / C, threshold-free paired comparisons, success criteria.
+5. Notebook `09b_openset_complementary`, audit report and wording.
 
 ## 7b. Plan notes (planned controls)
 
