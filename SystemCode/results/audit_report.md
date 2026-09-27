@@ -513,6 +513,31 @@ Stage 3C one known-fault instance declared healthy (via the AE override) was mis
 - Seeds 42 / 43 / 44 (training variability only; no new recordings): Mahalanobis macro AUROC 0.877 / 0.877 / 0.868, MSP
   0.782 / 0.809 / 0.827; rule A withheld → healthy 28 / 26 / 36 instances.
 
+### Complementary evidence for Q3 (Stage 3D, exploratory, 27 Sep 2026)
+Exploratory development results on one partition. The candidates were chosen after seeing 3C.1 results. Any final claim
+uses the existing reserved-recording protocol (the `loco_*` and other reserved-test columns in `metadata.csv`), opened
+once at the end. All nine fault classes have informed development decisions. Reserved recordings test those decisions;
+they do not establish performance on entirely new fault families.
+
+Candidates computed from saved scores only (no training), fixed before running: E1 a deep ensemble over seeds 42/43/44;
+E2 a combined LR + CNN unfamiliarity rank; E3 a B1s healthy veto on rule B (D; D′ also requires the AE). Instances per
+seed 42 / 43 / 44 (withheld instances = distinct recordings; normal instances repeat 25 distinct healthy recordings):
+
+| Method | Withheld → known fault | Withheld → healthy | Fold-k normals → healthy (of 225) |
+| --- | --- | --- | --- |
+| Rule B (reference) | 283 / 269 / 261 | 19 / 17 / 24 | 184 / 180 / 176 |
+| E1 ensemble (once) | 275 | 19 | 186 |
+| E2 LR + CNN rank | 336 / 319 / 336 | 38 / 42 / 34 | 199 / 198 / 189 |
+| D (B1s veto) | 283 / 269 / 261 | 2 / 1 / 0 | 157 / 153 / 152 |
+| D′ (B1s + AE) | 283 / 269 / 261 | 1 / 0 / 0 | 146 / 141 / 143 |
+
+Pre-declared criteria (pass/fail, no selection): **Problem 1** (fewer withheld passed as known, false unknowns on known
+faults at most 2 points higher) — no candidate passes on the seed mean. **Problem 2** (fewer withheld called healthy) —
+D and D′ pass for every seed, with more normal instances sent to unknown; E1 passes against the seed mean by one
+instance; E2 fails. τ_b and τ_e rest on 2–3 calibration normals per run; B1s alone flags 53 of 225 fold-k normal
+instances. Threshold-free paired comparisons: E1 scores do not differ from single-seed Mahalanobis (intervals include
+0); E2's combined rank is higher by 0.010–0.024 macro AUROC, with only seed 44's OSCR interval excluding 0.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the
