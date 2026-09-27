@@ -1,5 +1,5 @@
 {
- "manifest_sha256": "fe5ecca593b4fe7c49e680a725233e5de632decc0ad5966f427a1049ab5a6c8f",
+ "manifest_sha256": "054ca348acc4e2b396d4382f4aff554d20e72e7c68456c057ba5fe0e6d42614e",
  "outputs": {
   "horizontal-misalignment__0.5mm__15.36": {
    "diagnosis": {
@@ -1971,9 +1971,9 @@
     "shaft_speed_rpm": 902.0613320439002
    },
    "provenance": {
-    "bundle_git_sha": "bc8d0d7a10cd68e3fa8754c3030b6dc25bb6a4b1",
+    "bundle_git_sha": "659b2053174784b98648f587e4583988f7ae1803",
     "bundle_preprocess_config_sha256": "d87f5c86efe4ec56178fe332c2d90ccaab3b9cf875d0dfd2b58fdfb6e9502947",
-    "manifest_sha256": "fe5ecca593b4fe7c49e680a725233e5de632decc0ad5966f427a1049ab5a6c8f",
+    "manifest_sha256": "054ca348acc4e2b396d4382f4aff554d20e72e7c68456c057ba5fe0e6d42614e",
     "model_sha256": {
      "ae6": "b02505b50162eab23e9bffc655e3bee90b424091d2b5bc768fc3133934d01b83",
      "b1s_vib": "05975c690d52587a32f09952000b80501867486f653b19979cad964a985bd774",
@@ -1992,6 +1992,10 @@
     "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2"
    },
    "signal_quality": {
+    "calibration_normal_speed_range_hz": [
+     18.077305872077673,
+     38.341546496188045
+    ],
     "clipping_channels": [],
     "mic_bursts_removed": 0,
     "nan_count": 0,
@@ -2004,7 +2008,9 @@
      11.799506048264048,
      39.7509211317511
     ],
-    "warnings": [],
+    "warnings": [
+     "healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable"
+    ],
     "window_speed_fallback": [
      false,
      false,
@@ -4521,9 +4527,9 @@
     "shaft_speed_rpm": 1084.6383523246604
    },
    "provenance": {
-    "bundle_git_sha": "bc8d0d7a10cd68e3fa8754c3030b6dc25bb6a4b1",
+    "bundle_git_sha": "659b2053174784b98648f587e4583988f7ae1803",
     "bundle_preprocess_config_sha256": "d87f5c86efe4ec56178fe332c2d90ccaab3b9cf875d0dfd2b58fdfb6e9502947",
-    "manifest_sha256": "fe5ecca593b4fe7c49e680a725233e5de632decc0ad5966f427a1049ab5a6c8f",
+    "manifest_sha256": "054ca348acc4e2b396d4382f4aff554d20e72e7c68456c057ba5fe0e6d42614e",
     "model_sha256": {
      "ae6": "b02505b50162eab23e9bffc655e3bee90b424091d2b5bc768fc3133934d01b83",
      "b1s_vib": "05975c690d52587a32f09952000b80501867486f653b19979cad964a985bd774",
@@ -4542,6 +4548,10 @@
     "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2"
    },
    "signal_quality": {
+    "calibration_normal_speed_range_hz": [
+     18.077305872077673,
+     38.341546496188045
+    ],
     "clipping_channels": [],
     "mic_bursts_removed": 0,
     "nan_count": 0,
@@ -7071,9 +7081,9 @@
     "shaft_speed_rpm": 869.0509239701144
    },
    "provenance": {
-    "bundle_git_sha": "bc8d0d7a10cd68e3fa8754c3030b6dc25bb6a4b1",
+    "bundle_git_sha": "659b2053174784b98648f587e4583988f7ae1803",
     "bundle_preprocess_config_sha256": "d87f5c86efe4ec56178fe332c2d90ccaab3b9cf875d0dfd2b58fdfb6e9502947",
-    "manifest_sha256": "fe5ecca593b4fe7c49e680a725233e5de632decc0ad5966f427a1049ab5a6c8f",
+    "manifest_sha256": "054ca348acc4e2b396d4382f4aff554d20e72e7c68456c057ba5fe0e6d42614e",
     "model_sha256": {
      "ae6": "b02505b50162eab23e9bffc655e3bee90b424091d2b5bc768fc3133934d01b83",
      "b1s_vib": "05975c690d52587a32f09952000b80501867486f653b19979cad964a985bd774",
@@ -7092,6 +7102,10 @@
     "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2"
    },
    "signal_quality": {
+    "calibration_normal_speed_range_hz": [
+     18.077305872077673,
+     38.341546496188045
+    ],
     "clipping_channels": [],
     "mic_bursts_removed": 0,
     "nan_count": 0,
@@ -7104,7 +7118,9 @@
      11.799506048264048,
      39.7509211317511
     ],
-    "warnings": [],
+    "warnings": [
+     "healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable"
+    ],
     "window_speed_fallback": [
      false,
      false,

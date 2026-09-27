@@ -35,6 +35,15 @@ LIMITATIONS = [
 ]
 
 
+def cal_normal_range(cfg, meta) -> list[float]:
+    """Measured speed range of the calibration normals (closed val ∩ development pool) that set τ_e and τ_b."""
+    from ml.splits import development_pool
+    p = development_pool(meta, cfg.development.allowed_closed, cfg.development.reserved_columns)
+    n = p[(p.split_closed == "val") & (p.class10 == "normal")]
+    assert len(n) == 5
+    return [float(n.fr_measured_hz.min()), float(n.fr_measured_hz.max())]
+
+
 def revision() -> tuple[str, list[str]]:
     """HEAD and every path with uncommitted changes (tracked or untracked), listed rather than hidden."""
     head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True, check=True).stdout.strip()
@@ -91,6 +100,7 @@ def main() -> int:
               "calibration_recordings": d["calibration_recordings"], "calibration_normals": d["calibration_normals"],
               "tau_e_normals": thr["n_calibration_normals_tau_e"], "tau_b_normals": thr["n_calibration_normals_tau_b"],
               "train_speed_range_hz": d["train_speed_range_hz"], "severities": d["severities"],
+              "calibration_normal_speed_range_hz": cal_normal_range(cfg, meta),
               "reserved_recordings_used": 0,
               "eligibility": "no reserved-test recording was used for training, calibration or inference, so this bundle "
                              "is eligible for one final evaluation on every reserved test"},

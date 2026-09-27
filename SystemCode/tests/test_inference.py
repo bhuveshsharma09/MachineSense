@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ml.inference import (GOLDEN_RECORDINGS, SPEED_WARNING, InputError, ReservedRecordingError, check_rec_id, diagnose, speed_warnings,
+from ml.inference import (CALIBRATION_SPEED_WARNING, GOLDEN_RECORDINGS, SPEED_WARNING, InputError, ReservedRecordingError, check_rec_id, diagnose, speed_warnings,
                           stable_output as stable)
 from ml.paths import SYSTEM_CODE_DIR, artifacts_dir, data_dir
 
@@ -34,6 +34,25 @@ def test_speed_warning_rule():
     assert speed_warnings(45.0, (11.8, 39.75)) == [SPEED_WARNING]
     assert speed_warnings(10.0, (11.8, 39.75)) == [SPEED_WARNING]
     assert speed_warnings(float("nan"), (11.8, 39.75)) == [SPEED_WARNING]
+
+
+def test_calibration_normal_speed_warning_rule():
+    train, cal = (11.8, 39.75), (18.0, 38.4)
+    assert speed_warnings(25.0, train, cal) == []
+    assert speed_warnings(15.0, train, cal) == [CALIBRATION_SPEED_WARNING]  # trained, but no calibration normal this slow
+    assert speed_warnings(39.0, train, cal) == [CALIBRATION_SPEED_WARNING]
+    assert speed_warnings(45.0, train, cal) == [SPEED_WARNING, CALIBRATION_SPEED_WARNING]
+    assert speed_warnings(18.0, train, cal) == [] and speed_warnings(38.4, train, cal) == []  # inclusive bounds
+    assert speed_warnings(15.0, train) == []  # the calibration check is optional
+
+
+@needs_bundle
+def test_calibration_normal_speed_warning_in_diagnose():
+    slow = diagnose("underhang__outer_race__0g__14.7456", with_xai=False)  # 14.48 Hz: trained, not calibrated for healthy
+    w = slow["signal_quality"]["warnings"]
+    assert CALIBRATION_SPEED_WARNING in w and SPEED_WARNING not in w
+    lo, hi = slow["signal_quality"]["calibration_normal_speed_range_hz"]
+    assert 18.0 < lo < 18.1 and 38.3 < hi < 38.4  # measured speeds of the 5 calibration normals (nominal 18.4–39.3 Hz)
 
 
 @needs_bundle

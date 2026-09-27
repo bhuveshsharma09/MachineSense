@@ -30,6 +30,7 @@ from ml.utils import git_sha
 
 GOLDEN_RECORDINGS = ("normal__18.432", "underhang__outer_race__0g__14.7456", "horizontal-misalignment__0.5mm__15.36")
 SPEED_WARNING = "speed outside the range the model was trained on; results less reliable"
+CALIBRATION_SPEED_WARNING = "healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable"
 ENVELOPE_ORDERS = np.round(np.arange(0.0, 12.0 + 1e-9, 0.02), 4)  # downsampled envelope order axis (0.02-order step)
 UNSTABLE_SPEED_PCT = 1.0  # window-speed range above this % of the median → "speed not stable within the recording"
 
@@ -85,13 +86,19 @@ def check_rec_id(rec_id: str) -> pd.Series:
     return meta.loc[rec_id]
 
 
-def speed_warnings(speed_hz: float, train_range_hz) -> list[str]:
-    """The out-of-range warning when the measured recording speed lies outside the training speed range."""
-    lo, hi = train_range_hz
-    return [] if (np.isfinite(speed_hz) and lo <= speed_hz <= hi) else [SPEED_WARNING]
+def speed_warnings(speed_hz: float, train_range_hz, calibration_normal_range_hz=None) -> list[str]:
+    """Warnings when the measured recording speed lies outside the training speed range, and (separately) outside the
+    speed range of the calibration normals that set the healthy thresholds τ_e and τ_b."""
+    def outside(rng):
+        return not (np.isfinite(speed_hz) and rng[0] <= speed_hz <= rng[1])
+
+    out = [SPEED_WARNING] if outside(train_range_hz) else []
+    if calibration_normal_range_hz is not None and outside(calibration_normal_range_hz):
+        out.append(CALIBRATION_SPEED_WARNING)
+    return out
 
 
-def _signal_quality(x: np.ndarray, fr: float, cfg: Config, train_range) -> tuple[dict, np.ndarray]:
+def _signal_quality(x: np.ndarray, fr: float, cfg: Config, train_range, cal_range) -> tuple[dict, np.ndarray]:
     pre = cfg.preprocess
     tacho = np.asarray(x[:, TACHO], dtype=np.float64)
     speeds, fell_back = window_speeds_detail(tacho, pre.fs_hz, pre.window.win_s, pre.window.hop_s, pre, fr_fallback_hz=fr)
@@ -101,7 +108,7 @@ def _signal_quality(x: np.ndarray, fr: float, cfg: Config, train_range) -> tuple
     clipped = [ch for ch in pre.channels[1:] if q.get(f"rail_{ch}", 0) >= pre.quality.rail_min]
     spikes = [ch for ch in pre.channels[1:] if q.get(f"peakz_{ch}", 0) > pre.quality.spike_z]
     range_pct = float(100 * (speeds.max() - speeds.min()) / np.median(speeds))
-    warnings = speed_warnings(fr, train_range)
+    warnings = speed_warnings(fr, train_range, cal_range)
     if range_pct > UNSTABLE_SPEED_PCT:
         warnings.append(f"shaft speed varies by {range_pct:.1f} % within the recording")
     if fell_back.any():
@@ -117,6 +124,7 @@ def _signal_quality(x: np.ndarray, fr: float, cfg: Config, train_range) -> tuple
     return {"shaft_speed_hz": float(fr), "window_speeds_hz": [float(v) for v in speeds],
             "window_speed_fallback": [bool(v) for v in fell_back], "speed_range_pct": range_pct,
             "speed_stable": range_pct <= UNSTABLE_SPEED_PCT, "train_speed_range_hz": list(train_range),
+            "calibration_normal_speed_range_hz": list(cal_range),
             "tacho_glitches": int(glitches), "mic_bursts_removed": int(bursts), "nan_count": int(q["nan_count"]),
             "clipping_channels": clipped, "spike_channels": spikes, "warnings": warnings}, speeds
 
@@ -178,7 +186,8 @@ def diagnose(source, healthy_rule: str | None = None, nominal_speed_hz: float | 
             raise InputError("the shaft speed could not be measured from this recording")
         fr, rec_id, origin = float(est.fr_hz), None, "uploaded array"
     train_range = b.manifest.data["train_speed_range_hz"]
-    quality, _ = _signal_quality(x, fr, cfg, train_range)
+    cal_range = b.manifest.data["calibration_normal_speed_range_hz"]
+    quality, _ = _signal_quality(x, fr, cfg, train_range, cal_range)
     feats = recording_features(x, fr, pre)
     rep = stacked_representation(x, fr, pre, cfg.representation.leading_candidate)
     # ---- CNN-6 (vibration channels), Mahalanobis, AE-6, B1s, LR
