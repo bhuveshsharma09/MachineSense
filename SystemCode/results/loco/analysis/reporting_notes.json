@@ -1,0 +1,6 @@
+{
+ "stage": "ML-4 item 0 reporting fixes to the Stage 3C.1 analysis (results in this folder are unchanged)",
+ "distinct_recordings": "a distinct-recordings count is the number of recordings with that outcome at least once; e.g. each of the 25 distinct healthy recordings was accepted at least once; instance acceptance 192/225",
+ "threshold_free_attribution": "the +0.035 AUROC / +0.042 OSCR differences (item4_cnn_vs_lr.json, threshold_free) compare the CNN Mahalanobis score with LR-MSP, not the complete three-way rule; the calibration-matched counts are the rule-level comparison and carry no interval",
+ "bootstrap": "suggestive, conditional evidence. Each draw drops runs lacking withheld or known recordings (mean 7, max 13 of 27) and averages the remaining folds within class, so draws use different fold combinations. The handling of missing folds needs validation before any publication claim."
+}

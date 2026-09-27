@@ -493,6 +493,9 @@ instance; e.g. the fold-k normal row is 225 evaluation instances from 25 distinc
 | Normal, fold k → healthy | 192 / 225 (25 / 25) | 172 / 225 (22 / 25) |
 | Normal, seen folder → healthy | 68 / 74 (23 / 25) | 68 / 74 (24 / 25) |
 
+In the distinct-recordings column a recording counts if it has that outcome at least once: for fold-k normals, each of
+the 25 distinct healthy recordings was accepted at least once; instance acceptance 192/225.
+
 Threshold-free macro AUROC over the withheld classes: Mahalanobis 0.877, k-NN 0.845, MSP 0.782, AE error 0.517. Spreads
 over runs are the std over the 27 class × fold runs (they mix between-class and between-fold variation and are not seed
 uncertainty); the std over the 3 folds of the per-fold macro is reported separately in `results/loco/analysis/`. In
@@ -506,9 +509,9 @@ Stage 3C one known-fault instance declared healthy (via the AE override) was mis
   184, 161 of 225 instances (25 distinct recordings); seen-folder normals 68, 66, 55 of 74. C was identified post hoc on
   27 Sep and is exploratory. τ_e rests on 2–3 calibration normals per run. The app's healthy rule is pending Bhuvesh's
   decision, under stated assumptions about fault frequency and the costs of missed faults vs unnecessary inspections.
-- CNN rule vs LR/MSP: threshold-free macro AUROC difference (CNN Mahalanobis − LR MSP) +0.035, paired mixed-unit
-  bootstrap interval [+0.001, +0.071]; OSCR +0.042 [+0.005, +0.081]. An interval excluding zero supports a specific
-  metric difference under this protocol, not an overall winner. At an LR threshold matched to the CNN rule's calibration
+- CNN Mahalanobis score vs LR MSP (threshold-free; attributed to the score, not to the complete three-way rule): macro
+  AUROC difference +0.035, paired mixed-unit bootstrap interval [+0.001, +0.071]; OSCR +0.042 [+0.005, +0.081]. The
+  bootstrap is suggestive, conditional evidence. Each draw drops runs lacking withheld or known recordings (mean 7, max 13 of 27) and averages the remaining folds within class, so draws use different fold combinations. The handling of missing folds needs validation before any publication claim. Rule-level comparison (no interval): at an LR threshold matched to the CNN rule's calibration
   acceptance, LR sends more withheld faults to healthy (61 vs 28) and to a known fault (331 vs 283).
 - Seeds 42 / 43 / 44 (training variability only; no new recordings): Mahalanobis macro AUROC 0.877 / 0.877 / 0.868, MSP
   0.782 / 0.809 / 0.827; rule A withheld → healthy 28 / 26 / 36 instances.
