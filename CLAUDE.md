@@ -18,6 +18,14 @@ Given one 5-second, 8-channel recording, the system answers three questions:
 Every verdict carries explanations: calibrated confidence, per-sensor evidence, and an order spectrum and
 envelope spectrum with physics cursors at the measured shaft speed.
 
+**Added 27 Sep (Bhuvesh's decision):** the product goal widens from verdicts to inspection decisions.
+MachineSense helps a mechanic move from a sensor reading to an evidence-supported inspection decision,
+adding two questions on top of the three above: what evidence supports or contradicts the conclusion, and
+what to inspect next. A bounded multi-agent investigation assistant (D6) and a pilot evaluation of its
+research question (D7) are **planned deliverables, not future work**. The diagnostic models, protocols,
+frozen splits and reserved-test rules are unchanged and remain the assistant's only source of numbers.
+See §11. Out of scope: remaining-life prediction, or proving that a repair will fix the problem.
+
 ### Deliverables and dates
 
 | Date | Deliverable |
@@ -31,6 +39,9 @@ envelope spectrum with physics cursors at the measured shaft speed.
 | 24 Oct | **code freeze** (after this: bug fixes and docs only) |
 | 31 Oct | submission ZIP on Canvas |
 | 1 Nov | final presentation + peer review |
+
+Agent-stage targets for D6/D7 (11, 18 and 24 Oct) are **proposed, not committed**, and collide with
+checkpoint 2, the app week and the writing week. See §11 and the plan's Timeline before scheduling work.
 
 Rubric: the project must visibly use supervised + unsupervised learning, classical ML + deep learning,
 hybrid/ensemble, and intelligent sensing (multi-sensor fusion). Pretrained models count only if fine-tuned.
@@ -385,3 +396,61 @@ Recorded 26 Sep 2026 (Stage 2B.1); status updated in Stage 3A.
 - The plan and this file disagree.
 
 Otherwise, make the reasonable choice, note it in the notebook's Findings or the commit message, and keep going.
+
+## 11. Agentic application (planned deliverables D6/D7; added 27 Sep)
+
+Status: planned deliverable, decided by Bhuvesh on 27 Sep. Do **not** implement it until a stage brief says
+so, and never let it interrupt or change a diagnostic stage. The full design, research question, evaluation
+design and schedule conflicts are in the plan doc section "Agentic application and research direction".
+The earlier "no login, no chat" exclusion is replaced by this section.
+
+**Product flow.** Display name (optional PIN; a demo identity, not authentication) → upload a CSV or pick a
+prepared recording → main screen with a basic interactive 3-D machine view, sensor positions and recording
+details → "Investigate this reading" → progress, then: condition and predicted fault; supporting and
+conflicting evidence; uncertainty and missing information; next inspections with cited references; a chat
+panel for follow-up questions.
+
+**Agents.** Coordinator (chooses the next step, delegates, decides when evidence is enough); signal-quality
+agent (format, sensor quality, model applicability); diagnostic agent (calls the classifiers, anomaly
+detectors and unknown-fault checks; examines disagreement); maintenance-guidance agent (retrieves curated
+references, proposes supported inspection steps); evidence-review agent (checks every conclusion and
+recommendation against model results and retrieved sources). They share one structured case record:
+measurements, model versions, results, source references, unresolved questions.
+
+**Hard rules (non-negotiable once implementation starts).**
+1. Numbers come only from tested tools in `ml/` (through the backend API). Agents never generate, alter or
+   replace measurements or model outputs.
+2. The fixed diagnostic report works with no language model and no API key; the assistant degrades to it.
+   Graders run on a clean CPU machine.
+3. Every investigation has a fixed tool-call and revision budget, set in config.
+4. The UI shows actions taken and evidence found, never private model reasoning.
+5. Location wording: "predicted fault location according to the dataset labels" is kept separate from
+   "sensor anomaly evidence". Per-channel reconstruction error is not fault-location evidence.
+6. API keys live in `.env` and are never committed. The demo identity stores nothing sensitive.
+7. Maintenance references are curated under `knowledge/`, each with its source and licence note, and are
+   cited by id. Model memory is never presented as a source.
+8. Data rules still hold: reserved tests stay sealed. D7 development cases are separate from final
+   evaluation cases, and a recording and its altered variants stay on the same side.
+9. New dependencies (a language-model SDK, a 3-D library) need a pinned line, a one-line reason and approval
+   (§2). The LightGBM/torch isolation rule still applies to every process.
+10. D1–D5 keep priority whenever they compete with agent work.
+
+**D7 research question.** When diagnostic evidence is uncertain or conflicting, does a multi-agent maintenance
+assistant give fewer unsupported repair recommendations than a single-agent assistant, while still
+recommending useful next inspections? The conditions are a fixed report, a single agent, multi-agent without
+the reviewer, and the full system, all with the same model, tools, references and budgets. Measures:
+unsupported repair recommendations and useful next inspections (refusing everything must not look
+successful), citation correctness, unnecessary refusal, time and cost. Blinded expert review is sought;
+without it, usefulness claims stay limited.
+
+**Proposed targets (not committed; conflicts in the plan's Timeline).**
+
+| Date | Proposed | Conflict |
+| --- | --- | --- |
+| 11 Oct | Upload/dropdown → diagnosis screen; `/api/diagnose` returns the structured evidence record | Extends the walking skeleton |
+| 18 Oct | Minimum multi-agent investigation + chat; curated references; D7 protocol fixed | Checkpoint 2 (ResNet-18, seeds, XAI, manifest v1) |
+| 24 Oct | Integrated app, bounded agent workflow, basic 3-D view, reproducible pilot; code freeze | Inference, golden tests, clean-clone check |
+
+Proposed agent kill rule: if the minimum agent loop is not working on 18 Oct, D6 ships as the fixed report plus
+chat over that report, and D7 becomes a smaller pilot. Stop and ask Bhuvesh about anything listed as open in
+the plan's Decisions (provider, references, reviewer, cuts, dates).
