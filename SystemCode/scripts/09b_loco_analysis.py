@@ -467,15 +467,93 @@ def run_compare() -> None:
         print(name, {g: {k: v["instances"] for k, v in e["pooled"].items()} for g, e in t.items()})
 
 
+SCORE_COLS = ("msp", "maha", "knn", "ae")
+SEED_WORDING = "seeds measure training variability only; they add no independent healthy or fault recordings"
+
+
+def threshold_free(rec: pd.DataFrame) -> pd.DataFrame:
+    """Per run and score: AUROC and OSCR, fold-k known vs withheld (as in 3C)."""
+    from sklearn.metrics import roc_auc_score
+
+    from ml.openset import oscr
+
+    rows = []
+    for (c, k), g in rec.groupby(["withheld", "outer_fold"]):
+        kn, un = g[g.role == "foldk_known"], g[g.role == "foldk_withheld"]
+        correct = (kn.pred == kn.class10).to_numpy()
+        for sc in SCORE_COLS:
+            u_kn = (-kn.msp if sc == "msp" else kn[sc]).to_numpy()
+            u_un = (-un.msp if sc == "msp" else un[sc]).to_numpy()
+            rows.append({"withheld": c, "outer_fold": int(k), "score": sc,
+                         "auroc": float(roc_auc_score(np.r_[np.zeros(len(u_kn)), np.ones(len(u_un))], np.r_[u_kn, u_un])),
+                         "oscr": oscr(u_kn, correct, u_un)})
+    return pd.DataFrame(rows)
+
+
+def run_seeds() -> None:
+    """Item 5: seeds 42 (not retrained; recomputed and checked against the 3C report), 43, 44."""
+    loco = results_dir() / "loco"
+    per_seed, checks = {}, {}
+    for seed in SEEDS:
+        rec = recordings(seed)
+        tf = threshold_free(rec)
+        tf.to_csv(OUT / f"item5_threshold_free_s{seed}.csv", index=False)
+        pc = tf.groupby(["score", "withheld"])[["auroc", "oscr"]].mean().reset_index()
+        var = run_variants(seed)
+        per_seed[seed] = {"threshold_free_macro": {sc: {"auroc": float(g.auroc.mean()), "oscr": float(g.oscr.mean())}
+                                                   for sc, g in pc.groupby("score")},
+                          "variants": {v: {grp: {k: x["instances"] for k, x in e["pooled"].items()}
+                                           for grp, e in t.items()} for v, t in var["variants"].items()},
+                          "variants_known_macro_unknown": {v: {grp: t[grp]["macro_over_known_fault_classes"]["unknown"]
+                                                               for grp in ("known_a_seen_folder", "known_b_unseen_foldk")}
+                                                           for v, t in var["variants"].items()},
+                          "relative_to_A": var["relative_to_A"],
+                          "withheld_to_assigned_A": decide(rec).query("role == 'foldk_withheld'")
+                          .pipe(lambda d: pd.crosstab(d.withheld, d.decision_A)).to_dict(orient="index")}
+        if seed == 42:
+            ref = json.loads((loco / "loco_auroc_oscr.json").read_text())["summary"]
+            ref_pf = pd.read_csv(loco / "loco_per_fold_auroc_oscr.csv")
+            m = tf.merge(ref_pf, on=["withheld", "outer_fold", "score"], suffixes=("", "_3c"))
+            rule = json.loads((loco / "decision_rule.json").read_text())
+            prim = rule["classical_comparison"]["practical_primary"]
+            a = var["variants"]["A"]
+            mine = {"withheld_passing_as_known_fault": a["withheld"]["pooled"]["known_fault"]["rate"],
+                    "withheld_declared_healthy": a["withheld"]["pooled"]["healthy"]["rate"],
+                    "false_unknown_a_seen_macro": a["known_a_seen_folder"]["macro_over_known_fault_classes"]["unknown"],
+                    "false_unknown_b_unseen_macro": a["known_b_unseen_foldk"]["macro_over_known_fault_classes"]["unknown"]}
+            checks = {"per_run_auroc_oscr_max_abs_diff": float(max((m.auroc - m.auroc_3c).abs().max(), (m.oscr - m.oscr_3c).abs().max())),
+                      "macro_auroc_max_abs_diff": float(max(abs(per_seed[42]["threshold_free_macro"][sc]["auroc"] - ref[sc]["auroc_macro"])
+                                                            for sc in SCORE_COLS)),
+                      "primary_rule_max_abs_diff": float(max(abs(mine[k] - prim[k]) for k in mine))}
+            checks["matches_3c_report"] = all(v < 1e-12 for v in checks.values())
+    across = {}
+    for sc in SCORE_COLS:
+        for m in ("auroc", "oscr"):
+            vals = [per_seed[s_]["threshold_free_macro"][sc][m] for s_ in SEEDS]
+            across[f"{sc}_{m}_macro"] = {"values": vals, "mean": float(np.mean(vals)), "std": float(np.std(vals, ddof=1))}
+    for v in ("A", "B", "C"):
+        for grp, cat in (("withheld", "healthy"), ("withheld", "known_fault"), ("withheld", "unknown"),
+                         ("normal_foldk", "healthy"), ("normal_seen_folder", "healthy"),
+                         ("known_b_unseen_foldk", "unknown"), ("known_a_seen_folder", "unknown")):
+            vals = [per_seed[s_]["variants"][v][grp][cat] for s_ in SEEDS]
+            across[f"{v}_{grp}_{cat}_instances"] = {"values": vals, "mean": float(np.mean(vals)), "std": float(np.std(vals, ddof=1))}
+    out = {"provenance": provenance(), "wording": SEED_WORDING, "seeds": list(SEEDS),
+           "seed42_check_against_3c": checks, "per_seed": {str(k): v for k, v in per_seed.items()}, "across_seeds": across}
+    (OUT / "item5_seed_variability.json").write_text(json.dumps(out, indent=1, default=float))
+    print("seed 42 vs 3C report:", checks)
+    print(pd.DataFrame({k: v["values"] + [v["mean"], v["std"]] for k, v in across.items()},
+                       index=[*map(str, SEEDS), "mean", "std"]).T.round(3).to_string())
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["counts", "confusion", "variants", "compare"])
+    ap.add_argument("task", choices=["counts", "confusion", "variants", "compare", "seeds"])
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     a = ap.parse_args()
     load_config(a.config)
     OUT.mkdir(parents=True, exist_ok=True)
     {"counts": run_counts, "confusion": run_confusion, "variants": run_variants_report,
-     "compare": run_compare}[a.task]()
+     "compare": run_compare, "seeds": run_seeds}[a.task]()
     return 0
 
 

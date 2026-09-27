@@ -50,9 +50,9 @@ SCORES = {"msp": "lower MSP = more unknown", "maha": "higher = more unknown", "k
 ROLES = ("cal", "eval", "foldk_known", "foldk_withheld")
 
 
-def paths(c: str) -> tuple[RunPaths, RunPaths]:
-    return (RunPaths("loco", "cnn6", SEED, protocol="loco", withheld=c),
-            RunPaths("loco", "ae6", SEED, protocol="loco", withheld=c))
+def paths(c: str, seed: int = SEED) -> tuple[RunPaths, RunPaths]:
+    return (RunPaths("loco", "cnn6", seed, protocol="loco", withheld=c),
+            RunPaths("loco", "ae6", seed, protocol="loco", withheld=c))
 
 
 def load_pool(cfg: Config, meta: pd.DataFrame) -> pd.DataFrame:
@@ -63,7 +63,7 @@ def load_pool(cfg: Config, meta: pd.DataFrame) -> pd.DataFrame:
     return pool
 
 
-def run_train(cfg: Config, only_c: str | None, only_k: int | None) -> None:
+def run_train(cfg: Config, only_c: str | None, only_k: int | None, seed: int = SEED) -> None:
     import mlflow
     import torch
 
@@ -72,8 +72,8 @@ def run_train(cfg: Config, only_c: str | None, only_k: int | None) -> None:
     from ml.utils import get_device, mlflow_run, seed_everything
 
     device = get_device()
-    cc = cfg.cnn.model_copy(update={"seed": SEED})
-    ac = cfg.ae.model_copy(update={"seed": SEED})
+    cc = cfg.cnn.model_copy(update={"seed": seed})
+    ac = cfg.ae.model_copy(update={"seed": seed})
     meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
     pool = load_pool(cfg, meta)
     assignment = pd.read_csv(ASSIGNMENT)
@@ -83,13 +83,14 @@ def run_train(cfg: Config, only_c: str | None, only_k: int | None) -> None:
         f"{cfg.representation.leading_candidate}_*.json")).read_text())["cache_key"]
     sh = split_hash(meta)
     todo = [(c, k) for c in FAULT_CLASSES for k in (0, 1, 2)
-            if (only_c in (None, c)) and (only_k in (None, k)) and not paths(c)[0].scores(f"fold{k}_recording").exists()]
+            if (only_c in (None, c)) and (only_k in (None, k)) and not paths(c, seed)[0].scores(f"fold{k}_recording").exists()]
     print(f"{len(todo)} LOCO runs to train")
     if not todo:
         return
     with gpu_job(device, artifacts_dir(), cc.mps_memory_fraction), \
-            mlflow_run(cfg, run_name=f"loco_cnn6ae6_s{SEED}") as parent:
-        mlflow.set_tags({"stage": "3C", "question": "Q3", "family": "loco", "seed": str(SEED), "split_hash": sh,
+            mlflow_run(cfg, run_name=f"loco_cnn6ae6_s{seed}") as parent:
+        stage = "3C" if seed == SEED else "3C.1"
+        mlflow.set_tags({"stage": stage, "question": "Q3", "family": "loco", "seed": str(seed), "split_hash": sh,
                          "cache_key": cache_key})
         pos = rows.row.to_numpy()
         order = np.argsort(pos)
@@ -98,7 +99,7 @@ def run_train(cfg: Config, only_c: str | None, only_k: int | None) -> None:
         cache = torch.from_numpy(x).to(device)  # dev-pool windows only
         del x
         for c, k in todo:
-            rp, rpa = paths(c)
+            rp, rpa = paths(c, seed)
             for p in (rp.weights(k), rpa.weights(k), rp.norm_stats(k), rpa.norm_stats(k), rp.scores("x")):
                 p.parent.mkdir(parents=True, exist_ok=True)
             ids = loco_run_ids(assignment, pool, c, k)
@@ -118,9 +119,9 @@ def run_train(cfg: Config, only_c: str | None, only_k: int | None) -> None:
             score_rows = np.flatnonzero(sel.notna().to_numpy())
             run_id = rp.run_name(k)
             with mlflow.start_run(run_name=run_id, nested=True, experiment_id=parent.info.experiment_id):
-                mlflow.set_tags({"stage": "3C", "question": "Q3", **rp.tags(k), "ae_run": rpa.run_name(k),
+                mlflow.set_tags({"stage": stage, "question": "Q3", **rp.tags(k), "ae_run": rpa.run_name(k),
                                  "split_hash": sh, "cache_key": cache_key, "git_sha": git_sha()})
-                seed_everything(SEED)
+                seed_everything(seed)
                 t0 = time.perf_counter()
                 model, hist = train_model(cache, y, fit_rows, VIB, mean, std, len(known), cc, device,
                                           on_epoch=lambda ep, r: mlflow.log_metrics(
@@ -128,7 +129,7 @@ def run_train(cfg: Config, only_c: str | None, only_k: int | None) -> None:
                 t_cnn = time.perf_counter() - t0
                 logits, emb = score_windows(model, cache, score_rows, VIB, mean, std, cc, device)
                 torch.save(model.state_dict(), rp.weights(k))
-                seed_everything(SEED)
+                seed_everything(seed)
                 t0 = time.perf_counter()
                 fitn_rows = np.flatnonzero(rows.rec_id.isin(fit_normals).to_numpy())
                 ae, hist_ae = train_ae(cache, fitn_rows, VIB, mean_a, std_a, "frame", ac, device,
@@ -142,14 +143,14 @@ def run_train(cfg: Config, only_c: str | None, only_k: int | None) -> None:
                 wt = pd.DataFrame({"rec_id": w.rec_id.to_numpy(), "window_idx": w.window_idx.to_numpy(),
                                    "dev_fold": w.dev_fold.to_numpy(), "class10": w.class10.to_numpy(),
                                    "role": sel.iloc[score_rows].to_numpy(), "withheld": c, "outer_fold": k,
-                                   "variant": "cnn6", "seed": SEED, "run_id": run_id})
+                                   "variant": "cnn6", "seed": seed, "run_id": run_id})
                 for j, name in enumerate(known):
                     wt[f"logit_{name}"] = logits[:, j]
                 wt.to_parquet(rp.scores(f"fold{k}_logits"), index=False)
                 np.savez_compressed(rp.embeddings(k), embedding=emb, rec_id=wt.rec_id.to_numpy().astype(str),
                                     window_idx=wt.window_idx.to_numpy(), role=wt.role.to_numpy().astype(str),
                                     withheld=np.array(c), outer_fold=np.array(k), variant=np.array("cnn6"),
-                                    seed=np.array(SEED), run_id=np.array(run_id))
+                                    seed=np.array(seed), run_id=np.array(run_id))
                 # ---- recording scores
                 is_fit = (wt.role == "fit").to_numpy()
                 ev = ~is_fit
@@ -164,7 +165,7 @@ def run_train(cfg: Config, only_c: str | None, only_k: int | None) -> None:
                 info = pool.set_index("rec_id").loc[rec.index]
                 rec = rec.assign(role=[role_of[r] for r in rec.index], class10=info.class10.to_numpy(),
                                  folder=info.folder.to_numpy(), severity=info.severity.to_numpy(),
-                                 dev_fold=info.dev_fold.to_numpy(), withheld=c, outer_fold=k, seed=SEED,
+                                 dev_fold=info.dev_fold.to_numpy(), withheld=c, outer_fold=k, seed=seed,
                                  run_id=run_id, ae_run_id=rpa.run_name(k)).rename_axis("rec_id").reset_index()
                 rec.to_parquet(rp.scores(f"fold{k}_recording"), index=False)
                 kn = rec[rec.role == "foldk_known"]
@@ -183,8 +184,8 @@ def run_train(cfg: Config, only_c: str | None, only_k: int | None) -> None:
             release_device_memory(device)
 
 
-def load_recordings() -> pd.DataFrame:
-    parts = [pd.read_parquet(paths(c)[0].scores(f"fold{k}_recording")) for c in FAULT_CLASSES for k in (0, 1, 2)]
+def load_recordings(seed: int = SEED) -> pd.DataFrame:
+    parts = [pd.read_parquet(paths(c, seed)[0].scores(f"fold{k}_recording")) for c in FAULT_CLASSES for k in (0, 1, 2)]
     return pd.concat(parts, ignore_index=True)
 
 
@@ -477,11 +478,12 @@ def main() -> int:
     ap.add_argument("task", choices=["train", "auroc", "decide"])
     ap.add_argument("--withheld", choices=list(FAULT_CLASSES), default=None)
     ap.add_argument("--fold", type=int, choices=[0, 1, 2], default=None)
+    ap.add_argument("--seed", type=int, default=SEED, help="training seed (train task; Stage 3C.1 adds 43 and 44)")
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     a = ap.parse_args()
     cfg = load_config(a.config)
     if a.task == "train":
-        run_train(cfg, a.withheld, a.fold)
+        run_train(cfg, a.withheld, a.fold, a.seed)
     elif a.task == "auroc":
         run_auroc(cfg)
     else:

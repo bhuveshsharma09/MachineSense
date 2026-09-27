@@ -1,0 +1,972 @@
+{
+ "provenance": {
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "1bf52919ffaa4184222745e2d90e92a51c02373f-dirty",
+  "note": "Development results on one partition; reserved tests sealed.",
+  "instances_vs_distinct": "a recording evaluated in several withheld-class runs counts once per run as an instance and once as a distinct recording"
+ },
+ "wording": "seeds measure training variability only; they add no independent healthy or fault recordings",
+ "seeds": [
+  42,
+  43,
+  44
+ ],
+ "seed42_check_against_3c": {
+  "per_run_auroc_oscr_max_abs_diff": 1.1102230246251565e-16,
+  "macro_auroc_max_abs_diff": 0.0,
+  "primary_rule_max_abs_diff": 0.0,
+  "matches_3c_report": true
+ },
+ "per_seed": {
+  "42": {
+   "threshold_free_macro": {
+    "ae": {
+     "auroc": 0.5172962208886296,
+     "oscr": 0.5095593098188907
+    },
+    "knn": {
+     "auroc": 0.8453555823377614,
+     "oscr": 0.8414631416300391
+    },
+    "maha": {
+     "auroc": 0.8769158787865375,
+     "oscr": 0.8704020378672458
+    },
+    "msp": {
+     "auroc": 0.7817112636912676,
+     "oscr": 0.779095068638807
+    }
+   },
+   "variants": {
+    "A": {
+     "withheld": {
+      "healthy": 28,
+      "known_fault": 283,
+      "unknown": 468
+     },
+     "known_a_seen_folder": {
+      "healthy": 0,
+      "correct": 2033,
+      "wrong_fault": 2,
+      "unknown": 52
+     },
+     "known_b_unseen_foldk": {
+      "healthy": 1,
+      "correct": 5391,
+      "wrong_fault": 7,
+      "unknown": 833
+     },
+     "normal_foldk": {
+      "healthy": 192,
+      "fault": 0,
+      "unknown": 33
+     },
+     "normal_seen_folder": {
+      "healthy": 68,
+      "fault": 0,
+      "unknown": 6
+     }
+    },
+    "B": {
+     "withheld": {
+      "healthy": 19,
+      "known_fault": 283,
+      "unknown": 477
+     },
+     "known_a_seen_folder": {
+      "healthy": 0,
+      "correct": 2033,
+      "wrong_fault": 2,
+      "unknown": 52
+     },
+     "known_b_unseen_foldk": {
+      "healthy": 0,
+      "correct": 5391,
+      "wrong_fault": 7,
+      "unknown": 834
+     },
+     "normal_foldk": {
+      "healthy": 184,
+      "fault": 0,
+      "unknown": 41
+     },
+     "normal_seen_folder": {
+      "healthy": 66,
+      "fault": 0,
+      "unknown": 8
+     }
+    },
+    "C": {
+     "withheld": {
+      "healthy": 8,
+      "known_fault": 283,
+      "unknown": 488
+     },
+     "known_a_seen_folder": {
+      "healthy": 0,
+      "correct": 2033,
+      "wrong_fault": 2,
+      "unknown": 52
+     },
+     "known_b_unseen_foldk": {
+      "healthy": 0,
+      "correct": 5391,
+      "wrong_fault": 7,
+      "unknown": 834
+     },
+     "normal_foldk": {
+      "healthy": 161,
+      "fault": 0,
+      "unknown": 64
+     },
+     "normal_seen_folder": {
+      "healthy": 55,
+      "fault": 0,
+      "unknown": 19
+     }
+    }
+   },
+   "variants_known_macro_unknown": {
+    "A": {
+     "known_a_seen_folder": 0.023004040243036074,
+     "known_b_unseen_foldk": 0.13609542100438218
+    },
+    "B": {
+     "known_a_seen_folder": 0.023004040243036074,
+     "known_b_unseen_foldk": 0.1362065321154933
+    },
+    "C": {
+     "known_a_seen_folder": 0.023004040243036074,
+     "known_b_unseen_foldk": 0.1362065321154933
+    }
+   },
+   "relative_to_A": {
+    "B": {
+     "withheld_to_healthy_removed": 9,
+     "withheld_to_healthy_added": 0,
+     "normal_foldk_to_unknown_added": 8,
+     "normal_foldk_to_unknown_added_distinct": 8,
+     "normal_seen_folder_to_unknown_added": 2,
+     "normal_seen_folder_to_unknown_added_distinct": 2,
+     "known_fault_to_healthy_removed": 1
+    },
+    "C": {
+     "withheld_to_healthy_removed": 20,
+     "withheld_to_healthy_added": 0,
+     "normal_foldk_to_unknown_added": 31,
+     "normal_foldk_to_unknown_added_distinct": 14,
+     "normal_seen_folder_to_unknown_added": 13,
+     "normal_seen_folder_to_unknown_added_distinct": 9,
+     "known_fault_to_healthy_removed": 1
+    }
+   },
+   "withheld_to_assigned_A": {
+    "horizontal_misalignment": {
+     "healthy": 22,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0,
+     "underhang_outer": 0,
+     "unknown": 51,
+     "vertical_misalignment": 0
+    },
+    "imbalance": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0,
+     "underhang_outer": 0,
+     "unknown": 5,
+     "vertical_misalignment": 139
+    },
+    "overhang_ball": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0,
+     "underhang_outer": 11,
+     "unknown": 58,
+     "vertical_misalignment": 0
+    },
+    "overhang_cage": {
+     "healthy": 0,
+     "horizontal_misalignment": 4,
+     "imbalance": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 2,
+     "underhang_outer": 0,
+     "unknown": 66,
+     "vertical_misalignment": 0
+    },
+    "overhang_outer": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_cage": 2,
+     "overhang_outer": 0,
+     "underhang_outer": 0,
+     "unknown": 72,
+     "vertical_misalignment": 0
+    },
+    "underhang_ball": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 11,
+     "underhang_outer": 0,
+     "unknown": 66,
+     "vertical_misalignment": 0
+    },
+    "underhang_cage": {
+     "healthy": 2,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 4,
+     "underhang_outer": 1,
+     "unknown": 65,
+     "vertical_misalignment": 0
+    },
+    "underhang_outer": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0,
+     "underhang_outer": 0,
+     "unknown": 73,
+     "vertical_misalignment": 0
+    },
+    "vertical_misalignment": {
+     "healthy": 4,
+     "horizontal_misalignment": 0,
+     "imbalance": 109,
+     "overhang_cage": 0,
+     "overhang_outer": 0,
+     "underhang_outer": 0,
+     "unknown": 12,
+     "vertical_misalignment": 0
+    }
+   }
+  },
+  "43": {
+   "threshold_free_macro": {
+    "ae": {
+     "auroc": 0.5138742188804692,
+     "oscr": 0.5033684561211182
+    },
+    "knn": {
+     "auroc": 0.8454669465979467,
+     "oscr": 0.8394534425094354
+    },
+    "maha": {
+     "auroc": 0.8767892935704513,
+     "oscr": 0.8674850810812631
+    },
+    "msp": {
+     "auroc": 0.8093722227465034,
+     "oscr": 0.8042216006959314
+    }
+   },
+   "variants": {
+    "A": {
+     "withheld": {
+      "healthy": 26,
+      "known_fault": 269,
+      "unknown": 484
+     },
+     "known_a_seen_folder": {
+      "healthy": 0,
+      "correct": 2028,
+      "wrong_fault": 0,
+      "unknown": 59
+     },
+     "known_b_unseen_foldk": {
+      "healthy": 6,
+      "correct": 5338,
+      "wrong_fault": 4,
+      "unknown": 884
+     },
+     "normal_foldk": {
+      "healthy": 189,
+      "fault": 0,
+      "unknown": 36
+     },
+     "normal_seen_folder": {
+      "healthy": 69,
+      "fault": 1,
+      "unknown": 4
+     }
+    },
+    "B": {
+     "withheld": {
+      "healthy": 17,
+      "known_fault": 269,
+      "unknown": 493
+     },
+     "known_a_seen_folder": {
+      "healthy": 0,
+      "correct": 2028,
+      "wrong_fault": 0,
+      "unknown": 59
+     },
+     "known_b_unseen_foldk": {
+      "healthy": 5,
+      "correct": 5338,
+      "wrong_fault": 4,
+      "unknown": 885
+     },
+     "normal_foldk": {
+      "healthy": 180,
+      "fault": 0,
+      "unknown": 45
+     },
+     "normal_seen_folder": {
+      "healthy": 65,
+      "fault": 1,
+      "unknown": 8
+     }
+    },
+    "C": {
+     "withheld": {
+      "healthy": 6,
+      "known_fault": 269,
+      "unknown": 504
+     },
+     "known_a_seen_folder": {
+      "healthy": 0,
+      "correct": 2028,
+      "wrong_fault": 0,
+      "unknown": 59
+     },
+     "known_b_unseen_foldk": {
+      "healthy": 1,
+      "correct": 5338,
+      "wrong_fault": 4,
+      "unknown": 889
+     },
+     "normal_foldk": {
+      "healthy": 155,
+      "fault": 0,
+      "unknown": 70
+     },
+     "normal_seen_folder": {
+      "healthy": 52,
+      "fault": 1,
+      "unknown": 21
+     }
+    }
+   },
+   "variants_known_macro_unknown": {
+    "A": {
+     "known_a_seen_folder": 0.027989066104289657,
+     "known_b_unseen_foldk": 0.14916906779949018
+    },
+    "B": {
+     "known_a_seen_folder": 0.027989066104289657,
+     "known_b_unseen_foldk": 0.1492801789106013
+    },
+    "C": {
+     "known_a_seen_folder": 0.027989066104289657,
+     "known_b_unseen_foldk": 0.14972462335504574
+    }
+   },
+   "relative_to_A": {
+    "B": {
+     "withheld_to_healthy_removed": 9,
+     "withheld_to_healthy_added": 0,
+     "normal_foldk_to_unknown_added": 9,
+     "normal_foldk_to_unknown_added_distinct": 5,
+     "normal_seen_folder_to_unknown_added": 4,
+     "normal_seen_folder_to_unknown_added_distinct": 4,
+     "known_fault_to_healthy_removed": 1
+    },
+    "C": {
+     "withheld_to_healthy_removed": 20,
+     "withheld_to_healthy_added": 0,
+     "normal_foldk_to_unknown_added": 34,
+     "normal_foldk_to_unknown_added_distinct": 13,
+     "normal_seen_folder_to_unknown_added": 17,
+     "normal_seen_folder_to_unknown_added_distinct": 11,
+     "known_fault_to_healthy_removed": 5
+    }
+   },
+   "withheld_to_assigned_A": {
+    "horizontal_misalignment": {
+     "healthy": 23,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_outer": 0,
+     "unknown": 50,
+     "vertical_misalignment": 0
+    },
+    "imbalance": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_outer": 0,
+     "unknown": 6,
+     "vertical_misalignment": 138
+    },
+    "overhang_ball": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_outer": 9,
+     "unknown": 60,
+     "vertical_misalignment": 0
+    },
+    "overhang_cage": {
+     "healthy": 0,
+     "horizontal_misalignment": 1,
+     "imbalance": 0,
+     "overhang_outer": 16,
+     "underhang_outer": 0,
+     "unknown": 55,
+     "vertical_misalignment": 0
+    },
+    "overhang_outer": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_outer": 0,
+     "unknown": 74,
+     "vertical_misalignment": 0
+    },
+    "underhang_ball": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_outer": 0,
+     "unknown": 77,
+     "vertical_misalignment": 0
+    },
+    "underhang_cage": {
+     "healthy": 2,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 5,
+     "underhang_outer": 0,
+     "unknown": 65,
+     "vertical_misalignment": 0
+    },
+    "underhang_outer": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_outer": 0,
+     "unknown": 73,
+     "vertical_misalignment": 0
+    },
+    "vertical_misalignment": {
+     "healthy": 1,
+     "horizontal_misalignment": 0,
+     "imbalance": 100,
+     "overhang_outer": 0,
+     "underhang_outer": 0,
+     "unknown": 24,
+     "vertical_misalignment": 0
+    }
+   }
+  },
+  "44": {
+   "threshold_free_macro": {
+    "ae": {
+     "auroc": 0.5142203535372301,
+     "oscr": 0.5051944447256288
+    },
+    "knn": {
+     "auroc": 0.8460024953302656,
+     "oscr": 0.8394582839263792
+    },
+    "maha": {
+     "auroc": 0.8676940114356947,
+     "oscr": 0.8578353070656323
+    },
+    "msp": {
+     "auroc": 0.8272541764322457,
+     "oscr": 0.8221134292889273
+    }
+   },
+   "variants": {
+    "A": {
+     "withheld": {
+      "healthy": 36,
+      "known_fault": 261,
+      "unknown": 482
+     },
+     "known_a_seen_folder": {
+      "healthy": 0,
+      "correct": 2029,
+      "wrong_fault": 4,
+      "unknown": 54
+     },
+     "known_b_unseen_foldk": {
+      "healthy": 5,
+      "correct": 5345,
+      "wrong_fault": 7,
+      "unknown": 875
+     },
+     "normal_foldk": {
+      "healthy": 191,
+      "fault": 0,
+      "unknown": 34
+     },
+     "normal_seen_folder": {
+      "healthy": 65,
+      "fault": 1,
+      "unknown": 8
+     }
+    },
+    "B": {
+     "withheld": {
+      "healthy": 24,
+      "known_fault": 261,
+      "unknown": 494
+     },
+     "known_a_seen_folder": {
+      "healthy": 0,
+      "correct": 2029,
+      "wrong_fault": 4,
+      "unknown": 54
+     },
+     "known_b_unseen_foldk": {
+      "healthy": 2,
+      "correct": 5345,
+      "wrong_fault": 7,
+      "unknown": 878
+     },
+     "normal_foldk": {
+      "healthy": 176,
+      "fault": 0,
+      "unknown": 49
+     },
+     "normal_seen_folder": {
+      "healthy": 64,
+      "fault": 1,
+      "unknown": 9
+     }
+    },
+    "C": {
+     "withheld": {
+      "healthy": 8,
+      "known_fault": 261,
+      "unknown": 510
+     },
+     "known_a_seen_folder": {
+      "healthy": 0,
+      "correct": 2029,
+      "wrong_fault": 4,
+      "unknown": 54
+     },
+     "known_b_unseen_foldk": {
+      "healthy": 0,
+      "correct": 5345,
+      "wrong_fault": 7,
+      "unknown": 880
+     },
+     "normal_foldk": {
+      "healthy": 159,
+      "fault": 0,
+      "unknown": 66
+     },
+     "normal_seen_folder": {
+      "healthy": 55,
+      "fault": 1,
+      "unknown": 18
+     }
+    }
+   },
+   "variants_known_macro_unknown": {
+    "A": {
+     "known_a_seen_folder": 0.024230725995751528,
+     "known_b_unseen_foldk": 0.14453558912494044
+    },
+    "B": {
+     "known_a_seen_folder": 0.024230725995751528,
+     "known_b_unseen_foldk": 0.14494807009906524
+    },
+    "C": {
+     "known_a_seen_folder": 0.024230725995751528,
+     "known_b_unseen_foldk": 0.14517029232128748
+    }
+   },
+   "relative_to_A": {
+    "B": {
+     "withheld_to_healthy_removed": 12,
+     "withheld_to_healthy_added": 0,
+     "normal_foldk_to_unknown_added": 15,
+     "normal_foldk_to_unknown_added_distinct": 7,
+     "normal_seen_folder_to_unknown_added": 1,
+     "normal_seen_folder_to_unknown_added_distinct": 1,
+     "known_fault_to_healthy_removed": 3
+    },
+    "C": {
+     "withheld_to_healthy_removed": 28,
+     "withheld_to_healthy_added": 0,
+     "normal_foldk_to_unknown_added": 32,
+     "normal_foldk_to_unknown_added_distinct": 13,
+     "normal_seen_folder_to_unknown_added": 10,
+     "normal_seen_folder_to_unknown_added_distinct": 7,
+     "known_fault_to_healthy_removed": 5
+    }
+   },
+   "withheld_to_assigned_A": {
+    "horizontal_misalignment": {
+     "healthy": 33,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_cage": 0,
+     "unknown": 40,
+     "vertical_misalignment": 0
+    },
+    "imbalance": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_cage": 0,
+     "unknown": 10,
+     "vertical_misalignment": 134
+    },
+    "overhang_ball": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_cage": 0,
+     "unknown": 69,
+     "vertical_misalignment": 0
+    },
+    "overhang_cage": {
+     "healthy": 0,
+     "horizontal_misalignment": 13,
+     "imbalance": 0,
+     "overhang_outer": 11,
+     "underhang_cage": 1,
+     "unknown": 47,
+     "vertical_misalignment": 0
+    },
+    "overhang_outer": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_cage": 0,
+     "unknown": 74,
+     "vertical_misalignment": 0
+    },
+    "underhang_ball": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 1,
+     "underhang_cage": 0,
+     "unknown": 76,
+     "vertical_misalignment": 0
+    },
+    "underhang_cage": {
+     "healthy": 3,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_cage": 0,
+     "unknown": 69,
+     "vertical_misalignment": 0
+    },
+    "underhang_outer": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 0,
+     "overhang_outer": 0,
+     "underhang_cage": 0,
+     "unknown": 73,
+     "vertical_misalignment": 0
+    },
+    "vertical_misalignment": {
+     "healthy": 0,
+     "horizontal_misalignment": 0,
+     "imbalance": 101,
+     "overhang_outer": 0,
+     "underhang_cage": 0,
+     "unknown": 24,
+     "vertical_misalignment": 0
+    }
+   }
+  }
+ },
+ "across_seeds": {
+  "msp_auroc_macro": {
+   "values": [
+    0.7817112636912676,
+    0.8093722227465034,
+    0.8272541764322457
+   ],
+   "mean": 0.8061125542900056,
+   "std": 0.022945768761752167
+  },
+  "msp_oscr_macro": {
+   "values": [
+    0.779095068638807,
+    0.8042216006959314,
+    0.8221134292889273
+   ],
+   "mean": 0.8018100328745552,
+   "std": 0.02161033509165876
+  },
+  "maha_auroc_macro": {
+   "values": [
+    0.8769158787865375,
+    0.8767892935704513,
+    0.8676940114356947
+   ],
+   "mean": 0.8737997279308946,
+   "std": 0.005288084378491832
+  },
+  "maha_oscr_macro": {
+   "values": [
+    0.8704020378672458,
+    0.8674850810812631,
+    0.8578353070656323
+   ],
+   "mean": 0.8652408086713804,
+   "std": 0.006577100405754506
+  },
+  "knn_auroc_macro": {
+   "values": [
+    0.8453555823377614,
+    0.8454669465979467,
+    0.8460024953302656
+   ],
+   "mean": 0.8456083414219911,
+   "std": 0.00034585904233895077
+  },
+  "knn_oscr_macro": {
+   "values": [
+    0.8414631416300391,
+    0.8394534425094354,
+    0.8394582839263792
+   ],
+   "mean": 0.8401249560219513,
+   "std": 0.0011589052597600856
+  },
+  "ae_auroc_macro": {
+   "values": [
+    0.5172962208886296,
+    0.5138742188804692,
+    0.5142203535372301
+   ],
+   "mean": 0.515130264435443,
+   "std": 0.0018837403796644365
+  },
+  "ae_oscr_macro": {
+   "values": [
+    0.5095593098188907,
+    0.5033684561211182,
+    0.5051944447256288
+   ],
+   "mean": 0.5060407368885459,
+   "std": 0.0031810100904535155
+  },
+  "A_withheld_healthy_instances": {
+   "values": [
+    28,
+    26,
+    36
+   ],
+   "mean": 30.0,
+   "std": 5.291502622129181
+  },
+  "A_withheld_known_fault_instances": {
+   "values": [
+    283,
+    269,
+    261
+   ],
+   "mean": 271.0,
+   "std": 11.135528725660043
+  },
+  "A_withheld_unknown_instances": {
+   "values": [
+    468,
+    484,
+    482
+   ],
+   "mean": 478.0,
+   "std": 8.717797887081348
+  },
+  "A_normal_foldk_healthy_instances": {
+   "values": [
+    192,
+    189,
+    191
+   ],
+   "mean": 190.66666666666666,
+   "std": 1.5275252316519468
+  },
+  "A_normal_seen_folder_healthy_instances": {
+   "values": [
+    68,
+    69,
+    65
+   ],
+   "mean": 67.33333333333333,
+   "std": 2.081665999466133
+  },
+  "A_known_b_unseen_foldk_unknown_instances": {
+   "values": [
+    833,
+    884,
+    875
+   ],
+   "mean": 864.0,
+   "std": 27.2213151776324
+  },
+  "A_known_a_seen_folder_unknown_instances": {
+   "values": [
+    52,
+    59,
+    54
+   ],
+   "mean": 55.0,
+   "std": 3.605551275463989
+  },
+  "B_withheld_healthy_instances": {
+   "values": [
+    19,
+    17,
+    24
+   ],
+   "mean": 20.0,
+   "std": 3.605551275463989
+  },
+  "B_withheld_known_fault_instances": {
+   "values": [
+    283,
+    269,
+    261
+   ],
+   "mean": 271.0,
+   "std": 11.135528725660043
+  },
+  "B_withheld_unknown_instances": {
+   "values": [
+    477,
+    493,
+    494
+   ],
+   "mean": 488.0,
+   "std": 9.539392014169456
+  },
+  "B_normal_foldk_healthy_instances": {
+   "values": [
+    184,
+    180,
+    176
+   ],
+   "mean": 180.0,
+   "std": 4.0
+  },
+  "B_normal_seen_folder_healthy_instances": {
+   "values": [
+    66,
+    65,
+    64
+   ],
+   "mean": 65.0,
+   "std": 1.0
+  },
+  "B_known_b_unseen_foldk_unknown_instances": {
+   "values": [
+    834,
+    885,
+    878
+   ],
+   "mean": 865.6666666666666,
+   "std": 27.64657905299195
+  },
+  "B_known_a_seen_folder_unknown_instances": {
+   "values": [
+    52,
+    59,
+    54
+   ],
+   "mean": 55.0,
+   "std": 3.605551275463989
+  },
+  "C_withheld_healthy_instances": {
+   "values": [
+    8,
+    6,
+    8
+   ],
+   "mean": 7.333333333333333,
+   "std": 1.1547005383792517
+  },
+  "C_withheld_known_fault_instances": {
+   "values": [
+    283,
+    269,
+    261
+   ],
+   "mean": 271.0,
+   "std": 11.135528725660043
+  },
+  "C_withheld_unknown_instances": {
+   "values": [
+    488,
+    504,
+    510
+   ],
+   "mean": 500.6666666666667,
+   "std": 11.372481406154654
+  },
+  "C_normal_foldk_healthy_instances": {
+   "values": [
+    161,
+    155,
+    159
+   ],
+   "mean": 158.33333333333334,
+   "std": 3.0550504633038935
+  },
+  "C_normal_seen_folder_healthy_instances": {
+   "values": [
+    55,
+    52,
+    55
+   ],
+   "mean": 54.0,
+   "std": 1.7320508075688772
+  },
+  "C_known_b_unseen_foldk_unknown_instances": {
+   "values": [
+    834,
+    889,
+    880
+   ],
+   "mean": 867.6666666666666,
+   "std": 29.50141239556732
+  },
+  "C_known_a_seen_folder_unknown_instances": {
+   "values": [
+    52,
+    59,
+    54
+   ],
+   "mean": 55.0,
+   "std": 3.605551275463989
+  }
+ }
+}
