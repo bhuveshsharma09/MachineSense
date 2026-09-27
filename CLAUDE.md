@@ -289,11 +289,44 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage ML-4.1 — bundle hardening before freeze (Track A)
+## 7. Current stage: Stage ML-4.2 — recalibrate on the deployment scoring path (Track A)
 
-No retraining unless a check below fails and Bhuvesh approves; reserved tests sealed; `backend/`, `frontend/`,
-`knowledge/` untouched; `diagnose()` keys stay backward-compatible (additions only).
+Decision (Bhuvesh, after ML-4.1 item 3): recalibrate the **unchanged** models on the exact CPU scoring path the
+application uses. No retraining, no change to model weights, rule variants or the default rule (B_with_caution).
 
+**Stage ML-4.2 protocol (declared before running).**
+1. **One shared scoring function** (`ml.inference.score_recording`): from the raw recording and its speed, cleaning,
+   windowing, R1 features, the cache-C representation, float32 on the CPU, the CNN-6 / AE-6 / B1s / LR scores and the
+   window → recording aggregation. Both `diagnose()` and the calibration script call it; no second path computes MSP,
+   Mahalanobis, AE error or B1s.
+2. **Recalibration** (`scripts/19_recalibrate.py`) on the same 144 calibration recordings (closed val ∩ development pool,
+   including the same 5 normals), with the existing formulas: τ_p and τ_d = the 97.5 % order statistic over the 144
+   (r = ceil(0.975 × 145) = 142; MSP on its negation); τ_e and τ_b = the maximum over the 5 normals. Nothing is optimised
+   against fault outcomes. The per-recording calibration scores are saved in the bundle (`calibration_scores.csv`, hash
+   pinned); the previous thresholds are kept in `thresholds.json` as `previous` for the record.
+3. **Exact comparison first** (ties accepted): each threshold is verified against its order statistic or maximum and its
+   defining recording is named; the marginal acceptance of the MSP and Mahalanobis checks and their measured joint
+   acceptance are reported (the joint is not required to equal either marginal target); the ML-4.1 per-normal table under
+   all variants. The 5 calibration normals define τ_e and τ_b, so they are expected to pass both healthy-detector checks
+   and, where rule B says healthy, to carry no caution; caution on other healthy verdicts is intended behaviour.
+4. **Tolerance only if needed:** if repeated CPU runs of the shared function are not bit-identical, a per-score tolerance
+   justified by the measured differences is declared, applied only in the accepting direction, identically in calibration
+   reporting and inference, recorded in the manifest and here; otherwise none. A tolerance cannot guarantee identical
+   behaviour on every CPU.
+5. **Development-results screen (read-only):** evaluation instances in the saved 3C / 3C.1 / 3D decision files whose
+   scores lie within the ML-4.1 measured cross-path difference (MSP 3.3e-8, Mahalanobis 2.0e-5, AE 1.8e-7, B1s 1.8e-15)
+   of their run's thresholds are listed. That difference is a **screening tolerance, not a proven numerical bound** for the
+   separately trained development models; nearby scores identify cases worth investigating, and finding none does not
+   establish numerical stability. Development results are not recomputed.
+6. **Regression tests:** the three boundary recordings (normal__18.432, overhang__outer_race__20g__18.2272,
+   overhang__cage_fault__6g__13.1072) produce the declared decisions; the shared function's scores equal the saved
+   calibration scores; values clearly on either side of each threshold. Numeric score comparisons may use justified
+   tolerances; decision outcomes satisfy the declared boundary rule exactly.
+7. **Regenerate:** the manifest (revision and unrelated_worktree_changes), the golden reference
+   (`scripts/16_update_golden.py`), and the sanity report, labelled "calibration recordings, not an independent test;
+   expected to be optimistic".
+
+**Previous stage (ML-4.1, completed except item 3, which this stage completes):**
 **Stage ML-4.1 protocol (declared before running).**
 1. **Configuration drift.** The complete inference configuration (the full `Config`: preprocessing, cleaning, windowing,
    representation / spectrogram, feature, normalisation and model settings) and the feature dictionary are packaged in
