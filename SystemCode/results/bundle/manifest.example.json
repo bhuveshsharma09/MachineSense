@@ -1,9 +1,14 @@
 {
  "schema_version": "1.0",
- "created_at": "2026-09-27T08:09:43+00:00",
- "git_sha": "a9cfc9e4674d390c3ce2a720c6fdb1e9afa4e13f",
+ "created_at": "2026-09-27T09:07:49+00:00",
+ "git_sha": "3944321a1f471a437720ca1c27eba40d7068e50a",
  "unrelated_worktree_changes": [
-  "SystemCode/notebooks/01_data_layer/01_index_audit_splits.ipynb"
+  "SystemCode/ml/calibration.py",
+  "SystemCode/ml/inference.py",
+  "SystemCode/notebooks/01_data_layer/01_index_audit_splits.ipynb",
+  "SystemCode/results/bundle/recalibration.json",
+  "SystemCode/scripts/15_bundle_manifest.py",
+  "SystemCode/scripts/19_recalibrate.py"
  ],
  "inference_config_sha256": "ba2f775e17a664ce76142232e781319e0b0b55216cb73c45779c7c292de5d653",
  "preprocess_config_sha256": "d87f5c86efe4ec56178fe332c2d90ccaab3b9cf875d0dfd2b58fdfb6e9502947",
@@ -84,7 +89,7 @@
    "name": "thresholds",
    "file": "thresholds.json",
    "role": "thresholds",
-   "sha256": "0f24ca7b90193e8cf7c4e15e346d0a72af584b9cdcefe72d45438b98a552cfd9",
+   "sha256": "0176c2ce5c2f6af615ff891d8f9267506be76df4778975bb3f16063efdfb7eb8",
    "description": "τ_p, τ_d, τ_e, τ_b from the calibration recordings only"
   },
   {
@@ -121,19 +126,50 @@
    "role": "dictionary",
    "sha256": "548cd3e7158cb23754052fdc1daa684688fbb2358fe7004e4dc2247f8fa18fd6",
    "description": "R1 feature names, units, definitions and channels"
+  },
+  {
+   "name": "calibration_scores",
+   "file": "calibration_scores.csv",
+   "role": "calibration",
+   "sha256": "34408c3c9a6e28db3b000ba5312e5f71e482ec60fd60b3a3b1c0fcfafa2b7d95",
+   "description": "per-recording scores of the 144 calibration recordings from ml.inference.score_recording (CPU), used to set the thresholds (Stage ML-4.2)"
   }
  ],
  "thresholds": {
-  "tau_p": 0.998895059402817,
-  "tau_d": 30.042536981460426,
-  "tau_e": 0.24307193993418308,
-  "tau_b": 0.8721431922050336,
+  "tau_p": 0.9988950587656379,
+  "tau_d": 30.042556620744595,
+  "tau_e": 0.24307194628097395,
+  "tau_b": 0.8721431922050334,
   "acceptance_target": 0.975,
   "n_calibration": 144,
   "order_statistic_r": 142,
   "n_calibration_normals_tau_e": 5,
   "n_calibration_normals_tau_b": 5,
-  "rule": "accept MSP iff ≥ tau_p; accept Mahalanobis iff ≤ tau_d (ties accepted); AE healthy iff ≤ tau_e; B1s healthy iff ≤ tau_b"
+  "defining_recordings": {
+   "tau_p": [
+    "overhang__outer_race__20g__18.2272"
+   ],
+   "tau_d": [
+    "overhang__cage_fault__6g__13.1072"
+   ],
+   "tau_e": [
+    "normal__18.432"
+   ],
+   "tau_b": [
+    "normal__18.432"
+   ]
+  },
+  "scoring_path": "ml.inference.score_recording on the CPU (the application's path); repeated runs bit-identical: True",
+  "tolerance": null,
+  "rule": "accept MSP iff ≥ tau_p; accept Mahalanobis iff ≤ tau_d (ties accepted); AE healthy iff ≤ tau_e; B1s healthy iff ≤ tau_b",
+  "previous": {
+   "tau_p": 0.998895059402817,
+   "tau_d": 30.042536981460426,
+   "tau_e": 0.24307193993418308,
+   "tau_b": 0.8721431922050336,
+   "scoring_path": "Stage ML-4 threshold setting: representation cache and feature cache, training device (MPS)",
+   "superseded_by": "Stage ML-4.2 recalibration"
+  }
  },
  "rule": {
   "healthy_rule": "B_with_caution",

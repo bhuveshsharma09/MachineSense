@@ -102,6 +102,10 @@ def main() -> int:
             "model_config": ("model_config.json", "config", "architecture and preprocessing settings used for training"),
             "inference_config": ("inference_config.json", "config", "the complete Config used at inference (packaged; the repo's configs/ are not read)"),
             "feature_dictionary": ("feature_dictionary.csv", "dictionary", "R1 feature names, units, definitions and channels")}
+    if (B / "calibration_scores.csv").exists():
+        spec["calibration_scores"] = ("calibration_scores.csv", "calibration",
+                                      "per-recording scores of the 144 calibration recordings from ml.inference.score_recording "
+                                      "(CPU), used to set the thresholds (Stage ML-4.2)")
     d = rep["data"]
     manifest = Manifest(
         created_at=now_iso(), git_sha=head, unrelated_worktree_changes=dirty, inference_config_sha256=config_hash(cfg),
@@ -114,7 +118,7 @@ def main() -> int:
         data={"train": "closed train ∩ development pool", "calibration": "closed val ∩ development pool",
               "train_recordings": d["train_recordings"], "train_normals": d["train_normals"],
               "calibration_recordings": d["calibration_recordings"], "calibration_normals": d["calibration_normals"],
-              "tau_e_normals": thr["n_calibration_normals_tau_e"], "tau_b_normals": thr["n_calibration_normals_tau_b"],
+              "tau_e_normals": thr.get("n_calibration_normals_tau_e"), "tau_b_normals": thr.get("n_calibration_normals_tau_b"),
               "train_speed_range_hz": d["train_speed_range_hz"], "severities": d["severities"],
               "calibration_normal_speed_range_hz": cal_normal_range(cfg, meta),
               "reserved_recordings_used": 0},

@@ -10,10 +10,10 @@ CALIBRATION = closed val ∩ development pool (144 recordings, 5 normals). No re
 - Mahalanobis: class centroids and one shared Ledoit–Wolf within-class covariance on the train-window embeddings.
 - LR (capped R1, all features, baselines.logreg) on the train windows; B1s (SpeedPoly, vibration-only R1) on the train
   normals.
-- Thresholds on the calibration recordings only: τ_p, τ_d at 97.5 % marginal targets over all known classes including
-  normal (order statistic, ties accepted); τ_e = max AE error and τ_b = max B1s score of the 5 calibration normals.
-Writes the model files into artifacts/bundle/ (gitignored; the manifest is added by ml.bundle) and
-results/bundle/training_report.json.
+- Thresholds are NOT computed here (Stage ML-4.2): after training, run scripts/15_bundle_manifest.py, then
+  scripts/19_recalibrate.py, which scores the calibration recordings with ml.inference.score_recording — the application's
+  CPU scoring path — and sets τ_p, τ_d, τ_e, τ_b with the Stage ML-4 formulas. This script writes a placeholder.
+Writes the model files into artifacts/bundle/ (gitignored) and results/bundle/training_report.json.
 """
 from __future__ import annotations
 
@@ -30,12 +30,10 @@ from ml.cache import load_features
 from ml.classical import logreg_pipeline
 from ml.config import load_config
 from ml.datasets import NormContext, dev_window_rows, load_representation, norm_stats
-from ml.evaluation import aggregate_recordings
 from ml.features import feature_columns
 from ml.labels import CLASS10
-from ml.openset import fit_mahalanobis, mahalanobis_distances, recording_mean, recording_msp
+from ml.openset import fit_mahalanobis
 from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, artifacts_dir, data_dir, results_dir
-from ml.protocol import order_statistic_threshold
 from ml.splits import development_pool, split_hash
 from ml.utils import git_sha
 
@@ -43,7 +41,6 @@ OUT = artifacts_dir() / "bundle"
 REPORT = results_dir() / "bundle"
 VIB = [0, 1, 2, 3, 4, 5]
 SEED = 42
-ACCEPT = 0.975
 
 
 def bundle_split(cfg, meta):
@@ -58,7 +55,7 @@ def main() -> int:
     from safetensors.torch import save_file
 
     from ml.train import gpu_job, score_windows, train_model
-    from ml.train_ae import train_ae, window_channel_errors
+    from ml.train_ae import train_ae
     from ml.utils import get_device, seed_everything
 
     cfg = load_config(DEFAULT_CONFIG)
@@ -82,9 +79,7 @@ def main() -> int:
     mean, std = st["mean"][VIB], st["std"][VIB]
     mean_a, std_a = st_ae["mean"][VIB], st_ae["std"][VIB]
     tr_rows = np.flatnonzero(rows.rec_id.isin(tr_ids).to_numpy())
-    va_rows = np.flatnonzero(rows.rec_id.isin(va_ids).to_numpy())
     trn_rows = np.flatnonzero(rows.rec_id.isin(tr_norm).to_numpy())
-    van_rows = np.flatnonzero(rows.rec_id.isin(va_norm).to_numpy())
     with gpu_job(device, artifacts_dir(), cc.mps_memory_fraction):
         pos = rows.row.to_numpy()
         order = np.argsort(pos)
@@ -96,24 +91,17 @@ def main() -> int:
         t0 = time.perf_counter()
         cnn, hist = train_model(cache, y, tr_rows, VIB, mean, std, len(CLASS10), cc, device)
         t_cnn = time.perf_counter() - t0
-        lg_tr, emb_tr = score_windows(cnn, cache, tr_rows, VIB, mean, std, cc, device)
-        lg_va, emb_va = score_windows(cnn, cache, va_rows, VIB, mean, std, cc, device)
+        _, emb_tr = score_windows(cnn, cache, tr_rows, VIB, mean, std, cc, device)
         seed_everything(SEED)
         t0 = time.perf_counter()
         ae, hist_ae = train_ae(cache, trn_rows, VIB, mean_a, std_a, "frame", ac, device)
         t_ae = time.perf_counter() - t0
-        err_va = window_channel_errors(ae, cache, van_rows, VIB, mean_a, std_a, "frame", ac, device).mean(axis=1)
         save_file({k: v.detach().cpu().contiguous() for k, v in cnn.state_dict().items()}, str(OUT / "cnn6.safetensors"))
         save_file({k: v.detach().cpu().contiguous() for k, v in ae.state_dict().items()}, str(OUT / "ae6.safetensors"))
-    # ---- Mahalanobis and the classifier thresholds (calibration recordings only)
+    # ---- Mahalanobis parameters (train-window embeddings)
     maha = fit_mahalanobis(emb_tr.astype(np.float64), rows.class10.to_numpy()[tr_rows])
     save_np({"centroids": maha["centroids"], "precision": maha["precision"]}, str(OUT / "mahalanobis.safetensors"))
-    va_w = rows.iloc[va_rows]
-    rec = recording_msp(lg_va, va_w.rec_id, CLASS10, cfg.baselines.prob_floor)
-    rec["maha"] = recording_mean(mahalanobis_distances(maha, emb_va.astype(np.float64)).min(axis=1), va_w.rec_id).loc[rec.index]
-    tp = order_statistic_threshold(-rec.msp.to_numpy(), ACCEPT)
-    td = order_statistic_threshold(rec.maha.to_numpy(), ACCEPT)
-    ae_rec = recording_mean(err_va, rows.rec_id.to_numpy()[van_rows])
+    # ---- the classifier thresholds are set by scripts/19_recalibrate.py on the deployment scoring path
     # ---- LR and B1s on the R1 features
     path = max((data_dir() / "features").glob(f"{cfg.baselines.feature_table}_*.parquet"), key=lambda p: p.stat().st_mtime)
     df = load_features(path, meta, cfg.preprocess).sort_values(["rec_id", "window_idx"]).reset_index(drop=True)
@@ -123,8 +111,6 @@ def main() -> int:
     lr = logreg_pipeline(cfg.baselines).fit(dtr[cols].to_numpy(), dtr.class10.to_numpy())
     dn = df[df.rec_id.isin(tr_norm)]
     b1s = SpeedPoly(cfg.anomaly.b1s_degree).fit(dn[vib_cols].to_numpy(), dn.speed_hz.to_numpy())
-    dvn = df[df.rec_id.isin(va_norm)]
-    b1s_va = pd.Series(b1s.score(dvn[vib_cols].to_numpy(), dvn.speed_hz.to_numpy()), index=dvn.rec_id.to_numpy()).groupby(level=0).mean()
     joblib.dump({"model": lr, "feature_columns": cols, "classes": list(lr.classes_), "prob_floor": cfg.baselines.prob_floor,
                  "doc": "scikit-learn Pipeline(QuantileTransformer → LogisticRegression) on capped R1 window features "
                         "(all features); fitted on bundle-train windows; recording decision = mean log-probability"},
@@ -134,23 +120,13 @@ def main() -> int:
                         "log(window speed) fitted on the bundle-train normal windows (vibration-only R1 features); "
                         "window score = mean |residual| / residual sd; recording score = mean over windows"},
                 OUT / "b1s_vib.joblib")
-    # ---- calibration sanity (the calibration set, not an evaluation)
-    dva = df[df.rec_id.isin(va_ids)]
-    lr_rec = aggregate_recordings(lr.predict_proba(dva[cols].to_numpy())[:, [list(lr.classes_).index(c) for c in CLASS10]],
-                                  dva.rec_id.to_numpy(), cfg.baselines.prob_floor)
-    truth = va.set_index("rec_id").class10
-    thresholds = {"tau_p": float(-tp["threshold"]), "tau_d": float(td["threshold"]), "tau_e": float(ae_rec.max()),
-                  "tau_b": float(b1s_va.max()), "acceptance_target": ACCEPT,
-                  "n_calibration": int(tp["n"]), "order_statistic_r": int(tp["r"]),
-                  "n_calibration_normals_tau_e": int(len(ae_rec)), "n_calibration_normals_tau_b": int(len(b1s_va)),
-                  "rule": "accept MSP iff ≥ tau_p; accept Mahalanobis iff ≤ tau_d (ties accepted); AE healthy iff "
-                          "≤ tau_e; B1s healthy iff ≤ tau_b"}
+    thresholds = {"status": "pending: run scripts/15_bundle_manifest.py, then scripts/19_recalibrate.py (Stage ML-4.2)",
+                  "tau_p": None, "tau_d": None, "tau_e": None, "tau_b": None}
     (OUT / "thresholds.json").write_text(json.dumps(thresholds, indent=1))
     norm = {"cnn6": {"channels": VIB, "mean": mean.tolist(), "std": std.tolist(), "n_windows": st["n_windows"]},
             "ae6": {"channels": VIB, "mean": mean_a.tolist(), "std": std_a.tolist(), "n_windows": st_ae["n_windows"]},
             "mahalanobis": {"classes": maha["classes"], "shrinkage": maha["shrinkage"]}}
     (OUT / "normalisation.json").write_text(json.dumps(norm, indent=1))
-    joint = float(((rec.msp >= -tp["threshold"]) & (rec.maha <= td["threshold"])).mean())
     report = {"git_sha": git_sha(), "split_hash": split_hash(meta), "seed": SEED, "device": str(device),
               "data": {"train_recordings": len(tr_ids), "train_normals": len(tr_norm), "calibration_recordings": len(va_ids),
                        "calibration_normals": len(va_norm),
@@ -159,14 +135,9 @@ def main() -> int:
                        "severities": {c: sorted(set(g.severity.round(2))) for c, g in tr.groupby("class10")},
                        "train_windows": int(len(tr_rows)), "train_normal_windows": int(len(trn_rows))},
               "thresholds": thresholds, "training_seconds": {"cnn6": t_cnn, "ae6": t_ae},
-              "history": {"cnn6_final_loss": hist[-1]["train_loss"], "ae6_final_loss": hist_ae[-1]["train_loss"]},
-              "calibration_sanity_not_evaluation": {
-                  "cnn6_recording_accuracy": float((rec.pred == truth.loc[rec.index]).mean()),
-                  "lr_recording_accuracy": float((lr_rec.idxmax(axis=1) == truth.loc[lr_rec.index]).mean()),
-                  "joint_acceptance": joint, "ae_errors_calibration_normals": ae_rec.round(4).to_dict(),
-                  "b1s_scores_calibration_normals": b1s_va.round(4).to_dict()}}
+              "history": {"cnn6_final_loss": hist[-1]["train_loss"], "ae6_final_loss": hist_ae[-1]["train_loss"]}}
     (REPORT / "training_report.json").write_text(json.dumps(report, indent=1, default=float))
-    print(json.dumps({k: report[k] for k in ("data", "thresholds", "training_seconds", "calibration_sanity_not_evaluation")},
+    print(json.dumps({k: report[k] for k in ("data", "training_seconds")},
                      indent=1, default=float))
     return 0
 

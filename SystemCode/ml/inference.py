@@ -157,25 +157,64 @@ def stable_output(d: dict) -> dict:
     return d
 
 
+def load_recording(rec_id: str) -> tuple[np.ndarray, float]:
+    """(raw 250000 × 8 array, metadata measured speed) of a development-pool recording (reserved rec_ids are refused)."""
+    row = check_rec_id(rec_id)
+    return np.load(data_dir() / "raw_npy" / f"{rec_id}.npy"), float(row["fr_measured_hz"])
+
+
+def score_recording(x: np.ndarray, fr: float, b) -> dict:
+    """THE scoring function (Stage ML-4.2), shared by diagnose() and the calibration script (scripts/19_recalibrate.py):
+    from the raw recording and its shaft speed, the packaged configuration's cleaning, windowing, R1 features and cache-C
+    representation; float32 on the CPU; CNN-6 recording probabilities (mean log-probability over windows) and MSP;
+    Mahalanobis distance (window minimum over classes, mean over windows); AE-6 error (per channel, then the equal-weight
+    mean; mean over windows); B1s (mean over windows); LR recording probabilities. No other path computes these scores."""
+    import torch
+
+    from ml.config import AeConfig
+    from ml.train import normalise
+    from ml.train_ae import window_channel_errors
+
+    cfg = b.config
+    pre = cfg.preprocess
+    feats = recording_features(x, fr, pre)
+    rep = stacked_representation(x, fr, pre, cfg.representation.leading_candidate)
+    nc, na = b.normalisation["cnn6"], b.normalisation["ae6"]
+    xr = torch.from_numpy(rep[:, nc["channels"]].astype(np.float16)).to(torch.float32)
+    with torch.no_grad():
+        logits, emb = b.cnn(normalise(xr, torch.tensor(nc["mean"], dtype=torch.float32),
+                                      torch.tensor(nc["std"], dtype=torch.float32)))
+    logits, emb = logits.numpy(), emb.numpy().astype(np.float64)
+    probs = recording_probs(logits, ["r"] * len(logits), CLASS10, b.model_config["prob_floor"]).iloc[0]
+    ae_ch = window_channel_errors(b.ae, torch.from_numpy(rep), np.arange(len(rep)), na["channels"], np.asarray(na["mean"]),
+                                  np.asarray(na["std"]), "frame", AeConfig(**b.model_config["ae"]), torch.device("cpu"))
+    bm, lm = b.b1s, b.lr
+    pw = lm["model"].predict_proba(feats[lm["feature_columns"]].to_numpy())
+    pw = pw[:, [list(lm["classes"]).index(c) for c in CLASS10]]
+    return {"feats": feats, "xr": xr, "probs": probs, "top": str(probs.idxmax()), "msp": float(probs.max()),
+            "maha": float(mahalanobis_distances(b.mahalanobis, emb).min(axis=1).mean()),
+            "ae": float(ae_ch.mean(axis=1).mean()),
+            "ae_channels": dict(zip([pre.channels[1 + c] for c in na["channels"]], ae_ch.mean(axis=0).tolist())),
+            "b1s": float(bm["model"].score(feats[bm["feature_columns"]].to_numpy(), feats.speed_hz.to_numpy()).mean()),
+            "lr_probs": aggregate_recordings(pw, ["r"] * len(pw), lm["prob_floor"]).iloc[0]}
+
+
 def diagnose(source, healthy_rule: str | None = None, nominal_speed_hz: float | None = None, bundle=None,
              with_xai: bool = True) -> dict:
     """Diagnose one recording: `source` is a development-pool rec_id or a raw (250000, 8) array at 50 kHz (columns:
     tacho, underhang axial/radial/tangential, overhang axial/radial/tangential, microphone). For a raw array the speed is
-    measured (nominal_speed_hz, if given, only centres the search). Returns a plain dict."""
-    import torch
-
-    from ml.train import normalise
-    from ml.train_ae import window_channel_errors
-
+    measured (nominal_speed_hz, if given, only centres the search). Returns a plain dict. Scores come from
+    score_recording(), the same function that set the thresholds."""
     t0 = time.perf_counter()
-    row = check_rec_id(source) if isinstance(source, str) else None  # refuse reserved rec_ids before loading anything
+    if isinstance(source, str):
+        check_rec_id(source)  # refuse reserved rec_ids before loading anything
     b = bundle or get_bundle()
     cfg = b.config  # the packaged configuration, never the repo's current configs/
     pre = cfg.preprocess
     rule = healthy_rule or b.rule.get("healthy_rule", DEFAULT_VARIANT)
     if isinstance(source, str):
-        x = np.load(data_dir() / "raw_npy" / f"{source}.npy")
-        fr, rec_id, origin = float(row["fr_measured_hz"]), source, "development-pool recording"
+        x, fr = load_recording(source)
+        rec_id, origin = source, "development-pool recording"
     else:
         x = np.asarray(source)
         if x.shape != (pre.n_rows, pre.n_channels):
@@ -188,29 +227,9 @@ def diagnose(source, healthy_rule: str | None = None, nominal_speed_hz: float | 
     train_range = b.manifest.data["train_speed_range_hz"]
     cal_range = b.manifest.data["calibration_normal_speed_range_hz"]
     quality, _ = _signal_quality(x, fr, cfg, train_range, cal_range)
-    feats = recording_features(x, fr, pre)
-    rep = stacked_representation(x, fr, pre, cfg.representation.leading_candidate)
-    # ---- CNN-6 (vibration channels), Mahalanobis, AE-6, B1s, LR
-    nc, na = b.normalisation["cnn6"], b.normalisation["ae6"]
-    xr = torch.from_numpy(rep[:, nc["channels"]].astype(np.float16)).to(torch.float32)
-    with torch.no_grad():
-        logits, emb = b.cnn(normalise(xr, torch.tensor(nc["mean"], dtype=torch.float32),
-                                      torch.tensor(nc["std"], dtype=torch.float32)))
-    logits, emb = logits.numpy(), emb.numpy().astype(np.float64)
-    probs = recording_probs(logits, ["r"] * len(logits), CLASS10, b.model_config["prob_floor"]).iloc[0]
-    top, msp = str(probs.idxmax()), float(probs.max())
-    maha = float(mahalanobis_distances(b.mahalanobis, emb).min(axis=1).mean())
-    from ml.config import AeConfig
-    ae_err_ch = window_channel_errors(b.ae, torch.from_numpy(rep), np.arange(len(rep)), na["channels"],
-                                      np.asarray(na["mean"]), np.asarray(na["std"]), "frame",
-                                      AeConfig(**b.model_config["ae"]), torch.device("cpu"))
-    ae_err = float(ae_err_ch.mean(axis=1).mean())
-    bm = b.b1s
-    b1s = float(bm["model"].score(feats[bm["feature_columns"]].to_numpy(), feats.speed_hz.to_numpy()).mean())
-    lm = b.lr
-    pw = lm["model"].predict_proba(feats[lm["feature_columns"]].to_numpy())
-    pw = pw[:, [list(lm["classes"]).index(c) for c in CLASS10]]
-    lr_rec = aggregate_recordings(pw, ["r"] * len(pw), lm["prob_floor"]).iloc[0]
+    sc = score_recording(x, fr, b)
+    feats, xr, probs, top, msp, maha = sc["feats"], sc["xr"], sc["probs"], sc["top"], sc["msp"], sc["maha"]
+    ae_err, b1s, lr_rec = sc["ae"], sc["b1s"], sc["lr_probs"]
     # ---- decision
     thr = {k: float(b.thresholds[k]) for k in ("tau_p", "tau_d", "tau_e", "tau_b")}
     verdict = decide(rule, top, msp, maha, ae_err, b1s, thr)
@@ -221,9 +240,7 @@ def diagnose(source, healthy_rule: str | None = None, nominal_speed_hz: float | 
                  **{k: verdict[k] for k in ("decision", "fault_class", "display_label", "caution", "rule_variant")},
                  "ae_override": verdict["ae_override"],
                  "rule_comparison": rule_comparison(top, msp, maha, ae_err, b1s, thr),
-                 "scores": {"msp": msp, "maha": maha, "ae_error": ae_err, "b1s": b1s,
-                            "ae_channel_errors": dict(zip([pre.channels[1 + c] for c in na["channels"]],
-                                                          ae_err_ch.mean(axis=0).tolist()))},
+                 "scores": {"msp": msp, "maha": maha, "ae_error": ae_err, "b1s": b1s, "ae_channel_errors": sc["ae_channels"]},
                  "thresholds": thr,
                  "lr_secondary": {"top_class": str(lr_rec.idxmax()), "probabilities": {c: float(lr_rec[c]) for c in CLASS10}},
                  "rule_status": b.rule.get("status")}
