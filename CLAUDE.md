@@ -289,20 +289,61 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage ML-4 — deployable inference, decision rule, bundle v1 and XAI (Track A)
+## 7. Current stage: Stage ML-4.1 — bundle hardening before freeze (Track A)
 
-Stages 3C, 3C.1 and 3D are accepted as completed development experiments. Track A (this session) owns `ml/`, `scripts/`,
-`notebooks/`, `tests/` (except `tests/backend/`), `configs/` and this file; Track B builds `backend/` and `frontend/` on
-branch `app-skeleton` in a separate worktree — never touch `backend/`, `frontend/` or `knowledge/` here. LightGBM is never
-imported by inference, the bundle or the app; fp32; inference defaults to CPU; one GPU job at a time. Framing for all
-wording: development findings on one partition; reserved tests stay sealed; **the app is a research demonstration with
-documented limitations, not a dependable real-machine system.**
+No retraining unless a check below fails and Bhuvesh approves; reserved tests sealed; `backend/`, `frontend/`,
+`knowledge/` untouched; `diagnose()` keys stay backward-compatible (additions only).
 
+**Stage ML-4.1 protocol (declared before running).**
+1. **Configuration drift.** The complete inference configuration (the full `Config`: preprocessing, cleaning, windowing,
+   representation / spectrogram, feature, normalisation and model settings) and the feature dictionary are packaged in
+   the bundle (`inference_config.json`, `feature_dictionary.csv`); inference uses the packaged configuration, never the
+   repo's current `configs/` (the repo config is used only to refuse reserved rec_ids when no bundle is present). The
+   manifest records `inference_config_sha256` (config_sha256 of the packaged Config); load_bundle recomputes it and
+   refuses on mismatch, in addition to the per-file sha256 check. The packaged preprocess hash must equal the one recorded
+   when the models were trained. Tests: a changed repo config value does not change diagnose(); a tampered packaged
+   config is refused.
+2. **Golden reference.** The golden test compares against the stored reference for the current manifest and FAILS when
+   it is missing or belongs to another manifest. Updating it is an explicit step, `scripts/16_update_golden.py`, which
+   prints a diff summary (the latency measurement moves to `scripts/17_inference_latency.py`).
+3. **Calibration consistency.** All 144 calibration recordings through diagnose(); the joint acceptance of the MSP and
+   Mahalanobis checks must equal the threshold-setting count and rate exactly; each of the 5 calibration normals must
+   pass AE ≤ τ_e and B1s ≤ τ_b, and rule B healthy must carry no caution. The threshold-setting scores are recomputed from
+   the bundle weights on the path used when setting thresholds (representation cache, the training device; B1s from the
+   feature cache) and compared with the inference path. **If anything differs, stop and report the cause before changing
+   anything** (no threshold, rule or model change without Bhuvesh's approval).
+4. **Speed warnings.** In addition to the training-range warning, a warning when the measured speed lies outside the
+   calibration-normal speed range (from the 5 calibration normals, recorded in the manifest): "healthy thresholds were not
+   calibrated at this speed; a healthy verdict is less reliable".
+5. **Test eligibility** per task as stated above, recorded in the manifest (`test_eligibility`) and the limitations.
+6. **Six-class output:** class6 probabilities = sums of the class10 probabilities by the existing class10 → class6
+   mapping (`ml.evaluation.CLASS10_TO_6`).
+7. **Explanation labels:** CNN map "exploratory gradient attribution; an occlusion check did not confirm band-level
+   importance", display_priority "advanced"; LR "feature contributions of the secondary logistic-regression model",
+   display_priority "primary".
+8. **Bundle sanity report:** class10 / class6 macro-F1 and the confusion matrix on the 144 calibration recordings (closed
+   val within the development pool only), labelled: "not an independent test — these recordings were used for
+   calibration (and epoch selection, if applicable); the bundle's training and calibration sets together use the full
+   development pool; the only independent evaluation left is the reserved tests." They were **not** used for epoch
+   selection (fixed 40 / 150 epochs).
+9. **Manifest provenance:** rebuilt after items 1–8 are committed, recording the committed implementation revision
+   (`git_sha`, HEAD without a "-dirty" suffix) and `unrelated_worktree_changes` (e.g. the untouched notebook
+   `01_data_layer/01_index_audit_splits.ipynb`); the checkout is never described as clean if it is not, and that notebook
+   is never stashed or discarded. The golden reference is then regenerated with the new script.
+
+**Golden-reference procedure (standing):** after any bundle rebuild, run `python scripts/16_update_golden.py`, read its
+diff summary, and commit the new reference with a message that says why the outputs changed.
+
+**Bundle and app facts (Stage ML-4, kept):**
 **Bundle data (Bhuvesh's decision, 27 Sep, before any training):** the bundle trains on **closed train ∩ development
 pool** (660 recordings: `split_closed` = train and no reserved-test column = test; 20 normals) and calibrates on **closed
 val ∩ development pool** (144 recordings; **5 normals**, so τ_e and τ_b each come from 5 healthy recordings). No
 reserved recording (any of `split_closed`, `split_severity`, `split_speed_block` = test) is used for training,
-calibration or inference, so **this bundle is eligible for one final evaluation on every reserved test**. Training speed
+calibration or inference. **Test eligibility (per task, Stage ML-4.1):** closed-set known-condition classification (Q2),
+healthy-vs-fault detection (Q1), and the severity and speed-block extrapolation tests on their declared tasks: eligible,
+since no reserved recording was used; the leave-one-class-out unfamiliar-fault evaluation (Q3): **not eligible**, because
+the bundle was trained on all ten classes — the Q3 final evaluation needs the separate LOCO models trained without the
+withheld class. Training speed
 range (measured recording speed) 11.80–39.75 Hz; severities present: imbalance 6–30 g, horizontal misalignment 0.5–1.5 mm,
 vertical misalignment 0.51–1.78 mm, bearing faults 0 / 6 / 20 g added mass (the largest severity of each family is
 reserved). The existing 3A CNN-6 and 3B AE-6 artifacts were trained on development-pool folds that include closed-val
@@ -381,9 +422,8 @@ recordings, so they do not satisfy this rule and are retrained.
   (B1s flags every fault; AE-7 flags no healthy recording, so OR reproduces B1s and AND reproduces AE-7). Deferred until
   more healthy data exist.
 
-0. 3C.1 reporting fixes. 0b. Stage 3D reporting corrections. 1. Deployable models (bundle data above).
-1b. B1s in the bundle. 2. `ml/arbitrator.py`. 3. `ml/inference.py`. 4. Bundle v1. 5. XAI + notebook
-`10_xai_ablations_selection`. 6. Tests. 7. Stretch: ResNet-18.
+Items: 1 configuration drift; 2 golden enforcement; 3 calibration consistency; 4 speed warnings; 5 test eligibility;
+6 six-class output; 7 explanation labels; 8 sanity report; 9 manifest provenance.
 
 ## 7b. Plan notes (planned controls)
 
@@ -470,6 +510,8 @@ measurements, model versions, results, source references, unresolved questions.
 9. New dependencies (a language-model SDK, a 3-D library) need a pinned line, a one-line reason and approval
    (§2). The LightGBM/torch isolation rule still applies to every process.
 10. D1–D5 keep priority whenever they compete with agent work.
+11. Agents must not use the gradient highlights (the CNN attribution map) alone to support a repair recommendation;
+    they are exploratory and an occlusion check did not confirm band-level importance.
 
 **D7 research question.** When diagnostic evidence is uncertain or conflicting, does a multi-agent maintenance
 assistant give fewer unsupported repair recommendations than a single-agent assistant, while still
