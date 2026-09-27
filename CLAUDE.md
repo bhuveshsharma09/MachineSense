@@ -284,12 +284,13 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage 3C — deep unknown-fault test (Q3): LOCO-retrained CNN-6 and the three-way decision rule
+## 7. Current stage: Stage 3C.1 — Q3 analysis, reporting corrections and healthy-rule variants
 
-Dev pool only; reserved tests sealed; the training process never imports LightGBM; all Mac/MPS, precision, path-scheme
-(variant / seed / fold / withheld class in every path) and one-GPU-job rules apply. Stage 3A/3B embeddings and scores are
-Q2-only and are NOT used here. Not in this stage: ResNet, late fusion, a learned meta-combiner (deferred), Q1 rule
-combination.
+Stage 3C is accepted as a completed development experiment. Stage 3C.1 is analysis and reporting on saved scores plus
+one retraining item (extra seeds). No new model types; no change to how the primary rule's thresholds are defined; no
+reserved-test access. **Nothing in this stage selects a model, a variant or an application threshold.** App healthy rule
+pending Bhuvesh's decision after 3C.1. The choice will be made under stated assumptions about fault frequency and the
+relative cost of missed faults vs unnecessary inspections; it is not inferred from pooled experimental counts.
 
 **Standing scope rules (Stages 3A/3B):**
 - **Q2 only for the CNNs.** They are trained on all ten classes; their embeddings and scores are for Q2 analysis ONLY and
@@ -315,7 +316,7 @@ combination.
   (B1s flags every fault; AE-7 flags no healthy recording, so OR reproduces B1s and AND reproduces AE-7). Deferred until
   more healthy data exist.
 
-**Stage 3C protocol (declared before running).**
+**Stage 3C protocol (unchanged; declared 27 Sep before running 3C).**
 - **Split:** the SAVED Stage 2D.1 Q3 assignment (`results/q1q3/q3_fit_cal_eval_assignment.csv`): per withheld class c and
   outer fold k, the known-class recordings of folds ≠ k are split within each folder 4:1:1 into fit / calibration /
   seen-folder evaluation. Fold k (known classes and class c) is evaluated once per c.
@@ -343,11 +344,55 @@ combination.
   recording (its per-fold results must match `results/q1q3/q3_per_fold.csv`). Observed differences only; no winner
   claims without paired intervals.
 
-0. Stage 3B reporting corrections (WAE-6 in every table, wording, pooled paired interval, sensor-evidence reading, app
-   wording, Q1 combination note).
-1. Deep LOCO: 27 CNN-6 and 27 AE-6 trainings; scores; AUROC/OSCR per class, fold spread, macro.
-2. Three-way decision rule: joint acceptance, outcome tables (both orderings), AE override counts, classical comparison.
-3. Notebook `09_openset_loco`.
+**Stage 3C.1 protocol (declared before running; analysis script `scripts/09b_loco_analysis.py`).**
+- **Counting.** Every count is given as evaluation *instances* and *distinct recordings*: a recording evaluated in
+  several withheld-class runs (the 25 healthy recordings, known faults of fold k) counts once per run as an instance and
+  once as a distinct recording. "Std over the 27 class × fold runs" mixes between-class and between-fold variation and is
+  not seed uncertainty; the std over the 3 folds of the per-fold macro value is reported separately.
+- **Item 2 (withheld → assigned class).** Final decisions per withheld class (unknown / healthy / each known class) for
+  the CNN classifier-first rule and for LR/MSP on the same split; they show what the model confuses, not the physical
+  cause. Post-hoc subset without imbalance and vertical misalignment as withheld classes = failure analysis, not a
+  headline. Exploratory, descriptive only: in the imbalance-withheld runs, recompute from the saved seed-42 embeddings
+  (same centroids and shared within-class Ledoit–Wolf covariance as 3C) the Mahalanobis distance of withheld imbalance
+  recordings to EACH known-class centroid (per window, mean over the recording's windows); and the distance of fold-k
+  known bearing recordings to the centroid of the withheld imbalance windows of that run, compared by added mass
+  (0 / 6 / 20 / 35 g).
+- **Item 3 (healthy-rule variants, saved scores only, thresholds exactly as in 3C).** Both classifier checks pass =
+  MSP ≥ τ_p AND d ≤ τ_d; AE healthy = error ≤ τ_e. A = 3C primary (classifier-first with the AE override). B = A without
+  the AE override. C = healthy only if top prediction normal, both checks pass AND AE healthy; known fault if top
+  prediction a fault and both checks pass; otherwise unknown — **identified post hoc during review on 27 Sep;
+  exploratory**. For B and C relative to A: counts of withheld-fault → healthy instances removed and normal → unknown
+  instances added, no ratio. τ_e rests on 2–3 calibration normals per run.
+- **Item 4 (CNN rule vs LR, saved scores).** Threshold-free per run: CNN Mahalanobis vs LR (−MSP) AUROC and OSCR, withheld
+  vs fold-k known (OSCR correctness = each method's own top class). Paired bootstrap: the existing stratified mixed-unit
+  scheme over the WHOLE development pool (fault folders resampled within class, normal recordings individually; 2,000
+  draws, seed 42); one draw is applied to all 27 runs at once, each recording weighted by its multiplicity in the draw, so
+  recordings reused across withheld-class runs are resampled jointly. Per draw, metric = macro over classes of the mean
+  over folds; a run left with no withheld or no known instances in a draw is dropped from that draw. Operating point,
+  calibration only: per run, m = number of calibration recordings that pass both CNN checks; LR's threshold = the m-th
+  smallest LR unknown score (−MSP) of the same calibration recordings, accept iff ≤ (ties accepted); achieved
+  calibration acceptance and ties are reported; m = 0 is unattainable and reported. Retrospective diagnostic, per run,
+  matching LR's false-unknown count on (a), then on (b), to the CNN rule's: **retrospective and exploratory; these
+  thresholds must not be deployed or used for model selection.** An interval excluding zero supports a specific metric
+  difference under this protocol, not an overall winner.
+- **Item 5 (seeds).** Seeds 43 and 44: the 27 LOCO CNN-6 and 27 AE-6 runs retrained on the same saved Q3 split, same
+  settings; outputs under the RunPaths seed names. Seed 42 is not retrained; its metrics are recomputed from saved outputs
+  and checked against the 3C report. Item-3 variants and threshold-free scores per seed and the mean over seeds. Seeds
+  measure training variability only; they add no independent healthy or fault recordings.
+- **Wording (report, app, notebook 09).** "On these development folds, embedding distance separates withheld bearing
+  classes more successfully than withheld imbalance and vertical misalignment. When either of those two classes is
+  withheld, the model frequently assigns the other label. The existing class labels are kept. This is a limitation of
+  unfamiliar-fault detection, not a new physical diagnosis or merged class." "Withheld horizontal misalignment is
+  sometimes declared healthy (see the healthy-rule variants)." "Development results on one partition; reserved tests
+  sealed."
+
+0. Housekeeping (Bhuvesh's planning text committed unchanged; this declaration).
+1. Reporting corrections (instances vs distinct recordings; std labels).
+2. Withheld → assigned-class tables (CNN rule and LR/MSP); post-hoc subset; exploratory distances.
+3. Healthy-rule variants A / B / C from saved scores.
+4. CNN rule vs LR: paired bootstrap, calibration-matched operating point, retrospective diagnostic.
+5. Seed variability (seeds 43, 44).
+6. Wording in CLAUDE.md, the audit report and notebook 09.
 
 ## 7b. Plan notes (planned controls)
 
