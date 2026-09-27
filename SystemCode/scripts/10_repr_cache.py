@@ -22,14 +22,11 @@ from ml.cache import representation_cache_key, sources_from_metadata
 from ml.config import load_config
 from ml.datasets import representation_paths
 from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, data_dir
-from ml.spectro import recording_representation
+from ml.spectro import stacked_representation
 from ml.utils import git_sha
 
 
-def stacked(x: np.ndarray, fr: float, pre, candidate: str) -> np.ndarray:
-    """(9, 7, 128, T) float16 for one recording: the batch AND serving form."""
-    rep = recording_representation(x, fr, pre, candidate)
-    return np.concatenate([rep["order"], rep["mel"][:, None]], axis=1).astype(np.float16)
+stacked = stacked_representation  # (9, 7, 128, T) float16 for one recording: the batch AND serving form (ml.spectro)
 
 
 def _one(args):

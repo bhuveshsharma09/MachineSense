@@ -202,3 +202,10 @@ def recording_representation(x_raw: np.ndarray, fr_hz: float, cfg: PreprocessCon
     return {"order": order_spectrogram(xc, speeds, cfg, name),
             "mel": log_mel(xc[:, cfg.channels.index("mic")], cfg, cand.frames_per_window),
             "speeds": speeds, "fallback": fell_back}
+
+
+def stacked_representation(x_raw: np.ndarray, fr_hz: float, cfg: PreprocessConfig, name: str) -> np.ndarray:
+    """(9, 7, 128, T) float16 for one recording — the batch AND serving form of the cached representation: the six
+    accelerometer order-spectrograms and the aligned microphone log-Mel."""
+    rep = recording_representation(x_raw, fr_hz, cfg, name)
+    return np.concatenate([rep["order"], rep["mel"][:, None]], axis=1).astype(np.float16)
