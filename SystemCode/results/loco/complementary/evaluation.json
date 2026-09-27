@@ -1,0 +1,2675 @@
+{
+ "provenance": {
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "df071660ca740ef9f6f7a480de73537aaa462ca0-dirty",
+  "wording": "Exploratory development results on one partition. The candidates were chosen after seeing 3C.1 results. Any final claim uses the existing reserved-recording protocol (the loco_* and other reserved-test columns in metadata.csv), opened once at the end. All nine fault classes have informed development decisions. Reserved recordings test those decisions; they do not establish performance on entirely new fault families."
+ },
+ "summaries": {
+  "E1": {
+   "withheld": {
+    "unknown": 485,
+    "known_fault": 275,
+    "healthy": 19
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 55,
+     "known_fault": 0,
+     "healthy": 18
+    },
+    "imbalance": {
+     "unknown": 2,
+     "known_fault": 142,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 58,
+     "known_fault": 11,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 55,
+     "known_fault": 17,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 77,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 72,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 19,
+     "known_fault": 105,
+     "healthy": 1
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 40,
+     "distinct": 23,
+     "macro_rate": 0.017640175392670817,
+     "pooled_rate": 0.019166267369429803
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 1,
+     "macro_rate": 0.0022560631697687533,
+     "pooled_rate": 0.0019166267369429804
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 796,
+     "distinct": 222,
+     "macro_rate": 0.1295094032611156,
+     "pooled_rate": 0.1277278562259307
+    },
+    "wrong_fault": {
+     "instances": 5,
+     "distinct": 2,
+     "macro_rate": 0.0008827160493827161,
+     "pooled_rate": 0.0008023106546854943
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 186,
+     "distinct": 25
+    },
+    "unknown": {
+     "instances": 39,
+     "distinct": 11
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 66,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 8,
+     "distinct": 7
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "A_s42": {
+   "withheld": {
+    "unknown": 468,
+    "known_fault": 283,
+    "healthy": 28
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 51,
+     "known_fault": 0,
+     "healthy": 22
+    },
+    "imbalance": {
+     "unknown": 5,
+     "known_fault": 139,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 58,
+     "known_fault": 11,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 66,
+     "known_fault": 6,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 72,
+     "known_fault": 2,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 66,
+     "known_fault": 11,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 65,
+     "known_fault": 5,
+     "healthy": 2
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 12,
+     "known_fault": 109,
+     "healthy": 4
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 52,
+     "distinct": 35,
+     "macro_rate": 0.023004040243036074,
+     "pooled_rate": 0.024916147580258743
+    },
+    "wrong_fault": {
+     "instances": 2,
+     "distinct": 1,
+     "macro_rate": 0.0011280315848843767,
+     "pooled_rate": 0.0009583133684714902
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 833,
+     "distinct": 253,
+     "macro_rate": 0.13609542100438218,
+     "pooled_rate": 0.13366495507060333
+    },
+    "wrong_fault": {
+     "instances": 7,
+     "distinct": 3,
+     "macro_rate": 0.001265876035853205,
+     "pooled_rate": 0.001123234916559692
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 192,
+     "distinct": 25
+    },
+    "unknown": {
+     "instances": 33,
+     "distinct": 7
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 68,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 6,
+     "distinct": 4
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "B_s42": {
+   "withheld": {
+    "unknown": 477,
+    "known_fault": 283,
+    "healthy": 19
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 58,
+     "known_fault": 0,
+     "healthy": 15
+    },
+    "imbalance": {
+     "unknown": 5,
+     "known_fault": 139,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 58,
+     "known_fault": 11,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 66,
+     "known_fault": 6,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 72,
+     "known_fault": 2,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 66,
+     "known_fault": 11,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 67,
+     "known_fault": 5,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 12,
+     "known_fault": 109,
+     "healthy": 4
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 52,
+     "distinct": 35,
+     "macro_rate": 0.023004040243036074,
+     "pooled_rate": 0.024916147580258743
+    },
+    "wrong_fault": {
+     "instances": 2,
+     "distinct": 1,
+     "macro_rate": 0.0011280315848843767,
+     "pooled_rate": 0.0009583133684714902
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 834,
+     "distinct": 253,
+     "macro_rate": 0.1362065321154933,
+     "pooled_rate": 0.13382541720154043
+    },
+    "wrong_fault": {
+     "instances": 7,
+     "distinct": 3,
+     "macro_rate": 0.001265876035853205,
+     "pooled_rate": 0.001123234916559692
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 184,
+     "distinct": 25
+    },
+    "unknown": {
+     "instances": 41,
+     "distinct": 11
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 66,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 8,
+     "distinct": 6
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "C_s42": {
+   "withheld": {
+    "unknown": 488,
+    "known_fault": 283,
+    "healthy": 8
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 67,
+     "known_fault": 0,
+     "healthy": 6
+    },
+    "imbalance": {
+     "unknown": 5,
+     "known_fault": 139,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 58,
+     "known_fault": 11,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 66,
+     "known_fault": 6,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 72,
+     "known_fault": 2,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 66,
+     "known_fault": 11,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 67,
+     "known_fault": 5,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 14,
+     "known_fault": 109,
+     "healthy": 2
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 52,
+     "distinct": 35,
+     "macro_rate": 0.023004040243036074,
+     "pooled_rate": 0.024916147580258743
+    },
+    "wrong_fault": {
+     "instances": 2,
+     "distinct": 1,
+     "macro_rate": 0.0011280315848843767,
+     "pooled_rate": 0.0009583133684714902
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 834,
+     "distinct": 253,
+     "macro_rate": 0.1362065321154933,
+     "pooled_rate": 0.13382541720154043
+    },
+    "wrong_fault": {
+     "instances": 7,
+     "distinct": 3,
+     "macro_rate": 0.001265876035853205,
+     "pooled_rate": 0.001123234916559692
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 161,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 64,
+     "distinct": 14
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 55,
+     "distinct": 21
+    },
+    "unknown": {
+     "instances": 19,
+     "distinct": 11
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "E2_s42": {
+   "withheld": {
+    "unknown": 405,
+    "known_fault": 336,
+    "healthy": 38
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 39,
+     "known_fault": 1,
+     "healthy": 33
+    },
+    "imbalance": {
+     "unknown": 0,
+     "known_fault": 144,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 19,
+     "known_fault": 50,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 66,
+     "known_fault": 6,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 70,
+     "known_fault": 4,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 21,
+     "known_fault": 55,
+     "healthy": 1
+    },
+    "underhang_cage": {
+     "unknown": 70,
+     "known_fault": 2,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 47,
+     "known_fault": 74,
+     "healthy": 4
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 41,
+     "distinct": 30,
+     "macro_rate": 0.01706239836038383,
+     "pooled_rate": 0.01964542405366555
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 1,
+     "macro_rate": 0.0022560631697687533,
+     "pooled_rate": 0.0019166267369429804
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 705,
+     "distinct": 209,
+     "macro_rate": 0.11275823562324702,
+     "pooled_rate": 0.11312580231065468
+    },
+    "wrong_fault": {
+     "instances": 8,
+     "distinct": 3,
+     "macro_rate": 0.001458777270421106,
+     "pooled_rate": 0.0012836970474967907
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 199,
+     "distinct": 25
+    },
+    "unknown": {
+     "instances": 26,
+     "distinct": 8
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 70,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 4,
+     "distinct": 3
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "D_s42": {
+   "withheld": {
+    "unknown": 494,
+    "known_fault": 283,
+    "healthy": 2
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "imbalance": {
+     "unknown": 5,
+     "known_fault": 139,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 58,
+     "known_fault": 11,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 66,
+     "known_fault": 6,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 72,
+     "known_fault": 2,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 66,
+     "known_fault": 11,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 67,
+     "known_fault": 5,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 14,
+     "known_fault": 109,
+     "healthy": 2
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 52,
+     "distinct": 35,
+     "macro_rate": 0.023004040243036074,
+     "pooled_rate": 0.024916147580258743
+    },
+    "wrong_fault": {
+     "instances": 2,
+     "distinct": 1,
+     "macro_rate": 0.0011280315848843767,
+     "pooled_rate": 0.0009583133684714902
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 834,
+     "distinct": 253,
+     "macro_rate": 0.1362065321154933,
+     "pooled_rate": 0.13382541720154043
+    },
+    "wrong_fault": {
+     "instances": 7,
+     "distinct": 3,
+     "macro_rate": 0.001265876035853205,
+     "pooled_rate": 0.001123234916559692
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 157,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 68,
+     "distinct": 14
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 58,
+     "distinct": 20
+    },
+    "unknown": {
+     "instances": 16,
+     "distinct": 10
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "D\u2032_s42": {
+   "withheld": {
+    "unknown": 495,
+    "known_fault": 283,
+    "healthy": 1
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "imbalance": {
+     "unknown": 5,
+     "known_fault": 139,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 58,
+     "known_fault": 11,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 66,
+     "known_fault": 6,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 72,
+     "known_fault": 2,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 66,
+     "known_fault": 11,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 67,
+     "known_fault": 5,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 15,
+     "known_fault": 109,
+     "healthy": 1
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 52,
+     "distinct": 35,
+     "macro_rate": 0.023004040243036074,
+     "pooled_rate": 0.024916147580258743
+    },
+    "wrong_fault": {
+     "instances": 2,
+     "distinct": 1,
+     "macro_rate": 0.0011280315848843767,
+     "pooled_rate": 0.0009583133684714902
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 834,
+     "distinct": 253,
+     "macro_rate": 0.1362065321154933,
+     "pooled_rate": 0.13382541720154043
+    },
+    "wrong_fault": {
+     "instances": 7,
+     "distinct": 3,
+     "macro_rate": 0.001265876035853205,
+     "pooled_rate": 0.001123234916559692
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 146,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 79,
+     "distinct": 17
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 52,
+     "distinct": 19
+    },
+    "unknown": {
+     "instances": 22,
+     "distinct": 12
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "B_with_caution_s42": {
+   "caution_flags_instances": 45,
+   "by_role": {
+    "eval": 11,
+    "foldk_known": 23,
+    "foldk_withheld": 11
+   },
+   "note": "B_with_caution makes identical decisions to B; count only"
+  },
+  "A_s43": {
+   "withheld": {
+    "unknown": 484,
+    "known_fault": 269,
+    "healthy": 26
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 50,
+     "known_fault": 0,
+     "healthy": 23
+    },
+    "imbalance": {
+     "unknown": 6,
+     "known_fault": 138,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 60,
+     "known_fault": 9,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 55,
+     "known_fault": 17,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 77,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 65,
+     "known_fault": 5,
+     "healthy": 2
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 24,
+     "known_fault": 100,
+     "healthy": 1
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 59,
+     "distinct": 36,
+     "macro_rate": 0.027989066104289657,
+     "pooled_rate": 0.02827024436990896
+    },
+    "wrong_fault": {
+     "instances": 0,
+     "distinct": 0,
+     "macro_rate": 0.0,
+     "pooled_rate": 0.0
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 884,
+     "distinct": 258,
+     "macro_rate": 0.14916906779949018,
+     "pooled_rate": 0.14184852374839538
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 3,
+     "macro_rate": 0.0005262345679012346,
+     "pooled_rate": 0.0006418485237483953
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 189,
+     "distinct": 25
+    },
+    "unknown": {
+     "instances": 36,
+     "distinct": 10
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 69,
+     "distinct": 24
+    },
+    "unknown": {
+     "instances": 4,
+     "distinct": 3
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "B_s43": {
+   "withheld": {
+    "unknown": 493,
+    "known_fault": 269,
+    "healthy": 17
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 57,
+     "known_fault": 0,
+     "healthy": 16
+    },
+    "imbalance": {
+     "unknown": 6,
+     "known_fault": 138,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 60,
+     "known_fault": 9,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 55,
+     "known_fault": 17,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 77,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 67,
+     "known_fault": 5,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 24,
+     "known_fault": 100,
+     "healthy": 1
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 59,
+     "distinct": 36,
+     "macro_rate": 0.027989066104289657,
+     "pooled_rate": 0.02827024436990896
+    },
+    "wrong_fault": {
+     "instances": 0,
+     "distinct": 0,
+     "macro_rate": 0.0,
+     "pooled_rate": 0.0
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 885,
+     "distinct": 258,
+     "macro_rate": 0.1492801789106013,
+     "pooled_rate": 0.14200898587933247
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 3,
+     "macro_rate": 0.0005262345679012346,
+     "pooled_rate": 0.0006418485237483953
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 180,
+     "distinct": 25
+    },
+    "unknown": {
+     "instances": 45,
+     "distinct": 12
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 65,
+     "distinct": 24
+    },
+    "unknown": {
+     "instances": 8,
+     "distinct": 7
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "C_s43": {
+   "withheld": {
+    "unknown": 504,
+    "known_fault": 269,
+    "healthy": 6
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 67,
+     "known_fault": 0,
+     "healthy": 6
+    },
+    "imbalance": {
+     "unknown": 6,
+     "known_fault": 138,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 60,
+     "known_fault": 9,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 55,
+     "known_fault": 17,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 77,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 67,
+     "known_fault": 5,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 25,
+     "known_fault": 100,
+     "healthy": 0
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 59,
+     "distinct": 36,
+     "macro_rate": 0.027989066104289657,
+     "pooled_rate": 0.02827024436990896
+    },
+    "wrong_fault": {
+     "instances": 0,
+     "distinct": 0,
+     "macro_rate": 0.0,
+     "pooled_rate": 0.0
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 889,
+     "distinct": 258,
+     "macro_rate": 0.14972462335504574,
+     "pooled_rate": 0.14265083440308088
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 3,
+     "macro_rate": 0.0005262345679012346,
+     "pooled_rate": 0.0006418485237483953
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 155,
+     "distinct": 22
+    },
+    "unknown": {
+     "instances": 70,
+     "distinct": 14
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 52,
+     "distinct": 21
+    },
+    "unknown": {
+     "instances": 21,
+     "distinct": 13
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "E2_s43": {
+   "withheld": {
+    "unknown": 418,
+    "known_fault": 319,
+    "healthy": 42
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 33,
+     "known_fault": 1,
+     "healthy": 39
+    },
+    "imbalance": {
+     "unknown": 0,
+     "known_fault": 144,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 32,
+     "known_fault": 37,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 43,
+     "known_fault": 29,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 73,
+     "known_fault": 1,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 52,
+     "known_fault": 23,
+     "healthy": 2
+    },
+    "underhang_cage": {
+     "unknown": 63,
+     "known_fault": 9,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 68,
+     "known_fault": 5,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 54,
+     "known_fault": 70,
+     "healthy": 1
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 43,
+     "distinct": 24,
+     "macro_rate": 0.01906804672095249,
+     "pooled_rate": 0.020603737422137038
+    },
+    "wrong_fault": {
+     "instances": 2,
+     "distinct": 1,
+     "macro_rate": 0.0011280315848843767,
+     "pooled_rate": 0.0009583133684714902
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 716,
+     "distinct": 216,
+     "macro_rate": 0.11825279554075213,
+     "pooled_rate": 0.11489088575096278
+    },
+    "wrong_fault": {
+     "instances": 9,
+     "distinct": 4,
+     "macro_rate": 0.0014089506172839507,
+     "pooled_rate": 0.0014441591784338896
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 198,
+     "distinct": 25
+    },
+    "unknown": {
+     "instances": 27,
+     "distinct": 9
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 70,
+     "distinct": 24
+    },
+    "unknown": {
+     "instances": 3,
+     "distinct": 3
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "D_s43": {
+   "withheld": {
+    "unknown": 509,
+    "known_fault": 269,
+    "healthy": 1
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "imbalance": {
+     "unknown": 6,
+     "known_fault": 138,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 60,
+     "known_fault": 9,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 55,
+     "known_fault": 17,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 77,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 67,
+     "known_fault": 5,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 24,
+     "known_fault": 100,
+     "healthy": 1
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 59,
+     "distinct": 36,
+     "macro_rate": 0.027989066104289657,
+     "pooled_rate": 0.02827024436990896
+    },
+    "wrong_fault": {
+     "instances": 0,
+     "distinct": 0,
+     "macro_rate": 0.0,
+     "pooled_rate": 0.0
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 888,
+     "distinct": 258,
+     "macro_rate": 0.14961351224393463,
+     "pooled_rate": 0.14249037227214378
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 3,
+     "macro_rate": 0.0005262345679012346,
+     "pooled_rate": 0.0006418485237483953
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 153,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 72,
+     "distinct": 15
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 54,
+     "distinct": 20
+    },
+    "unknown": {
+     "instances": 19,
+     "distinct": 12
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "D\u2032_s43": {
+   "withheld": {
+    "unknown": 510,
+    "known_fault": 269,
+    "healthy": 0
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "imbalance": {
+     "unknown": 6,
+     "known_fault": 138,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 60,
+     "known_fault": 9,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 55,
+     "known_fault": 17,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 77,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 67,
+     "known_fault": 5,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 25,
+     "known_fault": 100,
+     "healthy": 0
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 59,
+     "distinct": 36,
+     "macro_rate": 0.027989066104289657,
+     "pooled_rate": 0.02827024436990896
+    },
+    "wrong_fault": {
+     "instances": 0,
+     "distinct": 0,
+     "macro_rate": 0.0,
+     "pooled_rate": 0.0
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 890,
+     "distinct": 258,
+     "macro_rate": 0.14983573446615683,
+     "pooled_rate": 0.14281129653401797
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 3,
+     "macro_rate": 0.0005262345679012346,
+     "pooled_rate": 0.0006418485237483953
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 141,
+     "distinct": 22
+    },
+    "unknown": {
+     "instances": 84,
+     "distinct": 16
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 48,
+     "distinct": 19
+    },
+    "unknown": {
+     "instances": 25,
+     "distinct": 15
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "B_with_caution_s43": {
+   "caution_flags_instances": 53,
+   "by_role": {
+    "eval": 13,
+    "foldk_known": 29,
+    "foldk_withheld": 11
+   },
+   "note": "B_with_caution makes identical decisions to B; count only"
+  },
+  "A_s44": {
+   "withheld": {
+    "unknown": 482,
+    "known_fault": 261,
+    "healthy": 36
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 40,
+     "known_fault": 0,
+     "healthy": 33
+    },
+    "imbalance": {
+     "unknown": 10,
+     "known_fault": 134,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 69,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 47,
+     "known_fault": 25,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 76,
+     "known_fault": 1,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 69,
+     "known_fault": 0,
+     "healthy": 3
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 24,
+     "known_fault": 101,
+     "healthy": 0
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 54,
+     "distinct": 33,
+     "macro_rate": 0.024230725995751528,
+     "pooled_rate": 0.025874460948730235
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 1,
+     "macro_rate": 0.0022560631697687533,
+     "pooled_rate": 0.0019166267369429804
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 875,
+     "distinct": 267,
+     "macro_rate": 0.14453558912494044,
+     "pooled_rate": 0.1404043645699615
+    },
+    "wrong_fault": {
+     "instances": 7,
+     "distinct": 2,
+     "macro_rate": 0.0011867283950617285,
+     "pooled_rate": 0.001123234916559692
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 191,
+     "distinct": 25
+    },
+    "unknown": {
+     "instances": 34,
+     "distinct": 10
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 65,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 8,
+     "distinct": 6
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "B_s44": {
+   "withheld": {
+    "unknown": 494,
+    "known_fault": 261,
+    "healthy": 24
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 49,
+     "known_fault": 0,
+     "healthy": 24
+    },
+    "imbalance": {
+     "unknown": 10,
+     "known_fault": 134,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 69,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 47,
+     "known_fault": 25,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 76,
+     "known_fault": 1,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 72,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 24,
+     "known_fault": 101,
+     "healthy": 0
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 54,
+     "distinct": 33,
+     "macro_rate": 0.024230725995751528,
+     "pooled_rate": 0.025874460948730235
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 1,
+     "macro_rate": 0.0022560631697687533,
+     "pooled_rate": 0.0019166267369429804
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 878,
+     "distinct": 267,
+     "macro_rate": 0.14494807009906524,
+     "pooled_rate": 0.14088575096277278
+    },
+    "wrong_fault": {
+     "instances": 7,
+     "distinct": 2,
+     "macro_rate": 0.0011867283950617285,
+     "pooled_rate": 0.001123234916559692
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 176,
+     "distinct": 24
+    },
+    "unknown": {
+     "instances": 49,
+     "distinct": 12
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 64,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 9,
+     "distinct": 7
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "C_s44": {
+   "withheld": {
+    "unknown": 510,
+    "known_fault": 261,
+    "healthy": 8
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 65,
+     "known_fault": 0,
+     "healthy": 8
+    },
+    "imbalance": {
+     "unknown": 10,
+     "known_fault": 134,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 69,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 47,
+     "known_fault": 25,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 76,
+     "known_fault": 1,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 72,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 24,
+     "known_fault": 101,
+     "healthy": 0
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 54,
+     "distinct": 33,
+     "macro_rate": 0.024230725995751528,
+     "pooled_rate": 0.025874460948730235
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 1,
+     "macro_rate": 0.0022560631697687533,
+     "pooled_rate": 0.0019166267369429804
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 880,
+     "distinct": 267,
+     "macro_rate": 0.14517029232128748,
+     "pooled_rate": 0.14120667522464697
+    },
+    "wrong_fault": {
+     "instances": 7,
+     "distinct": 2,
+     "macro_rate": 0.0011867283950617285,
+     "pooled_rate": 0.001123234916559692
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 159,
+     "distinct": 22
+    },
+    "unknown": {
+     "instances": 66,
+     "distinct": 14
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 55,
+     "distinct": 21
+    },
+    "unknown": {
+     "instances": 18,
+     "distinct": 11
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "E2_s44": {
+   "withheld": {
+    "unknown": 409,
+    "known_fault": 336,
+    "healthy": 34
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 45,
+     "known_fault": 1,
+     "healthy": 27
+    },
+    "imbalance": {
+     "unknown": 0,
+     "known_fault": 144,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 43,
+     "known_fault": 26,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 38,
+     "known_fault": 32,
+     "healthy": 2
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 45,
+     "known_fault": 31,
+     "healthy": 1
+    },
+    "underhang_cage": {
+     "unknown": 67,
+     "known_fault": 1,
+     "healthy": 4
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 24,
+     "known_fault": 101,
+     "healthy": 0
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 43,
+     "distinct": 27,
+     "macro_rate": 0.01810253843489379,
+     "pooled_rate": 0.020603737422137038
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 1,
+     "macro_rate": 0.0022560631697687533,
+     "pooled_rate": 0.0019166267369429804
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 752,
+     "distinct": 217,
+     "macro_rate": 0.12218128821449252,
+     "pooled_rate": 0.12066752246469833
+    },
+    "wrong_fault": {
+     "instances": 10,
+     "distinct": 3,
+     "macro_rate": 0.001683641975308642,
+     "pooled_rate": 0.0016046213093709885
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 189,
+     "distinct": 25
+    },
+    "unknown": {
+     "instances": 36,
+     "distinct": 9
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 69,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 4,
+     "distinct": 4
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "D_s44": {
+   "withheld": {
+    "unknown": 518,
+    "known_fault": 261,
+    "healthy": 0
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "imbalance": {
+     "unknown": 10,
+     "known_fault": 134,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 69,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 47,
+     "known_fault": 25,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 76,
+     "known_fault": 1,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 72,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 24,
+     "known_fault": 101,
+     "healthy": 0
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 54,
+     "distinct": 33,
+     "macro_rate": 0.024230725995751528,
+     "pooled_rate": 0.025874460948730235
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 1,
+     "macro_rate": 0.0022560631697687533,
+     "pooled_rate": 0.0019166267369429804
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 880,
+     "distinct": 267,
+     "macro_rate": 0.14517029232128748,
+     "pooled_rate": 0.14120667522464697
+    },
+    "wrong_fault": {
+     "instances": 7,
+     "distinct": 2,
+     "macro_rate": 0.0011867283950617285,
+     "pooled_rate": 0.001123234916559692
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 152,
+     "distinct": 23
+    },
+    "unknown": {
+     "instances": 73,
+     "distinct": 14
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 56,
+     "distinct": 20
+    },
+    "unknown": {
+     "instances": 17,
+     "distinct": 11
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "D\u2032_s44": {
+   "withheld": {
+    "unknown": 518,
+    "known_fault": 261,
+    "healthy": 0
+   },
+   "withheld_per_class": {
+    "horizontal_misalignment": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "imbalance": {
+     "unknown": 10,
+     "known_fault": 134,
+     "healthy": 0
+    },
+    "overhang_ball": {
+     "unknown": 69,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "overhang_cage": {
+     "unknown": 47,
+     "known_fault": 25,
+     "healthy": 0
+    },
+    "overhang_outer": {
+     "unknown": 74,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_ball": {
+     "unknown": 76,
+     "known_fault": 1,
+     "healthy": 0
+    },
+    "underhang_cage": {
+     "unknown": 72,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "underhang_outer": {
+     "unknown": 73,
+     "known_fault": 0,
+     "healthy": 0
+    },
+    "vertical_misalignment": {
+     "unknown": 24,
+     "known_fault": 101,
+     "healthy": 0
+    }
+   },
+   "known_a_seen_folder": {
+    "unknown": {
+     "instances": 54,
+     "distinct": 33,
+     "macro_rate": 0.024230725995751528,
+     "pooled_rate": 0.025874460948730235
+    },
+    "wrong_fault": {
+     "instances": 4,
+     "distinct": 1,
+     "macro_rate": 0.0022560631697687533,
+     "pooled_rate": 0.0019166267369429804
+    },
+    "n_instances": 2087,
+    "n_distinct": 738
+   },
+   "known_b_unseen_foldk": {
+    "unknown": {
+     "instances": 880,
+     "distinct": 267,
+     "macro_rate": 0.14517029232128748,
+     "pooled_rate": 0.14120667522464697
+    },
+    "wrong_fault": {
+     "instances": 7,
+     "distinct": 2,
+     "macro_rate": 0.0011867283950617285,
+     "pooled_rate": 0.001123234916559692
+    },
+    "n_instances": 6232,
+    "n_distinct": 779
+   },
+   "normal_foldk": {
+    "healthy": {
+     "instances": 143,
+     "distinct": 22
+    },
+    "unknown": {
+     "instances": 82,
+     "distinct": 16
+    },
+    "n_instances": 225,
+    "n_distinct": 25
+   },
+   "normal_seen_folder": {
+    "healthy": {
+     "instances": 51,
+     "distinct": 19
+    },
+    "unknown": {
+     "instances": 22,
+     "distinct": 13
+    },
+    "n_instances": 74,
+    "n_distinct": 25
+   }
+  },
+  "B_with_caution_s44": {
+   "caution_flags_instances": 44,
+   "by_role": {
+    "eval": 9,
+    "foldk_known": 19,
+    "foldk_withheld": 16
+   },
+   "note": "B_with_caution makes identical decisions to B; count only"
+  }
+ },
+ "criteria": {
+  "E2_s42": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     336,
+     283
+    ],
+    "a_unknown_macro_minus_B_pp": -0.5941641882652244,
+    "b_unknown_macro_minus_B_pp": -2.3448296492246277
+   },
+   "problem2_pass": false,
+   "problem2_detail": {
+    "withheld_healthy": [
+     38,
+     19
+    ],
+    "normal_to_unknown_change_foldk": -15,
+    "normal_to_unknown_change_seen": -4
+   }
+  },
+  "E2_s43": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     319,
+     269
+    ],
+    "a_unknown_macro_minus_B_pp": -0.8921019383337166,
+    "b_unknown_macro_minus_B_pp": -3.102738336984917
+   },
+   "problem2_pass": false,
+   "problem2_detail": {
+    "withheld_healthy": [
+     42,
+     17
+    ],
+    "normal_to_unknown_change_foldk": -18,
+    "normal_to_unknown_change_seen": -5
+   }
+  },
+  "E2_s44": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     336,
+     261
+    ],
+    "a_unknown_macro_minus_B_pp": -0.6128187560857739,
+    "b_unknown_macro_minus_B_pp": -2.276678188457272
+   },
+   "problem2_pass": false,
+   "problem2_detail": {
+    "withheld_healthy": [
+     34,
+     24
+    ],
+    "normal_to_unknown_change_foldk": -13,
+    "normal_to_unknown_change_seen": -5
+   }
+  },
+  "E2_seed_mean": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     330.3333333333333,
+     271.0
+    ],
+    "a_unknown_macro_minus_B_pp": -0.6996949608949046,
+    "b_unknown_macro_minus_B_pp": -2.574748724888941
+   },
+   "problem2_pass": false,
+   "problem2_detail": {
+    "withheld_healthy": [
+     38.0,
+     20.0
+    ],
+    "normal_to_unknown_change_foldk": -15.333333333333332,
+    "normal_to_unknown_change_seen": -4.666666666666668
+   }
+  },
+  "D_s42": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     283,
+     283
+    ],
+    "a_unknown_macro_minus_B_pp": 0.0,
+    "b_unknown_macro_minus_B_pp": 0.0
+   },
+   "problem2_pass": true,
+   "problem2_detail": {
+    "withheld_healthy": [
+     2,
+     19
+    ],
+    "normal_to_unknown_change_foldk": 27,
+    "normal_to_unknown_change_seen": 8
+   }
+  },
+  "D_s43": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     269,
+     269
+    ],
+    "a_unknown_macro_minus_B_pp": 0.0,
+    "b_unknown_macro_minus_B_pp": 0.03333333333333244
+   },
+   "problem2_pass": true,
+   "problem2_detail": {
+    "withheld_healthy": [
+     1,
+     17
+    ],
+    "normal_to_unknown_change_foldk": 27,
+    "normal_to_unknown_change_seen": 11
+   }
+  },
+  "D_s44": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     261,
+     261
+    ],
+    "a_unknown_macro_minus_B_pp": 0.0,
+    "b_unknown_macro_minus_B_pp": 0.022222222222223476
+   },
+   "problem2_pass": true,
+   "problem2_detail": {
+    "withheld_healthy": [
+     0,
+     24
+    ],
+    "normal_to_unknown_change_foldk": 24,
+    "normal_to_unknown_change_seen": 8
+   }
+  },
+  "D_seed_mean": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     271.0,
+     271.0
+    ],
+    "a_unknown_macro_minus_B_pp": 0.0,
+    "b_unknown_macro_minus_B_pp": 0.018518518518517713
+   },
+   "problem2_pass": true,
+   "problem2_detail": {
+    "withheld_healthy": [
+     1.0,
+     20.0
+    ],
+    "normal_to_unknown_change_foldk": 26.0,
+    "normal_to_unknown_change_seen": 8.999999999999998
+   }
+  },
+  "D\u2032_s42": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     283,
+     283
+    ],
+    "a_unknown_macro_minus_B_pp": 0.0,
+    "b_unknown_macro_minus_B_pp": 0.0
+   },
+   "problem2_pass": true,
+   "problem2_detail": {
+    "withheld_healthy": [
+     1,
+     19
+    ],
+    "normal_to_unknown_change_foldk": 38,
+    "normal_to_unknown_change_seen": 14
+   }
+  },
+  "D\u2032_s43": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     269,
+     269
+    ],
+    "a_unknown_macro_minus_B_pp": 0.0,
+    "b_unknown_macro_minus_B_pp": 0.05555555555555314
+   },
+   "problem2_pass": true,
+   "problem2_detail": {
+    "withheld_healthy": [
+     0,
+     17
+    ],
+    "normal_to_unknown_change_foldk": 39,
+    "normal_to_unknown_change_seen": 17
+   }
+  },
+  "D\u2032_s44": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     261,
+     261
+    ],
+    "a_unknown_macro_minus_B_pp": 0.0,
+    "b_unknown_macro_minus_B_pp": 0.022222222222223476
+   },
+   "problem2_pass": true,
+   "problem2_detail": {
+    "withheld_healthy": [
+     0,
+     24
+    ],
+    "normal_to_unknown_change_foldk": 33,
+    "normal_to_unknown_change_seen": 13
+   }
+  },
+  "D\u2032_seed_mean": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     271.0,
+     271.0
+    ],
+    "a_unknown_macro_minus_B_pp": 0.0,
+    "b_unknown_macro_minus_B_pp": 0.025925925925926463
+   },
+   "problem2_pass": true,
+   "problem2_detail": {
+    "withheld_healthy": [
+     0.3333333333333333,
+     20.0
+    ],
+    "normal_to_unknown_change_foldk": 36.66666666666667,
+    "normal_to_unknown_change_seen": 14.666666666666666
+   }
+  },
+  "E1_vs_seed_mean_B": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     275,
+     271.0
+    ],
+    "a_unknown_macro_minus_B_pp": -0.7434435388354934,
+    "b_unknown_macro_minus_B_pp": -1.3968857113937694
+   },
+   "problem2_pass": true,
+   "problem2_detail": {
+    "withheld_healthy": [
+     19,
+     20.0
+    ],
+    "normal_to_unknown_change_foldk": -6.0,
+    "normal_to_unknown_change_seen": -0.3333333333333339
+   }
+  },
+  "E1_vs_B_s42": {
+   "problem1_pass": true,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     275,
+     283
+    ],
+    "a_unknown_macro_minus_B_pp": -0.5363864850365256,
+    "b_unknown_macro_minus_B_pp": -0.6697128854377704
+   },
+   "problem2_pass": false,
+   "problem2_detail": {
+    "withheld_healthy": [
+     19,
+     19
+    ],
+    "normal_to_unknown_change_foldk": -2,
+    "normal_to_unknown_change_seen": 0
+   }
+  },
+  "E1_vs_B_s43": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     275,
+     269
+    ],
+    "a_unknown_macro_minus_B_pp": -1.0348890711618839,
+    "b_unknown_macro_minus_B_pp": -1.9770775649485706
+   },
+   "problem2_pass": false,
+   "problem2_detail": {
+    "withheld_healthy": [
+     19,
+     17
+    ],
+    "normal_to_unknown_change_foldk": -6,
+    "normal_to_unknown_change_seen": 0
+   }
+  },
+  "E1_vs_B_s44": {
+   "problem1_pass": false,
+   "problem1_detail": {
+    "withheld_known_fault": [
+     275,
+     261
+    ],
+    "a_unknown_macro_minus_B_pp": -0.6590550603080712,
+    "b_unknown_macro_minus_B_pp": -1.5438666837949644
+   },
+   "problem2_pass": true,
+   "problem2_detail": {
+    "withheld_healthy": [
+     19,
+     24
+    ],
+    "normal_to_unknown_change_foldk": -10,
+    "normal_to_unknown_change_seen": -1
+   }
+  }
+ },
+ "criteria_definition": "Problem 1: fewer withheld instances passed as known than rule B, with the known-fault false-unknown macro rates on (a) and (b) each at most 2 points above rule B's. Problem 2: fewer withheld instances called healthy than rule B, with the change in normal instances sent to unknown. Pass/fail only; no selection, no ratio or cost conclusion.",
+ "threshold_free": {
+  "comparisons": {
+   "e1_ens_msp_minus_cnn_maha_s42_auroc": {
+    "macro_a": 0.8691153630200191,
+    "macro_b": 0.8769158787865375,
+    "diff_macro": -0.007800515766518369,
+    "diff_mean_over_runs": -0.007800515766518371,
+    "diff_std_over_runs": 0.1375470910971747,
+    "runs_a_higher": 13,
+    "ci95": [
+     -0.038491687738095845,
+     0.022267132637471494
+    ]
+   },
+   "e1_ens_msp_minus_cnn_maha_s42_oscr": {
+    "macro_a": 0.8654375872848905,
+    "macro_b": 0.8704020378672458,
+    "diff_macro": -0.004964450582355121,
+    "diff_mean_over_runs": -0.004964450582355122,
+    "diff_std_over_runs": 0.1361748681532512,
+    "runs_a_higher": 13,
+    "ci95": [
+     -0.03490196290878476,
+     0.023908687504851773
+    ]
+   },
+   "e1_ens_msp_minus_cnn_maha_s43_auroc": {
+    "macro_a": 0.8691153630200191,
+    "macro_b": 0.8767892935704513,
+    "diff_macro": -0.007673930550432134,
+    "diff_mean_over_runs": -0.007673930550432134,
+    "diff_std_over_runs": 0.11260328297276569,
+    "runs_a_higher": 12,
+    "ci95": [
+     -0.035706806990938214,
+     0.018344760477608163
+    ]
+   },
+   "e1_ens_msp_minus_cnn_maha_s43_oscr": {
+    "macro_a": 0.8654375872848905,
+    "macro_b": 0.8674850810812631,
+    "diff_macro": -0.0020474937963723496,
+    "diff_mean_over_runs": -0.002047493796372354,
+    "diff_std_over_runs": 0.11089190012176718,
+    "runs_a_higher": 14,
+    "ci95": [
+     -0.028879140607332914,
+     0.023519438617822064
+    ]
+   },
+   "e1_ens_msp_minus_cnn_maha_s44_auroc": {
+    "macro_a": 0.8691153630200191,
+    "macro_b": 0.8676940114356947,
+    "diff_macro": 0.0014213515843246286,
+    "diff_mean_over_runs": 0.0014213515843246244,
+    "diff_std_over_runs": 0.15443886867667786,
+    "runs_a_higher": 9,
+    "ci95": [
+     -0.034239575653238395,
+     0.03469512352936346
+    ]
+   },
+   "e1_ens_msp_minus_cnn_maha_s44_oscr": {
+    "macro_a": 0.8654375872848905,
+    "macro_b": 0.8578353070656323,
+    "diff_macro": 0.00760228021925843,
+    "diff_mean_over_runs": 0.007602280219258433,
+    "diff_std_over_runs": 0.15134856707111916,
+    "runs_a_higher": 12,
+    "ci95": [
+     -0.02665071082557491,
+     0.0401641398591338
+    ]
+   },
+   "e1_ens_maha_rank_minus_cnn_maha_s42_auroc": {
+    "macro_a": 0.8693998479263304,
+    "macro_b": 0.8769158787865375,
+    "diff_macro": -0.007516030860207127,
+    "diff_mean_over_runs": -0.007516030860207127,
+    "diff_std_over_runs": 0.03733732538634468,
+    "runs_a_higher": 14,
+    "ci95": [
+     -0.01867493601811411,
+     0.0037713000807033654
+    ]
+   },
+   "e1_ens_maha_rank_minus_cnn_maha_s42_oscr": {
+    "macro_a": 0.8630303843497245,
+    "macro_b": 0.8704020378672458,
+    "diff_macro": -0.007371653517521309,
+    "diff_mean_over_runs": -0.00737165351752131,
+    "diff_std_over_runs": 0.037466306218721906,
+    "runs_a_higher": 14,
+    "ci95": [
+     -0.019422186377047772,
+     0.004277063181734132
+    ]
+   },
+   "e1_ens_maha_rank_minus_cnn_maha_s43_auroc": {
+    "macro_a": 0.8693998479263304,
+    "macro_b": 0.8767892935704513,
+    "diff_macro": -0.0073894456441208865,
+    "diff_mean_over_runs": -0.0073894456441208865,
+    "diff_std_over_runs": 0.04983785774991298,
+    "runs_a_higher": 12,
+    "ci95": [
+     -0.020875010895454047,
+     0.004316044643610373
+    ]
+   },
+   "e1_ens_maha_rank_minus_cnn_maha_s43_oscr": {
+    "macro_a": 0.8630303843497245,
+    "macro_b": 0.8674850810812631,
+    "diff_macro": -0.004454696731538545,
+    "diff_mean_over_runs": -0.004454696731538544,
+    "diff_std_over_runs": 0.04949146716017693,
+    "runs_a_higher": 15,
+    "ci95": [
+     -0.018242462525799592,
+     0.00740591858816961
+    ]
+   },
+   "e1_ens_maha_rank_minus_cnn_maha_s44_auroc": {
+    "macro_a": 0.8693998479263304,
+    "macro_b": 0.8676940114356947,
+    "diff_macro": 0.0017058364906358705,
+    "diff_mean_over_runs": 0.0017058364906358712,
+    "diff_std_over_runs": 0.03526636458466502,
+    "runs_a_higher": 11,
+    "ci95": [
+     -0.008351008239605036,
+     0.009922027289299688
+    ]
+   },
+   "e1_ens_maha_rank_minus_cnn_maha_s44_oscr": {
+    "macro_a": 0.8630303843497245,
+    "macro_b": 0.8578353070656323,
+    "diff_macro": 0.0051950772840922465,
+    "diff_mean_over_runs": 0.0051950772840922465,
+    "diff_std_over_runs": 0.03279550993993209,
+    "runs_a_higher": 11,
+    "ci95": [
+     -0.0035997362958735796,
+     0.013000828913460966
+    ]
+   },
+   "e2_s_s42_minus_cnn_maha_s42_auroc": {
+    "macro_a": 0.8870975394917261,
+    "macro_b": 0.8769158787865375,
+    "diff_macro": 0.010181660705188647,
+    "diff_mean_over_runs": 0.010181660705188647,
+    "diff_std_over_runs": 0.12672964802917666,
+    "runs_a_higher": 7,
+    "ci95": [
+     -0.012667913283232897,
+     0.033416909420894966
+    ]
+   },
+   "e2_s_s42_minus_cnn_maha_s42_oscr": {
+    "macro_a": 0.8806413760129046,
+    "macro_b": 0.8704020378672458,
+    "diff_macro": 0.010239338145658793,
+    "diff_mean_over_runs": 0.010239338145658791,
+    "diff_std_over_runs": 0.12579701676132463,
+    "runs_a_higher": 7,
+    "ci95": [
+     -0.012823957106638369,
+     0.033542616587569865
+    ]
+   },
+   "e2_s_s43_minus_cnn_maha_s43_auroc": {
+    "macro_a": 0.8880489631284342,
+    "macro_b": 0.8767892935704513,
+    "diff_macro": 0.011259669557982941,
+    "diff_mean_over_runs": 0.011259669557982941,
+    "diff_std_over_runs": 0.10897534947624553,
+    "runs_a_higher": 8,
+    "ci95": [
+     -0.010529178829365542,
+     0.030579576095298194
+    ]
+   },
+   "e2_s_s43_minus_cnn_maha_s43_oscr": {
+    "macro_a": 0.8791218176001447,
+    "macro_b": 0.8674850810812631,
+    "diff_macro": 0.0116367365188817,
+    "diff_mean_over_runs": 0.011636736518881698,
+    "diff_std_over_runs": 0.10763748143089841,
+    "runs_a_higher": 7,
+    "ci95": [
+     -0.009362769424731621,
+     0.030959378829243437
+    ]
+   },
+   "e2_s_s44_minus_cnn_maha_s44_auroc": {
+    "macro_a": 0.8919539285208289,
+    "macro_b": 0.8676940114356947,
+    "diff_macro": 0.02425991708513448,
+    "diff_mean_over_runs": 0.02425991708513448,
+    "diff_std_over_runs": 0.15082826231937355,
+    "runs_a_higher": 8,
+    "ci95": [
+     -1.6099029496022764e-05,
+     0.045164210321199404
+    ]
+   },
+   "e2_s_s44_minus_cnn_maha_s44_oscr": {
+    "macro_a": 0.8827347942743441,
+    "macro_b": 0.8578353070656323,
+    "diff_macro": 0.024899487208711824,
+    "diff_mean_over_runs": 0.024899487208711824,
+    "diff_std_over_runs": 0.14924522213300961,
+    "runs_a_higher": 8,
+    "ci95": [
+     0.0006601436078538115,
+     0.045938791280839296
+    ]
+   }
+  },
+  "bootstrap": {
+   "n": 2000,
+   "runs_dropped_per_draw_mean": 6.963,
+   "runs_dropped_per_draw_max": 13
+  },
+  "wording": "an interval excluding zero supports a specific metric difference under this protocol, not an overall winner"
+ }
+}
