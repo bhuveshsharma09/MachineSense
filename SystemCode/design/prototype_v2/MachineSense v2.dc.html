@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:oklch(0.945 0.004 85);color:oklch(0.23 0.006 260)}
+body{font-family:'Outfit',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:oklch(0.54 0.21 277)}a:hover{color:oklch(0.45 0.2 277)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid oklch(0.54 0.21 277);outline-offset:2px}
+input::placeholder{color:oklch(0.55 0.008 260)}
+@keyframes ms-spin{to{transform:rotate(360deg)}}
+@keyframes ms-pulse{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.9);opacity:0}}
+@keyframes ms-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes ms-drawer{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div style="position:relative;height:100vh;min-height:760px;min-width:1180px;overflow:hidden;background:radial-gradient(ellipse 75% 70% at 38% 46%, oklch(0.978 0.003 85) 0%, oklch(0.948 0.004 85) 55%, oklch(0.905 0.005 85) 100%);color:oklch(0.23 0.006 260);font-family:'Outfit',system-ui,sans-serif;font-size:14px;line-height:1.45">
+
+  <div ref="{{ sceneRef }}" data-screen-label="Machine scene" style="position:absolute;inset:0;z-index:0"></div>
+
+  <sc-if value="{{ showFallback }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:16px;right:412px;top:180px;bottom:200px;z-index:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;pointer-events:none">
+      <img src="assets/machine.jpg" alt="Reference photo of the rotor fault test rig" style="max-width:78%;max-height:88%;mix-blend-mode:multiply;filter:contrast(1.05)">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:oklch(0.50 0.008 260)">Static view · reference photo</span>
+    </div>
+  </sc-if>
+  <sc-if value="{{ showLoading }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;left:16px;right:412px;top:92px;bottom:182px;z-index:0;display:grid;place-items:center;pointer-events:none;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.50 0.008 260)">Loading 3D rig…</div>
+  </sc-if>
+
+  <div style="position:absolute;left:36px;top:114px;z-index:1;pointer-events:none;display:flex;flex-direction:column;gap:6px;max-width:540px;opacity:{{ heroOpacity }};transition:opacity 0.35s ease">
+    <span style="font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:oklch(0.48 0.008 260)">{{ heroKicker }}</span>
+    <span style="font-size:46px;font-weight:300;letter-spacing:-0.028em;line-height:1.04;text-wrap:balance">{{ heroTitle }}</span>
+    <span style="font-size:14.5px;color:oklch(0.40 0.008 260)">{{ heroSub }}</span>
+  </div>
+
+  <div style="position:absolute;top:108px;right:428px;z-index:1;width:236px;display:flex;flex-direction:column;gap:8px;padding:13px 15px;border-radius:14px;background:oklch(0.99 0.002 85 / 0.55);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);border:1px solid oklch(1 0 0 / 0.75);box-shadow:0 10px 30px oklch(0.35 0.01 260 / 0.07)">
+    <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:oklch(0.30 0.006 260)"><span style="width:14px;height:14px;flex:none;border-radius:50%;border:2px solid oklch(0.54 0.21 277)"></span>Selected part</div>
+    <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:oklch(0.30 0.006 260)"><span style="width:14px;height:14px;flex:none;border-radius:50%;background:radial-gradient(circle, oklch(0.66 0.19 42) 0 35%, oklch(0.66 0.19 42 / 0.25) 60%, transparent 72%)"></span>Predicted fault location · model</div>
+    <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:oklch(0.30 0.006 260)"><span style="width:14px;height:14px;flex:none;display:grid;place-items:center"><span style="width:10px;height:10px;border-radius:50%;background:oklch(0.89 0.17 118);border:2px solid oklch(0.23 0.006 260)"></span></span>Unusual sensor signal · measured</div>
+    <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:oklch(0.30 0.006 260)"><span style="width:14px;height:14px;flex:none;border-radius:50%;border:1.5px dashed oklch(0.50 0.11 65);background:oklch(0.80 0.14 75 / 0.25)"></span>Candidate or uncertain</div>
+    <p style="margin:2px 0 0;font-size:11px;line-height:1.4;color:oklch(0.48 0.008 260)">Orange glow is a visual highlight, not a measured temperature.</p>
+  </div>
+
+  <div ref="{{ overlayRef }}" style="position:absolute;inset:0;z-index:3;pointer-events:none">
+    <sc-for list="{{ markers }}" as="h" hint-placeholder-count="0">
+      <div data-anchor="{{ h.id }}" style="position:absolute;left:0;top:0;width:0;height:0;visibility:hidden;will-change:transform">
+        <button onClick="{{ h.onClick }}" onMouseEnter="{{ h.onEnter }}" onMouseLeave="{{ h.onLeave }}" aria-label="{{ h.aria }}" aria-pressed="{{ h.selected }}" style="position:absolute;left:-16px;top:-16px;width:32px;height:32px;padding:0;border:0;background:transparent;border-radius:50%;pointer-events:auto;cursor:pointer;display:grid;place-items:center">
+          <sc-if value="{{ h.ring }}"><span style="position:absolute;inset:-2px;border-radius:50%;border:{{ h.ringBorder }};background:{{ h.ringBg }}"></span></sc-if>
+          <sc-if value="{{ h.pulse }}"><span style="position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:{{ h.pulseColor }};animation:ms-pulse 1.9s ease-out infinite"></span></sc-if>
+          <sc-if value="{{ h.scan }}"><span style="position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:1.5px dashed oklch(0.23 0.006 260 / 0.7);animation:ms-spin 3.2s linear infinite"></span></sc-if>
+          <sc-if value="{{ h.selected }}"><span style="position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;border:2px solid oklch(0.54 0.21 277);box-shadow:0 0 0 4px oklch(0.54 0.21 277 / 0.16)"></span></sc-if>
+          <span style="position:relative;width:{{ h.size }};height:{{ h.size }};border-radius:50%;background:{{ h.fill }};border:{{ h.border }};box-shadow:0 1px 4px oklch(0.3 0.01 260 / 0.35)"></span>
+        </button>
+        <sc-if value="{{ h.showLabel }}">
+          <div style="position:absolute;left:18px;top:-14px;display:flex;flex-direction:column;gap:1px;padding:5px 10px;border-radius:9px;background:oklch(0.995 0.002 85 / 0.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid {{ h.labelBorder }};white-space:nowrap;font-size:12px;line-height:1.3;color:oklch(0.23 0.006 260);box-shadow:0 4px 14px oklch(0.35 0.01 260 / 0.08);pointer-events:none">
+            <span>{{ h.label }}</span>
+            <sc-if value="{{ h.tag }}"><span style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.05em;text-transform:uppercase;color:{{ h.tagColor }}">{{ h.tag }}</span></sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+
+    <sc-if value="{{ inspShow }}" hint-placeholder-val="{{ false }}">
+      <div data-follow="1" role="dialog" aria-label="{{ insp.name }}" style="position:absolute;left:0;top:0;width:316px;opacity:0;transition:opacity 0.2s ease;pointer-events:auto;display:flex;flex-direction:column;gap:12px;padding:16px 16px 14px;border-radius:18px;background:oklch(0.99 0.002 85 / 0.74);backdrop-filter:blur(22px) saturate(1.25);-webkit-backdrop-filter:blur(22px) saturate(1.25);border:1px solid oklch(1 0 0 / 0.85);box-shadow:0 1px 0 oklch(1 0 0 / 0.7) inset, 0 18px 50px oklch(0.35 0.01 260 / 0.14)">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.09em;text-transform:uppercase;color:oklch(0.50 0.008 260)">{{ insp.kind }}</span>
+            <span style="font-size:20px;font-weight:400;letter-spacing:-0.012em;line-height:1.2">{{ insp.name }}</span>
+          </div>
+          <button onClick="{{ closeInsp }}" aria-label="Close details" style="width:30px;height:30px;border:0;border-radius:8px;background:oklch(0.23 0.006 260 / 0.06);cursor:pointer;font-size:16px;color:oklch(0.40 0.008 260)">×</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:{{ insp.statusColor }}"><span style="width:8px;height:8px;border-radius:50%;background:{{ insp.statusDot }}"></span>{{ insp.status }}</div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:oklch(0.40 0.008 260);text-wrap:pretty">{{ insp.desc }}</p>
+        <sc-if value="{{ insp.hasNote }}">
+          <p style="margin:0;font-size:13px;line-height:1.5;color:oklch(0.23 0.006 260);text-wrap:pretty">{{ insp.note }}</p>
+        </sc-if>
+        <sc-if value="{{ insp.hasReadings }}">
+          <div style="display:flex;flex-direction:column;gap:10px;padding-top:10px;border-top:1px solid oklch(0.23 0.006 260 / 0.08)">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <sc-for list="{{ insp.chips }}" as="cp" hint-placeholder-count="0">
+                <button onClick="{{ cp.onClick }}" style="height:26px;padding:0 9px;white-space:nowrap;border-radius:7px;border:1px solid {{ cp.border }};background:{{ cp.bg }};color:{{ cp.color }};font-size:11.5px;cursor:pointer">{{ cp.label }}</button>
+              </sc-for>
+              <div style="margin-left:auto;display:flex;gap:2px;padding:2px;border-radius:8px;background:oklch(0.23 0.006 260 / 0.06)">
+                <sc-for list="{{ viewBtns }}" as="v" hint-placeholder-count="2">
+                  <button onClick="{{ v.onClick }}" style="height:22px;padding:0 8px;border:0;border-radius:6px;background:{{ v.bg }};color:{{ v.color }};font-size:11px;cursor:pointer;box-shadow:{{ v.shadow }}">{{ v.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="position:relative;height:104px;margin:14px 0 18px 40px;border-left:1px solid oklch(0.23 0.006 260 / 0.14);border-bottom:1px solid oklch(0.23 0.006 260 / 0.14);background-image:linear-gradient(to bottom, oklch(0.23 0.006 260 / 0.06) 1px, transparent 1px);background-size:100% 33.33%">
+              {{ card.el }}
+              <sc-for list="{{ card.markers }}" as="m" hint-placeholder-count="0">
+                <span style="position:absolute;left:{{ m.left }};top:0;bottom:0;border-left:1px dashed {{ m.color }};opacity:0.8"></span>
+                <span style="position:absolute;left:{{ m.left }};top:-14px;transform:translateX(-50%);font-family:'Geist Mono',monospace;font-size:9.5px;color:{{ m.color }};white-space:nowrap">{{ m.label }}</span>
+              </sc-for>
+              <sc-for list="{{ card.ticks }}" as="tk" hint-placeholder-count="0">
+                <span style="position:absolute;left:{{ tk.left }};bottom:-16px;transform:translateX(-50%);font-family:'Geist Mono',monospace;font-size:9.5px;color:oklch(0.50 0.008 260)">{{ tk.label }}</span>
+              </sc-for>
+              <span style="position:absolute;left:-42px;top:-5px;width:38px;text-align:right;font-family:'Geist Mono',monospace;font-size:9.5px;color:oklch(0.50 0.008 260)">{{ card.ymax }}</span>
+            </div>
+            <span style="font-size:11px;color:oklch(0.48 0.008 260)">{{ card.caption }}</span>
+            <div style="display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:1px;border-radius:10px;overflow:hidden;background:oklch(0.23 0.006 260 / 0.08)">
+              <sc-for list="{{ card.stats }}" as="s" hint-placeholder-count="4">
+                <div style="display:flex;flex-direction:column;gap:1px;padding:8px 9px;background:oklch(0.995 0.002 85 / 0.7)">
+                  <span style="font-size:10.5px;color:oklch(0.48 0.008 260);white-space:nowrap">{{ s.k }}</span>
+                  <span style="font-family:'Geist Mono',monospace;font-size:12px;color:{{ s.color }};white-space:nowrap">{{ s.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-start">
+              <span style="flex:none;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;padding:2px 6px;border-radius:5px;color:oklch(0.23 0.006 260);background:oklch(0.23 0.006 260 / 0.07)">Measured</span>
+              <span style="font-size:12.5px;line-height:1.45;color:oklch(0.32 0.007 260);text-wrap:pretty">{{ card.note }}</span>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ insp.noReadings }}"><p style="margin:0;font-size:12.5px;color:oklch(0.48 0.008 260)">{{ insp.noReadingsText }}</p></sc-if>
+        <div style="display:flex;flex-direction:column;gap:2px;padding:9px 11px;border-radius:10px;border:1px dashed oklch(0.23 0.006 260 / 0.2)">
+          <span style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.50 0.11 65)">{{ insp.posLabel }}</span>
+          <span style="font-size:11.5px;line-height:1.4;color:oklch(0.40 0.008 260)">{{ insp.posText }}</span>
+        </div>
+        <button onClick="{{ insp.onAsk }}" style="height:36px;border-radius:10px;border:1px solid oklch(0.23 0.006 260 / 0.16);background:oklch(1 0 0 / 0.6);font-size:13px;cursor:pointer" style-hover="border-color:oklch(0.54 0.21 277 / 0.6)">Ask about this part</button>
+      </div>
+    </sc-if>
+  </div>
+
+  <header style="position:absolute;top:16px;left:16px;right:16px;height:60px;z-index:10;display:flex;align-items:center;gap:14px;padding:0 10px 0 18px;border-radius:16px;background:oklch(0.99 0.002 85 / 0.66);backdrop-filter:blur(22px) saturate(1.25);-webkit-backdrop-filter:blur(22px) saturate(1.25);border:1px solid oklch(1 0 0 / 0.8);box-shadow:0 1px 0 oklch(1 0 0 / 0.7) inset, 0 10px 34px oklch(0.35 0.01 260 / 0.08)">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="width:20px;height:20px;border-radius:50%;border:1.5px solid oklch(0.23 0.006 260);display:grid;place-items:center"><span style="width:6px;height:6px;border-radius:50%;background:oklch(0.66 0.19 42)"></span></span>
+      <span style="font-size:17px;font-weight:500;letter-spacing:-0.01em">MachineSense</span>
+    </div>
+    <span style="height:24px;display:inline-flex;align-items:center;padding:0 9px;border-radius:999px;border:1px solid oklch(0.23 0.006 260 / 0.16);font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.40 0.008 260);white-space:nowrap">Research demo</span>
+    <span style="width:1px;height:26px;background:oklch(0.23 0.006 260 / 0.1)"></span>
+    <div style="position:relative;width:340px">
+      <select value="{{ recValue }}" onChange="{{ onRecChange }}" aria-label="Prepared sensor recording" style="width:100%;height:40px;appearance:none;-webkit-appearance:none;background:oklch(1 0 0 / 0.7);border:1px solid oklch(0.23 0.006 260 / 0.12);border-radius:10px;padding:0 36px 0 13px;font-size:14px;cursor:pointer">
+        <option value="" disabled="{{ true }}">Select a prepared recording…</option>
+        <option value="N01">N01 · Normal operation · 2,418 rpm</option>
+        <option value="I02">I02 · Imbalance · 1,788 rpm</option>
+        <option value="M03">M03 · Horizontal misalignment · 2,112 rpm</option>
+        <option value="B04">B04 · Bearing fault · 2,640 rpm</option>
+        <option value="Q05">Q05 · Sensor dropout (poor quality) · 1,956 rpm</option>
+        <option value="UPLOAD" disabled="{{ true }}">Uploaded CSV file</option>
+      </select>
+      <span style="position:absolute;right:15px;top:14px;width:7px;height:7px;border-right:1.5px solid oklch(0.40 0.008 260);border-bottom:1.5px solid oklch(0.40 0.008 260);transform:rotate(45deg);pointer-events:none"></span>
+    </div>
+    <label style="position:relative;height:40px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;border:1px dashed oklch(0.23 0.006 260 / 0.3);border-radius:10px;cursor:pointer;font-size:13.5px;white-space:nowrap" style-hover="border-color:oklch(0.54 0.21 277)">
+      Upload CSV
+      <input type="file" accept=".csv,text/csv" onChange="{{ onFile }}" aria-label="Upload a CSV recording" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%">
+    </label>
+    <sc-if value="{{ hasUpload }}" hint-placeholder-val="{{ false }}">
+      <span style="height:32px;display:inline-flex;align-items:center;gap:4px;padding:0 4px 0 10px;border-radius:8px;background:oklch(0.23 0.006 260 / 0.06);font-family:'Geist Mono',monospace;font-size:11.5px;max-width:200px">
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ uploadName }}</span>
+        <button onClick="{{ clearUpload }}" aria-label="Remove uploaded file" style="width:26px;height:26px;border:0;background:transparent;cursor:pointer;font-size:15px">×</button>
+      </span>
+    </sc-if>
+    <div style="flex:1"></div>
+    <button onClick="{{ onStart }}" disabled="{{ startDisabled }}" style="height:40px;padding:0 20px;border:0;border-radius:10px;background:{{ startBg }};color:{{ startColor }};font-size:14px;font-weight:500;cursor:{{ startCursor }};display:flex;align-items:center;gap:9px;white-space:nowrap">
+      <sc-if value="{{ running }}" hint-placeholder-val="{{ false }}"><span style="width:12px;height:12px;border-radius:50%;border:1.5px solid oklch(1 0 0 / 0.35);border-top-color:oklch(1 0 0);animation:ms-spin 0.9s linear infinite"></span></sc-if>
+      {{ startLabel }}
+    </button>
+    <span style="width:1px;height:26px;background:oklch(0.23 0.006 260 / 0.1)"></span>
+    <button onClick="{{ onChangeName }}" title="Change display name" style="display:flex;align-items:center;gap:9px;height:40px;padding:0 12px 0 5px;border:0;background:transparent;border-radius:999px;cursor:pointer">
+      <span style="width:30px;height:30px;border-radius:50%;background:oklch(0.23 0.006 260);color:oklch(0.98 0.002 85);display:grid;place-items:center;font-size:11.5px;font-weight:500">{{ initials }}</span>
+      <span style="font-size:13.5px;white-space:nowrap">{{ userName }}</span>
+    </button>
+  </header>
+
+  <div style="position:absolute;left:16px;bottom:168px;right:412px;z-index:4;display:flex;align-items:center;gap:8px;pointer-events:none">
+    <button onClick="{{ onResetView }}" style="pointer-events:auto;height:34px;padding:0 13px;border-radius:10px;border:1px solid oklch(1 0 0 / 0.8);background:oklch(0.99 0.002 85 / 0.62);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:12.5px;cursor:pointer">Reset view</button>
+    <button onClick="{{ onExplode }}" aria-pressed="{{ exploded }}" style="pointer-events:auto;height:34px;padding:0 13px;border-radius:10px;border:1px solid {{ explodeBorder }};background:{{ explodeBg }};backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:12.5px;color:{{ explodeColor }};cursor:pointer">Exploded view</button>
+    <button onClick="{{ toggleLabels }}" style="pointer-events:auto;height:34px;padding:0 13px;border-radius:10px;border:1px solid oklch(1 0 0 / 0.8);background:oklch(0.99 0.002 85 / 0.62);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:12.5px;cursor:pointer">{{ labelsBtn }}</button>
+    <select value="" onChange="{{ onJump }}" aria-label="Jump to prototype state" style="pointer-events:auto;height:34px;padding:0 10px;border-radius:10px;border:1px solid oklch(1 0 0 / 0.8);background:oklch(0.99 0.002 85 / 0.62);font-size:12.5px;cursor:pointer">
+      <option value="">Demo state…</option>
+      <option value="1">1 · No recording</option>
+      <option value="2">2 · In progress</option>
+      <option value="3">3 · Known fault</option>
+      <option value="4">4 · Checks disagree</option>
+      <option value="5">5a · Poor quality</option>
+      <option value="6">5b · Invalid upload</option>
+    </select>
+    <span style="margin-left:auto;font-size:11.5px;color:oklch(0.45 0.008 260);text-align:right;line-height:1.35">Illustrative 3D geometry, approximated from the reference photo.<br>Drag to orbit · scroll to zoom · click a part</span>
+  </div>
+
+  <section aria-label="Evidence" style="position:absolute;left:16px;right:412px;bottom:16px;height:140px;z-index:4;display:flex;gap:18px;padding:14px 16px;border-radius:18px;background:oklch(0.99 0.002 85 / 0.66);backdrop-filter:blur(22px) saturate(1.25);-webkit-backdrop-filter:blur(22px) saturate(1.25);border:1px solid oklch(1 0 0 / 0.8);box-shadow:0 1px 0 oklch(1 0 0 / 0.7) inset, 0 14px 44px oklch(0.35 0.01 260 / 0.10)">
+    <div style="flex:0 0 228px;display:flex;flex-direction:column;gap:8px;min-width:0">
+      <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.09em;text-transform:uppercase;color:oklch(0.50 0.008 260)">Recording details</span>
+      <sc-for list="{{ facts }}" as="f" hint-placeholder-count="3">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding-bottom:6px;border-bottom:1px solid oklch(0.23 0.006 260 / 0.07)">
+          <span style="font-size:12px;color:oklch(0.45 0.008 260)">{{ f.k }}</span>
+          <span style="font-size:15px;font-weight:400;color:{{ f.color }};white-space:nowrap">{{ f.v }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <span style="width:1px;background:oklch(0.23 0.006 260 / 0.08)"></span>
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline">
+        <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.09em;text-transform:uppercase;color:oklch(0.50 0.008 260)">Evidence · anomaly score per channel</span>
+        <span style="font-size:11.5px;color:oklch(0.48 0.008 260);white-space:nowrap">{{ stripNote }}</span>
+      </div>
+      <div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(8, minmax(0,1fr));gap:6px">
+        <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="8">
+          <button onClick="{{ t.onClick }}" disabled="{{ t.disabled }}" aria-label="{{ t.aria }}" style="min-width:0;display:flex;flex-direction:column;gap:4px;padding:7px 8px 7px;border-radius:11px;border:1px solid {{ t.border }};background:{{ t.bg }};text-align:left;cursor:{{ t.cursor }};box-shadow:{{ t.shadow }}" style-hover="background:oklch(1 0 0 / 0.75)">
+            <span style="display:flex;justify-content:space-between;gap:4px;font-size:11px;color:oklch(0.35 0.007 260)"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.name }}</span><span style="font-family:'Geist Mono',monospace;color:{{ t.scoreColor }}">{{ t.score }}</span></span>
+            <span style="position:relative;flex:1;min-height:26px;display:block">{{ t.el }}</span>
+            <span style="height:3px;border-radius:2px;background:oklch(0.23 0.006 260 / 0.08);position:relative;display:block"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ t.w }};border-radius:2px;background:{{ t.bar }}"></span><span style="position:absolute;left:60%;top:-2px;bottom:-2px;width:1px;background:oklch(0.23 0.006 260 / 0.35)"></span></span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <aside aria-label="Diagnosis and investigation" style="position:absolute;top:92px;right:16px;bottom:16px;width:380px;z-index:5;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:oklch(0.99 0.002 85 / 0.68);backdrop-filter:blur(24px) saturate(1.25);-webkit-backdrop-filter:blur(24px) saturate(1.25);border:1px solid oklch(1 0 0 / 0.85);box-shadow:0 1px 0 oklch(1 0 0 / 0.7) inset, 0 18px 50px oklch(0.35 0.01 260 / 0.11)">
+    <div data-screen-label="Diagnosis" style="flex:none;padding:18px 22px 18px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid oklch(0.23 0.006 260 / 0.08)">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.09em;text-transform:uppercase;color:oklch(0.50 0.008 260)">Diagnosis</span>
+        <sc-if value="{{ dx.simulated }}"><span style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.48 0.008 260);border:1px dashed oklch(0.23 0.006 260 / 0.25);border-radius:6px;padding:2px 7px">Simulated result</span></sc-if>
+      </div>
+      <sc-if value="{{ dx.banner }}" hint-placeholder-val="{{ false }}">
+        <div role="alert" style="display:flex;gap:11px;align-items:center;padding:12px 14px;border-radius:12px;background:oklch(0.80 0.14 75 / 0.2);border:1px solid oklch(0.70 0.13 70 / 0.55);color:oklch(0.40 0.09 60);font-size:15px;font-weight:500;line-height:1.3">
+          <span style="width:9px;height:9px;flex:none;background:oklch(0.72 0.14 70);transform:rotate(45deg)"></span>Checks disagree — recheck recommended.
+        </div>
+      </sc-if>
+      <sc-if value="{{ dx.chip }}"><span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:{{ dx.color }}"><span style="width:8px;height:8px;border-radius:50%;background:{{ dx.dot }};box-shadow:0 0 0 4px {{ dx.halo }}"></span>{{ dx.chip }}</span></sc-if>
+      <div style="font-size:32px;font-weight:300;letter-spacing:-0.022em;line-height:1.1;text-wrap:balance">{{ dx.title }}</div>
+      <sc-if value="{{ dx.location }}"><div style="font-size:13.5px;color:oklch(0.40 0.008 260)">{{ dx.locLabel }} · <span style="color:{{ dx.color }}">{{ dx.location }}</span></div></sc-if>
+      <p style="margin:0;font-size:13.5px;line-height:1.5;color:oklch(0.38 0.008 260);text-wrap:pretty">{{ dx.sub }}</p>
+      <sc-if value="{{ dx.progress }}" hint-placeholder-val="{{ false }}">
+        <div style="height:3px;border-radius:2px;background:oklch(0.23 0.006 260 / 0.08);overflow:hidden"><div style="height:100%;width:{{ dx.pct }};background:oklch(0.23 0.006 260);transition:width 0.4s ease"></div></div>
+      </sc-if>
+      <sc-if value="{{ hasWarnings }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:12px;background:oklch(0.80 0.14 75 / 0.12);border:1px solid oklch(0.70 0.13 70 / 0.35)">
+          <span style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.48 0.1 62)">{{ warningsTitle }}</span>
+          <sc-for list="{{ warnings }}" as="w" hint-placeholder-count="0">
+            <div style="display:flex;gap:8px;align-items:baseline;font-size:12.5px;line-height:1.4;color:oklch(0.32 0.03 60)"><span style="width:5px;height:5px;flex:none;background:oklch(0.72 0.14 70);transform:translateY(-2px) rotate(45deg)"></span><span>{{ w.text }}</span></div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ dx.showModels }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:6px;padding-top:4px">
+          <sc-for list="{{ dx.models }}" as="m" hint-placeholder-count="2">
+            <div style="display:grid;grid-template-columns:88px minmax(0,1fr) auto;gap:10px;align-items:baseline;font-size:13px">
+              <span style="font-family:'Geist Mono',monospace;font-size:10.5px;color:oklch(0.50 0.008 260)">{{ m.name }}</span>
+              <span>{{ m.cls }}</span>
+              <span style="font-family:'Geist Mono',monospace;font-size:12px;color:oklch(0.40 0.008 260)">{{ m.score }}</span>
+            </div>
+          </sc-for>
+          <span style="font-size:12px;color:{{ dx.agreeColor }}">{{ dx.agreeText }}</span>
+          <span style="font-size:11.5px;line-height:1.4;color:oklch(0.48 0.008 260)">Model scores are not the probability that the diagnosis is correct.</span>
+        </div>
+      </sc-if>
+    </div>
+
+    <div role="tablist" style="flex:none;display:flex;gap:2px;margin:12px 16px 0;padding:3px;border-radius:11px;background:oklch(0.23 0.006 260 / 0.06)">
+      <sc-for list="{{ panelTabs }}" as="t" hint-placeholder-count="2">
+        <button role="tab" aria-selected="{{ t.active }}" onClick="{{ t.onClick }}" style="flex:1;height:32px;border:0;border-radius:9px;background:{{ t.bg }};color:{{ t.color }};box-shadow:{{ t.shadow }};font-size:13px;cursor:pointer">{{ t.label }}</button>
+      </sc-for>
+    </div>
+
+    <div style="flex:1;min-height:0;overflow:auto;padding:14px 22px 16px">
+      <sc-if value="{{ tabActivity }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-size:14px;font-weight:500">Investigation activity</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.48 0.008 260);border:1px dashed oklch(0.23 0.006 260 / 0.25);border-radius:6px;padding:2px 7px">Simulated workflow</span>
+        </div>
+        <sc-if value="{{ showAgents }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <p style="margin:0;font-size:12.5px;line-height:1.5;color:oklch(0.45 0.008 260)">Five agents take part. Their actions appear here when you start an investigation.</p>
+            <sc-for list="{{ agentList }}" as="ag" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start">
+                <span style="width:28px;height:28px;border-radius:8px;background:oklch(0.23 0.006 260 / 0.06);display:grid;place-items:center;font-family:'Geist Mono',monospace;font-size:10px;color:oklch(0.35 0.007 260)">{{ ag.code }}</span>
+                <div style="display:flex;flex-direction:column"><span style="font-size:13px;font-weight:500">{{ ag.name }}</span><span style="font-size:12.5px;color:oklch(0.45 0.008 260)">{{ ag.role }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showTimeline }}" hint-placeholder-val="{{ false }}">
+          <ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column">
+            <sc-for list="{{ timeline }}" as="s" hint-placeholder-count="0">
+              <li style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;padding-left:{{ s.indent }};animation:ms-in 0.22s ease-out">
+                <div style="display:flex;flex-direction:column;align-items:center">
+                  <span style="position:relative;width:28px;height:28px;border-radius:8px;background:{{ s.codeBg }};color:{{ s.codeColor }};display:grid;place-items:center;font-family:'Geist Mono',monospace;font-size:10px">{{ s.code }}
+                    <sc-if value="{{ s.isActive }}"><span style="position:absolute;inset:-4px;border-radius:10px;border:1.5px solid oklch(0.23 0.006 260 / 0.15);border-top-color:oklch(0.23 0.006 260);animation:ms-spin 1s linear infinite"></span></sc-if>
+                  </span>
+                  <span style="flex:1;width:1px;min-height:10px;background:oklch(0.23 0.006 260 / 0.1)"></span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:2px;padding:3px 0 14px;min-width:0">
+                  <sc-if value="{{ s.branch }}"><span style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.50 0.11 65)">↳ Branch · extra check</span></sc-if>
+                  <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline">
+                    <span style="font-size:13.5px;font-weight:500">{{ s.act }}</span>
+                    <span style="flex:none;font-family:'Geist Mono',monospace;font-size:10px;color:oklch(0.50 0.008 260)">{{ s.time }}</span>
+                  </div>
+                  <span style="font-size:11.5px;color:oklch(0.50 0.008 260)">{{ s.agent }}</span>
+                  <sc-if value="{{ s.showRes }}"><span style="font-size:12.5px;line-height:1.45;color:{{ s.resColor }};text-wrap:pretty">{{ s.res }}</span></sc-if>
+                </div>
+              </li>
+            </sc-for>
+          </ol>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{ tabReport }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ reportEmpty }}"><p style="margin:0;font-size:13px;line-height:1.5;color:oklch(0.45 0.008 260)">{{ reportEmptyText }}</p></sc-if>
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <sc-for list="{{ report }}" as="sec" hint-placeholder-count="0">
+            <div style="display:flex;flex-direction:column;gap:10px;animation:ms-in 0.25s ease-out">
+              <div style="display:flex;gap:9px;align-items:baseline"><span style="font-family:'Geist Mono',monospace;font-size:10.5px;color:oklch(0.50 0.008 260)">{{ sec.n }}</span><h3 style="margin:0;font-size:15px;font-weight:500">{{ sec.title }}</h3></div>
+              <sc-for list="{{ sec.items }}" as="it" hint-placeholder-count="2">
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <span style="align-self:flex-start;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;padding:2px 6px;border-radius:5px;color:{{ it.c }};background:{{ it.b }}">{{ it.tag }}</span>
+                  <span style="font-size:13px;line-height:1.5;color:oklch(0.30 0.007 260);text-wrap:pretty">{{ it.text }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+          <sc-if value="{{ reportShow }}"><p style="margin:0;font-size:11.5px;line-height:1.5;color:oklch(0.48 0.008 260)">Guidance references G-1 to G-6 are placeholders; no guidance library is connected. This report does not estimate repair urgency, replacement needs or remaining machine life.</p></sc-if>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="flex:none;padding:12px 16px 16px;border-top:1px solid oklch(0.23 0.006 260 / 0.08)">
+      <button onClick="{{ openChat }}" style="width:100%;height:42px;border-radius:11px;border:1px solid oklch(0.23 0.006 260 / 0.14);background:oklch(1 0 0 / 0.7);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px" style-hover="border-color:oklch(0.54 0.21 277 / 0.6)">
+        Ask about this recording
+        <sc-if value="{{ askNew }}"><span style="width:7px;height:7px;border-radius:50%;background:oklch(0.54 0.21 277)"></span></sc-if>
+      </button>
+    </div>
+  </aside>
+
+  <sc-if value="{{ chatOpen }}" hint-placeholder-val="{{ false }}">
+    <aside aria-label="Ask about this recording" style="position:absolute;top:92px;right:16px;bottom:16px;width:380px;z-index:8;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:oklch(0.99 0.002 85 / 0.86);backdrop-filter:blur(26px) saturate(1.25);-webkit-backdrop-filter:blur(26px) saturate(1.25);border:1px solid oklch(1 0 0 / 0.9);box-shadow:0 22px 60px oklch(0.35 0.01 260 / 0.18);animation:ms-drawer 0.28s ease-out">
+      <div style="flex:none;display:flex;align-items:flex-start;gap:10px;padding:18px 18px 14px 22px;border-bottom:1px solid oklch(0.23 0.006 260 / 0.08)">
+        <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-width:0">
+          <span style="font-size:18px;font-weight:400;letter-spacing:-0.01em">{{ chatTitle }}</span>
+          <span style="font-size:12px;color:oklch(0.45 0.008 260)">{{ chatContext }}</span>
+        </div>
+        <button onClick="{{ closeChat }}" aria-label="Close chat" style="width:32px;height:32px;border:0;border-radius:9px;background:oklch(0.23 0.006 260 / 0.06);cursor:pointer;font-size:16px">×</button>
+      </div>
+      <div ref="{{ chatRef }}" style="flex:1;min-height:0;overflow:auto;padding:16px 22px;display:flex;flex-direction:column;gap:14px">
+        <sc-if value="{{ chatLocked }}"><p style="margin:0;font-size:13px;line-height:1.5;color:oklch(0.45 0.008 260)">{{ chatLockedText }}</p></sc-if>
+        <sc-for list="{{ msgs }}" as="m" hint-placeholder-count="0">
+          <sc-if value="{{ m.isUser }}"><div style="align-self:flex-end;max-width:86%;padding:9px 13px;border-radius:14px 14px 4px 14px;background:oklch(0.23 0.006 260);color:oklch(0.98 0.002 85);font-size:13.5px;line-height:1.45;animation:ms-in 0.18s ease-out">{{ m.text }}</div></sc-if>
+          <sc-if value="{{ m.isBot }}">
+            <div style="display:flex;flex-direction:column;gap:10px;animation:ms-in 0.18s ease-out">
+              <sc-for list="{{ m.parts }}" as="p" hint-placeholder-count="1">
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <span style="align-self:flex-start;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;padding:2px 6px;border-radius:5px;color:{{ p.c }};background:{{ p.b }}">{{ p.tag }}</span>
+                  <span style="font-size:13.5px;line-height:1.5;color:oklch(0.28 0.007 260);text-wrap:pretty">{{ p.text }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </sc-for>
+        <sc-if value="{{ typing }}"><span style="font-size:12.5px;color:oklch(0.48 0.008 260)">Writing answer…</span></sc-if>
+      </div>
+      <div style="flex:none;padding:12px 16px 16px;border-top:1px solid oklch(0.23 0.006 260 / 0.08);display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <sc-for list="{{ suggestions }}" as="q" hint-placeholder-count="4">
+            <button onClick="{{ q.onClick }}" disabled="{{ q.disabled }}" style="text-align:left;padding:8px 11px;border-radius:9px;border:1px solid oklch(0.23 0.006 260 / 0.12);background:oklch(1 0 0 / 0.55);font-size:12.5px;line-height:1.3;color:{{ q.color }};cursor:{{ q.cursor }}" style-hover="border-color:oklch(0.54 0.21 277 / 0.55)">{{ q.text }}</button>
+          </sc-for>
+        </div>
+        <form onSubmit="{{ onChatSubmit }}" style="display:flex;gap:8px">
+          <input value="{{ chatDraft }}" onChange="{{ onChatInput }}" disabled="{{ chatDisabled }}" aria-label="Ask about this recording" placeholder="Ask about this recording…" style="flex:1;min-width:0;height:42px;padding:0 13px;border-radius:10px;border:1px solid oklch(0.23 0.006 260 / 0.14);background:oklch(1 0 0 / 0.8);font-size:13.5px">
+          <button type="submit" disabled="{{ chatDisabled }}" style="height:42px;padding:0 16px;border:0;border-radius:10px;background:oklch(0.23 0.006 260);color:oklch(0.98 0.002 85);font-size:13.5px;font-weight:500;cursor:pointer">Ask</button>
+        </form>
+      </div>
+    </aside>
+  </sc-if>
+
+  <sc-if value="{{ needsName }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:oklch(0.93 0.004 85 / 0.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">
+      <form onSubmit="{{ onNameSubmit }}" style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:22px;padding:30px;border-radius:22px;background:oklch(0.99 0.002 85 / 0.82);backdrop-filter:blur(26px) saturate(1.25);-webkit-backdrop-filter:blur(26px) saturate(1.25);border:1px solid oklch(1 0 0 / 0.9);box-shadow:0 30px 80px oklch(0.35 0.01 260 / 0.2)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:22px;height:22px;border-radius:50%;border:1.5px solid oklch(0.23 0.006 260);display:grid;place-items:center"><span style="width:7px;height:7px;border-radius:50%;background:oklch(0.66 0.19 42)"></span></span>
+          <span style="font-size:17px;font-weight:500">MachineSense</span>
+          <span style="margin-left:auto;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.45 0.008 260)">Research demo</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h1 style="margin:0;font-size:30px;font-weight:300;letter-spacing:-0.022em;line-height:1.12">Investigate a machine recording</h1>
+          <p style="margin:0;font-size:14px;line-height:1.5;color:oklch(0.40 0.008 260)">Check sensor recordings from a rotor test rig, follow how each conclusion was reached, and ask questions about the evidence.</p>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.09em;text-transform:uppercase;color:oklch(0.50 0.008 260)">Display name</span>
+          <input value="{{ nameDraft }}" onChange="{{ onNameInput }}" placeholder="e.g. Sam Okafor" style="height:46px;padding:0 14px;border-radius:11px;border:1px solid oklch(0.23 0.006 260 / 0.16);background:oklch(1 0 0 / 0.85);font-size:15px">
+        </label>
+        <button type="submit" disabled="{{ nameInvalid }}" style="height:46px;border:0;border-radius:11px;background:{{ nameBtnBg }};color:{{ nameBtnColor }};font-size:15px;font-weight:500;cursor:pointer">Continue</button>
+        <p style="margin:0;font-size:12px;line-height:1.5;color:oklch(0.48 0.008 260)">No account needed. Your name is stored in this browser only. All investigation results in this demo are simulated.</p>
+      </form>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;labels&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Machine view&quot;},&quot;staticView&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Machine view&quot;},&quot;pace&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Presentation&quot;,&quot;Fast&quot;],&quot;default&quot;:&quot;Presentation&quot;,&quot;tsType&quot;:&quot;'Presentation' | 'Fast'&quot;,&quot;section&quot;:&quot;Investigation&quot;}}">
+const K = { ink:'oklch(0.23 0.006 260)', ink2:'oklch(0.40 0.008 260)', ink3:'oklch(0.50 0.008 260)', white:'oklch(0.995 0.002 85)', violet:'oklch(0.54 0.21 277)', orange:'oklch(0.66 0.19 42)', orangeT:'oklch(0.53 0.17 40)', amber:'oklch(0.80 0.14 75)', amberT:'oklch(0.50 0.11 65)', lime:'oklch(0.89 0.17 118)', limeT:'oklch(0.45 0.11 125)', green:'oklch(0.64 0.11 160)', greenT:'oklch(0.47 0.09 160)' };
+const al = (c, x) => c.slice(0, -1) + ' / ' + x + ')';
+const TAG = { Measured:{c:K.ink,b:'oklch(0.23 0.006 260 / 0.07)'}, Model:{c:'oklch(0.44 0.09 250)',b:'oklch(0.55 0.1 250 / 0.12)'}, Guidance:{c:'oklch(0.42 0.07 190)',b:'oklch(0.55 0.08 190 / 0.14)'}, Missing:{c:K.amberT,b:'oklch(0.80 0.14 75 / 0.2)'}, Prototype:{c:K.ink3,b:'oklch(0.23 0.006 260 / 0.05)'} };
+const T = (tag, text) => ({ tag, text });
+
+const AGENTS = {
+  co:{name:'Coordinator', code:'CO', role:'Selects the next investigation step.'},
+  sq:{name:'Signal-quality agent', code:'SQ', role:'Checks whether the recording is usable.'},
+  dx:{name:'Diagnostic agent', code:'DX', role:'Runs the numerical models and checks agreement.'},
+  mg:{name:'Maintenance-guidance agent', code:'MG', role:'Retrieves relevant inspection guidance.'},
+  er:{name:'Evidence-review agent', code:'ER', role:'Checks that conclusions and recommendations are supported.'}
+};
+
+const CH = [
+  {id:'tach', name:'Tachometer', unit:'V'},
+  {id:'in_ax', name:'Inner bearing · axial', unit:'g', side:'in', dir:'ax'},
+  {id:'in_rad', name:'Inner bearing · radial', unit:'g', side:'in', dir:'rad'},
+  {id:'in_tan', name:'Inner bearing · tangential', unit:'g', side:'in', dir:'tan'},
+  {id:'out_ax', name:'Outer bearing · axial', unit:'g', side:'out', dir:'ax'},
+  {id:'out_rad', name:'Outer bearing · radial', unit:'g', side:'out', dir:'rad'},
+  {id:'out_tan', name:'Outer bearing · tangential', unit:'g', side:'out', dir:'tan'},
+  {id:'mic', name:'Microphone', unit:'a.u.'}
+];
+const CHI = {}; CH.forEach((c, i) => { CHI[c.id] = i; });
+
+const POS = {
+  approx:'A mounted unit is visible on this bearing housing in the photo. Exact position and axis orientation are not verified.',
+  illus:'Not identifiable in the photo. Shown for orientation only.'
+};
+const HS = [
+  {id:'motor', kind:'component', label:'Motor', x:35, y:40, ld:'b', lo:70, desc:'Drives the shaft through a flexible coupling. Speed is set by the drive unit mounted beside it.', ch:['tach']},
+  {id:'coupling', kind:'component', label:'Coupling', x:41.5, y:40, ld:'b', lo:118, desc:'Connects the motor to the shaft. Misalignment here typically shows as axial vibration and a strong 2× component.', ch:['in_ax','in_rad']},
+  {id:'in_brg', kind:'component', label:'Inner bearing', x:48.5, y:43, ld:'b', lo:70, desc:'Bearing housing on the motor side of the rotor. Called “underhang” in the reference dataset.', ch:['in_ax','in_rad','in_tan']},
+  {id:'rotor', kind:'component', label:'Rotor discs', x:70, y:38, ld:'t', lo:84, desc:'Two discs on the shaft. Test masses can be fitted here to create imbalance.', ch:['in_rad','out_rad']},
+  {id:'shaft', kind:'component', label:'Shaft', x:63.5, y:40.5, ld:'b', lo:58, desc:'Carries the rotor discs between the two bearing housings.', ch:['tach']},
+  {id:'out_brg', kind:'component', label:'Outer bearing', x:78, y:42, ld:'b', lo:84, desc:'Bearing housing on the far side of the rotor. Called “overhang” in the reference dataset.', ch:['out_ax','out_rad','out_tan']},
+  {id:'s_in', kind:'sensor', pos:'approx', label:'Accelerometer', full:'Accelerometer · inner bearing', x:47.5, y:31.5, ld:'t', lo:44, desc:'Triaxial accelerometer: axial, radial and tangential channels.', ch:['in_ax','in_rad','in_tan']},
+  {id:'s_out', kind:'sensor', pos:'approx', label:'Accelerometer', full:'Accelerometer · outer bearing', x:79.5, y:35.5, ld:'t', lo:46, desc:'Triaxial accelerometer: axial, radial and tangential channels.', ch:['out_ax','out_rad','out_tan']},
+  {id:'s_tach', kind:'sensor', pos:'illus', label:'Tachometer', full:'Tachometer', x:41, y:32, ld:'t', lo:104, desc:'Optical pulse sensor on the shaft. Used to measure shaft speed.', ch:['tach']},
+  {id:'s_mic', kind:'sensor', pos:'illus', label:'Microphone', full:'Microphone', x:55, y:57, ld:'b', lo:40, desc:'Records sound near the rotor. Useful for impacts from bearing damage.', ch:['mic']}
+];
+
+const R = {
+  N01:{ id:'N01', title:'Normal operation', f0:40.3, rpm:2418, floor:.0022,
+    amp:{rad:{1:.018,2:.004,3:.002}, tan:{1:.015,2:.004,3:.002}, ax:{1:.008,2:.003}}, side:{in:1,out:.9}, mic:[[1,.02],[2,.008]], bearing:null,
+    scores:[.08,.14,.18,.16,.12,.17,.15,.11], kurt:[null,3.0,3.1,2.9,3.0,3.2,3.1,3.0],
+    quality:{ok:true, summary:'8 of 8 channels usable. No clipping or dropouts.', warnings:[]}, speedNote:'measured by tachometer',
+    models:{A:[['Normal',.88],['Imbalance',.07],['Horizontal misalignment',.03]], B:[['Normal',.81],['Imbalance',.11],['Vertical misalignment',.05]]}, agree:true,
+    outcome:'healthy', dxTitle:'No known fault pattern', dxSub:'Readings match normal operation for the fault types the models recognise.',
+    unusual:[], faultAt:[], candidates:[], primary:'out_rad',
+    guideRes:'1 entry matched: baseline recording practice (placeholder ref G-4).', reviewRes:'Supported. All anomaly scores are low and both models agree.',
+    notes:{},
+    report:{
+      suggest:[T('Model','Both classifiers match the recording to normal operation.'), T('Measured','Vibration is low on both bearings at all checked frequencies.')],
+      support:[T('Measured','1× radial vibration: 0.018 g at the inner bearing, 0.016 g at the outer bearing. All anomaly scores are below the 0.60 threshold.'), T('Measured','No peaks near the expected bearing defect frequencies. Kurtosis is 2.9–3.2 on all accelerometer channels.'), T('Model','Classifier A: Normal (score 0.88). Classifier B: Normal (score 0.81).')],
+      conflict:[T('Missing','No earlier recordings of this machine, so trends cannot be compared.'), T('Missing','The models only recognise the fault types they were trained on.')],
+      next:[T('Guidance','No inspection is indicated by this recording. Keep it as a baseline for later comparison. Placeholder ref G-4.')]
+    },
+    chat:{
+      q1:[T('Model','It doesn’t suspect a fault. Both classifiers matched normal operation (A: 0.88, B: 0.81). These scores are not the probability that the result is correct.'), T('Missing','The models only recognise fault types from their training data.')],
+      q2:[T('Measured','1× radial: 0.018 g inner, 0.016 g outer. Kurtosis 2.9–3.2. All anomaly scores below 0.60. No peaks near bearing defect frequencies.')],
+      q3:[T('Guidance','Nothing in this recording points to a component. Keep it as a baseline (placeholder ref G-4).')],
+      q4:[T('Guidance','Repeat recordings over time at the same speed, so later changes can be compared against this baseline (placeholder ref G-4).')]
+    }
+  },
+  I02:{ id:'I02', title:'Imbalance', f0:29.8, rpm:1788, floor:.0024,
+    amp:{rad:{1:.142,2:.017,3:.006}, tan:{1:.118,2:.012,3:.004}, ax:{1:.021,2:.006}}, side:{in:.68,out:1}, mic:[[1,.05],[2,.01]], bearing:null,
+    scores:[.06,.31,.72,.66,.28,.89,.81,.24], kurt:[null,3.1,2.8,2.9,3.0,2.7,2.8,3.1],
+    quality:{ok:true, summary:'8 of 8 channels usable. No clipping or dropouts.', warnings:[]}, speedNote:'measured by tachometer',
+    models:{A:[['Imbalance',.91],['Horizontal misalignment',.05],['Normal',.02]], B:[['Imbalance',.84],['Vertical misalignment',.09],['Normal',.04]]}, agree:true,
+    outcome:'fault', dxTitle:'Imbalance', dxLoc:'Rotor discs', dxSub:'The vibration pattern matches rotor imbalance. Both models agree and the evidence review supports the conclusion.',
+    unusual:['s_in','s_out'], faultAt:['rotor'], candidates:[], primary:'out_rad',
+    guideRes:'2 entries matched: rotor balance check, repeat measurement (placeholder refs G-1, G-2).', reviewRes:'Supported. Strong 1× radial on both bearings, small 2×, low axial.',
+    notes:{rotor:'Predicted fault location. Based on the vibration pattern at both bearings, not on a direct measurement of the discs.', s_out:'Unusual signal: the strongest 1× vibration in this recording.', s_in:'Unusual signal: raised 1× vibration, lower than at the outer bearing.'},
+    report:{
+      suggest:[T('Model','Both classifiers match the recording to the imbalance pattern.'), T('Measured','Vibration at shaft speed (1×) is high in the radial and tangential directions on both bearings, highest at the outer bearing.')],
+      support:[T('Measured','Outer bearing radial 1×: 0.142 g, about 9× the normal example (0.016 g).'), T('Measured','2× is small (12% of 1×) and axial vibration is low, which fits imbalance better than misalignment.'), T('Model','Classifier A: Imbalance (score 0.91). Classifier B: Imbalance (score 0.84).')],
+      conflict:[T('Missing','No phase measurement. Phase would help separate imbalance from other causes of 1× vibration.'), T('Missing','Recorded at a single speed only.')],
+      next:[T('Guidance','Inspect the rotor discs for added or missing mass, loose fixings and deposits. Placeholder ref G-1.'), T('Guidance','If possible, record again at a second speed and with phase readings. Placeholder ref G-2.')]
+    },
+    chat:{
+      q1:[T('Model','Both classifiers matched the imbalance pattern (A: 0.91, B: 0.84). These scores show how strongly each model favours a class; they are not the chance the diagnosis is correct.'), T('Measured','The readings fit that pattern: strong radial vibration at shaft speed, a small 2× component and low axial vibration.')],
+      q2:[T('Measured','Outer bearing radial 1×: 0.142 g (normal example 0.016 g). Outer tangential 1×: 0.118 g. Inner bearing radial 1×: 0.097 g. 2× stays below 15% of 1× on all channels.')],
+      q3:[T('Guidance','Start with the rotor discs: look for added or missing mass, loose fixings or deposits (placeholder ref G-1).'), T('Model','The rotor location is inferred from the vibration pattern. No sensor measures the discs directly.')],
+      q4:[T('Guidance','A phase measurement at both bearings would help confirm imbalance. A second recording at a different speed would show whether the 1× response changes as expected (placeholder ref G-2).')]
+    }
+  },
+  M03:{ id:'M03', title:'Horizontal misalignment', f0:35.2, rpm:2112, floor:.0024,
+    amp:{rad:{1:.071,2:.033,3:.012}, tan:{1:.058,2:.024,3:.009}, ax:{1:.052,2:.031,3:.010}}, side:{in:1,out:.6}, mic:[[1,.03],[2,.018]], bearing:null,
+    scores:[.09,.74,.69,.52,.33,.46,.41,.27], kurt:[null,3.2,3.1,3.0,3.0,3.1,2.9,3.0],
+    quality:{ok:true, summary:'8 of 8 channels usable. No clipping or dropouts.', warnings:[]}, speedNote:'measured by tachometer',
+    models:{A:[['Horizontal misalignment',.62],['Imbalance',.24],['Vertical misalignment',.09]], B:[['Imbalance',.58],['Horizontal misalignment',.31],['Normal',.06]]}, agree:false,
+    outcome:'further', dxTitle:'Misalignment or imbalance', dxLoc:'Coupling or rotor discs', dxSub:'The models favour different faults. An extra check partly supports misalignment but does not rule out imbalance.',
+    unusual:['s_in'], faultAt:[], candidates:['coupling','rotor'], primary:'in_ax',
+    extraCheck:'At the inner bearing, 2× is 46% of 1× and axial is 73% of radial. Partial support for misalignment; imbalance not ruled out.',
+    guideRes:'3 entries matched: coupling alignment, rotor balance, repeat measurement (placeholder refs G-1 to G-3).', reviewRes:'A single-fault conclusion is not supported. Report set to “Further inspection needed”.',
+    notes:{coupling:'Candidate location for misalignment. Supported by high axial vibration and a strong 2× at the inner bearing.', rotor:'Candidate location for imbalance. Supported by raised 1× at the outer bearing.', s_in:'Unusual signal: high axial vibration and a strong 2× component.'},
+    report:{
+      suggest:[T('Model','The classifiers disagree: one matches horizontal misalignment, the other imbalance.'), T('Measured','The inner bearing (motor side) shows raised vibration at 1× and 2× shaft speed, with high axial vibration.')],
+      support:[T('Measured','Inner bearing axial 1× is 0.052 g, 73% of radial. In the normal example, axial is about 44% of radial.'), T('Measured','At the inner bearing, 2× is 46% of 1× (normal example: 22%).'), T('Model','Extra check on harmonic and axial pattern: partial support for misalignment.')],
+      conflict:[T('Model','Classifier A: Horizontal misalignment (score 0.62). Classifier B: Imbalance (score 0.58). Both scores are lower than in the clear examples.'), T('Measured','1× radial is also raised at the outer bearing (0.043 g, about 2.7× normal), which fits imbalance.'), T('Missing','No phase measurement across the coupling, and only one speed recorded.')],
+      next:[T('Guidance','Check coupling alignment first; it can be done without dismantling the rotor. Placeholder ref G-3.'), T('Guidance','Then check the rotor discs for added mass or loose fixings. Placeholder ref G-1.'), T('Guidance','Record again after the checks, ideally with phase readings and at a second speed. Placeholder ref G-2.')]
+    },
+    chat:{
+      q1:[T('Model','It doesn’t settle on one fault. Classifier A favours horizontal misalignment (0.62); Classifier B favours imbalance (0.58). Neither score is the probability of being correct.'), T('Measured','An extra check found high axial vibration and a strong 2× at the inner bearing, which partly supports misalignment. Raised 1× at the outer bearing fits imbalance.')],
+      q2:[T('Measured','For misalignment: inner axial 1× is 73% of radial (normal about 44%); 2× is 46% of 1× (normal 22%). For imbalance: outer radial 1× is 0.043 g, about 2.7× the normal example.')],
+      q3:[T('Guidance','Check coupling alignment first, since it doesn’t require dismantling the rotor (placeholder ref G-3). Then check the rotor discs for added mass or loose fixings (placeholder ref G-1). Record again after each check.')],
+      q4:[T('Guidance','Phase readings across the coupling, and a recording at a second speed. Misalignment and imbalance respond differently to both (placeholder ref G-2).')]
+    }
+  },
+  B04:{ id:'B04', title:'Outer bearing fault', f0:44.0, rpm:2640, floor:.0028,
+    amp:{rad:{1:.022,2:.008}, tan:{1:.018,2:.006}, ax:{1:.009,2:.003}}, side:{in:1,out:1}, mic:[[1,.02],[3.58,.045],[7.16,.02]], bearing:{side:'out', peaks:[[3.58,.064],[7.16,.031]]},
+    scores:[.07,.19,.24,.21,.38,.93,.84,.71], kurt:[null,3.0,3.2,3.1,4.1,7.4,6.1,5.2],
+    quality:{ok:true, summary:'8 of 8 channels usable. No clipping or dropouts.', warnings:[]}, speedNote:'measured by tachometer',
+    models:{A:[['Outer-side bearing fault',.87],['Inner-side bearing fault',.08],['Normal',.03]], B:[['Outer-side bearing fault',.79],['Imbalance',.10],['Normal',.06]]}, agree:true,
+    outcome:'fault', dxTitle:'Outer bearing fault', dxLoc:'Outer bearing housing', dxSub:'Repeating impacts and a peak near the expected outer-race frequency. Both models agree and the evidence review supports the conclusion.',
+    unusual:['s_out','s_mic'], faultAt:['out_brg'], candidates:[], primary:'out_rad',
+    guideRes:'1 entry matched: rolling-element bearing inspection (placeholder ref G-5).', reviewRes:'Supported. Recommendation limited to inspection; no urgency or remaining-life claim made.',
+    notes:{out_brg:'Predicted fault location. Peak near the expected outer-race frequency and high kurtosis on this housing.', s_out:'Unusual signal: repeating impacts (kurtosis 7.4 on the radial channel).', s_mic:'Unusual signal: the 3.58× component also appears in the sound recording.'},
+    report:{
+      suggest:[T('Model','Both classifiers match the recording to a fault in the outer bearing (far side of the rotor).'), T('Measured','The outer bearing shows repeating impacts and a peak near the expected outer-race frequency.')],
+      support:[T('Measured','Peak at 3.58× shaft speed (157.5 Hz) on the outer bearing radial channel, with a second harmonic at 7.16×.'), T('Measured','Kurtosis 7.4 on the outer radial channel (normal example: 3.2). High kurtosis indicates impacts.'), T('Measured','Inner bearing readings are close to the normal example.'), T('Model','Classifier A: Outer-side bearing fault (score 0.87). Classifier B: Outer-side bearing fault (score 0.79).')],
+      conflict:[T('Missing','The expected outer-race frequency uses placeholder bearing geometry. Confirm the fitted bearing model.'), T('Missing','No temperature reading for the bearing.')],
+      next:[T('Guidance','With the machine stopped and isolated, inspect the outer bearing: outer race, housing fit and lubrication. Placeholder ref G-5.'), T('Guidance','Check the bearing part number against the geometry used for the frequency calculation. Placeholder ref G-5.')]
+    },
+    chat:{
+      q1:[T('Model','Both classifiers matched an outer-side bearing fault (A: 0.87, B: 0.79). These scores are not the probability that the diagnosis is correct.'), T('Measured','The outer bearing shows a peak near the expected outer-race frequency and high kurtosis, which points to repeating impacts.')],
+      q2:[T('Measured','Outer radial: peak at 157.5 Hz (3.58× shaft speed), second harmonic at 7.16×, kurtosis 7.4. Outer tangential kurtosis 6.1. The microphone shows the same 3.58× component. Inner bearing channels are close to normal.')],
+      q3:[T('Guidance','With the machine stopped and isolated, inspect the outer bearing: outer race, housing fit and lubrication (placeholder ref G-5).'), T('Missing','Confirm the bearing part number first. The expected frequency uses placeholder geometry.')],
+      q4:[T('Guidance','A bearing temperature reading, and a recording at a second speed. A genuine defect frequency should move in proportion to shaft speed (placeholder ref G-5).')]
+    }
+  },
+  Q05:{ id:'Q05', title:'Sensor dropout', f0:32.6, rpm:1956, floor:.0024,
+    amp:{rad:{1:.024,2:.006,3:.002}, tan:{1:.019,2:.005}, ax:{1:.010,2:.003}}, side:{in:1,out:.9}, mic:[[1,.03],[2,.012]], bearing:null,
+    scores:[null,null,null,null,null,null,null,null], kurt:[null,3.1,3.2,3.0,3.1,null,3.0,null],
+    unusable:['out_rad','mic'],
+    unusableNote:{out_rad:'Flat from 1.8 s to 3.1 s (26% of the recording). Possible loose cable or connector.', mic:'Clipped in 14% of samples. The gain is likely too high.'},
+    quality:{ok:false, summary:'6 of 8 channels usable. Outer radial dropout, microphone clipping and missed tachometer pulses.', warnings:['Outer bearing radial channel is flat from 1.8 s to 3.1 s. Possible loose cable or connector.','Microphone signal clipped in 14% of samples.','Tachometer missed 3 pulses. Speed estimate is ±4%.']}, speedNote:'±4% · 3 missed tachometer pulses',
+    models:null, agree:null,
+    outcome:'unusable', dxTitle:'No diagnosis made', dxSub:'Two channels are unusable and the tachometer missed pulses. Fix the measurement setup and record again.',
+    qualityFlags:{s_out:'Signal unusable', s_mic:'Signal unusable', s_tach:'Missed pulses'},
+    unusual:[], faultAt:[], candidates:[], primary:'out_rad',
+    notes:{s_out:'Radial channel flat from 1.8 s to 3.1 s. Check the cable, connector and mount.', s_mic:'Clipped in 14% of samples. Reduce the gain.', s_tach:'3 missed pulses; speed estimate ±4%.'},
+    report:{
+      suggest:[T('Measured','The recording has data-quality problems. No diagnosis was made because model outputs would not be reliable.')],
+      support:[T('Measured','Outer bearing radial channel is flat from 1.8 s to 3.1 s (26% of the recording).'), T('Measured','Microphone signal clipped in 14% of samples.'), T('Measured','Tachometer missed 3 pulses; speed estimate 32.6 Hz ±4%.')],
+      conflict:[T('Missing','Without the outer bearing radial channel, imbalance and outer-bearing faults cannot be assessed.')],
+      next:[T('Guidance','Check the outer accelerometer’s cable, connector and mounting. Placeholder ref G-6.'), T('Guidance','Reduce the microphone gain, then record again. Placeholder ref G-6.'), T('Guidance','Check the tachometer target and sensor gap. Placeholder ref G-6.')]
+    },
+    chat:{
+      q1:[T('Measured','No fault is suspected because no diagnosis was made. The signal-quality agent found two unusable channels, and the coordinator stopped before running the models.')],
+      q2:[T('Measured','Outer radial flat from 1.8–3.1 s; microphone clipped in 14% of samples; 3 missed tachometer pulses.')],
+      q3:[T('Guidance','Inspect the measurement setup rather than the machine: outer accelerometer cable, connector and mount; microphone gain; tachometer gap (placeholder ref G-6).')],
+      q4:[T('Guidance','A clean re-recording with all 8 channels. Nothing about the machine’s condition can be concluded from this file.')]
+    }
+  }
+};
+const QUESTIONS = [
+  {id:'q1', text:'Why does the system suspect this fault?'},
+  {id:'q2', text:'Which readings support that conclusion?'},
+  {id:'q3', text:'What should I inspect first?'},
+  {id:'q4', text:'What additional measurement would help?'}
+];
+
+function buildSteps(r) {
+  const S = [];
+  S.push({a:'co', act:'Planning the investigation', res:'Check signal quality first, then run diagnosis.', ms:1000});
+  S.push({a:'sq', act:'Checking sensor quality', res:r.quality.summary, ms:1800, focus:['s_tach','s_in','s_out','s_mic'], reveal:'quality', warn:!r.quality.ok});
+  if (!r.quality.ok) {
+    S.push({a:'co', act:'Selecting next step', res:'Recording not usable. Diagnosis skipped.', ms:1100, warn:true});
+    S.push({a:'er', act:'Checking the stop decision', res:'Supported: channels needed for imbalance and bearing checks are unusable.', ms:1300});
+    S.push({a:'mg', act:'Retrieving setup guidance', res:'1 entry matched: sensor setup checks (placeholder ref G-6).', ms:1100});
+    S.push({a:'co', act:'Writing report', res:'Report ready.', ms:800, reveal:'report'});
+    return S;
+  }
+  const A = r.models.A[0][0], B = r.models.B[0][0];
+  S.push({a:'co', act:'Selecting next step', res:'Recording usable. Requesting diagnostic models.', ms:900});
+  S.push({a:'dx', act:'Running diagnostic models', res:'Classifier A: ' + A + '. Classifier B: ' + B + '.', ms:2000, focus:['in_brg','out_brg','rotor'], reveal:'models'});
+  S.push({a:'dx', act:'Comparing diagnostic results', res:r.agree ? 'Models agree.' : 'Models disagree.', ms:1100, warn:!r.agree});
+  if (!r.agree) {
+    S.push({a:'co', act:'Requesting another check', res:'Models disagree. Running one more check before reporting.', ms:1200, branch:true, warn:true});
+    S.push({a:'dx', act:'Checking harmonic and axial pattern', res:r.extraCheck, ms:1900, branch:true, focus:['coupling','s_in']});
+  }
+  S.push({a:'mg', act:'Retrieving inspection guidance', res:r.guideRes, ms:1300});
+  S.push({a:'er', act:'Checking conclusions against evidence', res:r.reviewRes, ms:1400, warn:!r.agree, focus:r.faultAt.concat(r.candidates)});
+  S.push({a:'co', act:'Writing report', res:'Report ready.', ms:800, reveal:'report'});
+  return S;
+}
+
+function peaksFor(r, chId) {
+  const c = CH[CHI[chId]];
+  if (chId === 'tach') return [[1,1],[3,.33],[5,.2],[7,.14]];
+  if (chId === 'mic') return r.mic;
+  const g = r.side[c.side], base = r.amp[c.dir];
+  let p = Object.keys(base).map(k => [+k, base[k] * g]);
+  if (r.bearing && r.bearing.side === c.side) p = p.concat(r.bearing.peaks.map(q => [q[0], q[1] * (c.dir === 'ax' ? .35 : c.dir === 'tan' ? .8 : 1)]));
+  return p;
+}
+function stats(r, chId) {
+  const p = peaksFor(r, chId);
+  const one = (p.find(q => q[0] === 1) || [0,0])[1], two = (p.find(q => q[0] === 2) || [0,0])[1];
+  const rms = Math.sqrt(p.reduce((s, q) => s + q[1] * q[1] / 2, 0) + Math.pow(r.floor * 3, 2));
+  return {one, two, rms, kurt:r.kurt[CHI[chId]], score:r.scores[CHI[chId]], unusable:!!(r.unusable && r.unusable.includes(chId))};
+}
+function rng(seed) { let s = (seed >>> 0) || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+const W = 640, H = 200, MAXO = 8;
+function specPath(peaks, floor, seed, ymax) {
+  const r = rng(seed), N = 520; const pts = [];
+  for (let i = 0; i <= N; i++) {
+    const o = i / N * MAXO;
+    let y = floor * (0.4 + r()) * (1 + 1.4 * Math.exp(-o / 0.7));
+    for (const q of peaks) y += q[1] * Math.exp(-Math.pow(o - q[0], 2) / (2 * 0.032 * 0.032));
+    pts.push([o / MAXO * W, H - Math.min(y / ymax, 1) * H]);
+  }
+  const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('');
+  return {line, area: line + 'L' + W + ',' + H + 'L0,' + H + 'Z'};
+}
+function wavePath(r, chId) {
+  const c = CH[CHI[chId]], rnd = rng(hash(r.id + chId) + 7), N = 700, TW = 0.2, t0 = r.id === 'Q05' ? 1.72 : 1.0;
+  const pk = peaksFor(r, chId), ys = [];
+  for (let i = 0; i < N; i++) {
+    const t = t0 + i / N * TW; let y = 0;
+    if (chId === 'tach') {
+      y = ((t * r.f0) % 1) < 0.12 ? 1 : 0;
+      if (r.id === 'Q05' && Math.floor(t * r.f0) % 5 === 2) y = 0;
+    } else {
+      for (const q of pk) if (Number.isInteger(q[0])) y += q[1] * Math.sin(2 * Math.PI * q[0] * r.f0 * t + q[0] * 1.1);
+      y += (rnd() - .5) * r.floor * 7 * (chId === 'mic' ? 2 : 1);
+      if (r.bearing && (c.side === r.bearing.side || chId === 'mic')) { const ph = (t * 3.58 * r.f0) % 1; y += (chId === 'mic' ? .05 : .09) * Math.exp(-ph * 16) * Math.sin(2 * Math.PI * ph * 34) * (c.dir === 'ax' ? .35 : 1); }
+      if (r.id === 'Q05' && chId === 'out_rad' && t >= 1.8) y = (rnd() - .5) * .0004;
+      if (r.id === 'Q05' && chId === 'mic') { y *= 3.5; y = Math.max(-.06, Math.min(.06, y)); }
+    }
+    ys.push(y);
+  }
+  if (chId === 'tach') {
+    const line = ys.map((y, i) => (i ? 'L' : 'M') + (i / (N - 1) * W).toFixed(1) + ',' + (H * .88 - y * H * .72).toFixed(1)).join('');
+    return {line, area:'', max:'5 V', min:'0 V', t0};
+  }
+  const m = Math.max.apply(null, ys.map(Math.abs)) * 1.15 || 1;
+  const line = ys.map((y, i) => (i ? 'L' : 'M') + (i / (N - 1) * W).toFixed(1) + ',' + (H / 2 - y / m * H / 2).toFixed(1)).join('');
+  const u = c.unit;
+  return {line, area:'', max:'+' + m.toFixed(3) + (u === 'g' ? ' g' : ''), min:'−' + m.toFixed(3), t0};
+}
+const f3 = v => v.toFixed(3);
+
+
+const CH_SENSOR = { tach:'s_tach', in_ax:'s_in', in_rad:'s_in', in_tan:'s_in', out_ax:'s_out', out_rad:'s_out', out_tan:'s_out', mic:'s_mic' };
+const SHORT = { tach:'Tach', in_ax:'In · ax', in_rad:'In · rad', in_tan:'In · tan', out_ax:'Out · ax', out_rad:'Out · rad', out_tan:'Out · tan', mic:'Mic' };
+const DIRN = { ax:'Axial', rad:'Radial', tan:'Tangential' };
+const INSETS = { top:92, right:412, bottom:190, left:16 };
+
+class Component extends DCLogic {
+  state = { name:'', nameDraft:'', editingName:false, recId:null, upload:null, status:'idle', step:0, sel:null, hover:null, evCh:null, evView:'spectrum', panelTab:'activity', chatOpen:false, chat:[], chatDraft:'', typing:false, askNew:false, exploded:false, labels:null, sceneReady:false, sceneFailed:false };
+  sceneRef = React.createRef();
+  overlayRef = React.createRef();
+  chatRef = React.createRef();
+  cache = {};
+
+  componentDidMount() {
+    let n = ''; try { n = localStorage.getItem('ms_display_name') || ''; } catch (e) {}
+    this.rm = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    this.setState({ name:n, nameDraft:n });
+    this.loadScene();
+  }
+  loadScene() {
+    if (this.props.staticView) { this.setState({ sceneFailed:true }); return; }
+    const url = new URL('rig-scene.js', document.baseURI).href;
+    import(url).then(mod => {
+      if (this.dead || !this.sceneRef.current) return;
+      try {
+        this.rig = mod.createRig(this.sceneRef.current, { overlay:this.overlayRef.current, reducedMotion:!!(this.rm && this.rm.matches),
+          onPick:id => this.selectPart(id && id === this.state.sel ? null : id),
+          onHover:id => { if (id !== this.state.hover) this.setState({ hover:id }); } });
+        this.setState({ sceneReady:true }, () => this.pushScene());
+      } catch (e) { console.warn('3D view unavailable', e); this.setState({ sceneFailed:true }); }
+    }).catch(e => { console.warn('3D view unavailable', e); this.setState({ sceneFailed:true }); });
+  }
+  componentWillUnmount() { this.dead = true; clearTimeout(this.t); clearTimeout(this.ct); if (this.rig) this.rig.dispose(); }
+  componentDidUpdate() {
+    const s = this.state, key = s.chat.length + '|' + s.typing + '|' + s.chatOpen;
+    if (key !== this._chatKey) { this._chatKey = key; const el = this.chatRef.current; if (el) el.scrollTop = el.scrollHeight; }
+    if (this.props.staticView && this.rig) { this.rig.dispose(); this.rig = null; this.setState({ sceneFailed:true, sceneReady:false }); }
+    this.pushScene();
+  }
+  pushScene() {
+    if (!this.rig) return;
+    const d = this.derive(), rec = d.rec;
+    const s = { sel:this.state.sel, hover:this.state.hover, exploded:this.state.exploded,
+      fault:rec && d.rr ? rec.faultAt : [], cand:rec && d.rr ? rec.candidates : [],
+      unusual:rec && d.rmod ? rec.unusual : [], unusable:rec && d.rq && rec.qualityFlags ? Object.keys(rec.qualityFlags) : [], insets:INSETS };
+    const key = JSON.stringify(s);
+    if (key !== this._sceneKey) { this._sceneKey = key; this.rig.update(s); }
+  }
+  derive() {
+    const st = this.state;
+    const rec = st.recId && st.recId !== 'UPLOAD' ? R[st.recId] : null;
+    const up = st.recId === 'UPLOAD' ? st.upload : null;
+    const steps = rec ? buildSteps(rec) : [];
+    const running = st.status === 'running', done = st.status === 'done';
+    const doneIdx = done ? steps.length : running ? st.step : 0;
+    const rev = k => !!rec && steps.some((s, i) => s.reveal === k && i < doneIdx);
+    return { rec, up, steps, running, done, doneIdx, rq:rev('quality'), rmod:rev('models'), rr:rev('report'), active:running ? steps[st.step] : null };
+  }
+  selectPart(id) {
+    const hs = id ? HS.find(h => h.id === id) : null;
+    this.setState(s => ({ sel:id || null, evCh:hs && !hs.ch.includes(s.evCh) ? hs.ch[0] : s.evCh }));
+  }
+  pace() { return this.props.pace === 'Fast' ? 0.35 : 1; }
+  selectRec(id, extra) {
+    clearTimeout(this.t); clearTimeout(this.ct);
+    this.setState(Object.assign({ recId:id, status:'idle', step:0, chat:[], typing:false, askNew:false, panelTab:'activity' }, extra || {}));
+  }
+  start(from) {
+    const r = R[this.state.recId]; if (!r) return;
+    clearTimeout(this.t); clearTimeout(this.ct);
+    this.setState({ status:'running', step:from || 0, chat:[], typing:false, askNew:false, panelTab:'activity' }, () => this.tick());
+  }
+  tick() {
+    const r = R[this.state.recId]; if (!r) return;
+    const steps = buildSteps(r), i = this.state.step;
+    if (i >= steps.length) { this.finish(); return; }
+    this.t = setTimeout(() => {
+      if (this.state.status !== 'running') return;
+      this.setState({ step:i + 1 }, () => { if (i + 1 >= steps.length) this.finish(); else this.tick(); });
+    }, steps[i].ms * this.pace());
+  }
+  finish() {
+    const r = R[this.state.recId]; if (!r) return;
+    this.setState({ status:'done', step:buildSteps(r).length, askNew:!this.state.chatOpen, panelTab:'report',
+      chat:[{ role:'assistant', parts:[T('Prototype', 'Investigation of ' + r.id + ' finished. Ask about the evidence using the suggested questions. Answers in this prototype are prewritten.')] }] });
+  }
+  ask(qText, qid) {
+    const r = R[this.state.recId]; if (!r || this.state.status !== 'done' || this.state.typing) return;
+    let id = qid;
+    if (!id) {
+      const s = qText.toLowerCase();
+      id = /why|suspect|cause/.test(s) ? 'q1' : /reading|support|evidence|data|show/.test(s) ? 'q2' : /inspect|first|check|look/.test(s) ? 'q3' : /measure|additional|sensor|more|record/.test(s) ? 'q4' : null;
+    }
+    const parts = id ? r.chat[id] : [T('Prototype', 'This prototype only has prewritten answers for the suggested questions. Try one of those.')];
+    this.setState(s => ({ chat:s.chat.concat([{ role:'user', text:qText }]), chatDraft:'', typing:true }));
+    this.ct = setTimeout(() => this.setState(s => ({ chat:s.chat.concat([{ role:'assistant', parts }]), typing:false })), 700 * this.pace());
+  }
+  jumpTo(v) {
+    if (v === '1') { clearTimeout(this.t); this.setState({ recId:null, upload:null, status:'idle', step:0, sel:null, chat:[], panelTab:'activity', chatOpen:false }); }
+    if (v === '2') { this.selectRec('M03', { upload:null, sel:null }); setTimeout(() => this.start(5), 0); }
+    if (v === '3') { this.selectRec('B04', { upload:null, sel:'out_brg', evCh:'out_rad' }); setTimeout(() => this.finish(), 0); }
+    if (v === '4') { this.selectRec('M03', { upload:null, sel:null, evCh:'in_ax' }); setTimeout(() => this.finish(), 0); }
+    if (v === '5') { this.selectRec('Q05', { upload:null, sel:'s_out', evCh:'out_rad' }); setTimeout(() => this.finish(), 0); }
+    if (v === '6') { clearTimeout(this.t); this.setState({ recId:'UPLOAD', status:'idle', step:0, sel:null, chat:[], upload:{ name:'pump_log_march.csv', size:48213, cols:3, rows:1204, errors:['Found 3 columns; expected 8 (tachometer, 6 accelerometer axes, microphone).', 'Row 214: non-numeric or empty value.', 'About 1,204 rows. At 50 kHz that is 0.02 s, too short to assess.'] } }); }
+  }
+  onFile = (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    e.target.value = '';
+    const errs = [];
+    if (!/\.csv$/i.test(f.name)) errs.push('File type is not .csv.');
+    const rd = new FileReader();
+    rd.onload = () => {
+      const txt = String(rd.result || ''), full = f.size <= 600000;
+      let lines = txt.split(/\r?\n/).filter(l => l.trim()); if (!full) lines = lines.slice(0, -1);
+      let st = 0; if (lines[0] && lines[0].split(',').some(v => isNaN(parseFloat(v)))) st = 1;
+      const cols = lines[st] ? lines[st].split(',').length : 0;
+      if (!lines.length) errs.push('The file is empty.');
+      else if (cols !== 8) errs.push('Found ' + cols + ' column' + (cols === 1 ? '' : 's') + '; expected 8 (tachometer, 6 accelerometer axes, microphone).');
+      for (let i = st; i < Math.min(lines.length, st + 3000); i++) { if (lines[i].split(',').some(v => v.trim() === '' || isNaN(Number(v)))) { errs.push('Row ' + (i + 1) + ': non-numeric or empty value.'); break; } }
+      const dataLines = Math.max(0, lines.length - st);
+      const rows = full ? dataLines : Math.round(f.size / (txt.length / Math.max(1, lines.length)));
+      if (rows && rows < 50000) errs.push('About ' + rows.toLocaleString('en-US') + ' rows. At 50 kHz that is ' + (rows / 50000).toFixed(2) + ' s, too short to assess.');
+      clearTimeout(this.t);
+      this.setState({ recId:'UPLOAD', status:'idle', step:0, chat:[], sel:null, upload:{ name:f.name, size:f.size, cols, rows, errors:errs } });
+    };
+    rd.readAsText(f.slice(0, 600000));
+  };
+  svg(paths) {
+    return React.createElement('svg', { viewBox:'0 0 ' + W + ' ' + H, preserveAspectRatio:'none', 'aria-hidden':true, style:{ position:'absolute', inset:0, width:'100%', height:'100%', overflow:'visible' } },
+      paths.map((p, i) => React.createElement('path', { key:i, d:p.d, fill:p.fill || 'none', stroke:p.stroke || 'none', strokeWidth:p.w || 0, strokeDasharray:p.dash, vectorEffect:'non-scaling-stroke', strokeLinejoin:'round' })));
+  }
+  spectrum(rec, cid) {
+    const key = rec.id + cid;
+    if (this.cache[key]) return this.cache[key];
+    const isTach = cid === 'tach', pk = peaksFor(rec, cid), rpk = peaksFor(R.N01, cid);
+    const top = Math.max.apply(null, pk.concat(isTach ? [] : rpk).map(q => q[1]).concat([rec.floor * 4])) * 1.18;
+    const sp = specPath(pk, isTach ? .01 : rec.floor * (cid === 'mic' ? 1.6 : 1), hash(rec.id + cid), top);
+    const ref = !isTach && rec.id !== 'N01' ? specPath(rpk, R.N01.floor, hash('N01' + cid), top).line : '';
+    return (this.cache[key] = { sp, ref, top });
+  }
+
+  renderVals() {
+    const st = this.state, d = this.derive(), rec = d.rec, up = d.up, steps = d.steps, running = d.running, done = d.done;
+    const focus = (d.active && d.active.focus) || [];
+    const labelsAll = st.labels !== null ? st.labels : !!this.props.labels;
+    const nf = n => n.toLocaleString('en-US');
+
+    const markers = HS.map(h => {
+      const isS = h.kind === 'sensor', illus = h.pos === 'illus';
+      let fill = isS ? (illus ? 'oklch(0.995 0.002 85 / 0.92)' : K.ink) : K.white;
+      let border = isS ? (illus ? '1.5px dashed ' + K.ink : '2px solid ' + K.white) : '2px solid ' + K.ink;
+      let tag = '', tagColor = K.ink3, labelBorder = 'oklch(1 0 0 / 0.9)', ring = false, ringBorder = '', ringBg = 'transparent', pulse = false, pulseColor = '';
+      if (rec && isS) {
+        const qf = rec.qualityFlags && rec.qualityFlags[h.id];
+        if (qf && d.rq) { fill = K.amber; border = '2px solid ' + K.white; tag = qf; tagColor = K.amberT; pulse = true; pulseColor = al(K.amber, .6); labelBorder = al(K.amber, .6); }
+        else if (rec.unusual.includes(h.id) && d.rmod) { fill = K.lime; border = '2px solid ' + K.ink; tag = 'Unusual signal · measured'; tagColor = K.limeT; pulse = true; pulseColor = al(K.lime, .75); labelBorder = al(K.limeT, .45); }
+      }
+      if (rec && !isS && d.rr) {
+        if (rec.faultAt.includes(h.id)) { fill = K.orange; border = '2px solid ' + K.white; ring = true; ringBorder = '1.5px solid ' + K.orange; ringBg = al(K.orange, .14); tag = 'Predicted fault location · model'; tagColor = K.orangeT; labelBorder = al(K.orange, .55); }
+        else if (rec.candidates.includes(h.id)) { fill = K.amber; border = '2px solid ' + K.white; ring = true; ringBorder = '1.5px dashed ' + K.amberT; ringBg = al(K.amber, .16); tag = 'Candidate · unconfirmed'; tagColor = K.amberT; labelBorder = al(K.amber, .6); }
+      }
+      const selected = st.sel === h.id, hovered = st.hover === h.id;
+      return { id:h.id, fill, border, size:isS ? '10px' : '11px', ring, ringBorder, ringBg, pulse, pulseColor, scan:focus.includes(h.id), selected,
+        showLabel:labelsAll || selected || hovered || !!tag, label:h.full || h.label, tag, tagColor, labelBorder:selected ? al(K.violet, .55) : labelBorder,
+        aria:(h.full || h.label) + (tag ? ', ' + tag : '') + '. Show details.',
+        onClick:() => this.selectPart(st.sel === h.id ? null : h.id), onEnter:() => this.setState({ hover:h.id }), onLeave:() => this.setState({ hover:null }) };
+    });
+
+    const hs = st.sel ? HS.find(h => h.id === st.sel) : null;
+    const curCh = hs ? (hs.ch.includes(st.evCh) ? st.evCh : hs.ch[0]) : (st.evCh || (rec ? rec.primary : null));
+    let insp = {}, card = { markers:[], ticks:[], stats:[] };
+    if (hs) {
+      const hv = markers[HS.indexOf(hs)];
+      const assessed = rec && (d.rr || (rec.outcome !== 'unusable' && d.rmod));
+      const status = hv.tag ? hv.tag : !st.recId ? 'No recording selected' : assessed ? 'Nothing unusual flagged' : 'Not assessed yet';
+      insp = {
+        kind:hs.kind === 'sensor' ? 'Sensor' : 'Component', name:hs.full || hs.label, desc:hs.desc,
+        status, statusColor:hv.tag ? hv.tagColor : K.ink3, statusDot:hv.tag ? hv.fill : 'oklch(0.23 0.006 260 / 0.25)',
+        note:rec && d.rr ? (rec.notes[hs.id] || '') : '', hasNote:!!(rec && d.rr && rec.notes[hs.id]),
+        hasReadings:!!(rec && d.rq), noReadings:!(rec && d.rq),
+        noReadingsText:!st.recId ? 'Select a recording to see readings for this ' + (hs.kind === 'sensor' ? 'sensor.' : 'component.') : up ? 'Readings are not available for uploaded files in this prototype.' : 'Readings appear after the signal-quality check.',
+        posLabel:hs.kind === 'sensor' ? (hs.pos === 'approx' ? 'Approximate position' : 'Illustrative position') : 'Illustrative geometry',
+        posText:hs.kind === 'sensor' ? POS[hs.pos] : 'Shape and position approximated from the reference photo. Not a CAD model.',
+        chips:hs.ch.length > 1 ? hs.ch.map(cid => { const on = cid === curCh; return { label:CH[CHI[cid]].dir ? DIRN[CH[CHI[cid]].dir] : CH[CHI[cid]].name, bg:on ? K.white : 'transparent', border:on ? al(K.violet, .5) : 'oklch(0.23 0.006 260 / 0.12)', color:on ? K.ink : K.ink2, onClick:() => this.setState({ evCh:cid }) }; }) : [],
+        onAsk:() => this.setState({ chatOpen:true, askNew:false })
+      };
+      if (rec && d.rq) {
+        const c = CH[CHI[curCh]], s = stats(rec, curCh), n = stats(R.N01, curCh), isTach = curCh === 'tach';
+        let el, markersC = [], ticks = [], ymax, caption;
+        if (st.evView === 'spectrum') {
+          const sp = this.spectrum(rec, curCh);
+          const paths = [{ d:sp.sp.area, fill:al(K.violet, .1) }];
+          if (sp.ref) paths.push({ d:sp.ref, stroke:'oklch(0.23 0.006 260 / 0.45)', w:1, dash:'3 3' });
+          paths.push({ d:sp.sp.line, stroke:K.violet, w:1.3 });
+          el = this.svg(paths);
+          markersC = [[1,'1×'],[2,'2×'],[3,'3×']].map(m => ({ left:(m[0] / MAXO * 100) + '%', label:m[1], color:K.ink3 }));
+          if (rec.bearing && (c.side === rec.bearing.side || curCh === 'mic')) markersC.push({ left:(3.58 / MAXO * 100) + '%', label:'outer race', color:K.orangeT }, { left:(7.16 / MAXO * 100) + '%', label:'2×', color:K.orangeT });
+          ticks = [0,2,4,6,8].map(o => ({ left:(o / MAXO * 100) + '%', label:o ? o + '×' : '0' }));
+          ymax = sp.top.toFixed(3);
+          caption = 'Spectrum · multiples of shaft speed (1× = ' + rec.f0.toFixed(1) + ' Hz)' + (sp.ref ? ' · dashed: normal example N01' : '');
+        } else {
+          const wv = wavePath(rec, curCh);
+          el = this.svg([{ d:wv.line, stroke:K.violet, w:1.1 }]);
+          ticks = [0,.1,.2].map(t => ({ left:(t / .2 * 100) + '%', label:(wv.t0 + t).toFixed(1) + ' s' }));
+          ymax = wv.max.replace(' g', ''); caption = 'Waveform · 0.20 s excerpt (' + c.unit + ')';
+        }
+        let note;
+        if (s.unusable) note = rec.unusableNote[curCh];
+        else if (isTach) note = 'Pulse train at ' + rec.f0.toFixed(1) + ' Hz (' + nf(rec.rpm) + ' rpm). ' + (rec.id === 'Q05' ? '3 missed pulses; the speed estimate is less certain (±4%).' : 'Pulses are regular.');
+        else {
+          note = '1× component ' + f3(s.one) + ' ' + c.unit + ' (normal example ' + f3(n.one) + ').';
+          if (s.one > 0 && s.two / s.one > .3) note += ' 2× is ' + Math.round(s.two / s.one * 100) + '% of 1×.';
+          if (c.dir === 'ax' && rec.id === 'M03' && c.side === 'in') note += ' Axial is 73% of radial.';
+          if (rec.bearing && (c.side === rec.bearing.side || curCh === 'mic')) note += ' Peak at 3.58× (' + (3.58 * rec.f0).toFixed(1) + ' Hz), near the expected outer-race frequency (placeholder geometry).';
+          if (s.kurt > 4) note += ' Kurtosis ' + s.kurt.toFixed(1) + ' indicates repeating impacts.';
+        }
+        const sc = d.rmod && s.score != null ? s.score : null;
+        const statsC = isTach ? [
+          { k:'Speed', v:rec.f0.toFixed(1) + ' Hz', color:K.ink }, { k:'rpm', v:nf(rec.rpm), color:K.ink },
+          { k:'Pulses', v:rec.id === 'Q05' ? '3 missed' : 'Regular', color:rec.id === 'Q05' ? K.amberT : K.ink }, { k:'Score', v:sc != null ? sc.toFixed(2) : '—', color:K.ink }
+        ] : [
+          { k:'1×', v:s.unusable ? 'N/A' : f3(s.one), color:K.ink }, { k:'RMS', v:s.unusable ? 'N/A' : f3(s.rms), color:K.ink },
+          { k:'Kurtosis', v:s.kurt != null ? s.kurt.toFixed(1) : 'N/A', color:s.kurt > 4 ? K.amberT : K.ink }, { k:'Score', v:s.unusable ? 'N/A' : sc != null ? sc.toFixed(2) : '—', color:sc >= .6 ? K.limeT : K.ink }
+        ];
+        card = { el, markers:markersC, ticks, ymax, caption, note, stats:statsC };
+      }
+    }
+
+    const evAvail = !!(rec && d.rq);
+    const tiles = CH.map(c => {
+      const s = evAvail ? stats(rec, c.id) : null, sc = s && d.rmod ? s.score : null;
+      const flagged = !!s && sc != null && sc >= .6, bad = !!s && s.unusable;
+      const selected = !!hs && hs.ch.includes(c.id) && curCh === c.id;
+      let el = null;
+      if (evAvail) { const sp = this.spectrum(rec, c.id); el = this.svg([{ d:sp.sp.area, fill:flagged ? al(K.lime, .35) : bad ? al(K.amber, .25) : 'oklch(0.23 0.006 260 / 0.07)' }, { d:sp.sp.line, stroke:flagged ? K.limeT : bad ? K.amberT : 'oklch(0.23 0.006 260 / 0.7)', w:1 }]); }
+      return { name:SHORT[c.id], el, disabled:!evAvail, cursor:evAvail ? 'pointer' : 'default',
+        score:bad ? 'N/A' : sc != null ? sc.toFixed(2) : '—', scoreColor:bad ? K.amberT : flagged ? K.limeT : K.ink3,
+        w:bad ? '100%' : sc != null ? Math.round(sc * 100) + '%' : '0%', bar:bad ? K.amber : flagged ? K.lime : 'oklch(0.23 0.006 260 / 0.35)',
+        border:selected ? al(K.violet, .65) : 'oklch(0.23 0.006 260 / 0.08)', bg:selected ? 'oklch(1 0 0 / 0.85)' : 'oklch(1 0 0 / 0.35)', shadow:selected ? '0 0 0 3px ' + al(K.violet, .12) : 'none',
+        aria:c.name + (sc != null ? ', anomaly score ' + sc.toFixed(2) : ''),
+        onClick:() => this.setState({ sel:CH_SENSOR[c.id], evCh:c.id }) };
+    });
+    const stripNote = !st.recId ? 'Select a recording to begin' : up ? 'Not available for uploaded files' : !evAvail ? 'Appears after the signal-quality check' : d.rmod ? 'Flagged at 0.60 · an unusual signal is not a diagnosis' : rec.quality.ok ? 'Scores appear after the diagnostic step' : 'Models not run · recording not usable';
+
+    let facts, warnings = [], warningsTitle = '';
+    if (rec) {
+      const q = d.rq ? (rec.quality.ok ? { v:'No issues', color:K.ink } : { v:rec.quality.warnings.length + ' warnings', color:K.amberT }) : { v:'Not checked', color:K.ink3 };
+      facts = [{ k:'Duration', v:'5.00 s · 50 kHz', color:K.ink }, { k:'Shaft speed', v:rec.f0.toFixed(1) + ' Hz · ' + nf(rec.rpm) + ' rpm', color:K.ink }, { k:'Signal quality', v:q.v, color:q.color }];
+      if (d.rq && !rec.quality.ok) { warnings = rec.quality.warnings.map(t => ({ text:t })); warningsTitle = 'Signal-quality warnings · measured'; }
+    } else if (up) {
+      const ok = !up.errors.length;
+      facts = [{ k:'Duration', v:up.rows ? (up.rows / 50000).toFixed(2) + ' s (est.)' : '—', color:K.ink }, { k:'Columns', v:up.cols + ' of 8', color:up.cols === 8 ? K.ink : K.amberT }, { k:'File check', v:ok ? 'Structure OK' : 'Not accepted', color:ok ? K.ink : K.amberT }];
+      if (!ok) { warnings = up.errors.map(t => ({ text:t })); warningsTitle = 'File check · ' + up.name; }
+    } else {
+      facts = [{ k:'Duration', v:'—', color:K.ink3 }, { k:'Shaft speed', v:'—', color:K.ink3 }, { k:'Signal quality', v:'—', color:K.ink3 }];
+    }
+
+    let dx = { simulated:false, banner:false, chip:'', title:'No recording selected', sub:'Choose a prepared recording or upload a CSV file to begin.', location:'', progress:false, showModels:false };
+    if (up) {
+      const ok = !up.errors.length;
+      dx = Object.assign(dx, ok ? { chip:'Structure check passed', color:K.ink2, dot:K.ink2, halo:'oklch(0.23 0.006 260 / 0.08)', title:'Diagnosis not available', sub:'Uploaded files are checked for structure only. This prototype is not connected to the diagnostic service. Choose a prepared recording to see a simulated investigation.' }
+        : { chip:'Input not accepted', color:K.amberT, dot:K.amber, halo:al(K.amber, .2), title:'The file doesn’t match the expected format', sub:'Expected a CSV with 8 numeric columns sampled at 50 kHz.' });
+    } else if (rec && running) {
+      const a = d.active;
+      dx = Object.assign(dx, { simulated:true, chip:'Investigation in progress', color:K.ink, dot:K.ink, halo:'oklch(0.23 0.006 260 / 0.1)', title:'Investigating ' + rec.id, sub:a ? AGENTS[a.a].name + ': ' + a.act.toLowerCase() + '…' : '', progress:true, pct:Math.round(st.step / steps.length * 100) + '%' });
+    } else if (rec && done) {
+      const o = rec.outcome;
+      const Mx = { healthy:{ chip:'Healthy', color:K.greenT, dot:K.green, halo:al(K.green, .18) }, fault:{ chip:'Known fault', color:K.orangeT, dot:K.orange, halo:al(K.orange, .2) }, further:{ chip:'Further inspection needed', color:K.amberT, dot:K.amber, halo:al(K.amber, .25) }, unusable:{ chip:'Recording not usable', color:K.amberT, dot:K.amber, halo:al(K.amber, .25) } }[o];
+      dx = Object.assign(dx, Mx, { simulated:true, banner:o === 'further', title:rec.dxTitle, sub:rec.dxSub, location:rec.dxLoc || '', locLabel:o === 'further' ? 'Candidate locations' : 'Predicted location', showModels:!!rec.models,
+        models:rec.models ? [{ name:'Classifier A', cls:rec.models.A[0][0], score:rec.models.A[0][1].toFixed(2) }, { name:'Classifier B', cls:rec.models.B[0][0], score:rec.models.B[0][1].toFixed(2) }] : [],
+        agreeText:rec.agree ? 'Models agree · evidence review passed' : 'Models disagree · extra check inconclusive', agreeColor:rec.agree ? K.ink2 : K.amberT });
+    } else if (rec) {
+      dx = Object.assign(dx, { title:'Ready to investigate', sub:'Start the investigation to check signal quality and run the diagnostic models on ' + rec.id + '.' });
+    }
+
+    let tt = 0;
+    const timeline = steps.slice(0, running ? st.step + 1 : d.doneIdx).map((s, i) => {
+      const isDone = i < d.doneIdx, isActive = running && i === st.step;
+      const time = '+' + (tt / 1000).toFixed(1) + 's'; tt += s.ms;
+      return { code:AGENTS[s.a].code, agent:AGENTS[s.a].name, act:isActive ? s.act + '…' : s.act, res:s.res, showRes:isDone, isActive, branch:!!s.branch, indent:s.branch ? '16px' : '0px', time,
+        codeBg:isActive ? K.ink : 'oklch(0.23 0.006 260 / 0.07)', codeColor:isActive ? K.white : K.ink2, resColor:s.warn ? K.amberT : K.ink2 };
+    });
+    const showTimeline = !!rec && (running || done);
+    const panelTabs = [['activity','Activity'],['report','Report']].map(x => { const on = st.panelTab === x[0]; return { label:x[1], active:on, bg:on ? K.white : 'transparent', color:on ? K.ink : K.ink3, shadow:on ? '0 1px 3px oklch(0.3 0.01 260 / 0.12)' : 'none', onClick:() => this.setState({ panelTab:x[0] }) }; });
+    const secs = [['suggest','What the readings suggest'],['support','Supporting evidence'],['conflict','Conflicting or missing evidence'],['next','What to inspect next']];
+    const report = rec && d.rr ? secs.map((s, i) => ({ n:'0' + (i + 1), title:s[1], items:rec.report[s[0]].map(it => ({ tag:it.tag, text:it.text, c:TAG[it.tag].c, b:TAG[it.tag].b })) })) : [];
+
+    const chatOK = !!rec && done;
+    const msgs = st.chat.map(m => m.role === 'user' ? { isUser:true, isBot:false, text:m.text } : { isUser:false, isBot:true, parts:m.parts.map(p => ({ tag:p.tag, text:p.text, c:TAG[p.tag].c, b:TAG[p.tag].b })) });
+    const suggestions = QUESTIONS.map(q => ({ text:q.text, disabled:!chatOK, color:chatOK ? K.ink : K.ink3, cursor:chatOK ? 'pointer' : 'default', onClick:() => this.ask(q.text, q.id) }));
+
+    const startDisabled = !rec || running;
+    const nameInvalid = !st.nameDraft.trim();
+    const uname = st.name || 'Guest';
+    const initials = uname.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'G';
+
+    return {
+      sceneRef:this.sceneRef, overlayRef:this.overlayRef, chatRef:this.chatRef,
+      showFallback:st.sceneFailed, showLoading:!st.sceneReady && !st.sceneFailed,
+      heroKicker:rec ? 'Recording ' + rec.id + ' · dataset label' : up ? 'Uploaded file' : 'Rotor fault test rig',
+      heroTitle:rec ? rec.title : up ? up.name : 'Select a recording',
+      heroSub:rec ? rec.f0.toFixed(1) + ' Hz · ' + nf(rec.rpm) + ' rpm · 5.00 s · 8 channels' : up ? (up.errors.length ? 'File check failed' : 'Structure check passed') : 'Choose a prepared sensor recording or upload a CSV file.',
+      heroOpacity:hs ? '0' : '1', markers, inspShow:!!hs, insp, card, closeInsp:() => this.selectPart(null),
+      viewBtns:[['spectrum','Spectrum'],['waveform','Waveform']].map(v => { const on = st.evView === v[0]; return { label:v[1], bg:on ? K.white : 'transparent', color:on ? K.ink : K.ink3, shadow:on ? '0 1px 2px oklch(0.3 0.01 260 / 0.12)' : 'none', onClick:() => this.setState({ evView:v[0] }) }; }),
+      needsName:!st.name || st.editingName, nameDraft:st.nameDraft, nameInvalid, nameBtnBg:nameInvalid ? 'oklch(0.23 0.006 260 / 0.1)' : K.ink, nameBtnColor:nameInvalid ? K.ink3 : K.white,
+      onNameInput:e => this.setState({ nameDraft:e.target.value }),
+      onNameSubmit:e => { e.preventDefault(); const n = st.nameDraft.trim(); if (!n) return; try { localStorage.setItem('ms_display_name', n); } catch (x) {} this.setState({ name:n, editingName:false }); },
+      onChangeName:() => this.setState({ editingName:true, nameDraft:st.name }),
+      userName:uname, initials,
+      recValue:st.recId || '', onRecChange:e => this.selectRec(e.target.value, { upload:null }),
+      onFile:this.onFile, hasUpload:!!up, uploadName:up ? up.name : '', clearUpload:() => this.selectRec(null, { upload:null }),
+      running, onStart:() => this.start(0), startDisabled,
+      startLabel:running ? 'Investigating…' : done ? 'Run again' : 'Start investigation',
+      startBg:startDisabled && !running ? 'oklch(0.23 0.006 260 / 0.1)' : K.ink, startColor:startDisabled && !running ? K.ink3 : K.white, startCursor:startDisabled ? 'default' : 'pointer',
+      onResetView:() => { this.selectPart(null); if (this.rig) this.rig.resetView(); },
+      exploded:st.exploded, onExplode:() => this.setState({ exploded:!st.exploded }),
+      explodeBg:st.exploded ? K.white : 'oklch(0.99 0.002 85 / 0.62)', explodeBorder:st.exploded ? al(K.violet, .55) : 'oklch(1 0 0 / 0.8)', explodeColor:st.exploded ? K.violet : K.ink,
+      labelsBtn:labelsAll ? 'Labels: all' : 'Labels: minimal', toggleLabels:() => this.setState({ labels:!labelsAll }),
+      onJump:e => this.jumpTo(e.target.value),
+      facts, tiles, stripNote, warnings, hasWarnings:warnings.length > 0, warningsTitle,
+      dx, panelTabs, tabActivity:st.panelTab === 'activity', tabReport:st.panelTab === 'report',
+      showAgents:!showTimeline, agentList:Object.keys(AGENTS).map(k => AGENTS[k]), showTimeline, timeline,
+      report, reportShow:report.length > 0, reportEmpty:!report.length,
+      reportEmptyText:running ? 'The report is written after the evidence review.' : rec ? 'Start the investigation to produce a report.' : 'Select a recording and start the investigation to produce a report.',
+      askNew:st.askNew, openChat:() => this.setState({ chatOpen:true, askNew:false }), closeChat:() => this.setState({ chatOpen:false }), chatOpen:st.chatOpen,
+      chatTitle:'Ask MachineSense', chatContext:(rec ? 'About ' + rec.id + ' · ' + rec.title : 'No recording selected') + (hs ? ' · focused on ' + (hs.full || hs.label).toLowerCase() : ''),
+      msgs, typing:st.typing, suggestions, chatLocked:!chatOK,
+      chatLockedText:rec && running ? 'Questions open when the investigation finishes.' : 'Run an investigation on a prepared recording to ask questions about it.',
+      chatDraft:st.chatDraft, chatDisabled:!chatOK, onChatInput:e => this.setState({ chatDraft:e.target.value }),
+      onChatSubmit:e => { e.preventDefault(); const q = st.chatDraft.trim(); if (q) this.ask(q); }
+    };
+  }
+}
+</script>
+</body>
+</html>
