@@ -117,12 +117,54 @@ def run_e1() -> None:
     print("median disagreement by role:", dec.groupby("role").disagreement.median().round(4).to_dict())
 
 
+def run_e2() -> None:
+    """E2 per seed: s = max(r(1 − LR MSP), r(CNN Mahalanobis)) against the run's calibration recordings; τ_s by the
+    order-statistic rule; the CNN MSP check (τ_p) unchanged from 3C; no AE override."""
+    lr = lr_decisions().set_index(["withheld", "outer_fold", "rec_id"])
+    thr_rows, acc_rows = [], []
+    for seed in SEEDS:
+        dec = decide(recordings(seed))
+        parts = []
+        for (c, k), g in dec.groupby(["withheld", "outer_fold"]):
+            g = g.copy()
+            lr_msp = lr.loc[[(c, k, r) for r in g.rec_id], "msp"].to_numpy()
+            cal = (g.role == "cal").to_numpy()
+            u_lr = 1.0 - lr_msp
+            g["r_lr"] = empirical_rank(u_lr, u_lr[cal])
+            g["r_cnn_maha"] = empirical_rank(g.maha, g.maha[cal])
+            g["s"] = np.maximum(g.r_lr, g.r_cnn_maha)
+            ts, ok = threshold(g.s[cal].to_numpy())
+            msp_ok = (g.msp >= g.tau_p).to_numpy()
+            conf = msp_ok & (g.s <= ts).to_numpy()
+            g["confident_e2"] = conf
+            g["decision_e2"] = rule_decisions(conf, g.pred.to_numpy())
+            g["outcome_e2"] = outcomes(g.decision_e2.to_numpy(), g)
+            parts.append(g)
+            thr_rows.append({"seed": seed, "withheld": c, "outer_fold": k, "tau_s": ts, "attainable": ok,
+                             "n_cal": int(cal.sum())})
+            for grp, role in (("calibration", "cal"), ("seen_folder_eval", "eval"), ("unseen_foldk", "foldk_known")):
+                m = (g.role == role).to_numpy()
+                acc_rows.append({"seed": seed, "withheld": c, "outer_fold": k, "group": grp, "n": int(m.sum()),
+                                 "msp_acceptance": float(msp_ok[m].mean()), "s_acceptance": float((g.s <= ts).to_numpy()[m].mean()),
+                                 "joint_acceptance": float(conf[m].mean())})
+        d = pd.concat(parts, ignore_index=True)
+        save("e2_lr_cnn_rank", seed, d)
+        w = d[d.role == "foldk_withheld"]
+        print(f"seed {seed}: E2 withheld", w.outcome_e2.value_counts().to_dict(), "| rule B", w.outcome_B.value_counts().to_dict())
+    thr = pd.DataFrame(thr_rows)
+    thr.to_csv(OUT / "e2_thresholds.csv", index=False)
+    acc = pd.DataFrame(acc_rows)
+    acc.to_csv(OUT / "e2_joint_acceptance_per_run.csv", index=False)
+    print("unattainable:", int((~thr.attainable).sum()))
+    print(acc.groupby(["seed", "group"])[["msp_acceptance", "s_acceptance", "joint_acceptance"]].mean().round(3).to_string())
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["e1"])
+    ap.add_argument("task", choices=["e1", "e2"])
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
-    {"e1": run_e1}[a.task]()
+    {"e1": run_e1, "e2": run_e2}[a.task]()
     return 0
 
 
