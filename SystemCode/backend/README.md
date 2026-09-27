@@ -56,5 +56,11 @@ recording". It catches reserved recordings uploaded as-is or re-exported at CSV 
 resampled, rescaled, noise added) is not recognised.
 
 ## Tests
+Frontend: `cd frontend && npm test` — production build, then a server-side render of every main screen from recorded real
+API responses (`frontend/tests/fixtures`, re-recorded with `PYTHONPATH=. python frontend/tests/make_fixtures.py`).
+The WebGL fallback frame `frontend/public/rig-fallback.png` (+ marker anchors `.json`) is a rendered frame of the app's
+own 3D rig (`?capture=1`), not a photo.
+
+Backend:
 `MACHINESENSE_REQUIRE_BUNDLE=1 python -m pytest tests/backend` — use this mode before every commit: without the
 bundle or the raw recordings the bundle-dependent tests fail instead of skipping. Without the variable they skip.

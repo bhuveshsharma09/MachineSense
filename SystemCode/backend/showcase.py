@@ -78,7 +78,8 @@ def select(rows: list[dict]) -> dict:
         lambda r: "signal-quality warning: " + "; ".join(r["quality_warnings"]))
     rw = _range_warnings()
     add("speed-range warning", lambda r: any(w in rw for w in r["warnings"]),
-        lambda r: "speed-range warning: " + "; ".join(w for w in r["warnings"] if w in rw))
+        lambda r: f"verdict {r['display_label']}; speed-range warning: " + "; ".join(w for w in r["warnings"] if w in rw),
+        key=lambda r: (r["decision"] != "healthy", r["used_for"] != "threshold calibration", r["rec_id"]))  # shown on healthy
     counts = {s: sum(1 for r in rows if p(r)) for s, p in {
         "healthy with caution": lambda r: r["decision"] == "healthy" and r["caution"],
         "further inspection needed": lambda r: r["decision"] == "unknown",

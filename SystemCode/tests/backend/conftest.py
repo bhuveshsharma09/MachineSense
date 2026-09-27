@@ -53,6 +53,20 @@ def cases_path(tmp_path_factory):
     return tmp_path_factory.mktemp("cases") / "cases.db"
 
 
+@pytest.fixture(scope="session", autouse=True)
+def uploads_path(tmp_path_factory):
+    """Uploaded arrays go to a temporary folder in tests, never to backend/data."""
+    import os
+    p = tmp_path_factory.mktemp("uploads")
+    old = os.environ.get("MACHINESENSE_UPLOADS_DIR")
+    os.environ["MACHINESENSE_UPLOADS_DIR"] = str(p)
+    yield p
+    if old is None:
+        os.environ.pop("MACHINESENSE_UPLOADS_DIR", None)
+    else:
+        os.environ["MACHINESENSE_UPLOADS_DIR"] = old
+
+
 @pytest.fixture(scope="session")
 def client(bundle_path, guard_path, cases_path):
     from fastapi.testclient import TestClient

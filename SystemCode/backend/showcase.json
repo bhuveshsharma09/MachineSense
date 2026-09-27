@@ -1,0 +1,104 @@
+{
+ "note": "real development-pool recordings chosen from diagnose() outputs; every one was used to build the model (training or threshold calibration), so results on them are not evidence of accuracy",
+ "showcase": [
+  {
+   "state": "healthy",
+   "rec_id": "normal__18.432",
+   "class10": "normal",
+   "used_for": "threshold calibration",
+   "display_label": "healthy",
+   "reason": "normal recording; healthy, no caution, all rule variants agree, no warnings"
+  },
+  {
+   "state": "known fault · imbalance",
+   "rec_id": "imbalance__30g__19.456",
+   "class10": "imbalance",
+   "used_for": "threshold calibration",
+   "display_label": "known fault: imbalance",
+   "reason": "imbalance: known fault matching its label; rule variants, CNN-6 and LR agree; no warnings"
+  },
+  {
+   "state": "known fault · horizontal misalignment",
+   "rec_id": "horizontal-misalignment__1.0mm__24.9856",
+   "class10": "horizontal_misalignment",
+   "used_for": "threshold calibration",
+   "display_label": "known fault: horizontal misalignment",
+   "reason": "horizontal_misalignment: known fault matching its label; rule variants, CNN-6 and LR agree; no warnings"
+  },
+  {
+   "state": "known fault · vertical misalignment",
+   "rec_id": "vertical-misalignment__0.51mm__24.9856",
+   "class10": "vertical_misalignment",
+   "used_for": "threshold calibration",
+   "display_label": "known fault: vertical misalignment",
+   "reason": "vertical_misalignment: known fault matching its label; rule variants, CNN-6 and LR agree; no warnings"
+  },
+  {
+   "state": "known fault · underhang bearing",
+   "rec_id": "underhang__cage_fault__6g__35.0208",
+   "class10": "underhang_cage",
+   "used_for": "threshold calibration",
+   "display_label": "known fault: underhang cage",
+   "reason": "underhang_cage: known fault matching its label; rule variants, CNN-6 and LR agree; no warnings"
+  },
+  {
+   "state": "known fault · overhang bearing",
+   "rec_id": "overhang__cage_fault__0g__34.2016",
+   "class10": "overhang_cage",
+   "used_for": "threshold calibration",
+   "display_label": "known fault: overhang cage",
+   "reason": "overhang_cage: known fault matching its label; rule variants, CNN-6 and LR agree; no warnings"
+  },
+  {
+   "state": "healthy with caution",
+   "rec_id": "normal__20.2752",
+   "class10": "normal",
+   "used_for": "model training",
+   "display_label": "healthy — caution: a healthy-baseline check disagrees; consider a recheck",
+   "reason": "normal verdict healthy with caution 'b1s_disagrees'"
+  },
+  {
+   "state": "further inspection needed",
+   "rec_id": "imbalance__10g__13.9264",
+   "class10": "imbalance",
+   "used_for": "threshold calibration",
+   "display_label": "further inspection needed",
+   "reason": "imbalance recording; the classifier checks did not pass, so the verdict is unknown"
+  },
+  {
+   "state": "rule variants disagree",
+   "rec_id": "normal__20.2752",
+   "class10": "normal",
+   "used_for": "model training",
+   "display_label": "healthy — caution: a healthy-baseline check disagrees; consider a recheck",
+   "reason": "rule variants disagree: A healthy, B healthy, C healthy, D unknown"
+  },
+  {
+   "state": "signal-quality warning",
+   "rec_id": "imbalance__25g__15.1552",
+   "class10": "imbalance",
+   "used_for": "threshold calibration",
+   "display_label": "known fault: imbalance",
+   "reason": "signal-quality warning: shaft speed varies by 4.5 % within the recording; 6 glitched tacho intervals"
+  },
+  {
+   "state": "speed-range warning",
+   "rec_id": "normal__13.1072",
+   "class10": "normal",
+   "used_for": "model training",
+   "display_label": "healthy",
+   "reason": "verdict healthy; speed-range warning: healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable"
+  }
+ ],
+ "states_without_a_development_recording": [
+  "CNN-6 and LR disagree"
+ ],
+ "counts_in_sweep": {
+  "healthy with caution": 2,
+  "further inspection needed": 3,
+  "rule variants disagree": 2,
+  "CNN-6 and LR disagree": 0,
+  "signal-quality warning": 62
+ },
+ "n_swept": 804
+}
