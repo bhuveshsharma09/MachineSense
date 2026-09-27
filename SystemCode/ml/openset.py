@@ -103,6 +103,9 @@ def three_way(pred, msp, maha, ae, tau_p: float, tau_d: float, tau_e: float,
     top class normal and AE healthy → healthy (the AE override).
     ae_first (comparison): AE healthy → healthy; else top class a fault AND confident → that fault; else unknown (this
     includes a top class of normal while the AE says abnormal).
+    classifier_first_no_override (Stage 3C.1 variant B): classifier-first without the AE override.
+    strict_healthy (Stage 3C.1 variant C, identified post hoc on 27 Sep; exploratory): healthy only if the top class is
+    normal, confident AND AE healthy; a confident fault → that fault; otherwise unknown.
     Returns (decision, override) where override marks classifier-first cases changed from unknown to healthy by the AE."""
     pred, msp, maha, ae = map(np.asarray, (pred, msp, maha, ae))
     conf = (msp >= tau_p) & (maha <= tau_d)
@@ -113,6 +116,11 @@ def three_way(pred, msp, maha, ae, tau_p: float, tau_d: float, tau_e: float,
         override = ~conf & is_normal & ae_ok
         out[override] = "healthy"
         return out, override
+    if ordering == "classifier_first_no_override":  # variant B: A without the AE override
+        return np.where(conf, np.where(is_normal, "healthy", pred), "unknown").astype(object), np.zeros(len(pred), bool)
+    if ordering == "strict_healthy":  # variant C (post hoc, exploratory): healthy needs confident normal AND AE healthy
+        out = np.where(conf & ~is_normal, pred, np.where(conf & is_normal & ae_ok, "healthy", "unknown")).astype(object)
+        return out, np.zeros(len(out), dtype=bool)
     if ordering == "ae_first":
         out = np.where(ae_ok, "healthy", np.where(~is_normal & conf, pred, "unknown")).astype(object)
         return out, np.zeros(len(out), dtype=bool)

@@ -102,3 +102,17 @@ def test_outcome_categories():
     got = outcome_category(["imbalance", "overhang_ball", "healthy", "unknown", "imbalance", "healthy"],
                            ["imbalance", "imbalance", "imbalance", "imbalance", "normal", "normal"], False)
     assert got.tolist() == ["correct", "wrong_fault", "healthy", "unknown", "fault", "healthy"]
+
+
+def test_healthy_rule_variants_b_and_c():
+    from ml.openset import three_way
+    pred = np.array(["normal", "normal", "normal", "imbalance", "normal"])
+    msp = np.array([0.99, 0.99, 0.50, 0.99, 0.50])
+    maha = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
+    ae = np.array([0.5, 2.0, 0.5, 2.0, 2.0])
+    a, _ = three_way(pred, msp, maha, ae, 0.9, 5.0, 1.0, "classifier_first")
+    b, _ = three_way(pred, msp, maha, ae, 0.9, 5.0, 1.0, "classifier_first_no_override")
+    c, _ = three_way(pred, msp, maha, ae, 0.9, 5.0, 1.0, "strict_healthy")
+    assert a.tolist() == ["healthy", "healthy", "healthy", "imbalance", "unknown"]
+    assert b.tolist() == ["healthy", "healthy", "unknown", "imbalance", "unknown"]  # no AE override
+    assert c.tolist() == ["healthy", "unknown", "unknown", "imbalance", "unknown"]  # healthy also needs AE healthy

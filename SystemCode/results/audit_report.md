@@ -475,6 +475,29 @@ overhang channel (AE-7: 89 % of fault recordings; 59 % for overhang outer race u
 race). This weakens a simple swapped-channel explanation; it does not establish a mounting or sensor-type explanation.
 Per-channel reconstruction error is not usable as fault-location evidence.
 
+### Deep unknown-fault test (Q3; Stage 3C, counts corrected in Stage 3C.1, 27 Sep 2026)
+Development results on one partition; reserved tests sealed. 27 leave-one-class-out runs (9 withheld fault classes × 3
+folds) on the saved Stage 2D.1 Q3 split: a CNN-6 retrained without the withheld class, and the three-way rule (healthy /
+known fault / unknown) with calibration-only thresholds. Every count below is **evaluation instances / all instances
+(distinct recordings / all distinct)**: a recording evaluated in several withheld-class runs counts once per run as an
+instance; e.g. the fold-k normal row is 225 evaluation instances from 25 distinct healthy recordings.
+
+| Outcome | CNN rule A (primary) | LR / MSP |
+| --- | --- | --- |
+| Withheld → unknown | 468 / 779 (468 / 779) | 543 / 779 (543 / 779) |
+| Withheld → known fault | 283 / 779 (283 / 779) | 203 / 779 (203 / 779) |
+| Withheld → healthy | 28 / 779 (28 / 779) | 33 / 779 (33 / 779) |
+| Known faults (a) seen folder → unknown | 52 / 2087 (35 / 738) | 84 / 2087 (45 / 738) |
+| Known faults (b) unseen fold k → unknown | 833 / 6232 (253 / 779) | 1352 / 6232 (293 / 779) |
+| Known faults (b) → healthy | 1 / 6232 (1 / 779) | 0 / 6232 (0 / 779) |
+| Normal, fold k → healthy | 192 / 225 (25 / 25) | 172 / 225 (22 / 25) |
+| Normal, seen folder → healthy | 68 / 74 (23 / 25) | 68 / 74 (24 / 25) |
+
+Threshold-free macro AUROC over the withheld classes: Mahalanobis 0.877, k-NN 0.845, MSP 0.782, AE error 0.517. Spreads
+over runs are the std over the 27 class × fold runs (they mix between-class and between-fold variation and are not seed
+uncertainty); the std over the 3 folds of the per-fold macro is reported separately in `results/loco/analysis/`. In
+Stage 3C one known-fault instance declared healthy (via the AE override) was misreported as none; corrected here.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the
