@@ -65,6 +65,25 @@ def test_golden_outputs_are_identical_across_runs(rec_id):
 
 
 @needs_bundle
+def test_repo_config_changes_do_not_change_diagnose(monkeypatch):
+    import ml.config
+    import ml.inference as inf
+    base = stable(diagnose(GOLDEN_RECS[1], with_xai=False))
+    d = ml.config.Config().model_dump(mode="json")
+    d["preprocess"]["mic"]["burst_z"] = 5.0
+    d["preprocess"]["bandstop"]["enabled"] = False
+    d["cnn"]["dropout"] = 0.5
+    changed = ml.config.Config.model_validate(d)
+    monkeypatch.setattr(ml.config, "load_config", lambda *a, **k: changed)
+    monkeypatch.setattr(inf, "load_config", lambda *a, **k: changed)
+    inf._refusal_config.cache_clear()
+    try:
+        assert stable(diagnose(GOLDEN_RECS[1], with_xai=False)) == base
+    finally:
+        inf._refusal_config.cache_clear()
+
+
+@needs_bundle
 def test_bundle_with_a_tampered_file_is_refused(tmp_path):
     from ml.bundle import BundleIntegrityError, load_bundle
     d = tmp_path / "bundle"

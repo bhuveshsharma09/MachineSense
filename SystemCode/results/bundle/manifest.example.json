@@ -1,7 +1,15 @@
 {
  "schema_version": "1.0",
- "created_at": "2026-09-27T07:32:06+00:00",
- "git_sha": "bab26b29f1878c1b373bff9f3a77502c7f1deb06-dirty",
+ "created_at": "2026-09-27T07:57:34+00:00",
+ "git_sha": "bc8d0d7a10cd68e3fa8754c3030b6dc25bb6a4b1",
+ "unrelated_worktree_changes": [
+  "SystemCode/ml/bundle.py",
+  "SystemCode/ml/inference.py",
+  "SystemCode/ml/xai.py",
+  "SystemCode/notebooks/01_data_layer/01_index_audit_splits.ipynb",
+  "SystemCode/scripts/15_bundle_manifest.py"
+ ],
+ "inference_config_sha256": "ba2f775e17a664ce76142232e781319e0b0b55216cb73c45779c7c292de5d653",
  "preprocess_config_sha256": "d87f5c86efe4ec56178fe332c2d90ccaab3b9cf875d0dfd2b58fdfb6e9502947",
  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
  "fs_hz": 50000,
@@ -103,6 +111,20 @@
    "role": "config",
    "sha256": "adf240c6159a1906c9e6e0212d186ed48dba9230d1de2702353a9570e2783ef9",
    "description": "architecture and preprocessing settings used for training"
+  },
+  {
+   "name": "inference_config",
+   "file": "inference_config.json",
+   "role": "config",
+   "sha256": "92a74c50577be48e7312b9cfa87c766bbcc56174fe74af4f6338f9fbb2d611b0",
+   "description": "the complete Config used at inference (packaged; the repo's configs/ are not read)"
+  },
+  {
+   "name": "feature_dictionary",
+   "file": "feature_dictionary.csv",
+   "role": "dictionary",
+   "sha256": "548cd3e7158cb23754052fdc1daa684688fbb2358fe7004e4dc2247f8fa18fd6",
+   "description": "R1 feature names, units, definitions and channels"
   }
  ],
  "thresholds": {
@@ -212,6 +234,7 @@
   "reserved_recordings_used": 0,
   "eligibility": "no reserved-test recording was used for training, calibration or inference, so this bundle is eligible for one final evaluation on every reserved test"
  },
+ "test_eligibility": {},
  "limitations": [
   "Research demonstration; development results; not validated for real machines.",
   "Calibrated on 5 healthy recordings; trained on speeds below 40 Hz and on the development pool only.",

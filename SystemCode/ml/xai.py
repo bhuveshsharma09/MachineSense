@@ -7,22 +7,14 @@ convolution block adds a coarse order-band profile. LR: the top R1 features by c
 QuantileTransformer output, mean over the recording's windows) for LR's own top class."""
 from __future__ import annotations
 
-from functools import lru_cache
-
 import numpy as np
 import pandas as pd
 
-from ml.paths import results_dir
 from ml.spectro import order_axis
 
 NOTE = ("What the model attended to; not proof of the fault's location. A predicted fault location is according to "
         "the dataset labels; per-channel attribution or reconstruction error is not fault-location evidence.")
 VIB_NAMES = ["under_axial", "under_radial", "under_tangential", "over_axial", "over_radial", "over_tangential"]
-
-
-@lru_cache(maxsize=1)
-def feature_dictionary() -> pd.DataFrame:
-    return pd.read_csv(results_dir() / "feature_dictionary.csv").set_index("name")
 
 
 def cnn_attribution(model, x_norm, class_idx: int, orders: np.ndarray, channel_names=VIB_NAMES, n_groups: int = 32,
@@ -64,7 +56,7 @@ def cnn_attribution(model, x_norm, class_idx: int, orders: np.ndarray, channel_n
                                       "values": np.round(cam_n, 4).tolist()}}
 
 
-def lr_attribution(lr_entry: dict, feats: pd.DataFrame, top_k: int = 5) -> dict:
+def lr_attribution(lr_entry: dict, feats: pd.DataFrame, fd: pd.DataFrame, top_k: int = 5) -> dict:
     """Top R1 features for LR's own top class: coefficient × transformed value, mean over the recording's windows."""
     pipe = lr_entry["model"]
     cols = lr_entry["feature_columns"]
@@ -73,7 +65,6 @@ def lr_attribution(lr_entry: dict, feats: pd.DataFrame, top_k: int = 5) -> dict:
     classes = list(pipe[-1].classes_)
     k = int(np.argmax(np.log(np.clip(proba, lr_entry["prob_floor"], 1)).mean(axis=0)))
     contrib = pipe[-1].coef_[k] * z
-    fd = feature_dictionary()
     out = []
     for i in np.argsort(-contrib)[:top_k]:
         name = cols[i]
@@ -97,4 +88,4 @@ def explain(bundle, x_norm_input, top_class: str, feats: pd.DataFrame, cfg) -> d
     cls = bundle.manifest.class10.index(top_class)
     return {"note": NOTE,
             "cnn": {"class": top_class, **cnn_attribution(bundle.cnn, xn, cls, order_axis(cfg.preprocess))},
-            "lr": lr_attribution(bundle.lr, feats)}
+            "lr": lr_attribution(bundle.lr, feats, bundle.feature_dictionary)}

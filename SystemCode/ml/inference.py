@@ -46,15 +46,23 @@ def _metadata() -> pd.DataFrame:
     return pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv").set_index("rec_id")
 
 
+BUNDLE_DIR = artifacts_dir() / "bundle"
+
+
 @lru_cache(maxsize=1)
-def _config() -> Config:
+def _refusal_config() -> Config:
+    """Config for the reserved-rec_id check before any model is loaded: the bundle's packaged configuration (verified)
+    when a bundle is present, otherwise the repo config (the check only needs the development-pool rule)."""
+    if (BUNDLE_DIR / "manifest.json").exists():
+        from ml.bundle import bundle_config
+        return bundle_config(BUNDLE_DIR)
     return load_config(DEFAULT_CONFIG)
 
 
 @lru_cache(maxsize=2)
 def get_bundle(directory: str | None = None):
     from ml.bundle import load_bundle
-    return load_bundle(Path(directory) if directory else artifacts_dir() / "bundle", device="cpu")
+    return load_bundle(Path(directory) if directory else BUNDLE_DIR, device="cpu")
 
 
 def reserved(rec_id: str, meta: pd.DataFrame, cfg: Config) -> bool:
@@ -67,7 +75,7 @@ def reserved(rec_id: str, meta: pd.DataFrame, cfg: Config) -> bool:
 
 def check_rec_id(rec_id: str) -> pd.Series:
     """Metadata row of a development-pool recording; refuses unknown and reserved-test rec_ids."""
-    meta, cfg = _metadata(), _config()
+    meta, cfg = _metadata(), _refusal_config()
     if rec_id not in meta.index:
         raise InputError(f"unknown rec_id {rec_id!r}")
     if reserved(rec_id, meta, cfg):
@@ -151,10 +159,10 @@ def diagnose(source, healthy_rule: str | None = None, nominal_speed_hz: float | 
     from ml.train_ae import window_channel_errors
 
     t0 = time.perf_counter()
-    cfg = _config()
-    pre = cfg.preprocess
     row = check_rec_id(source) if isinstance(source, str) else None  # refuse reserved rec_ids before loading anything
     b = bundle or get_bundle()
+    cfg = b.config  # the packaged configuration, never the repo's current configs/
+    pre = cfg.preprocess
     rule = healthy_rule or b.rule.get("healthy_rule", DEFAULT_VARIANT)
     if isinstance(source, str):
         x = np.load(data_dir() / "raw_npy" / f"{source}.npy")

@@ -1,5 +1,8 @@
-"""Write rule.json, model_config.json and manifest.json (schema 1.0) for the model files produced by
-scripts/14_train_bundle.py, then verify the bundle and copy the manifest to results/bundle/manifest.example.json.
+"""Write rule.json, model_config.json, inference_config.json, feature_dictionary.csv and manifest.json (schema 1.0) for the
+model files produced by scripts/14_train_bundle.py, then verify the bundle and copy the manifest to
+results/bundle/manifest.example.json. The packaged configuration must equal the one the models were trained with (the
+preprocess hash recorded in the previous manifest, if any, and the model settings in model_config.json); otherwise this
+script refuses. The manifest records the committed revision (HEAD) and lists unrelated working-tree changes.
 
     python scripts/15_bundle_manifest.py
 """
@@ -7,17 +10,17 @@ from __future__ import annotations
 
 import json
 import shutil
+import subprocess
 import sys
 
 import pandas as pd
 
 from ml.arbitrator import CAUTION_LABEL, CAUTIONS, DEFAULT_VARIANT, UNKNOWN_LABEL, VARIANTS
-from ml.bundle import Manifest, file_entries, now_iso, verify_bundle, write_manifest
+from ml.bundle import Manifest, config_hash, file_entries, now_iso, verify_bundle, write_manifest
 from ml.config import config_sha256, load_config
 from ml.labels import CLASS6, CLASS10
-from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, artifacts_dir, results_dir
+from ml.paths import DEFAULT_CONFIG, REPO_ROOT, SYSTEM_CODE_DIR, artifacts_dir, results_dir
 from ml.splits import split_hash
-from ml.utils import git_sha
 
 B = artifacts_dir() / "bundle"
 LIMITATIONS = [
@@ -32,9 +35,26 @@ LIMITATIONS = [
 ]
 
 
+def revision() -> tuple[str, list[str]]:
+    """HEAD and every path with uncommitted changes (tracked or untracked), listed rather than hidden."""
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True, check=True).stdout.strip()
+    st = subprocess.run(["git", "status", "--porcelain"], cwd=REPO_ROOT, capture_output=True, text=True, check=True).stdout
+    return head, sorted(line[3:].strip() for line in st.splitlines() if line.strip())
+
+
 def main() -> int:
     cfg = load_config(DEFAULT_CONFIG)
     meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
+    old = json.loads((B / "manifest.json").read_text()) if (B / "manifest.json").exists() else None
+    if old and old["preprocess_config_sha256"] != config_sha256(cfg.preprocess):
+        raise SystemExit("the repo's preprocess config differs from the one the bundle was trained with; refusing to package")
+    if (B / "model_config.json").exists():
+        mc = json.loads((B / "model_config.json").read_text())
+        if mc["cnn"] != cfg.cnn.model_dump(mode="json") or mc["ae"] != cfg.ae.model_dump(mode="json"):
+            raise SystemExit("the repo's model settings differ from the trained models'; refusing to package")
+    (B / "inference_config.json").write_text(json.dumps(cfg.model_dump(mode="json"), indent=1, ensure_ascii=False))
+    shutil.copy(results_dir() / "feature_dictionary.csv", B / "feature_dictionary.csv")
+    head, dirty = revision()
     rep = json.loads((results_dir() / "bundle" / "training_report.json").read_text())
     thr = json.loads((B / "thresholds.json").read_text())
     rule = {"healthy_rule": DEFAULT_VARIANT, "variants": list(VARIANTS), "status": "provisional demo default, NOT a final "
@@ -54,10 +74,13 @@ def main() -> int:
             "thresholds": ("thresholds.json", "thresholds", "τ_p, τ_d, τ_e, τ_b from the calibration recordings only"),
             "normalisation": ("normalisation.json", "normalisation", "per-channel mean/std (norm_stats, development mode)"),
             "rule": ("rule.json", "rule", "healthy-rule configuration (provisional demo default)"),
-            "model_config": ("model_config.json", "config", "architecture and preprocessing settings used for training")}
+            "model_config": ("model_config.json", "config", "architecture and preprocessing settings used for training"),
+            "inference_config": ("inference_config.json", "config", "the complete Config used at inference (packaged; the repo's configs/ are not read)"),
+            "feature_dictionary": ("feature_dictionary.csv", "dictionary", "R1 feature names, units, definitions and channels")}
     d = rep["data"]
     manifest = Manifest(
-        created_at=now_iso(), git_sha=git_sha(), preprocess_config_sha256=config_sha256(cfg.preprocess),
+        created_at=now_iso(), git_sha=head, unrelated_worktree_changes=dirty, inference_config_sha256=config_hash(cfg),
+        preprocess_config_sha256=config_sha256(cfg.preprocess),
         split_hash=split_hash(meta), fs_hz=cfg.preprocess.fs_hz, channels=list(cfg.preprocess.channels),
         class10=list(CLASS10), class6=list(CLASS6),
         representation={"candidate": cfg.representation.leading_candidate, "version": cfg.representation.version,
@@ -71,7 +94,7 @@ def main() -> int:
               "reserved_recordings_used": 0,
               "eligibility": "no reserved-test recording was used for training, calibration or inference, so this bundle "
                              "is eligible for one final evaluation on every reserved test"},
-        limitations=LIMITATIONS)
+        test_eligibility={}, limitations=LIMITATIONS)
     write_manifest(B, manifest)
     verify_bundle(B)
     shutil.copy(B / "manifest.json", results_dir() / "bundle" / "manifest.example.json")

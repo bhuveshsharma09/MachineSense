@@ -3,8 +3,10 @@ load_bundle), so this module stays importable in LightGBM processes; LightGBM is
 
 artifacts/bundle/ (gitignored): cnn6.safetensors, ae6.safetensors, mahalanobis.safetensors (state_dict / arrays only),
 lr_r1.joblib and b1s_vib.joblib (scikit-learn / numpy objects, documented inside), thresholds.json, normalisation.json,
-rule.json, model_config.json and manifest.json with a sha256 for every file. verify_bundle() refuses a missing, extra or
-altered file; load_bundle() verifies before loading anything."""
+rule.json, model_config.json, inference_config.json (the complete Config used at inference, Stage ML-4.1),
+feature_dictionary.csv and manifest.json with a sha256 for every file. verify_bundle() refuses a missing, extra or
+altered file and a packaged configuration whose config hash differs from the manifest's; load_bundle() verifies before
+loading anything. Inference uses the packaged configuration, never the repo's current configs/."""
 from __future__ import annotations
 
 import hashlib
@@ -40,7 +42,9 @@ class Manifest(BaseModel):
 
     schema_version: str = SCHEMA_VERSION
     created_at: str
-    git_sha: str
+    git_sha: str  # the committed implementation revision (HEAD)
+    unrelated_worktree_changes: list[str]  # working-tree changes present when the manifest was written (listed, never hidden)
+    inference_config_sha256: str  # config_sha256 of the packaged Config (inference_config.json)
     preprocess_config_sha256: str
     split_hash: str
     fs_hz: int
@@ -52,6 +56,7 @@ class Manifest(BaseModel):
     thresholds: dict[str, Any]
     rule: dict[str, Any]
     data: dict[str, Any]
+    test_eligibility: dict[str, Any]
     limitations: list[str]
 
 
@@ -94,7 +99,27 @@ def verify_bundle(directory: Path) -> Manifest:
             raise BundleIntegrityError(f"missing bundle file {e.file}")
         if sha256_file(f) != e.sha256:
             raise BundleIntegrityError(f"sha256 mismatch for {e.file}; refusing to load")
+    if config_hash(packaged_config(directory, manifest)) != manifest.inference_config_sha256:
+        raise BundleIntegrityError("the packaged inference configuration does not match the manifest's config hash")
     return manifest
+
+
+def packaged_config(directory: Path, manifest: Manifest | None = None):
+    """The Config packaged in the bundle (inference_config.json), validated."""
+    from ml.config import Config
+
+    files = {e.name: e.file for e in (manifest.files if manifest else [])}
+    return Config.model_validate(json.loads((Path(directory) / files.get("inference_config", "inference_config.json")).read_text()))
+
+
+def config_hash(cfg) -> str:
+    from ml.config import config_sha256
+    return config_sha256(cfg)
+
+
+def bundle_config(directory: Path):
+    """Verify the bundle (hashes and config hash) and return its packaged Config, without loading any model."""
+    return packaged_config(directory, verify_bundle(directory))
 
 
 @dataclass
@@ -112,6 +137,8 @@ class Bundle:
     normalisation: dict
     rule: dict
     model_config: dict
+    config: Any  # the packaged ml.config.Config
+    feature_dictionary: Any  # pandas DataFrame indexed by feature name
 
 
 def load_bundle(directory: Path, device: str = "cpu") -> Bundle:
@@ -134,13 +161,16 @@ def load_bundle(directory: Path, device: str = "cpu") -> Bundle:
     ae = build_ae("frame", len(norm["ae6"]["channels"]), AeConfig(**cfg["ae"]))
     ae.load_state_dict(load_file(str(files["ae6"]), device=device))
     maha = load_np(str(files["mahalanobis"]))
+    import pandas as pd
     return Bundle(directory=directory, manifest=manifest, manifest_sha256=sha256_file(directory / MANIFEST),
                   cnn=cnn.to(device).eval(), ae=ae.to(device).eval(),
                   mahalanobis={"classes": norm["mahalanobis"]["classes"], "centroids": maha["centroids"],
                                "precision": maha["precision"]},
                   lr=joblib.load(files["lr_r1"]), b1s=joblib.load(files["b1s_vib"]),
                   thresholds=json.loads(files["thresholds"].read_text()), normalisation=norm,
-                  rule=json.loads(files["rule"].read_text()), model_config=cfg)
+                  rule=json.loads(files["rule"].read_text()), model_config=cfg,
+                  config=packaged_config(directory, manifest),
+                  feature_dictionary=pd.read_csv(files["feature_dictionary"]).set_index("name"))
 
 
 def now_iso() -> str:
