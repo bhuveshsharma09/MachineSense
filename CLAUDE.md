@@ -148,6 +148,9 @@ Graders run the app on a Linux or Windows CPU.
     independently verify the physical sensor mapping.
   - **Unknown-fault wording (Stage 3C.1; report and app):** "On these development folds, embedding distance separates withheld bearing classes more successfully than withheld imbalance and vertical misalignment. When either of those two classes is withheld, the model frequently assigns the other label. The existing class labels are kept. This is a limitation of unfamiliar-fault detection, not a new physical diagnosis or merged class." "Withheld horizontal misalignment is sometimes declared healthy (see the healthy-rule variants)." "Development results on one partition; reserved tests sealed." App healthy rule pending Bhuvesh's
     decision after 3C.1 (see §7).
+  - **Q3 wording (Stage ML-4, replaces any stronger phrasing):** "The tested scores and rules do not consistently distinguish the imbalance / vertical-misalignment pair when one class is withheld. The classifier distinguishes them well when both are represented in training. This does not establish that no representation, training objective or decision method could help." Not attributed to missing cross-axis
+    information (hypothesis only). Stage 3D: E2 did not test whether combining LR and CNN evidence helps (τ_s
+    non-restrictive in 67 of 81 runs); "D reduces unfamiliar faults called healthy (seed 42: 19 → 2) at a cost in healthy acceptance (184 → 157 of 225 instances from 25 distinct recordings; τ_b from 2–3 calibration normals per run). Vibration-only B1s alone had 6/25 false alarms in the Q1 evaluation. Candidate only; not selected."
   - **Primary envelope band: 1–5 kHz for every track**, fixed from the sensor specifications (inside both sensors'
     rated ranges). The per-track bands in `results/demod_bands.json` are a separately reported comparison only.
   - **Order axis: per-window speed** from `ml.preprocess.window_speeds`, computed from the untouched tachometer,

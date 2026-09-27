@@ -1,0 +1,32 @@
+{
+ "provenance": {
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "git_sha": "8e9409bcd7eb08e4560a192ee41a6de1cf5622e9-dirty",
+  "wording": "Exploratory development results on one partition. The candidates were chosen after seeing 3C.1 results. Any final claim uses the existing reserved-recording protocol (the loco_* and other reserved-test columns in metadata.csv), opened once at the end. All nine fault classes have informed development decisions. Reserved recordings test those decisions; they do not establish performance on entirely new fault families."
+ },
+ "e2_non_restrictive": {
+  "runs": 81,
+  "non_restrictive_runs": 67,
+  "per_seed": {
+   "42": 22,
+   "43": 21,
+   "44": 24
+  },
+  "interpretation": "In these runs \u03c4_s equals the maximum value the rank formula can produce, and ties are accepted, so the combined-score check rejects no recording; only the MSP check rejects. This follows the agreed rank-and-threshold design. E2 therefore does not test whether combining LR and CNN evidence helps; any redesigned combination would be a separately declared experiment."
+ },
+ "disagreement_auroc": {
+  "label": "computed after the Stage 3D report; descriptive",
+  "per_class_mean_over_folds": {
+   "horizontal_misalignment": 0.8735055581359884,
+   "imbalance": 0.5192123997612518,
+   "overhang_ball": 0.9349811995342937,
+   "overhang_cage": 0.9653808450259721,
+   "overhang_outer": 0.9830220747222879,
+   "underhang_ball": 0.9723065423286935,
+   "underhang_cage": 0.9713301793314981,
+   "underhang_outer": 0.9669661710433154,
+   "vertical_misalignment": 0.5766825040039326
+  },
+  "macro": 0.8625986082096926
+ }
+}

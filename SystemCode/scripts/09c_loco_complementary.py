@@ -422,12 +422,60 @@ def run_evaluate() -> None:
     print({k: v["caution_flags_instances"] for k, v in sums.items() if k.startswith("B_with_caution")})
 
 
+def run_addenda() -> None:
+    """Stage ML-4 item 0b (3D results unchanged): (i) per run, whether τ_s equals the largest value the rank formula can
+    produce (n / (n + 1)), so that the combined-score check rejects nothing (ties accepted); (ii) threshold-free AUROC of
+    the E1 seed disagreement, withheld vs fold-k known, per withheld class — computed after the Stage 3D report;
+    descriptive."""
+    from sklearn.metrics import roc_auc_score
+
+    thr = pd.read_csv(OUT / "e2_thresholds.csv")
+    thr["max_rank"] = thr.n_cal / (thr.n_cal + 1)
+    thr["non_restrictive"] = np.isclose(thr.tau_s, thr.max_rank, rtol=0, atol=1e-12)
+    rows = []
+    for seed in SEEDS:
+        d = load("e2_lr_cnn_rank", seed)
+        for (c, k), g in d.groupby(["withheld", "outer_fold"]):
+            t = thr[(thr.seed == seed) & (thr.withheld == c) & (thr.outer_fold == k)].iloc[0]
+            ev = g[g.role != "cal"]
+            rows.append({"seed": seed, "withheld": c, "outer_fold": k, "tau_s": t.tau_s, "max_rank": t.max_rank,
+                         "non_restrictive": bool(t.non_restrictive),
+                         # from the saved E2 decisions (the CSV round-trip can move τ_s by one float bit)
+                         "rejected_by_s_check_eval": int(((ev.msp >= ev.tau_p) & ~ev.confident_e2).sum())})
+    nr = pd.DataFrame(rows)
+    nr.to_csv(OUT / "addenda_e2_tau_s_per_run.csv", index=False)
+    e1 = load("e1_ensemble", None)
+    au = []
+    for (c, k), g in e1[e1.role.isin(["foldk_known", "foldk_withheld"])].groupby(["withheld", "outer_fold"]):
+        y = (g.role == "foldk_withheld").to_numpy()
+        au.append({"withheld": c, "outer_fold": k, "auroc": float(roc_auc_score(y, g.disagreement))})
+    au = pd.DataFrame(au)
+    au.to_csv(OUT / "addenda_disagreement_auroc_per_run.csv", index=False)
+    per_class = au.groupby("withheld").auroc.mean()
+    out = {"provenance": provenance(),
+           "e2_non_restrictive": {"runs": len(nr), "non_restrictive_runs": int(nr.non_restrictive.sum()),
+                                  "per_seed": nr.groupby("seed").non_restrictive.sum().astype(int).to_dict(),
+                                  "interpretation": "In these runs τ_s equals the maximum value the rank formula can "
+                                                    "produce, and ties are accepted, so the combined-score check rejects "
+                                                    "no recording; only the MSP check rejects. This follows the agreed "
+                                                    "rank-and-threshold design. E2 therefore does not test whether "
+                                                    "combining LR and CNN evidence helps; any redesigned combination "
+                                                    "would be a separately declared experiment."},
+           "disagreement_auroc": {"label": "computed after the Stage 3D report; descriptive",
+                                  "per_class_mean_over_folds": per_class.to_dict(), "macro": float(per_class.mean())}}
+    (OUT / "addenda_ml4.json").write_text(json.dumps(out, indent=1, default=float))
+    print(out["e2_non_restrictive"]["non_restrictive_runs"], "of", len(nr), "runs non-restrictive;", out["e2_non_restrictive"]["per_seed"])
+    print("rejections by the s check in non-restrictive runs:", int(nr[nr.non_restrictive].rejected_by_s_check_eval.sum()))
+    print(per_class.round(3).to_dict(), "macro", round(per_class.mean(), 3))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("task", choices=["e1", "e2", "e3", "evaluate"])
+    ap.add_argument("task", choices=["e1", "e2", "e3", "evaluate", "addenda"])
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
-    {"e1": run_e1, "e2": run_e2, "e3": run_e3, "evaluate": run_evaluate}[a.task]()
+    {"e1": run_e1, "e2": run_e2, "e3": run_e3, "evaluate": run_evaluate,
+     "addenda": run_addenda}[a.task]()
     return 0
 
 

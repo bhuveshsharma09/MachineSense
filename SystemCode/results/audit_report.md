@@ -541,6 +541,11 @@ instance; E2 fails. τ_b and τ_e rest on 2–3 calibration normals per run; B1s
 instances. Threshold-free paired comparisons: E1 scores do not differ from single-seed Mahalanobis (intervals include
 0); E2's combined rank is higher by 0.010–0.024 macro AUROC, with only seed 44's OSCR interval excluding 0.
 
+Stage ML-4 corrections (3D results unchanged). E2: In 67 of 81 runs, τ_s equals the maximum value the rank formula can produce, and ties are accepted, so the combined-score check rejects no recording in those runs; only the MSP check rejects. This follows the agreed rank-and-threshold design. E2 therefore does not test whether combining LR and CNN evidence helps; any redesigned combination would be a separately declared experiment. D: D reduces unfamiliar faults called healthy (seed 42: 19 → 2) at a cost in healthy acceptance (184 → 157 of 225 instances from 25 distinct recordings; τ_b from 2–3 calibration normals per run). Vibration-only B1s alone had 6/25 false alarms in the Q1 evaluation. Candidate only; not selected. Seed disagreement (the declared E1 score,
+reported only; computed after the Stage 3D report; descriptive): AUROC withheld vs fold-k known, mean over folds, macro
+0.86; imbalance 0.52, vertical misalignment 0.58, the other seven classes 0.87–0.98. Q3: The tested scores and rules do not consistently distinguish the imbalance / vertical-misalignment pair when one class is withheld. The classifier distinguishes them well when both are represented in training. This does not establish that no representation, training objective or decision method could help. The confusion is not
+attributed to missing cross-axis information; that is a hypothesis only.
+
 ## 10. Open items and unresolved observations
 Decided (26 Sep 2026, Bhuvesh):
 - **Order axis: per-window speed** from `ml.preprocess.window_speeds` on the untouched tachometer, falling back to the
