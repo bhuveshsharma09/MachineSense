@@ -1,4 +1,4 @@
-# MachineSense backend (Stages App-1, App-2a, App-2a.1)
+# MachineSense backend (Stages App-1, App-2a, App-2a.1, App-2a.2)
 
 A FastAPI service that serves `ml.inference.diagnose()` from the **approved, hash-verified model bundle** as the evidence
 record in `backend/schemas.py`, plus measured evidence views computed with existing `ml` functions. Research
@@ -14,6 +14,7 @@ Every path is an environment variable with a default relative to `SystemCode/` (
 | uploaded arrays (for the evidence views) | `MACHINESENSE_UPLOADS_DIR` | `SystemCode/backend/data/uploads` |
 | reserved-recording fingerprint index | `MACHINESENSE_GUARD_INDEX` | `SystemCode/backend/data/reserved_fingerprints.json` |
 | showcase list (committed) | `MACHINESENSE_SHOWCASE` | `SystemCode/backend/showcase.json` |
+| typical healthy variation (built on first start) | `MACHINESENSE_VARIATION` | `SystemCode/backend/data/healthy_variation.json` |
 | raw development recordings | fixed by `ml.paths.data_dir()` | `SystemCode/data/raw_npy` |
 | fail (not skip) tests without the bundle | `MACHINESENSE_REQUIRE_BUNDLE=1` | off |
 
@@ -40,18 +41,30 @@ From `SystemCode/` with the project venv (`source .venv/bin/activate`):
    over the 804 development-pool recordings (~15 min) and picks one real recording per app state, with the reason.
 
 ## Endpoints
-- `GET /api/health`, `GET /api/recordings` (development pool only), `GET /api/showcase`.
+- `GET /api/health` (the bundle path relative to `SystemCode/`), `GET /api/recordings` (development pool only), `GET /api/showcase`.
 - `POST /api/diagnose`: `{"rec_id": ...}` or a multipart CSV upload in field `file` (headerless, 8 columns,
   250,000 rows = 5 s at 50 kHz). 422 with a clear message for invalid uploads; 403 for reserved rec_ids and for
   uploads that match a reserved recording's fingerprint.
+- Report and UI share `backend/checks.py`: each check's relation to its threshold (≤ / > and ≥ / <), margin (value −
+  threshold, absolute and relative; for MSP relative to 1 − τ_p), "narrow" within 0.1 % (then "narrowly above/below"
+  instead of "checks disagree"), and "Checks disagree" only when the rule variants disagree for a non-narrow reason or
+  CNN-6 ≠ LR. Scores are never shown as 1.0000 ("> 0.9999").
 - `GET /api/cases`, `GET /api/cases/{id}`, `GET /api/cases/{id}/activity` (the deterministic pipeline steps with their
   measured timings), `GET /api/cases/{id}/report` (fixed template, markdown plus sections tagged Measured / Model /
   Guidance / Missing; no language model).
 - `GET /api/cases/{id}/channels`: per accelerometer axis and the microphone, R1 feature values (mean over the 9
-  windows: RMS, kurtosis, 1× and 2× order amplitudes, envelope lines at BPFO / BPFI / 2×BSF / FTF on the radial axes)
-  and the same values for the healthy **training** recording nearest in measured speed (named). The 1–2 channels with
-  the largest change factor are marked: descriptive, not a calibrated anomaly test. Per-channel autoencoder error is
-  not used as channel evidence.
+  windows: RMS, excess kurtosis (normal ≈ 0), 1× and 2× order amplitudes, envelope lines at BPFO / BPFI / 2×BSF / FTF on
+  the radial axes) and the same values for the healthy **training** recording nearest in measured speed (named), with
+  each metric's direction (up / down), change factor max(ratio, 1/ratio) and typical healthy variation. Descriptive,
+  not a calibrated anomaly test; per-channel autoencoder error is not used as channel evidence.
+  - **Typical healthy variation** (`backend/variation.py`, `python -m backend.variation build`): the 95th percentile of
+    the change factor over all pairs of healthy TRAINING recordings within ±3 Hz (20 recordings, 35 pairs); never
+    calibration or reserved recordings. Volt metrics are compared only if at least one side is ≥ 0.005 V (the median
+    healthy over-radial 1× amplitude); excess kurtosis is never ratioed.
+  - **Marker rule** (Bhuvesh's decision, App-2a.2): no marker on a plain healthy verdict; healthy-with-caution, known
+    fault and unknown verdicts mark up to 2 channels beyond their band. Each recording is compared on ~20 channel ×
+    metric values, so a healthy recording often exceeds at least one band by chance (2 of the 5 calibration normals do;
+    reported descriptively by the tests, the band is not tuned on them).
 - `GET /api/cases/{id}/signals`: per channel, a 0.5 s cleaned waveform (min/max per bucket) and the order spectrum
   (`ml.features.order_spectrum`) with physics cursors at the measured speed.
 

@@ -37,13 +37,27 @@ def sweep(engine) -> list[dict]:
                      "decision": d["decision"], "display_label": d["display_label"], "fault_class": d["fault_class"],
                      "caution": d["caution"], "top_class": d["top_class"], "lr_top": d["lr_secondary"]["top_class"],
                      "msp": d["scores"]["msp"], "rule_comparison": d["rule_comparison"], "warnings": q["warnings"],
-                     "quality_warnings": [w for w in q["warnings"] if w not in RANGE_WARNINGS]})
+                     "quality_warnings": [w for w in q["warnings"] if w not in RANGE_WARNINGS],
+                     "scores": {k: v for k, v in d["scores"].items() if k != "ae_channel_errors"},
+                     "thresholds": d["thresholds"]})
     return rows
 
 
+def _assess(r: dict) -> dict:
+    """backend.checks.assessment on the swept scores (the same function the report and the UI use)."""
+    from backend.checks import assessment
+    return assessment({"diagnosis": {"decision": r["decision"], "scores": r["scores"], "thresholds": r["thresholds"],
+                                     "rule_comparison": r["rule_comparison"], "top_class": r["top_class"],
+                                     "lr_secondary": {"top_class": r["lr_top"]}}})
+
+
 def select(rows: list[dict]) -> dict:
-    """First match by name within each state (deterministic); calibration recordings preferred over training ones."""
+    """First match by name within each state (deterministic); calibration recordings preferred over training ones. One
+    recording per state: a recording already shown is skipped; if a state has no other recording, the existing entry is
+    labelled with both states."""
     order = sorted(rows, key=lambda r: (r["used_for"] != "threshold calibration", r["rec_id"]))
+    for r in rows:
+        r["_a"] = _assess(r) if "scores" in r else {"narrow_notes": [], "variants_disagree_narrow": False, "disagree": False}
     pick, missing = [], []
 
     def add(state, pred, reason, key=None):
@@ -53,9 +67,17 @@ def select(rows: list[dict]) -> dict:
         if not cands:
             missing.append(state)
             return
-        r = cands[0]
-        pick.append({"state": state, "rec_id": r["rec_id"], "class10": r["class10"], "used_for": r["used_for"],
-                     "display_label": r["display_label"], "reason": reason(r)})
+        used = {p["rec_id"]: p for p in pick}
+        fresh = [r for r in cands if r["rec_id"] not in used]
+        if not fresh:
+            p = used[cands[0]["rec_id"]]
+            p["state"] += " + " + state
+            p["states"].append(state)
+            p["reason"] += "; " + reason(cands[0])
+            return
+        r = fresh[0]
+        pick.append({"state": state, "states": [state], "rec_id": r["rec_id"], "class10": r["class10"],
+                     "used_for": r["used_for"], "display_label": r["display_label"], "reason": reason(r)})
 
     agree = lambda r: len(set(r["rule_comparison"].values())) == 1
     clean = lambda r: not r["warnings"]
@@ -71,7 +93,9 @@ def select(rows: list[dict]) -> dict:
     add("further inspection needed", lambda r: r["decision"] == "unknown",
         lambda r: f"{r['class10']} recording; the classifier checks did not pass, so the verdict is unknown")
     add("rule variants disagree", lambda r: not agree(r),
-        lambda r: "rule variants disagree: " + ", ".join(f"{k} {v}" for k, v in r["rule_comparison"].items()))
+        lambda r: "decision-rule variants disagree: " + ", ".join(f"{k} {v}" for k, v in r["rule_comparison"].items())
+        + ("; explained by a narrow margin" if r["_a"]["variants_disagree_narrow"] else ""))
+    add("narrow margin", lambda r: bool(r["_a"]["narrow_notes"]), lambda r: " ".join(r["_a"]["narrow_notes"]))
     add("CNN-6 and LR disagree", lambda r: r["top_class"] != r["lr_top"],
         lambda r: f"CNN-6 top class {r['top_class']}, secondary logistic regression {r['lr_top']}")
     add("signal-quality warning", lambda r: bool(r["quality_warnings"]),
@@ -84,6 +108,8 @@ def select(rows: list[dict]) -> dict:
         "healthy with caution": lambda r: r["decision"] == "healthy" and r["caution"],
         "further inspection needed": lambda r: r["decision"] == "unknown",
         "rule variants disagree": lambda r: not agree(r),
+        "narrow margin": lambda r: bool(r["_a"]["narrow_notes"]),
+        "checks disagree (banner)": lambda r: r["_a"]["disagree"],
         "CNN-6 and LR disagree": lambda r: r["top_class"] != r["lr_top"],
         "signal-quality warning": lambda r: bool(r["quality_warnings"])}.items()}
     return {"note": "real development-pool recordings chosen from diagnose() outputs; every one was used to build the "

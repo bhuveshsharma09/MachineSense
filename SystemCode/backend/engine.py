@@ -12,15 +12,24 @@ from pathlib import Path
 import numpy as np
 
 from backend import timing
+from backend.checks import fmt_score
 from backend.guard import ReservedGuard, build_index, reserved_rec_ids
 from backend.schemas import EvidenceRecord
-from backend.settings import bundle_dir, cases_db, guard_index, raw_dir, uploads_dir
+from backend.settings import bundle_dir, cases_db, guard_index, raw_dir, uploads_dir, variation_file
 from backend.store import CaseStore
 from ml.inference import InputError, ReservedRecordingError, _metadata, diagnose  # noqa: F401 (errors re-exported)
 from ml.splits import development_pool
 
 RESERVED_UPLOAD = "this appears to be a reserved test recording"
 STEP_NOTE = "deterministic step"
+
+
+def relative_to_system_code(p: Path) -> str:
+    """A path as shown by /api/health: relative to SystemCode/ (no personal folder names)."""
+    import os
+
+    from ml.paths import SYSTEM_CODE_DIR
+    return Path(os.path.relpath(Path(p).resolve(), SYSTEM_CODE_DIR.resolve())).as_posix()
 
 
 class UploadError(ValueError):
@@ -69,6 +78,7 @@ class Engine:
         self.bundle_ms = 1000 * (time.perf_counter() - t0)
         self.store = CaseStore(cases_path or cases_db())
         self.guard = self._guard(Path(guard_path or guard_index()))
+        self.variation = self._variation(Path(variation_file()))
         timing.install()
 
     def _guard(self, path: Path) -> ReservedGuard:
@@ -78,9 +88,22 @@ class Engine:
             build_index(reserved_rec_ids(meta, self.bundle.config), raw_dir(), path)
         return ReservedGuard.load(path)
 
+    def _variation(self, path: Path) -> dict:
+        """Typical healthy variation per channel and metric (training normals only); built on first start if missing."""
+        import json
+
+        from backend.evidence import training_values
+        from backend.variation import build
+        if not path.exists():
+            cfg = self.bundle.config
+            out = build(_metadata().reset_index(), cfg, lambda r: training_values(r, cfg))
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(out, indent=1, ensure_ascii=False))
+        return json.loads(path.read_text())
+
     def health(self) -> dict:
         m = self.bundle.manifest
-        return {"status": "ok", "bundle_verified": True, "bundle_dir": str(self.directory),
+        return {"status": "ok", "bundle_verified": True, "bundle_dir": relative_to_system_code(self.directory),
                 "manifest_sha256": self.bundle.manifest_sha256, "schema_version": m.schema_version,
                 "bundle_git_sha": m.git_sha, "healthy_rule": self.bundle.rule.get("healthy_rule"),
                 "rule_status": self.bundle.rule.get("status"), "train_speed_range_hz": m.data["train_speed_range_hz"],
@@ -136,10 +159,10 @@ class Engine:
                 ("signal_quality", "Signal quality", steps.get("signal_quality"),
                  f"speed {q['shaft_speed_hz']:.2f} Hz; {len(q['warnings'])} warning(s)"),
                 ("models", "Models scored", steps.get("models"),
-                 f"CNN-6 top {d['top_class']} (MSP {s['msp']:.4f}); LR {d['lr_secondary']['top_class']}; "
+                 f"CNN-6 top {d['top_class']} (MSP {fmt_score(s['msp'])}); LR {d['lr_secondary']['top_class']}; "
                  f"Mahalanobis {s['maha']:.2f}; AE {s['ae_error']:.3f}; B1s {s['b1s']:.3f}"),
                 ("decision_rule", "Decision rule", steps.get("decision_rule"),
-                 f"rule {d['rule_variant']} → {d['display_label']}"),
+                 f"provisional research setting → {d['display_label']}"),
                 ("physics", "Physics cursors and envelope spectrum", steps.get("physics"),
                  f"cursors at {q['shaft_speed_hz']:.2f} Hz"),
                 ("explanations", "Explanations", steps.get("explanations"), "LR contributions; CNN map (advanced)"),

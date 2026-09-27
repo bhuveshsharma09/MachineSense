@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 
 from backend.engine import (Engine, InputError, ReservedRecordingError, ReservedUploadError, UploadError,
                             parse_upload)
+from backend.checks import assessment
 from backend.report import build_report, build_sections
 from backend.settings import showcase_file
 
@@ -39,7 +40,8 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None) -> FastA
         cfg = eng.bundle.config
         if kind == "channels":
             from ml.inference import _metadata
-            return channel_evidence(x, fr, cfg, _metadata().reset_index(), rec_id)
+            d = eng.case(case_id)["diagnosis"]
+            return channel_evidence(x, fr, cfg, _metadata().reset_index(), rec_id, eng.variation, d["decision"], d["caution"])
         return signals(x, fr, cfg)
 
     def _need(eng: Engine, case_id: str) -> dict:
@@ -102,7 +104,7 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None) -> FastA
     @app.get("/api/cases/{case_id}/activity")
     def activity(case_id: str, request: Request):
         return {"case_id": case_id, "steps": _need(engine(request), case_id)["activity"],
-                "planned": "investigation agents (App-2b); not connected"}
+                "planned": "investigation agents; planned, not connected"}
 
     @app.get("/api/cases/{case_id}/channels")
     def channels(case_id: str, request: Request):
@@ -122,7 +124,8 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None) -> FastA
         rec = _need(eng, case_id)["record"]
         ch = _evidence(eng, case_id, "channels") if eng.case_array(case_id) is not None else None
         return JSONResponse({"case_id": case_id, "format": "markdown", "report": build_report(rec),
-                             "sections": build_sections(rec, ch), "tags": ["Measured", "Model", "Guidance", "Missing"],
+                             "sections": build_sections(rec, ch), "assessment": assessment(rec),
+                             "tags": ["Measured", "Model", "Guidance", "Missing"],
                              "generated_by": "fixed template from the evidence record; no language model"})
 
     return app

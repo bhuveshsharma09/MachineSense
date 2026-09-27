@@ -43,7 +43,7 @@ def test_channels_are_ml_feature_values_against_a_training_normal(client, case):
     pool = _pool(client).set_index("rec_id")
     assert ref_id != REC and pool.loc[ref_id, "class10"] == "normal"
     assert pool.loc[ref_id, "used_for"] == "model training"  # never a calibration (val) or reserved recording
-    assert 1 <= len(ch["largest_change"]) <= 2 and "not a calibrated anomaly test" in ch["label"]
+    assert len(ch["marked"]) <= 2 and set(ch["marked"]) <= set(ch["exceeding"]) and "not a calibrated anomaly test" in ch["label"]
     metrics = {k for row in ch["channels"] for k in row["values"]}
     assert not any("ae" in k.split("_") or "error" in k for k in metrics)  # no autoencoder error as channel evidence
 

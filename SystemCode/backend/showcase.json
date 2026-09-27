@@ -3,6 +3,9 @@
  "showcase": [
   {
    "state": "healthy",
+   "states": [
+    "healthy"
+   ],
    "rec_id": "normal__18.432",
    "class10": "normal",
    "used_for": "threshold calibration",
@@ -11,6 +14,9 @@
   },
   {
    "state": "known fault · imbalance",
+   "states": [
+    "known fault · imbalance"
+   ],
    "rec_id": "imbalance__30g__19.456",
    "class10": "imbalance",
    "used_for": "threshold calibration",
@@ -19,6 +25,9 @@
   },
   {
    "state": "known fault · horizontal misalignment",
+   "states": [
+    "known fault · horizontal misalignment"
+   ],
    "rec_id": "horizontal-misalignment__1.0mm__24.9856",
    "class10": "horizontal_misalignment",
    "used_for": "threshold calibration",
@@ -27,6 +36,9 @@
   },
   {
    "state": "known fault · vertical misalignment",
+   "states": [
+    "known fault · vertical misalignment"
+   ],
    "rec_id": "vertical-misalignment__0.51mm__24.9856",
    "class10": "vertical_misalignment",
    "used_for": "threshold calibration",
@@ -35,6 +47,9 @@
   },
   {
    "state": "known fault · underhang bearing",
+   "states": [
+    "known fault · underhang bearing"
+   ],
    "rec_id": "underhang__cage_fault__6g__35.0208",
    "class10": "underhang_cage",
    "used_for": "threshold calibration",
@@ -43,6 +58,9 @@
   },
   {
    "state": "known fault · overhang bearing",
+   "states": [
+    "known fault · overhang bearing"
+   ],
    "rec_id": "overhang__cage_fault__0g__34.2016",
    "class10": "overhang_cage",
    "used_for": "threshold calibration",
@@ -51,6 +69,9 @@
   },
   {
    "state": "healthy with caution",
+   "states": [
+    "healthy with caution"
+   ],
    "rec_id": "normal__20.2752",
    "class10": "normal",
    "used_for": "model training",
@@ -59,6 +80,9 @@
   },
   {
    "state": "further inspection needed",
+   "states": [
+    "further inspection needed"
+   ],
    "rec_id": "imbalance__10g__13.9264",
    "class10": "imbalance",
    "used_for": "threshold calibration",
@@ -67,14 +91,31 @@
   },
   {
    "state": "rule variants disagree",
-   "rec_id": "normal__20.2752",
+   "states": [
+    "rule variants disagree"
+   ],
+   "rec_id": "normal__27.4432",
    "class10": "normal",
    "used_for": "model training",
    "display_label": "healthy — caution: a healthy-baseline check disagrees; consider a recheck",
-   "reason": "rule variants disagree: A healthy, B healthy, C healthy, D unknown"
+   "reason": "decision-rule variants disagree: A healthy, B healthy, C healthy, D unknown"
+  },
+  {
+   "state": "narrow margin",
+   "states": [
+    "narrow margin"
+   ],
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "class10": "overhang_cage",
+   "used_for": "threshold calibration",
+   "display_label": "known fault: overhang cage",
+   "reason": "Exactly at the familiarity (Mahalanobis distance) threshold (ties are accepted)."
   },
   {
    "state": "signal-quality warning",
+   "states": [
+    "signal-quality warning"
+   ],
    "rec_id": "imbalance__25g__15.1552",
    "class10": "imbalance",
    "used_for": "threshold calibration",
@@ -83,6 +124,9 @@
   },
   {
    "state": "speed-range warning",
+   "states": [
+    "speed-range warning"
+   ],
    "rec_id": "normal__13.1072",
    "class10": "normal",
    "used_for": "model training",
@@ -97,6 +141,8 @@
   "healthy with caution": 2,
   "further inspection needed": 3,
   "rule variants disagree": 2,
+  "narrow margin": 4,
+  "checks disagree (banner)": 1,
   "CNN-6 and LR disagree": 0,
   "signal-quality warning": 62
  },

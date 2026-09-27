@@ -7,6 +7,7 @@
 | uploaded arrays (for evidence views) | MACHINESENSE_UPLOADS_DIR | SystemCode/backend/data/uploads |
 | reserved-recording fingerprint index | MACHINESENSE_GUARD_INDEX | SystemCode/backend/data/reserved_fingerprints.json |
 | showcase list | MACHINESENSE_SHOWCASE | SystemCode/backend/showcase.json |
+| typical healthy variation (built from training normals) | MACHINESENSE_VARIATION | SystemCode/backend/data/healthy_variation.json |
 | raw development recordings | (fixed by ml.paths.data_dir) | SystemCode/data/raw_npy |
 | require the bundle in tests | MACHINESENSE_REQUIRE_BUNDLE=1 | off |
 """
@@ -42,6 +43,10 @@ def guard_index() -> Path:
 
 def showcase_file() -> Path:
     return _p("MACHINESENSE_SHOWCASE", BACKEND_DIR / "showcase.json")
+
+
+def variation_file() -> Path:
+    return _p("MACHINESENSE_VARIATION", BACKEND_DIR / "data" / "healthy_variation.json")
 
 
 def raw_dir() -> Path:
