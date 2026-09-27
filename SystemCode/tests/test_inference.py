@@ -9,13 +9,12 @@ import pytest
 
 from ml.inference import (CALIBRATION_SPEED_WARNING, GOLDEN_RECORDINGS, SPEED_WARNING, InputError, ReservedRecordingError, check_rec_id, diagnose, speed_warnings,
                           stable_output as stable)
-from ml.paths import SYSTEM_CODE_DIR, artifacts_dir, data_dir
+from ml.paths import SYSTEM_CODE_DIR, bundle_dir, data_dir
 
-BUNDLE = artifacts_dir() / "bundle"
+BUNDLE = bundle_dir()
 GOLDEN = SYSTEM_CODE_DIR / "tests" / "golden" / "diagnose_golden.json"
 GOLDEN_RECS = list(GOLDEN_RECORDINGS)
-needs_bundle = pytest.mark.skipif(not (BUNDLE / "manifest.json").exists() or not (data_dir() / "raw_npy").exists(),
-                                  reason="bundle or raw recordings not available")
+needs_bundle = pytest.mark.needs_bundle("manifest.json")
 
 
 def test_reserved_recordings_are_refused():

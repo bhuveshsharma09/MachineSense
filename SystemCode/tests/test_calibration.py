@@ -9,11 +9,10 @@ import pytest
 
 from ml.arbitrator import VARIANTS, decide
 from ml.calibration import thresholds_from_scores
-from ml.paths import SYSTEM_CODE_DIR, artifacts_dir, data_dir
+from ml.paths import SYSTEM_CODE_DIR, bundle_dir, data_dir
 
-BUNDLE = artifacts_dir() / "bundle"
-needs_bundle = pytest.mark.skipif(not (BUNDLE / "calibration_scores.csv").exists() or not (data_dir() / "raw_npy").exists(),
-                                  reason="bundle or raw recordings not available")
+BUNDLE = bundle_dir()
+needs_bundle = pytest.mark.needs_bundle("calibration_scores.csv")
 BOUNDARY = {"normal__18.432": ("tau_e", "tau_b"), "overhang__outer_race__20g__18.2272": ("tau_p",),
             "overhang__cage_fault__6g__13.1072": ("tau_d",)}
 DECLARED = {"normal__18.432": "healthy", "overhang__outer_race__20g__18.2272": "overhang_outer",

@@ -22,7 +22,7 @@ from ml.evaluation import CLASS10_TO_6, aggregate_recordings, to_class6
 from ml.features import comb_lines, envelope_order_spectrum, recording_features
 from ml.labels import CLASS10
 from ml.openset import mahalanobis_distances, recording_probs
-from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, artifacts_dir, data_dir
+from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, artifacts_dir, bundle_dir, data_dir
 from ml.preprocess import (TACHO, clean_recording, estimate_speed, quality_stats, remove_mic_bursts,
                            tacho_edges_speed, tacho_glitch_count, window_speeds_detail)
 from ml.spectro import stacked_representation
@@ -48,23 +48,22 @@ def _metadata() -> pd.DataFrame:
     return pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv").set_index("rec_id")
 
 
-BUNDLE_DIR = artifacts_dir() / "bundle"
 
 
 @lru_cache(maxsize=1)
 def _refusal_config() -> Config:
     """Config for the reserved-rec_id check before any model is loaded: the bundle's packaged configuration (verified)
     when a bundle is present, otherwise the repo config (the check only needs the development-pool rule)."""
-    if (BUNDLE_DIR / "manifest.json").exists():
+    if (bundle_dir() / "manifest.json").exists():
         from ml.bundle import bundle_config
-        return bundle_config(BUNDLE_DIR)
+        return bundle_config(bundle_dir())
     return load_config(DEFAULT_CONFIG)
 
 
 @lru_cache(maxsize=2)
 def get_bundle(directory: str | None = None):
     from ml.bundle import load_bundle
-    return load_bundle(Path(directory) if directory else BUNDLE_DIR, device="cpu")
+    return load_bundle(Path(directory) if directory else bundle_dir(), device="cpu")
 
 
 def reserved(rec_id: str, meta: pd.DataFrame, cfg: Config) -> bool:

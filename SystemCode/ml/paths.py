@@ -15,6 +15,9 @@ CONFIGS_DIR = SYSTEM_CODE_DIR / "configs"
 DEFAULT_CONFIG = CONFIGS_DIR / "base.yaml"
 
 DATA_ROOT_ENV = "MACHINESENSE_DATA_ROOT"
+DATA_DIR_ENV = "MACHINESENSE_DATA_DIR"        # derived data (raw_npy/, cache/, …); default SystemCode/data
+BUNDLE_DIR_ENV = "MACHINESENSE_BUNDLE_DIR"    # the approved model bundle; default SystemCode/artifacts/bundle
+REQUIRE_BUNDLE_ENV = "MACHINESENSE_REQUIRE_BUNDLE"
 
 
 def _resolve(p: str | Path) -> Path:
@@ -52,8 +55,20 @@ def mlruns_dir() -> Path:
 
 
 def data_dir() -> Path:
-    """Gitignored derived data: raw_npy/, windows.parquet, cache/."""
-    return SYSTEM_CODE_DIR / "data"
+    """Gitignored derived data: raw_npy/, windows.parquet, cache/. $MACHINESENSE_DATA_DIR, else SystemCode/data."""
+    env = os.environ.get(DATA_DIR_ENV)
+    return _resolve(env) if env else SYSTEM_CODE_DIR / "data"
+
+
+def bundle_dir() -> Path:
+    """The approved model bundle: $MACHINESENSE_BUNDLE_DIR, else SystemCode/artifacts/bundle."""
+    env = os.environ.get(BUNDLE_DIR_ENV)
+    return _resolve(env) if env else artifacts_dir() / "bundle"
+
+
+def require_bundle() -> bool:
+    """MACHINESENSE_REQUIRE_BUNDLE=1: bundle-dependent tests fail instead of skipping."""
+    return os.environ.get(REQUIRE_BUNDLE_ENV, "") == "1"
 
 
 def artifacts_dir() -> Path:
