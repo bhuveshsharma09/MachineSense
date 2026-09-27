@@ -10,7 +10,8 @@ from backend.app import create_app
 
 OUT = Path(__file__).resolve().parent / "fixtures"
 CASES = {"known_fault": "overhang__cage_fault__0g__34.2016", "unknown": "imbalance__10g__13.9264",
-         "caution": "normal__20.2752", "poor_quality": "imbalance__25g__15.1552", "healthy": "normal__13.1072"}
+         "caution": "normal__20.2752", "poor_quality": "imbalance__25g__15.1552", "healthy": "normal__13.1072",
+         "disagree": "normal__27.4432", "narrow": "overhang__cage_fault__6g__13.1072", "plain_healthy": "normal__18.432"}
 
 
 def trim(sig: dict) -> dict:

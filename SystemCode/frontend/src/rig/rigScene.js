@@ -399,6 +399,7 @@ export function createRig(container, opts = {}) {
       el.style.visibility = pv.z < 1 ? 'visible' : 'hidden';
       if (id === st.sel) { sx = x; sy = y; }
     });
+    avoidCollisions(ov, ins);
     const card = ov.querySelector('[data-follow]');
     if (card && sx !== null) {
       const cw = card.offsetWidth, ch = card.offsetHeight;
@@ -409,6 +410,35 @@ export function createRig(container, opts = {}) {
       card.style.opacity = '1';
     }
   }
+  // Callout collision avoidance (Stage App-2a.2): place labels top to bottom; flip a label to the left of its marker when
+  // it would run under the right-hand panel; push it down past labels already placed and past the legend.
+  function avoidCollisions(ov, ins) {
+    const placed = [], items = [];
+    const cr = container.getBoundingClientRect();
+    const lg = document.querySelector('.legend');
+    if (lg) { const r = lg.getBoundingClientRect(); placed.push({ x: r.left - cr.left, y: r.top - cr.top, w: r.width, h: r.height }); }
+    ov.querySelectorAll('[data-anchor]').forEach(el => {
+      const lab = el.querySelector('.ms-label');
+      if (!lab || el.style.visibility === 'hidden') return;
+      const m = /translate3d\(([-\d.]+)px, ?([-\d.]+)px/.exec(el.style.transform);
+      if (m) items.push({ lab, x: +m[1], y: +m[2], w: lab.offsetWidth, h: lab.offsetHeight });
+    });
+    items.sort((a, b) => a.y - b.y);
+    items.forEach(it => {
+      const flip = it.x + 18 + it.w > W - ins.right - 8;
+      const bx = flip ? it.x - 18 - it.w : it.x + 18, by = it.y - 14;
+      let dy = 0;
+      for (let k = 0; k < 10; k++) {
+        const hit = placed.find(p => bx < p.x + p.w && bx + it.w > p.x && by + dy < p.y + p.h && by + dy + it.h > p.y);
+        if (!hit) break;
+        dy = hit.y + hit.h + 4 - by;
+      }
+      placed.push({ x: bx, y: by + dy, w: it.w, h: it.h });
+      it.lab.style.left = (flip ? -18 - it.w : 18) + 'px';
+      it.lab.style.top = (-14 + dy) + 'px';
+    });
+  }
+
   renderer.setAnimationLoop(tickFrame);
   apply();
 

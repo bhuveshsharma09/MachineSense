@@ -15,7 +15,8 @@ function chartFor(view, chId, record, signals) {
     const p = linePath(env.orders, ys, 0, ENV_MAXO, ymax);
     const cur = record.physics.cursors_orders;
     const markers = ENV_CURSORS.map(([k, lab]) => {
-      const o = k === "bsf" ? cur.bsf[Math.floor(cur.bsf.length / 2)] : cur[k][0];
+      // comb_lines lists 2×BSF ± FTF and BPFI with its ±1× sidebands: the defect line is the middle of the first triple
+      const o = k === "bsf" || k === "bpfi" ? cur[k][1] : cur[k][0];
       return { left: (o / ENV_MAXO) * 100 + "%", label: lab, color: K.orangeT };
     });
     return { el: <Svg paths={[{ d: p.area, fill: al(K.violet, 0.1) }, { d: p.line, stroke: K.violet, w: 1.3 }]} />, markers,
@@ -56,23 +57,33 @@ function statsFor(chId, record, channels) {
   const row = channels?.channels?.find((c) => c.channel === chId);
   if (!row) return { stats: [], note: "Measured values are loading." };
   const v = row.values, r = row.reference_values, ref = channels.reference;
-  const changed = row.change_metric ? `${row.change_metric.replace(/_/g, " ")} ×${row.change.toFixed(2)} of the reference` : "no ratio available";
+  const METRIC = { rms: "RMS", order_1x: "1× amplitude", order_2x: "2× amplitude", env_bpfo1: "envelope BPFO", env_bpfi1: "envelope BPFI", env_bsf2: "envelope 2×BSF", env_ftf1: "envelope FTF" };
+  const change = row.change_metric
+    ? `${METRIC[row.change_metric] || row.change_metric} ${changeText(row)} vs the reference (typical healthy variation ×${row.band.toFixed(1)}; ${row.exceeds ? "beyond it" : "within it"})`
+    : "no comparable metric";
+  const refTxt = `healthy training recording ${ref.rec_id} (${ref.speed_hz.toFixed(2)} Hz)`;
   if (chId === "mic") {
     return {
-      stats: [{ k: "RMS", v: f3(v.rms) }, { k: "Ref. RMS", v: f3(r.rms) }, { k: "Change", v: row.change ? "×" + row.change.toFixed(2) : "—" },
+      stats: [{ k: "RMS", v: f3(v.rms) }, { k: "Ref. RMS", v: f3(r.rms) }, { k: "Change", v: row.change_metric ? changeText(row) : "—", c: row.exceeds ? K.limeT : K.ink },
         { k: "Bursts", v: String(record.signal_quality.mic_bursts_removed), c: record.signal_quality.mic_bursts_removed ? K.amberT : K.ink }],
-      note: `Cleaned microphone RMS ${f3(v.rms)} V; healthy training reference ${ref.rec_id} (${ref.speed_hz.toFixed(2)} Hz): ${f3(r.rms)} V.`,
+      note: `Cleaned microphone RMS ${f3(v.rms)} V; ${refTxt}: ${f3(r.rms)} V. Change: ${change}.`,
     };
   }
-  let note = `RMS ${f3(v.rms)} V, 1× ${f3(v.order_1x)} V, 2× ${f3(v.order_2x)} V; healthy training reference ${ref.rec_id} (${ref.speed_hz.toFixed(2)} Hz): RMS ${f3(r.rms)}, 1× ${f3(r.order_1x)}, 2× ${f3(r.order_2x)}. Largest change: ${changed}.`;
+  let note = `RMS ${f3(v.rms)} V, 1× ${f3(v.order_1x)} V, 2× ${f3(v.order_2x)} V, excess kurtosis ${v.kurtosis.toFixed(2)} (normal ≈ 0); ${refTxt}: RMS ${f3(r.rms)}, 1× ${f3(r.order_1x)}, 2× ${f3(r.order_2x)}, excess kurtosis ${r.kurtosis.toFixed(2)}. Largest change: ${change}.`;
   if (v.env_bpfo1 != null) note += ` Envelope lines (ratio to the envelope median): BPFO ${f3(v.env_bpfo1)}, BPFI ${f3(v.env_bpfi1)}, 2×BSF ${f3(v.env_bsf2)}, FTF ${f3(v.env_ftf1)} (reference ${f3(r.env_bpfo1)}, ${f3(r.env_bpfi1)}, ${f3(r.env_bsf2)}, ${f3(r.env_ftf1)}).`;
   return {
-    stats: [{ k: "RMS", v: f3(v.rms) }, { k: "1×", v: f3(v.order_1x) }, { k: "2×", v: f3(v.order_2x) }, { k: "Kurtosis", v: v.kurtosis.toFixed(2) }],
+    stats: [{ k: "RMS", v: f3(v.rms) }, { k: "1×", v: f3(v.order_1x) }, { k: "Change", v: row.change_metric ? changeText(row) : "—", c: row.exceeds ? K.limeT : K.ink },
+      { k: "Excess kurt.", v: v.kurtosis.toFixed(2) }],
     note,
   };
 }
 
-export default function Inspector({ part, status, chId, onChannel, view, onView, record, channels, signals, onClose }) {
+// "↑ ×2.1" / "↓ ×3.3": the direction and the change factor max(ratio, 1/ratio).
+export function changeText(row) {
+  return `${row.direction === "up" ? "↑" : "↓"} ×${row.change_factor.toFixed(1)}`;
+}
+
+export default function Inspector({ part, status, chId, onChannel, view, onView, record, channels, signals, onClose, maxHeight }) {
   const chips = part.ch.length > 1 ? part.ch : [];
   const hasEnv = !!record?.physics?.envelope_spectrum?.channels?.[chId];
   const views = [["spectrum", "Spectrum"], ...(hasEnv ? [["envelope", "Envelope"]] : []), ["waveform", "Waveform"]];
@@ -81,7 +92,7 @@ export default function Inspector({ part, status, chId, onChannel, view, onView,
   const st = record ? statsFor(chId, record, channels) : null;
   return (
     <div role="dialog" aria-label={part.full || part.label} className="glass-strong"
-      style={{ width: 316, maxHeight: "calc(100vh - 340px)", overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, padding: "16px 16px 14px", borderRadius: 18 }}>
+      style={{ width: 316, maxHeight: maxHeight || "calc(100vh - 340px)", overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, padding: "16px 16px 14px", borderRadius: 18 }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
           <span className="mono kicker">{part.kind === "sensor" ? "Sensor" : "Component"}</span>
@@ -111,12 +122,12 @@ export default function Inspector({ part, status, chId, onChannel, view, onView,
               ))}
             </div>
           </div>
-          <div className="chart" style={v === "envelope" ? { marginTop: 26 } : undefined}>
+          <div className="chart" style={v === "envelope" ? { marginTop: 34 } : undefined}>
             {chart.el}
             {chart.markers.map((m, i) => (
               <span key={m.label + m.left}>
                 <span style={{ position: "absolute", left: m.left, top: 0, bottom: 0, borderLeft: "1px dashed " + m.color, opacity: 0.8 }} />
-                <span className="mono" style={{ position: "absolute", left: m.left, top: v === "envelope" ? -14 - (i % 2) * 11 : -14, transform: "translateX(-50%)", fontSize: 9.5, color: m.color, whiteSpace: "nowrap" }}>{m.label}</span>
+                <span className="mono" style={{ position: "absolute", left: m.left, top: v === "envelope" ? -14 - (i % 3) * 10 : -14, transform: "translateX(-50%)", fontSize: 9.5, color: m.color, whiteSpace: "nowrap" }}>{m.label}</span>
               </span>
             ))}
             {chart.ticks.map((t) => (

@@ -19,7 +19,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @keyframes ms-slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
-.ms-root { position: relative; height: 100vh; min-height: 760px; min-width: 1180px; overflow: hidden; font-size: 14px; line-height: 1.45;
+.ms-root { position: relative; height: 100vh; min-height: 680px; min-width: 1240px; overflow: hidden; font-size: 14px; line-height: 1.45;
   background: radial-gradient(ellipse 75% 70% at 38% 46%, oklch(0.978 0.003 85) 0%, oklch(0.948 0.004 85) 55%, oklch(0.905 0.005 85) 100%); }
 .capture [data-anchor] { opacity: 0; }
 .glass { background: oklch(0.99 0.002 85 / 0.68); backdrop-filter: blur(22px) saturate(1.25); -webkit-backdrop-filter: blur(22px) saturate(1.25);
@@ -58,16 +58,19 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .ghost-btn { border-radius: 11px; border: 1px solid oklch(0.23 0.006 260 / 0.14); background: oklch(1 0 0 / 0.5); font-size: 13px; color: oklch(0.50 0.008 260); cursor: not-allowed; }
 .tile { min-width: 0; display: flex; flex-direction: column; gap: 4px; padding: 7px 8px; border-radius: 11px; border: 1px solid; text-align: left; }
 .tile:not(:disabled):hover { background: oklch(1 0 0 / 0.75) !important; }
-.dx-title { font-size: 30px; font-weight: 300; letter-spacing: -0.022em; line-height: 1.1; }
+.dx-title { font-size: 28px; font-weight: 300; letter-spacing: -0.022em; line-height: 1.1; }
 .dx-sub { margin: 0; font-size: 13.5px; line-height: 1.5; color: oklch(0.38 0.008 260); }
 .progress { height: 3px; border-radius: 2px; background: oklch(0.23 0.006 260 / 0.08); overflow: hidden; }
 .progress > div { height: 100%; width: 40%; background: oklch(0.23 0.006 260); animation: ms-slide 1.4s ease-in-out infinite; }
-.model-row { display: grid; grid-template-columns: 112px minmax(0,1fr) auto; gap: 10px; align-items: baseline; font-size: 13px; }
+.model-row { display: grid; grid-template-columns: minmax(0,1fr) auto; grid-template-areas: "lbl lbl" "cls sc"; column-gap: 10px; align-items: baseline; font-size: 13px; }
+.model-row .lbl { grid-area: lbl; } .model-row .cls { grid-area: cls; } .model-row .sc { grid-area: sc; }
 .model-row > span:first-child { font-size: 10.5px; color: oklch(0.50 0.008 260); }
 .model-row > span:last-child { font-size: 12px; color: oklch(0.40 0.008 260); }
-.check-row { display: grid; grid-template-columns: minmax(0,1fr) auto 34px; gap: 8px; align-items: baseline; font-size: 12.5px; }
+.check-row { display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 8px; align-items: baseline; font-size: 12.5px; }
 .check-row em { display: block; font-style: normal; font-size: 10.5px; color: oklch(0.50 0.008 260); }
-.check-row .mono { font-size: 11px; color: oklch(0.40 0.008 260); text-align: right; }
+.check-row .mono { font-size: 11px; color: oklch(0.40 0.008 260); text-align: right; white-space: nowrap; }
+.check-status { grid-column: 1 / -1; font-size: 11px; color: oklch(0.50 0.008 260); }
+.check-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pill { font-size: 11.5px; padding: 3px 8px; border-radius: 7px; background: oklch(0.23 0.006 260 / 0.06); }
 .pill b { font-family: "Geist Mono", monospace; font-weight: 500; font-size: 10.5px; margin-right: 4px; }
 .badge { font-family: "Geist Mono", monospace; font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: oklch(0.48 0.008 260);
@@ -82,3 +85,34 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .timeline .t { flex: none; font-size: 10px; color: oklch(0.50 0.008 260); }
 .timeline .agent { display: block; font-size: 11.5px; color: oklch(0.50 0.008 260); }
 .timeline .res { display: block; font-size: 12.5px; line-height: 1.45; color: oklch(0.40 0.008 260); }
+
+/* Layout (Stage App-2a.2): positions from the CSS variables set by Workspace.layoutFor; compact below 1400 × 820. */
+.aside { top: var(--top); width: var(--aside-w); }
+.dx-block { padding: 16px 20px; gap: 10px; border-bottom: 1px solid oklch(0.23 0.006 260 / 0.08); }
+.in-sample { font-size: 12px; line-height: 1.4; padding: 6px 10px; border-radius: 9px; border: 1px dashed oklch(0.50 0.11 65 / 0.5);
+  background: oklch(0.80 0.14 75 / 0.1); color: oklch(0.36 0.05 60); }
+.strip { right: calc(var(--aside-w) + 32px); height: var(--strip-h); }
+.facts { flex: 0 0 210px; }
+.fact-v { font-size: 14.5px; }
+.tile { gap: 2px; padding: 6px 7px; }
+.tile-name { font-size: 11px; color: oklch(0.35 0.007 260); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-v { font-size: 11px; white-space: nowrap; }
+.controls { position: absolute; left: 16px; right: calc(var(--aside-w) + 32px); bottom: calc(var(--strip-h) + 28px); z-index: 2;
+  display: flex; align-items: center; gap: 8px; pointer-events: none; }
+.controls-note { margin-left: auto; font-size: 11.5px; color: oklch(0.45 0.008 260); text-align: right; line-height: 1.35; }
+.legend { z-index: 2 !important; top: calc(var(--top) + 14px); right: calc(var(--aside-w) + 48px); width: 250px; }
+.hero { position: absolute; left: 36px; top: calc(var(--top) + 26px); z-index: 1; pointer-events: none; display: flex; flex-direction: column;
+  gap: 4px; max-width: min(560px, calc(100vw - var(--aside-w) - 360px)); transition: opacity 0.35s ease; }
+.hero-k { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: oklch(0.48 0.008 260); }
+.hero-t { font-size: 34px; font-weight: 300; letter-spacing: -0.02em; line-height: 1.08; overflow-wrap: anywhere; }
+.hero-label { font-size: 15px; color: oklch(0.30 0.006 260); }
+.hero-s { font-size: 13.5px; color: oklch(0.40 0.008 260); }
+.compact .facts { flex-basis: 172px; gap: 3px !important; }
+.compact .facts > div { padding-bottom: 2px !important; }
+.compact .facts span { font-size: 11.5px !important; }
+.compact .fact-v { font-size: 13px; }
+.compact .hero-t { font-size: 26px; }
+.compact .dx-title { font-size: 23px; }
+.compact .dx-block { padding: 12px 16px; gap: 8px; }
+.compact .legend { width: auto; min-width: 150px; max-width: 250px; }
+.compact .controls-note { font-size: 10.5px; }

@@ -92,10 +92,10 @@ export function qualityFlags(record) {
   return out;
 }
 
-// Sensors of the 1–2 channels with the largest change vs the healthy training reference (lime), excluding amber ones.
+// Sensors of the channels changed beyond typical healthy variation (lime; at most 2), excluding amber ones.
 export function unusualSensors(channels, flags = {}) {
   if (!channels) return [];
-  return [...new Set(channels.largest_change.map((c) => CH[c]?.sensor).filter(Boolean))].filter((s) => !flags[s]);
+  return [...new Set((channels.marked || []).map((c) => CH[c]?.sensor).filter(Boolean))].filter((s) => !flags[s]);
 }
 
 // Warnings to show: every signal-quality warning, except the calibration-speed warning on a non-healthy verdict.
@@ -105,28 +105,16 @@ export function shownWarnings(record) {
   return record.signal_quality.warnings.filter((w) => healthy || w !== CALIBRATION_SPEED_WARNING);
 }
 
-export function checks(record) {
-  const d = record.diagnosis, s = d.scores, t = d.thresholds;
-  const f = (v, n) => Number(v).toFixed(n);
-  return [
-    { name: "Classifier confidence (MSP)", role: "CNN-6 check", value: f(s.msp, 6), op: "≥", thr: f(t.tau_p, 6), pass: s.msp >= t.tau_p },
-    { name: "Familiarity (Mahalanobis)", role: "CNN-6 check", value: f(s.maha, 2), op: "≤", thr: f(t.tau_d, 2), pass: s.maha <= t.tau_d },
-    { name: "Autoencoder error", role: "healthy baseline", value: f(s.ae_error, 4), op: "≤", thr: f(t.tau_e, 4), pass: s.ae_error <= t.tau_e },
-    { name: "Speed-aware baseline (B1s)", role: "healthy baseline", value: f(s.b1s, 4), op: "≤", thr: f(t.tau_b, 4), pass: s.b1s <= t.tau_b },
-  ];
+// A model score in [0, 1] without implying certainty: never "1.0000" or "0.0000" (same rule as backend.checks.fmt_score).
+export function fmtScore(v, digits = 4) {
+  const lim = 10 ** -digits;
+  if (v > 1 - lim) return "> 0." + "9".repeat(digits);
+  if (v < lim) return "< 0." + "0".repeat(digits - 1) + "1";
+  return v.toFixed(digits);
 }
 
-// Reasons the checks disagree (any → the "Checks disagree — recheck recommended" banner).
-export function disagreements(record) {
-  if (!record) return [];
-  const d = record.diagnosis, out = [];
-  const vals = Object.values(d.rule_comparison || {});
-  if (new Set(vals).size > 1) out.push("the decision-rule variants disagree");
-  if (d.caution) out.push("a healthy-baseline check disagrees (caution)");
-  if (d.top_class !== d.lr_secondary.top_class) out.push("CNN-6 and the secondary logistic regression rank different classes first");
-  if (d.decision === "unknown") out.push("the classifier's checks did not pass");
-  return out;
-}
+// User-facing text without internal rule codes (limitations come from the bundle manifest).
+export const cleanText = (x) => x.replace(/\s*\((?:rule )?B_with_caution\)/g, "").replace("provisional demo default", "provisional research setting");
 
 export function verdict(record) {
   const d = record.diagnosis;
@@ -134,6 +122,13 @@ export function verdict(record) {
   if (d.decision === "unknown") return { kind: "further", chip: "Further inspection needed" };
   if (d.caution) return { kind: "caution", chip: "Healthy — caution" };
   return { kind: "healthy", chip: "Healthy" };
+}
+
+// The verdict heading: the category for healthy / caution / unknown; the fault class for a known fault (the category
+// then appears once, as the chip).
+export function verdictTitle(record) {
+  const d = record.diagnosis;
+  return d.decision === "known_fault" ? human(d.fault_class) : verdict(record).chip;
 }
 
 export function recordingTitle(rec) {

@@ -15,7 +15,7 @@ export function markerFor(h, { fault, cand, unusual, flags, sel, hover, labelsAl
   if (isS && flags[h.id]) {
     fill = K.amber; border = "2px solid " + K.white; tag = flags[h.id]; tagColor = K.amberT; pulse = al(K.amber, 0.6); labelBorder = al(K.amber, 0.6);
   } else if (isS && unusual.includes(h.id)) {
-    fill = K.lime; border = "2px solid " + K.ink; tag = "Largest change vs healthy reference · measured"; tagColor = K.limeT; pulse = al(K.lime, 0.75); labelBorder = al(K.limeT, 0.45);
+    fill = K.lime; border = "2px solid " + K.ink; tag = "Change beyond typical healthy variation · measured"; tagColor = K.limeT; pulse = al(K.lime, 0.75); labelBorder = al(K.limeT, 0.45);
   }
   if (!isS && fault.includes(h.id)) {
     fill = K.orange; border = "2px solid " + K.white; ring = { b: "1.5px solid " + K.orange, bg: al(K.orange, 0.14) };
@@ -51,7 +51,7 @@ function Marker({ m, onClick, onEnter, onLeave, style }) {
   );
 }
 
-export default function Scene({ state, onSelect, onHover, inspector, forceStatic = false, captureMode = false }) {
+export default function Scene({ state, onSelect, onHover, inspector, forceStatic = false, captureMode = false, insets = INSETS }) {
   const sceneRef = useRef(null), overlayRef = useRef(null), rig = useRef(null);
   const [mode, setMode] = useState(forceStatic ? "static" : "loading");
   const [anchors, setAnchors] = useState(null);
@@ -89,7 +89,7 @@ export default function Scene({ state, onSelect, onHover, inspector, forceStatic
     if (!rig.current || mode !== "3d") return;
     rig.current.update({
       sel: state.sel, hover: state.hover, exploded: state.exploded, fault: state.fault, cand: state.cand,
-      unusual: state.unusual, unusable: Object.keys(state.flags), insets: captureMode ? { top: 0, right: 0, bottom: 0, left: 0 } : INSETS,
+      unusual: state.unusual, unusable: Object.keys(state.flags), insets: captureMode ? { top: 0, right: 0, bottom: 0, left: 0 } : insets,
     });
   });
 
@@ -105,7 +105,7 @@ export default function Scene({ state, onSelect, onHover, inspector, forceStatic
     const a = anchors || {};
     return (
       <>
-        <div style={{ position: "absolute", left: INSETS.left, right: INSETS.right, top: INSETS.top, bottom: INSETS.bottom, zIndex: 0, display: "grid", placeItems: "center" }}>
+        <div style={{ position: "absolute", left: insets.left, right: insets.right, top: insets.top, bottom: insets.bottom, zIndex: 0, display: "grid", placeItems: "center" }}>
           <div style={{ position: "relative", width: "min(100%, calc((100vh - 314px) * 1.6))", aspectRatio: "1.6" }}>
             <img src={FALLBACK.img} alt="Rendered frame of the illustrative 3D rig" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", mixBlendMode: "multiply", WebkitMaskImage: "radial-gradient(ellipse 50% 50% at 50% 50%, #000 70%, transparent 100%)", maskImage: "radial-gradient(ellipse 50% 50% at 50% 50%, #000 70%, transparent 100%)" }} />
             <div style={{ position: "absolute", inset: 0, zIndex: 3, pointerEvents: "none" }}>
@@ -116,7 +116,7 @@ export default function Scene({ state, onSelect, onHover, inspector, forceStatic
           </div>
           <span className="mono kicker" style={{ position: "absolute", bottom: 4 }}>Static view · rendered frame of the 3D rig (WebGL unavailable)</span>
         </div>
-        {inspector && <div style={{ position: "absolute", left: 36, top: INSETS.top + 8, zIndex: 6 }}>{inspector}</div>}
+        {inspector && <div style={{ position: "absolute", left: 36, top: insets.top + 8, zIndex: 6 }}>{inspector}</div>}
       </>
     );
   }
@@ -124,9 +124,9 @@ export default function Scene({ state, onSelect, onHover, inspector, forceStatic
     <>
       <div ref={sceneRef} style={{ position: "absolute", inset: 0, zIndex: 0 }} />
       {mode === "loading" && (
-        <div className="mono kicker" style={{ position: "absolute", left: 16, right: 412, top: 92, bottom: 182, zIndex: 0, display: "grid", placeItems: "center", pointerEvents: "none" }}>Loading 3D rig…</div>
+        <div className="mono kicker" style={{ position: "absolute", left: insets.left, right: insets.right, top: insets.top, bottom: insets.bottom, zIndex: 0, display: "grid", placeItems: "center", pointerEvents: "none" }}>Loading 3D rig…</div>
       )}
-      <div ref={overlayRef} style={{ position: "absolute", inset: 0, zIndex: 3, pointerEvents: "none" }}>
+      <div ref={overlayRef} className="overlay" style={{ position: "absolute", inset: 0, zIndex: 3, pointerEvents: "none" }}>
         {markers.map((m) => <Marker key={m.id} m={m} {...handlers(m)} style={{ visibility: "hidden" }} />)}
         {inspector && <div data-follow="1" style={{ position: "absolute", left: 0, top: 0, opacity: 0, transition: "opacity 0.2s ease", pointerEvents: "auto" }}>{inspector}</div>}
       </div>
