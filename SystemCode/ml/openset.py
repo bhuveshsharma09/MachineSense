@@ -33,16 +33,39 @@ def oscr(u_known: np.ndarray, known_correct: np.ndarray, u_unknown: np.ndarray) 
     return float(np.trapezoid(ccr, fpr))
 
 
-def recording_msp(logits: np.ndarray, rec_ids, classes, floor: float = 1e-6) -> pd.DataFrame:
-    """Per recording from window logits: softmax, clip to [floor, 1], mean log-probability over the recording's windows,
-    renormalise; returns the top class `pred` and its probability `msp` (lower = more unknown)."""
+def recording_probs(logits: np.ndarray, rec_ids, classes, floor: float = 1e-6) -> pd.DataFrame:
+    """Recording class probabilities from window logits: softmax, clip to [floor, 1], mean log-probability over the
+    recording's windows, renormalise. Rows = recordings (first-seen order), columns = classes."""
     z = logits.astype(np.float64)
     logp = z - logsumexp(z, axis=1, keepdims=True)
     lp = pd.DataFrame(np.log(np.clip(np.exp(logp), floor, 1.0)), columns=list(classes)).assign(rec_id=list(rec_ids))
     lp = lp.groupby("rec_id", sort=False).mean()
     p = np.exp(lp.to_numpy())
-    p /= p.sum(axis=1, keepdims=True)
-    return pd.DataFrame({"pred": np.asarray(classes)[p.argmax(axis=1)], "msp": p.max(axis=1)}, index=lp.index)
+    return pd.DataFrame(p / p.sum(axis=1, keepdims=True), index=lp.index, columns=list(classes))
+
+
+def recording_msp(logits: np.ndarray, rec_ids, classes, floor: float = 1e-6) -> pd.DataFrame:
+    """Per recording: the top class `pred` and its probability `msp` (lower = more unknown), from recording_probs."""
+    p = recording_probs(logits, rec_ids, classes, floor)
+    return pd.DataFrame({"pred": p.idxmax(axis=1).to_numpy(), "msp": p.max(axis=1).to_numpy()}, index=p.index)
+
+
+def empirical_rank(x, calibration) -> np.ndarray:
+    """r(x) = #{i : c_i ≤ x} / (n + 1) against the n calibration scores (ties count as ≤); higher = more unfamiliar."""
+    c = np.sort(np.asarray(calibration, dtype=np.float64))
+    return np.searchsorted(c, np.asarray(x, dtype=np.float64), side="right") / (len(c) + 1)
+
+
+def js_divergence(p: np.ndarray, q: np.ndarray) -> np.ndarray:
+    """Row-wise Jensen–Shannon divergence (base 2, in [0, 1]) between probability vectors."""
+    m = 0.5 * (p + q)
+
+    def kl(a, b):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            t = np.where(a > 0, a * np.log2(a / b), 0.0)
+        return t.sum(axis=1)
+
+    return 0.5 * kl(p, m) + 0.5 * kl(q, m)
 
 
 def mahalanobis_min(fit_emb: np.ndarray, fit_labels, emb: np.ndarray) -> tuple[np.ndarray, dict]:

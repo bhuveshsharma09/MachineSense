@@ -134,3 +134,16 @@ def test_weighted_auroc_and_oscr_match_the_unweighted_versions():
     assert np.isclose(weighted_auroc(neg, wn, pos, wp),
                       roc_auc_score(np.r_[np.zeros(len(rn)), np.ones(len(rp_))], np.r_[rn, rp_]))
     assert np.isclose(weighted_oscr(neg, correct, wn, pos, wp), oscr(rn, np.repeat(correct, wn.astype(int)), rp_))
+
+
+def test_empirical_rank_and_js():
+    from ml.openset import empirical_rank, js_divergence, recording_msp, recording_probs
+    cal = [1.0, 2.0, 2.0, 3.0]
+    assert np.allclose(empirical_rank([0.5, 2.0, 3.0, 9.0], cal), [0 / 5, 3 / 5, 4 / 5, 4 / 5])  # ties count as ≤
+    p = np.array([[1.0, 0.0], [0.5, 0.5]])
+    q = np.array([[0.0, 1.0], [0.5, 0.5]])
+    assert np.allclose(js_divergence(p, q), [1.0, 0.0])
+    logits = np.array([[2.0, 0.0], [0.0, 0.0], [0.0, 5.0]])
+    pr = recording_probs(logits, ["r1", "r1", "r2"], ["x", "y"])
+    ms = recording_msp(logits, ["r1", "r1", "r2"], ["x", "y"])
+    assert np.allclose(pr.sum(axis=1), 1) and np.allclose(pr.max(axis=1), ms.msp) and (pr.idxmax(axis=1) == ms.pred).all()
