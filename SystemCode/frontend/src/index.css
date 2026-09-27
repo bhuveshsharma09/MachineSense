@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 /* MachineSense v2 design (design/prototype_v2): tokens and shared panel styles. */
+/* Self-hosted fonts (SIL OFL 1.1; see src/fonts/README.md): the app works offline. */
+@font-face { font-family: "Outfit"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("./fonts/Outfit-latin-variable.woff2") format("woff2"); }
+@font-face { font-family: "Geist Mono"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("./fonts/GeistMono-latin-variable.woff2") format("woff2"); }
 html, body { margin: 0; background: oklch(0.945 0.004 85); color: oklch(0.23 0.006 260); }
 body { font-family: "Outfit", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 button, input, select, textarea { font: inherit; color: inherit; }
