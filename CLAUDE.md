@@ -289,7 +289,65 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage ML-5 — ResNet-18 transfer learning (Track A, development experiment)
+## 7. Current stage: Stage D1 — nested learned unfamiliarity combiner (development data only)
+
+Exploratory development experiment, seed 42 only; the candidate was designed after seeing the 3D and ML-5 results. F1
+stays unrun; reserved tests stay sealed; the bundle, `artifacts/final/`, §12 and the app are unchanged. Nothing enters F1
+unless Bhuvesh amends §12 before F1. Code: `scripts/31_d1_combiner.py`; outputs `results/loco/d1/`.
+
+**Stage D1 protocol (declared before any training).** For each of the 27 Stage 3C LOCO runs (withheld class w, outer
+fold k, seed 42; the saved Stage 2D.1 Q3 assignment, `ml.openset.loco_run_ids`) with fit set F, calibration set C and the
+3C evaluation groups: (a) known-fault recordings of seen folders (role `eval`), (b) known-fault recordings of the unseen
+outer fold k (`foldk_known`), (u) withheld-class recordings of fold k (`foldk_withheld`), and the normals of fold k and of
+the seen folders.
+1. **Inner data (w is never used anywhere).** F is split into halves H1 / H2 by folder: within each known class its
+   folders (every fault class has ≥ 2 folders in every F) are put in a seeded random order (seed 42) and assigned
+   alternately to H1 and H2; **normal-folder exception:** normal has a single folder, so its recordings are split by
+   recording in the same way. For each fault class u ≠ w (8 per run): an inner CNN-6 (Stage 3A recipe and fixed
+   settings, seed 42, vibration channels, `norm_stats` in development mode on its training recordings) and an inner LR
+   (the classical reference, `baselines.logreg` on the capped R1 table) are trained on H1 minus u. They score the H2
+   known-class recordings excluding u (**inner-known rows**, target 0) and every recording of u in F (**inner-unfamiliar
+   rows**, target 1). 8 inner models per run × 27 runs = 216 CNN-6 + 216 LR. **Time guard:** after the first run the
+   total GPU time is estimated; above 3 h the stage stops and is reported.
+2. **Features** (identical for inner and outer rows; the scoring model = the inner models for inner rows, the 3C outer
+   CNN-6 and the 2D.1 outer LR of the run for outer rows): CNN 1 − MSP; CNN Mahalanobis with one shared within-class
+   Ledoit–Wolf covariance fitted on the scoring CNN's own training windows (`ml.openset.mahalanobis_min`); LR 1 − MSP;
+   AE-6 error and B1s, both from the run's OUTER healthy-only models for every row (the 3C AE-6 of the run; B1s refitted
+   on the run's AE fit normals exactly as Stage 3D); CNN top-1 minus top-2 recording probability gap; CNN ≠ LR top-class
+   flag (0/1); measured recording speed. **The signal-quality warning flag of the brief is dropped (Bhuvesh, 28 Sep):
+   CLAUDE.md §3 forbids quality flags as model inputs.** Every continuous feature (all except the 0/1 flag) is
+   rank-normalised with the 3D convention r(x) = #{reference ≤ x} / (n + 1) against the scoring model's own held-out
+   known reference: the H2 known rows of that inner model for inner rows, C for outer rows. Caveat (declared): the AE-6
+   and B1s were fitted on the fit normals, so their values on F's normals (inner rows) are in-sample.
+3. **Combiner (one per run):** L2 logistic regression, C = 1.0, scikit-learn defaults otherwise (lbfgs, no class
+   weights, intercept), fixed; target inner-unfamiliar = 1, inner-known = 0; fitted only on that run's inner rows (all 8
+   inner models pooled). It never sees C, the outer evaluation sets or any w recording.
+4. **Decision rule D1:** the combiner scores C (outer features); τ_s = the 97.5 % calibration order statistic (3D
+   convention; accept iff score ≤ τ_s, ties accepted); C is used only for τ_s. With the outer CNN's top class: normal and
+   score ≤ τ_s → healthy; a fault and score ≤ τ_s → that fault; otherwise unknown. The combiner check REPLACES the MSP and
+   Mahalanobis checks; no AE override. Caution flags as in B_with_caution: a healthy verdict with AE > τ_e and/or
+   B1s > τ_b (τ_e, τ_b: the run's maximum calibration-normal values, as 3C / 3D).
+5. **Evaluation** (instances and distinct recordings; each recording counted in its own run only): per withheld class
+   and macro (mean over folds per class, then over classes): per-run AUROC and OSCR (fold-k known vs withheld; OSCR
+   correctness = the outer CNN's top class) of the combiner score vs CNN Mahalanobis (shared); three-way outcomes on
+   (u); false-unknown rates on (a) and (b) (fault recordings); normals healthy / unknown. Comparison rows: rules B and
+   B_with_caution (identical decisions; caution counted) from the 3C scores, seed 42 (`ml.loco_eval.decide`). Paired
+   bootstrap as in Stage 3C.1: one stratified mixed-unit draw over the whole development pool weights every run's
+   recordings (runs lacking a group in a draw are dropped; the caveat of 3C.1 applies). Combiner coefficients per run,
+   with imbalance and vertical misalignment called out.
+6. **Pre-declared pass criteria (reported pass/fail; nothing is selected):** (i) macro AUROC of the combiner > CNN
+   Mahalanobis (shared), with the paired-bootstrap 95 % lower bound of the difference > 0; AND (ii) fewer (u) instances
+   passed as a known fault than rule B, with the pooled false-unknown rate on (a) and on (b) each ≤ rule B's + 2
+   percentage points.
+7. **Wording:** exploratory development results, seed 42 only; candidates designed after seeing 3D / ML-5. A fail means
+   this combiner did not improve these results, not that the representation is the proven limit. If it passes, a final
+   version would generate inner-unfamiliar rows from each final LOCO model's fit set in the same way, set τ_s on its
+   calibration set, and be declared as a secondary Q3 decision layer, only if Bhuvesh amends §12 before F1.
+- **Tests in this stage** run with `MACHINESENSE_REQUIRE_BUNDLE=1 MACHINESENSE_NO_RESERVED_READ=1`: no reserved raw array
+  is read (the backend guard tests use the existing `backend/data/reserved_fingerprints.json` as is, never rebuilt; the
+  two tests that open a reserved signal are skipped and listed).
+
+## 7a. Previous stage: Stage ML-5 — ResNet-18 transfer learning (Track A, development experiment)
 
 Question: does an ImageNet-pretrained ResNet-18 on the order spectrogram match CNN-6 on closed-set diagnosis (Q2), and
 does it separate the imbalance / vertical-misalignment pair better when one is withheld (targeted Q3)? It does **not**
@@ -340,7 +398,7 @@ change the frozen bundle or the app; ResNet-18 is not added to the bundle (Bhuve
   the name); results under `results/resnet/`; weights (state_dict) under `artifacts/resnet/` and `artifacts/loco/`
   (gitignored). The split hash is unchanged; reserved tests stay sealed; one GPU job at a time (`artifacts/gpu.lock`).
 
-## 7a. Previous stage: Stage ML-4.2 — recalibrate on the deployment scoring path (Track A)
+## 7a2. Earlier stage: Stage ML-4.2 — recalibrate on the deployment scoring path (Track A)
 
 Decision (Bhuvesh, after ML-4.1 item 3): recalibrate the **unchanged** models on the exact CPU scoring path the
 application uses. No retraining, no change to model weights, rule variants or the default rule (B_with_caution).
