@@ -1,0 +1,100 @@
+{
+ "git_sha": "93325b9f12ba303c43b16167e40a9472f259c712-dirty",
+ "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+ "seed": 42,
+ "device": "mps",
+ "models": {
+  "ae6_shared": {
+   "fit_normals": 20,
+   "train_seconds": 13.349611249985173,
+   "final_loss": 0.0839717273513476
+  },
+  "loco_imbalance": {
+   "fit_recordings": 544,
+   "fit_windows": 4896,
+   "fit_normals": 20,
+   "calibration_recordings": 116,
+   "calibration_normals": 5,
+   "train_seconds": 71.9351989160059,
+   "final_loss": 0.0009106723606902984
+  },
+  "loco_horizontal_misalignment": {
+   "fit_recordings": 599,
+   "fit_windows": 5391,
+   "fit_normals": 20,
+   "calibration_recordings": 132,
+   "calibration_normals": 5,
+   "train_seconds": 80.04104429099243,
+   "final_loss": 0.0030815996610746273
+  },
+  "loco_vertical_misalignment": {
+   "fit_recordings": 557,
+   "fit_windows": 5013,
+   "fit_normals": 20,
+   "calibration_recordings": 122,
+   "calibration_normals": 5,
+   "train_seconds": 72.3421054170467,
+   "final_loss": 0.0004947729488371586
+  },
+  "loco_underhang_ball": {
+   "fit_recordings": 597,
+   "fit_windows": 5373,
+   "fit_normals": 20,
+   "calibration_recordings": 130,
+   "calibration_normals": 5,
+   "train_seconds": 77.22541441698559,
+   "final_loss": 0.00046389384695211597
+  },
+  "loco_underhang_cage": {
+   "fit_recordings": 601,
+   "fit_windows": 5409,
+   "fit_normals": 20,
+   "calibration_recordings": 131,
+   "calibration_normals": 5,
+   "train_seconds": 77.8659845420625,
+   "final_loss": 0.0006264115441476909
+  },
+  "loco_underhang_outer": {
+   "fit_recordings": 601,
+   "fit_windows": 5409,
+   "fit_normals": 20,
+   "calibration_recordings": 130,
+   "calibration_normals": 5,
+   "train_seconds": 76.56414250005037,
+   "final_loss": 0.000594475977814948
+  },
+  "loco_overhang_ball": {
+   "fit_recordings": 600,
+   "fit_windows": 5400,
+   "fit_normals": 20,
+   "calibration_recordings": 135,
+   "calibration_normals": 5,
+   "train_seconds": 77.47249145805836,
+   "final_loss": 0.0006997412029239867
+  },
+  "loco_overhang_cage": {
+   "fit_recordings": 599,
+   "fit_windows": 5391,
+   "fit_normals": 20,
+   "calibration_recordings": 133,
+   "calibration_normals": 5,
+   "train_seconds": 76.29932995897252,
+   "final_loss": 0.0028668967286579862
+  },
+  "loco_overhang_outer": {
+   "fit_recordings": 602,
+   "fit_windows": 5418,
+   "fit_normals": 20,
+   "calibration_recordings": 128,
+   "calibration_normals": 5,
+   "train_seconds": 77.86750695796218,
+   "final_loss": 0.0005017630738711921
+  },
+  "r18ft": {
+   "train_recordings": 660,
+   "train_seconds": 661.3144734579837,
+   "final_loss": 0.00016969001536390444,
+   "thresholds": null
+  }
+ }
+}

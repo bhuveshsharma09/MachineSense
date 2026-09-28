@@ -1,0 +1,95 @@
+{
+ "seconds": 182.24187124997843,
+ "thresholds": {
+  "imbalance": {
+   "tau_p": 0.9975634894829291,
+   "tau_d": 26.857539339707998,
+   "tau_e": 0.24307194628097395,
+   "tau_b": 0.8721431922050334,
+   "n_calibration": 116,
+   "order_statistic_r": 115,
+   "n_calibration_normals_tau_e": 5,
+   "n_calibration_normals_tau_b": 5
+  },
+  "horizontal_misalignment": {
+   "tau_p": 0.9921810772507202,
+   "tau_d": 27.83744321390987,
+   "tau_e": 0.24307194628097395,
+   "tau_b": 0.8721431922050334,
+   "n_calibration": 132,
+   "order_statistic_r": 130,
+   "n_calibration_normals_tau_e": 5,
+   "n_calibration_normals_tau_b": 5
+  },
+  "vertical_misalignment": {
+   "tau_p": 0.9994763031203688,
+   "tau_d": 22.411348330740182,
+   "tau_e": 0.24307194628097395,
+   "tau_b": 0.8721431922050334,
+   "n_calibration": 122,
+   "order_statistic_r": 120,
+   "n_calibration_normals_tau_e": 5,
+   "n_calibration_normals_tau_b": 5
+  },
+  "underhang_ball": {
+   "tau_p": 0.9991775893064962,
+   "tau_d": 28.447886230366926,
+   "tau_e": 0.24307194628097395,
+   "tau_b": 0.8721431922050334,
+   "n_calibration": 130,
+   "order_statistic_r": 128,
+   "n_calibration_normals_tau_e": 5,
+   "n_calibration_normals_tau_b": 5
+  },
+  "underhang_cage": {
+   "tau_p": 0.9983245025556619,
+   "tau_d": 22.67048719543483,
+   "tau_e": 0.24307194628097395,
+   "tau_b": 0.8721431922050334,
+   "n_calibration": 131,
+   "order_statistic_r": 129,
+   "n_calibration_normals_tau_e": 5,
+   "n_calibration_normals_tau_b": 5
+  },
+  "underhang_outer": {
+   "tau_p": 0.9989072311370554,
+   "tau_d": 23.848330420518295,
+   "tau_e": 0.24307194628097395,
+   "tau_b": 0.8721431922050334,
+   "n_calibration": 130,
+   "order_statistic_r": 128,
+   "n_calibration_normals_tau_e": 5,
+   "n_calibration_normals_tau_b": 5
+  },
+  "overhang_ball": {
+   "tau_p": 0.9991460528944387,
+   "tau_d": 20.394695612649727,
+   "tau_e": 0.24307194628097395,
+   "tau_b": 0.8721431922050334,
+   "n_calibration": 135,
+   "order_statistic_r": 133,
+   "n_calibration_normals_tau_e": 5,
+   "n_calibration_normals_tau_b": 5
+  },
+  "overhang_cage": {
+   "tau_p": 0.9795786651445187,
+   "tau_d": 22.18078783246823,
+   "tau_e": 0.24307194628097395,
+   "tau_b": 0.8721431922050334,
+   "n_calibration": 133,
+   "order_statistic_r": 131,
+   "n_calibration_normals_tau_e": 5,
+   "n_calibration_normals_tau_b": 5
+  },
+  "overhang_outer": {
+   "tau_p": 0.9988993223743557,
+   "tau_d": 29.327847342065223,
+   "tau_e": 0.24307194628097395,
+   "tau_b": 0.8721431922050334,
+   "n_calibration": 128,
+   "order_statistic_r": 126,
+   "n_calibration_normals_tau_e": 5,
+   "n_calibration_normals_tau_b": 5
+  }
+ }
+}
