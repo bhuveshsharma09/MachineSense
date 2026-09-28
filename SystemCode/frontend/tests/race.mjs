@@ -29,6 +29,8 @@ function mockApi(delays, log) {
     getActivity: tied("activity"), getReport: tied("report"), getChannels: tied("channels"), getSignals: tied("signals"),
     getCase: async (id) => ({ case_id: id, source: "upload", input: { rec_id: null }, limitations: [] }),
     getCaseMeta: async (id) => ({ case_id: id, can_rerun: false, rerun_note: "re-upload the file to run again" }),
+    getExplanation: async (id, { signal } = {}) => { await wait(delays[`explanation:${cases[id]}`] ?? 5, signal); const e = new Error("404"); e.response = { status: 404 }; throw e; },
+    postExplanation: async (id, uf, { signal } = {}) => { await wait(delays[`explain:${cases[id]}`] ?? 5, signal); return { case_id: id, source: "template", text: {} }; },
   };
 }
 
@@ -42,7 +44,10 @@ function watch(name) {
       const want = inputKey(s.input);
       const got = s.input?.kind === "stored" ? `case:${s.input.caseId}` : s.record.input.rec_id;
       check(s.input?.kind === "stored" || got === want, `${name}: record ${got} shown under selection ${want}`);
-      for (const [k, v] of Object.entries(s.ev)) check(!v || v.case_id === s.record.case_id, `${name}: ${k} of another case shown`);
+      for (const [k, v] of Object.entries(s.ev)) {
+        const cid = k === "explanation" ? v?.data?.case_id : v?.case_id;
+        check(!v || (k === "explanation" && !v.data) || cid === s.record.case_id, `${name}: ${k} of another case shown`);
+      }
     } else {
       check(Object.values(s.ev).every((v) => v === null), `${name}: evidence shown without a record`);
     }

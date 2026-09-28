@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  diagnoseRecording, diagnoseUpload, getActivity, getCase, getCaseMeta, getChannels, getHealth, getRecordings, getReport,
-  getShowcase, getSignals, rerunCase,
+  diagnoseRecording, diagnoseUpload, getActivity, getCase, getCaseMeta, getChannels, getExplanation, getHealth, getRecordings,
+  getReport, getShowcase, getSignals, postExplanation, rerunCase,
 } from "./api.js";
 import { createSession } from "./lib/session.js";
 import Scene from "./components/Scene.jsx";
@@ -48,6 +48,7 @@ function Main() {
   if (!session.current) {
     session.current = createSession({
       diagnoseRecording, diagnoseUpload, rerunCase, getCase, getCaseMeta, getActivity, getReport, getChannels, getSignals,
+      getExplanation, postExplanation,
       onCase: (id) => window.history.replaceState(null, "", window.location.search + `#/case/${id}`),
     }, setS);
   }
@@ -81,7 +82,7 @@ function Main() {
   return (
     <Workspace recordings={recordings} showcase={showcase} selection={selection} upload={upload} status={st.status} error={st.error}
       record={st.record} channels={st.ev.channels} signals={st.ev.signals} activity={st.ev.activity} report={st.ev.report}
-      runningFor={st.runningFor} limitations={st.record?.limitations || health?.limitations} tab={tab} onTab={setTab}
+      runningFor={st.runningFor} explanation={st.ev.explanation} onRegenerate={() => session.current.regenerate()} limitations={st.record?.limitations || health?.limitations} tab={tab} onTab={setTab}
       userName={name} needsName={!name || editingName} onChangeName={() => setEditingName(true)}
       onSaveName={(n) => { try { localStorage.setItem(NAME_KEY, n); } catch { /* browser-local only */ } setName(n); setEditingName(false); }}
       onPick={onPick} onFile={onFile} onClearUpload={() => session.current.select(null)} onStart={() => session.current.run()}

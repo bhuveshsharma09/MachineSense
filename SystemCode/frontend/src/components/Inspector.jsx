@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { CHANNEL_LABEL, MEASURE_LABEL, speedText } from "../lib/mechanic.js";
 import { K, al } from "../lib/theme.js";
 import { CH, POS, nf } from "../lib/model.js";
 import { Svg, bandPath, linePath, rangeMax } from "./Charts.jsx";
@@ -83,7 +85,21 @@ export function changeText(row) {
   return `${row.direction === "up" ? "↑" : "↓"} ×${row.change_factor.toFixed(1)}`;
 }
 
-export default function Inspector({ part, status, chId, onChannel, view, onView, record, channels, signals, onClose, maxHeight }) {
+// What was observed on this part's channels, in plain words (App-3 part card).
+function observed(part, record, channels) {
+  if (!record) return "No recording investigated yet.";
+  if (part.ch.includes("tacho")) return speedText(record.signal_quality.shaft_speed_hz) + ".";
+  if (!channels) return "Readings are loading.";
+  const rows = channels.channels.filter((c) => part.ch.includes(c.channel) && c.change_metric);
+  if (!rows.length) return "No comparable reading.";
+  const r = rows.reduce((a, b) => ((b.beyond_band || 0) > (a.beyond_band || 0) ? b : a));
+  return `${MEASURE_LABEL[r.change_metric] || r.change_metric} on the ${CHANNEL_LABEL[r.channel].toLowerCase()}: ${changeText(r)} `
+    + `compared with a healthy example — ${r.exceeds ? "beyond typical healthy variation (different from a healthy example, not a confirmed fault)"
+      : "within typical healthy variation"}.`;
+}
+
+export default function Inspector({ part, status, chId, onChannel, view, onView, record, channels, signals, onClose, maxHeight, initialShowSignal }) {
+  const [showSignal, setShowSignal] = useState(!!initialShowSignal);
   const chips = part.ch.length > 1 ? part.ch : [];
   const hasEnv = !!record?.physics?.envelope_spectrum?.channels?.[chId];
   const views = [["spectrum", "Spectrum"], ...(hasEnv ? [["envelope", "Envelope"]] : []), ["waveform", "Waveform"]];
@@ -103,8 +119,14 @@ export default function Inspector({ part, status, chId, onChannel, view, onView,
       <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: status.color }}>
         <span style={{ width: 8, height: 8, borderRadius: "50%", background: status.dot }} />{status.text}
       </div>
-      <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: K.ink2 }}>{part.desc}</p>
-      {record && chart ? (
+      <div className="card-row"><span className="mono kicker">{part.kind === "sensor" ? "What it measures" : "What this part does"}</span>
+        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: K.ink2 }}>{part.desc}</p></div>
+      <div className="card-row"><span className="mono kicker">What was observed</span>
+        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5 }}>{observed(part, record, channels)}</p></div>
+      <button className="ctl" style={{ pointerEvents: "auto", alignSelf: "flex-start" }} onClick={() => setShowSignal(!showSignal)} aria-expanded={showSignal}>
+        {showSignal ? "Hide signal" : "View signal"}
+      </button>
+      {!showSignal ? null : record && chart ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingTop: 10, borderTop: "1px solid oklch(0.23 0.006 260 / 0.08)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             {chips.map((c) => {
@@ -153,14 +175,14 @@ export default function Inspector({ part, status, chId, onChannel, view, onView,
           {record ? "Readings are loading." : `Run an investigation to see readings for this ${part.kind === "sensor" ? "sensor" : "component"}.`}
         </p>
       )}
-      <div style={{ display: "flex", flexDirection: "column", gap: 2, padding: "9px 11px", borderRadius: 10, border: "1px dashed oklch(0.23 0.006 260 / 0.2)" }}>
+      {showSignal && <div style={{ display: "flex", flexDirection: "column", gap: 2, padding: "9px 11px", borderRadius: 10, border: "1px dashed oklch(0.23 0.006 260 / 0.2)" }}>
         <span className="mono" style={{ fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: K.amberT }}>
           {part.kind === "sensor" ? (part.pos === "approx" ? "Approximate position" : "Illustrative position") : "Illustrative geometry"}
         </span>
         <span style={{ fontSize: 11.5, lineHeight: 1.4, color: K.ink2 }}>
           {part.kind === "sensor" ? POS[part.pos] : "Shape and position approximated from the reference photo. Not a CAD model."}
         </span>
-      </div>
+      </div>}
       <button disabled title={"Ask about this part — " + "available when the investigation assistant is connected"} className="ghost-btn" style={{ height: 36 }}>
         Ask about this part · not connected
       </button>

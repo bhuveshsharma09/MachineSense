@@ -28,3 +28,6 @@ export const getActivity = (id, { signal } = {}) => api.get(`/cases/${id}/activi
 export const getReport = (id, { signal } = {}) => api.get(`/cases/${id}/report`, { signal }).then((r) => r.data);
 export const getChannels = (id, { signal } = {}) => api.get(`/cases/${id}/channels`, { signal }).then((r) => r.data);
 export const getSignals = (id, { signal } = {}) => api.get(`/cases/${id}/signals`, { signal }).then((r) => r.data);
+export const getExplanation = (id, { signal } = {}) => api.get(`/cases/${id}/explanation`, { signal }).then((r) => r.data);
+export const postExplanation = (id, userFields = {}, { signal } = {}) =>
+  api.post(`/cases/${id}/explanation`, { user_fields: userFields }, { signal }).then((r) => r.data);

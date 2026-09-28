@@ -7,7 +7,7 @@
 //   displayed case and the run is still current.
 // Plain JavaScript with an injected `api`, so it runs in Node tests without a browser.
 
-export const EMPTY_EVIDENCE = { activity: null, report: null, channels: null, signals: null };
+export const EMPTY_EVIDENCE = { activity: null, report: null, channels: null, signals: null, explanation: null };
 
 export const inputKey = (input) =>
   !input ? null : input.kind === "dataset" ? input.rec_id : input.kind === "upload" ? input.uploadId : `case:${input.caseId}`;
@@ -37,10 +37,38 @@ export function createSession(api, onChange = () => {}) {
     const live = () => my === seq && !signal.aborted && state.record?.case_id === id;
     const [activity, report] = await Promise.all([api.getActivity(id, { signal }), api.getReport(id, { signal })]);
     if (!live() || activity.case_id !== id || report.case_id !== id) return;
-    set({ ev: { ...state.ev, activity, report }, status: "done", runningFor: null });
+    set({ ev: { ...state.ev, activity, report, explanation: { status: "loading" } }, status: "done", runningFor: null });
+    explain(id, my, signal, false);  // in parallel: a slow model never delays the numbers
     const [channels, signals] = await Promise.all([api.getChannels(id, { signal }), api.getSignals(id, { signal })]);
     if (!live() || channels.case_id !== id || signals.case_id !== id) return;
     set({ ev: { ...state.ev, channels, signals } });
+  }
+
+  // The explanation (App-3): the stored one if any, else generated on the server (language model or template). Tied
+  // to its case_id like every other fetch; its failure never affects the verdict, which comes from the record.
+  async function explain(id, my, signal, regenerate) {
+    const live = () => my === seq && !signal.aborted && state.record?.case_id === id;
+    if (!api.getExplanation) return;
+    const userFields = state.input?.kind === "upload" ? { upload_filename: state.input.file?.name } : {};
+    let e = null;
+    try {
+      if (!regenerate) {
+        try { e = await api.getExplanation(id, { signal }); } catch (err) { if (isAbort(err) || err?.response?.status !== 404) throw err; }
+      }
+      if (!e) e = await api.postExplanation(id, userFields, { signal });
+      if (!live() || e.case_id !== id) return;
+      set({ ev: { ...state.ev, explanation: { status: "ready", data: e } } });
+    } catch (err) {
+      if (!live() || isAbort(err)) return;
+      set({ ev: { ...state.ev, explanation: { status: "error", message: errorInfo(err).message } } });
+    }
+  }
+
+  function regenerate() {
+    const id = state.record?.case_id;
+    if (!id || !controller) return;
+    set({ ev: { ...state.ev, explanation: { status: "loading" } } });
+    explain(id, seq, controller.signal, true);
   }
 
   async function run() {
@@ -90,5 +118,5 @@ export function createSession(api, onChange = () => {}) {
     }
   }
 
-  return { get: () => state, select, run, open, abort };
+  return { get: () => state, select, run, open, abort, regenerate };
 }

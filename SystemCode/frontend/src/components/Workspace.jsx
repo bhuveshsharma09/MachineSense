@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { K, al } from "../lib/theme.js";
 import { PART, cleanText, locations, nf, qualityFlags, recordingTitle, unusualSensors } from "../lib/model.js";
-import Aside from "./Aside.jsx";
-import EvidenceStrip, { factsFor } from "./EvidenceStrip.jsx";
+import Aside, { usePanelView } from "./Aside.jsx";
+import { factsFor } from "./EvidenceStrip.jsx";
+import ReadingDetails from "./ReadingDetails.jsx";
 import Inspector from "./Inspector.jsx";
 import LimitationsBanner from "./LimitationsBanner.jsx";
 import NameModal from "./NameModal.jsx";
@@ -13,7 +14,7 @@ import MobileLayout from "./MobileLayout.jsx";
 // One set of sizes for the panels (CSS variables) and the 3D rig (insets), from the viewport.
 export function layoutFor(w, h) {
   const compact = h < 820 || w < 1400;
-  const aside = w < 1400 ? 340 : 380, strip = h < 820 ? 118 : 140, top = 124;
+  const aside = w < 1400 ? 340 : 380, strip = 44, top = 124;  // App-3: the strip is a floating "Reading details" button
   return { compact, aside, strip, top, insets: { top, right: aside + 32, bottom: strip + 52, left: 16 } };
 }
 
@@ -57,11 +58,13 @@ function Legend({ open, onToggle }) {
 export default function Workspace(props) {
   const { recordings, showcase, selection, upload, status, error, record, channels, signals, activity, report, limitations,
     userName, needsName, onSaveName, onChangeName, onPick, onFile, onClearUpload, onStart, forceStatic, initialUi,
-    runningFor, initialViewport } = props;
+    runningFor, initialViewport, explanation, onRegenerate, initialPanelView } = props;
   const vp = useViewport(initialViewport);
   const L = layoutFor(vp.w, vp.h);
   const [ui, setUi] = useState({ sel: null, hover: null, exploded: false, labels: false, evCh: null, evView: "spectrum", tab: "activity", resetTick: 0, legend: null, ...initialUi });
-  if (vp.w < MOBILE_MAX) return <MobileLayout {...props} />;
+  const [view, setView] = usePanelView(initialPanelView);
+  const [drawer, setDrawer] = useState(!!initialUi?.drawer);
+  if (vp.w < MOBILE_MAX) return <MobileLayout {...props} view={view} onView={setView} />;
   const set = (p) => setUi((u) => ({ ...u, ...p }));
   const tab = props.tab ?? ui.tab;
   const onTab = props.onTab ?? ((t) => set({ tab: t }));
@@ -79,7 +82,7 @@ export default function Workspace(props) {
     const m = markerFor(part, sceneState);
     const status2 = m.tag ? { text: m.tag, color: m.tagColor, dot: m.fill }
       : { text: record ? "Nothing flagged for this part" : "No recording investigated", color: K.ink3, dot: "oklch(0.23 0.006 260 / 0.25)" };
-    inspector = <Inspector part={part} status={status2} chId={chId} onChannel={(c) => set({ evCh: c })} view={ui.evView} onView={(v) => set({ evView: v })}
+    inspector = <Inspector key={part.id} initialShowSignal={!!ui.signal} part={part} status={status2} chId={chId} onChannel={(c) => set({ evCh: c })} view={ui.evView} onView={(v) => set({ evView: v })}
       record={record} channels={channels} signals={signals} onClose={() => set({ sel: null })} maxHeight={vp.h - L.insets.top - L.insets.bottom - 16} />;
   }
 
@@ -114,10 +117,12 @@ export default function Workspace(props) {
         <button className="ctl" onClick={() => set({ labels: !ui.labels })}>{ui.labels ? "Labels: all" : "Labels: minimal"}</button>
         <span className="controls-note">Illustrative 3D geometry, approximated from the reference photo.<br />Drag to orbit · scroll to zoom · click a part</span>
       </div>
-      <EvidenceStrip record={record} channels={channels} signals={signals} flags={flags} selCh={part ? chId : null} upload={upload}
-        facts={factsFor(record, upload, error)} onTile={(c) => set({ sel: c.sensor, evCh: c.id })} />
+      <ReadingDetails open={drawer} onToggle={() => setDrawer(!drawer)} record={record} channels={channels} signals={signals}
+        flags={flags} selCh={part ? chId : null} upload={upload} facts={factsFor(record, upload, error)}
+        onTile={(c) => set({ sel: c.sensor, evCh: c.id })} />
       <Aside record={record} status={status} error={error} selection={selection} runningFor={runningFor} activity={activity}
-        report={report} tab={tab} onTab={onTab} />
+        report={report} explanation={explanation} onRegenerate={onRegenerate} view={view} onView={setView}
+        onShowPart={(id) => set({ sel: id, evCh: PART[id]?.ch[0] })} />
       {needsName && <NameModal initial={userName} onSave={onSaveName} />}
     </div>
   );

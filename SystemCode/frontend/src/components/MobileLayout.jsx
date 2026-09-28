@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { K } from "../lib/theme.js";
 import { CHANNELS, PARTS, cleanText, locations, qualityFlags, recordingTitle, unusualSensors } from "../lib/model.js";
-import { Diagnosis, Report } from "./Aside.jsx";
+import { PanelContent } from "./Aside.jsx";
 import { FALLBACK, markerFor } from "./Scene.jsx";
 import { changeText } from "./Inspector.jsx";
 import { Logo, groupRecordings } from "./TopBar.jsx";
@@ -117,10 +117,10 @@ export default function MobileLayout(props) {
           <div className="m-note">Dataset label: {recordingTitle(rec)}</div>
         </section>
       )}
-      <section className="m-card"><span className="mono kicker">Diagnosis</span>
-        <Diagnosis record={record} status={status} error={error} selection={selection} assessment={report?.assessment} runningFor={runningFor} />
+      <section className="m-card m-panel">
+        <PanelContent record={record} status={status} error={error} selection={selection} report={report} activity={props.activity}
+          runningFor={runningFor} explanation={props.explanation} onRegenerate={props.onRegenerate} view={props.view} onView={props.onView} />
       </section>
-      <section className="m-card"><span className="mono kicker">Report</span><Report status={status} report={report} /></section>
       <section className="m-card"><span className="mono kicker">Measured change vs healthy reference</span>
         <EvidenceList record={record} channels={channels} /></section>
       <section className="m-card"><span className="mono kicker">Rotor test rig</span><StaticRig state={state} /></section>

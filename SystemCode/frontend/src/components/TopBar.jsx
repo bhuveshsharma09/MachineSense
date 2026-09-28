@@ -9,6 +9,12 @@ export function Logo() {
   );
 }
 
+// A short, readable name for the selected recording, kept beside the Start button (App-3).
+export function shortName(id) {
+  if (!id) return "";
+  return id.length > 28 ? id.slice(0, 26) + "…" : id;
+}
+
 export function groupRecordings(recordings) {
   const g = {};
   for (const r of recordings || []) (g[r.class10] ||= []).push(r);
@@ -64,6 +70,9 @@ export default function TopBar({ recordings, showcase, value, onPick, onFile, up
         <span className="running-for" title={runningFor}>Diagnosing <b>{runningFor}</b></span>
       )}
       {blocked && <span className="running-for" style={{ color: K.amberT }}>re-upload the file to run again</span>}
+      {!running && (value || upload) && (
+        <span className="rec-short" title={value || upload?.name}>{shortName(value || upload?.name)}</span>
+      )}
       <button onClick={onStart} disabled={!canStart} className="start-btn"
         title={blocked ? "re-upload the file to run again" : undefined} aria-label={blocked ? "Run again (re-upload the file to run again)" : undefined}
         style={{ background: canStart || running ? K.ink : "oklch(0.23 0.006 260 / 0.1)", color: canStart || running ? K.white : K.ink3, cursor: canStart ? "pointer" : "default" }}>

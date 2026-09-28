@@ -4,6 +4,7 @@ Signals are downsampled (every 8th order bin, 100 waveform buckets) to keep the 
 import json
 from pathlib import Path
 
+import httpx
 from fastapi.testclient import TestClient
 
 from backend.app import create_app
@@ -24,7 +25,11 @@ def trim(sig: dict) -> dict:
     return sig
 
 
-with TestClient(create_app()) as c:
+def _refuse(request):  # no language model while recording fixtures: explanations are the template
+    raise httpx.ConnectError("no model while recording fixtures", request=request)
+
+
+with TestClient(create_app(llm_transport=httpx.MockTransport(_refuse))) as c:
     OUT.mkdir(exist_ok=True)
     recs = c.get("/api/recordings").json()["recordings"]
     json.dump({"recordings": [r for r in recs if r["rec_id"] in CASES.values()], "health": c.get("/api/health").json(),
@@ -34,7 +39,8 @@ with TestClient(create_app()) as c:
         cid = r["case_id"]
         json.dump({"record": r, "activity": c.get(f"/api/cases/{cid}/activity").json(),
                    "report": c.get(f"/api/cases/{cid}/report").json(), "channels": c.get(f"/api/cases/{cid}/channels").json(),
-                   "signals": trim(c.get(f"/api/cases/{cid}/signals").json())}, open(OUT / f"{name}.json", "w"))
+                   "signals": trim(c.get(f"/api/cases/{cid}/signals").json()),
+                   "explanation": c.post(f"/api/cases/{cid}/explanation").json()}, open(OUT / f"{name}.json", "w"))
     bad = c.post("/api/diagnose", files={"file": ("bad.csv", b"1,2,3\n4,5,6\n", "text/csv")})
     json.dump({"status": bad.status_code, "detail": bad.json()["detail"]}, open(OUT / "error_422.json", "w"))
 print("fixtures written to", OUT)

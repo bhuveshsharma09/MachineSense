@@ -18,13 +18,15 @@ const base = { recordings: common.recordings, showcase: common.showcase.showcase
   userName: "Test User", needsName: false, status: "idle", noop: () => {} };
 const sel = (f) => ({ kind: "dataset", rec_id: f.record.input.rec_id, label: f.record.input.rec_id });
 const done = (f, extra = {}) => ({ ...base, selection: sel(f), status: "done", record: f.record, channels: f.channels,
-  signals: f.signals, activity: f.activity, report: f.report, ...extra });
+  signals: f.signals, activity: f.activity, report: f.report, explanation: { status: "ready", data: f.explanation },
+  initialPanelView: "developer", ...extra });
+const mech = (f, extra = {}) => done(f, { initialPanelView: "mechanic", ...extra });
 
 const screens = {
   "no recording": [base, ["No recording selected", "Select a recording"]],
   "name prompt": [{ ...base, userName: "", needsName: true }, ["Display name", "stored in this browser only"]],
-  running: [{ ...base, selection: sel(knownFault), status: "running" }, ["Running the deterministic pipeline", "Investigating…"]],
-  "known fault": [done(knownFault, { initialUi: { sel: "out_brg", evCh: "over_radial", evView: "envelope" } }),
+  running: [{ ...base, selection: sel(knownFault), status: "running" }, ["Checking recording", "Analysing signals", "Preparing findings", "Investigating…"]],
+  "known fault": [done(knownFault, { initialUi: { sel: "out_brg", evCh: "over_radial", evView: "envelope", signal: true } }),
     ["Known fault", "Overhang bearing · cage fault", "Dataset label: Overhang bearing · cage fault", "above healthy limit — consistent with a fault",
       "Location according to the dataset label (model)", "outer bearing housing", "CNN-6 · main model", "Secondary logistic regression", "> 0.9999", "margin",
       "Decision rule: provisional research setting", "Excess kurt.",
@@ -41,6 +43,25 @@ const screens = {
   "plain healthy: no change marker": [done(plainHealthy), ["Healthy", "within what the healthy checks accept"],
     [], () => unusualSensors(plainHealthy.channels, qualityFlags(plainHealthy.record)).length === 0 && plainHealthy.channels.marked.length === 0],
   "poor quality": [done(poor, { initialUi: { sel: "s_tach" } }), ["Warnings · measured speed and signal quality", "glitched tacho intervals", "glitched pulse intervals · measured"]],
+  // ---- App-3 Mechanic view
+  "mechanic · known fault": [mech(knownFault), ["Mechanic", "Developer", "Possible bearing cage fault",
+    "Outer bearing housing — according to the dataset label (model prediction)", "Why it was flagged", "template explanation",
+    "Supporting checks", "the secondary model agrees", "What to inspect next", "Inspection guidance not yet connected.",
+    "Research demonstration; not validated on real machines.", "not evidence of accuracy", "View investigation activity",
+    "Reading details"], ["Checks against calibrated thresholds", "CNN-6 · main model", "Investigation agents"]],
+  "rig part card": [mech(knownFault, { initialUi: { sel: "out_brg" } }), ["What this part does", "What was observed", "View signal",
+    "compared with a healthy example"], ["Excess kurt."]],
+  "rig sensor card": [mech(knownFault, { initialUi: { sel: "s_out" } }), ["What it measures", "View signal"]],
+  "mechanic · preparing explanation": [mech(knownFault, { explanation: { status: "loading" } }), ["Preparing explanation…"]],
+  "mechanic · AI-written explanation": [mech(knownFault, { explanation: { status: "ready", data: { ...knownFault.explanation, source: "llm",
+    badge: "AI-written explanation of the evidence", text: { ...knownFault.explanation.text, finding: "The pattern resembles a cage fault." } } } }),
+    ["AI-written explanation of the evidence", "The pattern resembles a cage fault."]],
+  "mechanic · healthy with caution": [mech(caution), ["No fault detected — a check disagrees; repeat the reading or inspect further"]],
+  "mechanic · unknown": [mech(unknown), ["Further inspection needed", "Candidate parts:"]],
+  "mechanic · signal quality": [mech(poor), ["Warnings that affect this result", "The speed sensor signal had glitches.", "The rotation speed was not steady"]],
+  "mechanic · plain healthy": [mech(plainHealthy), ["No fault detected in this recording"]],
+  "reading details drawer": [done(knownFault, { initialUi: { drawer: true } }), ["Rotation speed", "Overall vibration level (RMS)",
+    "Compared with a healthy example (reference ratio)", "Different from a healthy example is not the same as a confirmed fault."]],
   "healthy with calibration-speed warning": [done(healthy), ["Healthy", "healthy thresholds were not calibrated at this speed"]],
   "invalid upload": [{ ...base, upload: { name: "bad.csv", size: 12 }, status: "error", error: { status: err422.status, message: err422.detail } },
     ["Input not accepted", "got 3", "server response 422"]],
@@ -70,6 +91,18 @@ for (const [name, [props, expect, absent = [], extra]] of Object.entries(screens
   if (miss.length || bad.length) { failed++; console.error(`✗ ${name}: missing ${JSON.stringify(miss)} forbidden ${JSON.stringify(bad)}`); }
   else console.log(`✓ ${name}`);
 }
+// App-3: the Mechanic panel (rendered alone) contains no percentage and no raw model score
+import { PanelContent } from "../src/components/Aside.jsx";
+for (const [name, f] of Object.entries({ knownFault, unknown, caution, poor, healthy, plainHealthy, disagree, narrow })) {
+  const html = renderToString(<PanelContent record={f.record} status="done" report={f.report} activity={f.activity} view="mechanic"
+    explanation={{ status: "ready", data: f.explanation }} onView={() => {}} />);
+  const text = html.replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/g, " ");
+  const s = f.record.diagnosis.scores, raw = [s.msp.toFixed(4), s.maha.toFixed(2), s.ae_error.toFixed(4), s.b1s.toFixed(4)];
+  const bad = [...(text.match(/\d\s*%/g) || []), ...(text.match(/\d\.\d{3,}/g) || []), ...raw.filter((r) => text.includes(r))];
+  if (bad.length || !text.includes("Why it was flagged")) { failed++; console.error(`✗ mechanic panel ${name}: ${JSON.stringify(bad)}`); }
+  else console.log(`✓ mechanic panel ${name}: no percentage, no raw score`);
+}
+
 // The disabled "Run again" of a reopened upload whose array is gone (App-2a.3)
 {
   const html = renderToString(<Workspace {...{ ...done(knownFault, { selection: null,
@@ -98,7 +131,7 @@ for (const [name, props] of Object.entries(mobileScreens)) {
   const p = { onPick() {}, onFile() {}, onClearUpload() {}, onStart() {}, onSaveName() {}, onChangeName() {}, ...props, initialViewport: MOBILE };
   const html = renderToString(<Workspace {...p} />);
   const text = html.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
-  const miss = ["Best viewed on a desktop screen.", "Diagnosis", "Report", "Measured change vs healthy reference", "Rotor test rig",
+  const miss = ["Best viewed on a desktop screen.", "Diagnosis", "Mechanic", "Measured change vs healthy reference", "Rotor test rig",
     "Limitations", "rig-fallback.png"].filter((s) => !text.includes(s) && !html.includes(s));
   if (!html.includes('class="ms-mobile"') || html.includes("<canvas")) miss.push("stacked layout without 3D");
   if (miss.length) { failed++; console.error(`✗ ${name}: missing ${JSON.stringify(miss)}`); continue; }

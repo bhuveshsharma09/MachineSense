@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { K, TAG, al } from "../lib/theme.js";
+import * as M from "../lib/mechanic.js";
 import {
   ASK_DISABLED, IN_SAMPLE_NOTICE, PART_NAME, PIPELINE, PLANNED_AGENTS, SCORES_NOTE, STEP_CODE, cap, fmtScore, human,
   locations, shownWarnings, verdict, verdictTitle,
@@ -56,7 +58,7 @@ function Checks({ a }) {
   );
 }
 
-export function Diagnosis({ record, status, error, selection, assessment, runningFor }) {
+export function Diagnosis({ record, status, error, selection, assessment, runningFor, part }) {
   if (status === "running") {
     return (
       <>
@@ -93,7 +95,31 @@ export function Diagnosis({ record, status, error, selection, assessment, runnin
   const locText = loc.fault.length ? loc.fault.map((p) => PART_NAME[p]).join(" and ")
     : loc.cand.length ? loc.cand.map((p) => PART_NAME[p]).join(", ") : "";
   const lr = d.lr_secondary, st = STYLE[v.kind];
-  return (
+  const outputs = (
+    <>
+      {d.decision === "known_fault" && <Chip kind={v.kind} text={v.chip} />}
+      <div className="dx-title" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {d.decision !== "known_fault" && <span style={{ width: 10, height: 10, flex: "none", borderRadius: "50%", background: st.dot, boxShadow: "0 0 0 4px " + st.halo }} />}
+        {verdictTitle(record)}
+      </div>
+      {d.caution && <p className="dx-sub">A healthy-baseline check disagrees ({d.caution.replace(/_/g, " ")}); consider a recheck.</p>}
+      {locText && (
+        <div style={{ fontSize: 13, color: K.ink2 }}>
+          {loc.fault.length ? "Location according to the dataset label (model)" : "Candidate locations · top-2 classes (model)"} · <span style={{ color: st.color }}>{locText}</span>
+        </div>
+      )}
+      {record.source === "dataset" && <div className="in-sample">{IN_SAMPLE_NOTICE}</div>}
+      <Warnings title="Warnings · measured speed and signal quality" items={warn} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div className="model-row"><span className="mono lbl">CNN-6 · main model</span><span className="cls">{human(d.top_class)}</span><span className="mono sc">MSP {fmtScore(d.scores.msp)}</span></div>
+        <div className="model-row"><span className="mono lbl">Secondary logistic regression</span><span className="cls">{human(lr.top_class)}</span><span className="mono sc">{fmtScore(lr.probabilities[lr.top_class])}</span></div>
+        <span style={{ fontSize: 11.5, lineHeight: 1.4, color: "oklch(0.48 0.008 260)" }}>
+          {d.top_class === lr.top_class ? "Both rank the same class first. " : "They rank different classes first. "}{SCORES_NOTE}
+        </span>
+      </div>
+    </>
+  );
+  const checks = (
     <>
       {a?.disagree && (
         <div role="alert" style={{ display: "flex", flexDirection: "column", gap: 4, padding: "10px 12px", borderRadius: 12, background: al(K.amber, 0.2), border: "1px solid oklch(0.70 0.13 70 / 0.55)", color: "oklch(0.40 0.09 60)" }}>
@@ -103,34 +129,12 @@ export function Diagnosis({ record, status, error, selection, assessment, runnin
           <span style={{ fontSize: 12, lineHeight: 1.4 }}>{cap(a.disagree_reasons.join("; "))}.</span>
         </div>
       )}
-      {d.decision === "known_fault" && <Chip kind={v.kind} text={v.chip} />}
-      <div className="dx-title" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        {d.decision !== "known_fault" && <span style={{ width: 10, height: 10, flex: "none", borderRadius: "50%", background: st.dot, boxShadow: "0 0 0 4px " + st.halo }} />}
-        {verdictTitle(record)}
-      </div>
-      {d.caution && <p className="dx-sub">A healthy-baseline check disagrees ({d.caution.replace(/_/g, " ")}); consider a recheck.</p>}
       {a?.narrow_notes?.length > 0 && (
         <div style={{ fontSize: 12.5, lineHeight: 1.45, padding: "7px 11px", borderRadius: 10, background: "oklch(0.23 0.006 260 / 0.05)", color: K.ink2 }}>
           {a.narrow_notes.map((n) => <div key={n}>{n}</div>)}
         </div>
       )}
-      {locText && (
-        <div style={{ fontSize: 13, color: K.ink2 }}>
-          {loc.fault.length ? "Location according to the dataset label (model)" : "Candidate locations · top-2 classes (model)"} · <span style={{ color: st.color }}>{locText}</span>
-        </div>
-      )}
-      {record.source === "dataset" && (
-        <div className="in-sample">{IN_SAMPLE_NOTICE}</div>
-      )}
-      <Warnings title="Warnings · measured speed and signal quality" items={warn} />
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <div className="model-row"><span className="mono lbl">CNN-6 · main model</span><span className="cls">{human(d.top_class)}</span><span className="mono sc">MSP {fmtScore(d.scores.msp)}</span></div>
-        <div className="model-row"><span className="mono lbl">Secondary logistic regression</span><span className="cls">{human(lr.top_class)}</span><span className="mono sc">{fmtScore(lr.probabilities[lr.top_class])}</span></div>
-        <span style={{ fontSize: 11.5, lineHeight: 1.4, color: "oklch(0.48 0.008 260)" }}>
-          {d.top_class === lr.top_class ? "Both rank the same class first. " : "They rank different classes first. "}{SCORES_NOTE}
-        </span>
-      </div>
-      {a && <Checks a={a} />}
+      {a ? <Checks a={a} /> : <p className="mv-muted">Loading the checks…</p>}
       {a && (
         <div style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: 12, color: K.ink2 }}>
           <span title={a.variants.map((x) => `${x.name}: ${human(x.verdict)}`).join("\n")}>{a.variants_summary}</span>
@@ -139,6 +143,9 @@ export function Diagnosis({ record, status, error, selection, assessment, runnin
       )}
     </>
   );
+  if (part === "outputs") return outputs;
+  if (part === "checks") return checks;
+  return <>{outputs}{checks}</>;
 }
 
 function Activity({ status, activity }) {
@@ -211,29 +218,186 @@ export function Report({ status, report }) {
   );
 }
 
-export default function Aside({ record, status, error, selection, activity, report, tab, onTab, runningFor }) {
+// ----------------------------------------------------------------------------------------------------------- App-3
+const VIEW_KEY = "ms_panel_view";
+
+export function usePanelView(initial) {
+  const read = () => { try { return localStorage.getItem(VIEW_KEY); } catch { return null; } };
+  const [view, setView] = useState(() => initial || (typeof window !== "undefined" && read()) || "mechanic");
+  const set = (v) => { setView(v); try { localStorage.setItem(VIEW_KEY, v); } catch { /* browser-local only */ } };
+  return [view === "developer" ? "developer" : "mechanic", set];
+}
+
+function ViewSwitch({ view, onView }) {
+  return (
+    <div role="radiogroup" aria-label="Panel view" className="seg view-switch">
+      {[["mechanic", "Mechanic"], ["developer", "Developer"]].map(([k, lab]) => (
+        <button key={k} role="radio" aria-checked={view === k} onClick={() => onView(k)} className={view === k ? "on" : ""}>{lab}</button>
+      ))}
+    </div>
+  );
+}
+
+const PROGRESS = ["Checking recording", "Analysing signals", "Preparing findings"];
+
+function Progress({ label }) {
+  const [i, setI] = useState(0);
+  useEffect(() => { const t = setInterval(() => setI((x) => Math.min(x + 1, PROGRESS.length - 1)), 1200); return () => clearInterval(t); }, []);
+  return (
+    <div className="progress-steps" aria-live="polite">
+      <span className="mono kicker">Diagnosing <b style={{ overflowWrap: "anywhere" }}>{label}</b></span>
+      <ol>
+        {PROGRESS.map((t, k) => (
+          <li key={t} className={k < i ? "done" : k === i ? "active" : ""}>{k === i && <span className="spinner dark" />}{t}{k < PROGRESS.length - 1 ? " →" : ""}</li>
+        ))}
+      </ol>
+      <div className="progress"><div /></div>
+    </div>
+  );
+}
+
+function Row({ label, children }) {
+  return <div className="mv-row"><span className="mono kicker">{label}</span><div>{children}</div></div>;
+}
+
+function ExplanationBlock({ explanation }) {
+  if (!explanation || explanation.status === "loading") return <p className="mv-muted">Preparing explanation…</p>;
+  const e = explanation.data;
+  const t = e.text;
+  return (
+    <div className="mv-expl">
+      <span className={"badge " + (e.source === "llm" ? "badge-ai" : "")}>{e.badge}</span>
+      {e.source === "llm" && <p style={{ margin: 0 }}>{t.finding}</p>}
+      <ul>{t.why_flagged.map((x) => <li key={x}>{x}</li>)}</ul>
+      <span className="mono kicker">Uncertainty</span>
+      <ul>{t.uncertainty.map((x) => <li key={x}>{x}</li>)}</ul>
+    </div>
+  );
+}
+
+function MechanicView({ record, report, activity, explanation, onShowPart }) {
+  const kind = M.findingKind(record);
+  const st = STYLE[kind];
+  const loc = M.location(record);
+  const warn = M.warnings(record);
+  const support = M.supporting(record, report?.assessment);
+  return (
+    <div className="mv">
+      <div className="mv-finding"><span style={{ width: 10, height: 10, flex: "none", borderRadius: "50%", background: st.dot, boxShadow: "0 0 0 4px " + st.halo }} />
+        <span>{M.finding(record)}</span></div>
+      {loc.text && (
+        <Row label="Suggested location">
+          <span>{loc.text}</span>
+          {loc.parts.length > 0 && <div className="mv-parts">{loc.parts.map((p) => <button key={p} className="chip" onClick={() => onShowPart?.(p)}>Show {M.PART_PLAIN[p].toLowerCase()} on the rig</button>)}</div>}
+        </Row>
+      )}
+      {warn.length > 0 && <Warnings title="Warnings that affect this result" items={warn} />}
+      <Row label="Why it was flagged"><ExplanationBlock explanation={explanation} /></Row>
+      <Row label="Supporting checks"><span>{support || "Checking…"}</span></Row>
+      <Row label="What to inspect next"><span>{M.GUIDANCE_TEXT}</span></Row>
+      <Row label="Limitations"><span>{M.LIMITATION}{record.source === "dataset" ? " " + M.IN_SAMPLE : ""}</span></Row>
+      <details className="mv-activity">
+        <summary>View investigation activity</summary>
+        {activity ? <ol>{activity.steps.map((s) => <li key={s.step}>{s.title}{s.startup ? " (at server startup)" : ""}</li>)}</ol> : <p className="mv-muted">Not available yet.</p>}
+      </details>
+    </div>
+  );
+}
+
+function Section({ title, open, children }) {
+  return <details className="dv-sec" open={open}><summary>{title}</summary><div className="dv-body">{children}</div></details>;
+}
+
+function DeveloperView({ record, status, error, selection, report, activity, explanation, onRegenerate, runningFor }) {
+  const d = record.diagnosis, q = record.signal_quality, p = record.provenance;
+  const top = Object.entries(d.class10_probabilities).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const e = explanation?.status === "ready" ? explanation.data : null;
+  const lr = record.xai?.lr, cnn = record.xai?.cnn;
+  return (
+    <div className="dv">
+      <Section title="Model outputs" open>
+        <Diagnosis record={record} status={status} error={error} selection={selection} assessment={report?.assessment} runningFor={runningFor} part="outputs" />
+        <div className="dv-kv">{top.map(([c, v]) => <div key={c}><span>{human(c)}</span><span className="mono">{fmtScore(v)}</span></div>)}</div>
+      </Section>
+      <Section title="Decision checks" open>
+        <Diagnosis record={record} status={status} error={error} selection={selection} assessment={report?.assessment} runningFor={runningFor} part="checks" />
+      </Section>
+      <Section title="Signal quality">
+        <Warnings title="Warnings · measured speed and signal quality" items={record.signal_quality.warnings} />
+        <div className="dv-kv">
+          <div><span>Measured shaft speed</span><span className="mono">{q.shaft_speed_hz.toFixed(2)} Hz</span></div>
+          <div><span>Speed range within the recording</span><span className="mono">{q.speed_range_pct.toFixed(2)} %</span></div>
+          <div><span>Tacho glitches</span><span className="mono">{q.tacho_glitches}</span></div>
+          <div><span>Microphone bursts removed</span><span className="mono">{q.mic_bursts_removed}</span></div>
+          <div><span>Clipping channels</span><span className="mono">{q.clipping_channels.join(", ") || "none"}</span></div>
+        </div>
+      </Section>
+      <Section title="Explanations">
+        {lr && <><span className="mono kicker">Secondary logistic regression · feature contributions ({human(lr.class)})</span>
+          <div className="dv-kv">{lr.top_features.slice(0, 5).map((f) => <div key={f.feature} title={f.feature}><span>{(f.definition || f.feature).split(";")[0]}{f.channel ? ` (${f.channel.replace(/_/g, " ")})` : ""}</span><span className="mono">{f.contribution >= 0 ? "+" : ""}{f.contribution.toFixed(2)}</span></div>)}</div></>}
+        {cnn && <><span className="mono kicker">CNN-6 · {cnn.label}</span>
+          <div className="dv-kv">{cnn.top_channels.map((c) => <div key={c.channel}><span>{c.channel.replace(/_/g, " ")}</span><span className="mono">{c.share.toFixed(3)} share</span></div>)}
+            {cnn.top_order_bands.map((b) => <div key={b.orders.join()}><span>orders {b.orders[0].toFixed(1)}–{b.orders[1].toFixed(1)}</span><span className="mono">{b.share.toFixed(3)} share</span></div>)}</div></>}
+        <span className="mono kicker">Generated explanation</span>
+        {e ? <div className="dv-kv">
+          <div><span>Source</span><span className="mono">{e.source === "llm" ? "language model" : "template"}</span></div>
+          <div><span>Provider / model</span><span className="mono">{e.provider || "—"} / {e.model || "—"}</span></div>
+          <div><span>Prompt version</span><span className="mono">{e.prompt_version}</span></div>
+          <div><span>Latency · attempts</span><span className="mono">{Math.round(e.latency_ms)} ms · {e.attempts}</span></div>
+          <div><span>Fallback reason</span><span className="mono">{e.fallback_reason || "none"}</span></div>
+        </div> : <p className="mv-muted">Preparing explanation…</p>}
+        {onRegenerate && <button className="ctl" style={{ pointerEvents: "auto", alignSelf: "flex-start" }} onClick={onRegenerate}>Regenerate explanation</button>}
+      </Section>
+      <Section title="Report"><Report status={status} report={report} /></Section>
+      <Section title="Investigation activity"><Activity status={status} activity={activity} /></Section>
+      <Section title="Traceability">
+        <div className="dv-kv">
+          <div><span>Recording</span><span className="mono">{record.input.rec_id || "uploaded recording"}</span></div>
+          <div><span>Case</span><span className="mono">{record.case_id}</span></div>
+          <div><span>Created</span><span className="mono">{record.created_at}</span></div>
+          <div><span>Bundle manifest sha256</span><span className="mono">{p.manifest_sha256.slice(0, 16)}…</span></div>
+          <div><span>Bundle git sha</span><span className="mono">{String(p.bundle_git_sha).slice(0, 12)}</span></div>
+          <div><span>Preprocess config sha256</span><span className="mono">{p.preprocess_config_sha256.slice(0, 16)}…</span></div>
+          <div><span>Split hash</span><span className="mono">{p.split_hash.slice(0, 16)}…</span></div>
+          <div><span>Schema version</span><span className="mono">{p.schema_version}</span></div>
+          <div><span>Diagnosis time</span><span className="mono">{Math.round(record.timing_ms?.total || 0)} ms</span></div>
+          {(activity?.steps || []).map((s) => <div key={s.step}><span>{s.title}</span><span className="mono">{s.ms == null ? "—" : `${s.ms.toFixed(1)} ms`}</span></div>)}
+        </div>
+      </Section>
+    </div>
+  );
+}
+
+export function PanelContent(props) {
+  const { record, status, error, selection, report, activity, runningFor, explanation, onRegenerate, onShowPart, view, onView } = props;
+  let body;
+  if (status === "running") body = <Progress label={runningFor || selection?.label || "this recording"} />;
+  else if (error || !record) body = <Diagnosis record={null} status={status} error={error} selection={selection} />;
+  else if (view === "developer") body = <DeveloperView {...props} />;
+  else body = <MechanicView record={record} report={report} activity={activity} explanation={explanation} onShowPart={onShowPart} />;
+  return (
+    <div className="dx-block panel">
+      <div className="panel-head"><span className="mono kicker">Diagnosis</span><ViewSwitch view={view} onView={onView} /></div>
+      {body}
+    </div>
+  );
+}
+
+export function AskBar() {
+  return (
+    <div style={{ flex: "none", padding: "8px 14px 10px", borderTop: "1px solid oklch(0.23 0.006 260 / 0.08)" }}>
+      <button disabled className="ghost-btn" title={ASK_DISABLED} style={{ width: "100%", minHeight: 34, padding: "4px 10px", fontSize: 12, lineHeight: 1.3 }}>
+        <span style={{ color: K.ink2 }}>Ask about this recording</span> · <span>{ASK_DISABLED}</span>
+      </button>
+    </div>
+  );
+}
+
+export default function Aside(props) {
   return (
     <aside aria-label="Diagnosis and investigation" className="glass aside" style={{ position: "absolute", right: 16, bottom: 16, zIndex: 5, display: "flex", flexDirection: "column", borderRadius: 20, overflow: "hidden" }}>
-      <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
-        <div className="dx-block" style={{ display: "flex", flexDirection: "column", borderBottom: "1px solid oklch(0.23 0.006 260 / 0.08)" }}>
-          <span className="mono kicker">Diagnosis</span>
-          <Diagnosis record={record} status={status} error={error} selection={selection} assessment={report?.assessment}
-            runningFor={runningFor} />
-        </div>
-        <div role="tablist" className="seg" style={{ margin: "12px 16px 0", display: "flex", padding: 3, borderRadius: 11 }}>
-          {[["activity", "Activity"], ["report", "Report"]].map(([k, lab]) => (
-            <button key={k} role="tab" aria-selected={tab === k} onClick={() => onTab(k)} className={tab === k ? "on" : ""} style={{ flex: 1, height: 32, fontSize: 13 }}>{lab}</button>
-          ))}
-        </div>
-        <div style={{ padding: "14px 22px 16px" }}>
-          {tab === "activity" ? <Activity status={status} activity={activity} /> : <Report status={status} report={report} />}
-        </div>
-      </div>
-      <div style={{ flex: "none", padding: "8px 14px 10px", borderTop: "1px solid oklch(0.23 0.006 260 / 0.08)" }}>
-        <button disabled className="ghost-btn" title={ASK_DISABLED} style={{ width: "100%", minHeight: 34, padding: "4px 10px", fontSize: 12, lineHeight: 1.3 }}>
-          <span style={{ color: K.ink2 }}>Ask about this recording</span> · <span>{ASK_DISABLED}</span>
-        </button>
-      </div>
+      <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}><PanelContent {...props} /></div>
+      <AskBar />
     </aside>
   );
 }

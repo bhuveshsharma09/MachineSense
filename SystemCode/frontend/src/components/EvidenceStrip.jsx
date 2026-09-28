@@ -5,7 +5,7 @@ import { changeText } from "./Inspector.jsx";
 
 // Bottom strip: recording facts and one tile per channel with its measured change vs the healthy training reference.
 // The bar's tick is the typical healthy variation of that channel's metric; lime = beyond it (at most 2 channels).
-export default function EvidenceStrip({ record, channels, signals, flags, selCh, onTile, facts, upload }) {
+export default function EvidenceStrip({ record, channels, signals, flags, selCh, onTile, facts, upload, embedded }) {
   const rows = Object.fromEntries((channels?.channels || []).map((c) => [c.channel, c]));
   const marked = new Set(channels?.marked || []);
   const flagged = new Set(Object.keys(flags || {}));
@@ -13,7 +13,8 @@ export default function EvidenceStrip({ record, channels, signals, flags, selCh,
     : !channels ? "Loading measured values…"
     : `vs ${channels.reference.rec_id} (healthy training, ${channels.reference.speed_hz.toFixed(1)} Hz) · tick = typical healthy variation${channels.healthy_note ? " · " + channels.healthy_note : ""} · descriptive, not a calibrated anomaly test`;
   return (
-    <section aria-label="Evidence" className="glass strip" style={{ position: "absolute", left: 16, bottom: 16, zIndex: 4, display: "flex", gap: 14, padding: "12px 14px", borderRadius: 18 }}>
+    <section aria-label="Evidence" className={embedded ? "strip-embedded" : "glass strip"}
+      style={embedded ? { display: "flex", gap: 14, height: 132 } : { position: "absolute", left: 16, bottom: 16, zIndex: 4, display: "flex", gap: 14, padding: "12px 14px", borderRadius: 18 }}>
       <div className="facts" style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
         <span className="mono kicker">Recording details</span>
         {facts.map((f) => (
@@ -26,7 +27,7 @@ export default function EvidenceStrip({ record, channels, signals, flags, selCh,
       <span style={{ width: 1, background: "oklch(0.23 0.006 260 / 0.08)" }} />
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", minWidth: 0 }}>
-          <span className="mono kicker" style={{ whiteSpace: "nowrap" }}>Measured change vs healthy reference</span>
+          <span className="mono kicker" style={{ whiteSpace: "nowrap" }}>Compared with a healthy example (reference ratio)</span>
           <span style={{ fontSize: 11, color: "oklch(0.48 0.008 260)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }} title={note}>{note}</span>
         </div>
         <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "repeat(8, minmax(0,1fr))", gap: 5 }}>
@@ -71,7 +72,7 @@ export function factsFor(record, upload, error) {
     const q = record.signal_quality, n = shownWarnings(record).length;
     return [
       { k: "Duration", v: "5.00 s · 50 kHz" },
-      { k: "Shaft speed", v: `${q.shaft_speed_hz.toFixed(1)} Hz · ${nf(60 * q.shaft_speed_hz)} rpm` },
+      { k: "Rotation speed (shaft speed)", v: `${nf(60 * q.shaft_speed_hz)} rpm · ${q.shaft_speed_hz.toFixed(1)} Hz` },
       { k: "Signal quality", v: n ? `${n} warning${n > 1 ? "s" : ""}` : "No warnings", color: n ? K.amberT : K.ink },
     ];
   }
