@@ -5,6 +5,8 @@
 
 It refuses to run unless §12 is committed and unmodified, the bundle and artifacts/final/ verify, and (F1 only) this
 script and ml/final.py are committed and unmodified and results/final/ does not exist yet. It records its own sha256.
+Outputs are written to <out>.partial/ and renamed to <out>/ only after every file is written; it refuses to start while a
+.partial/ directory exists (an interrupted run's output is deleted unread before the rerun).
 Every score comes from the CPU deployment path (ml.final.score_cnn, equal to ml.inference.score_recording for the
 bundle). In --dry-run mode, development-pool recordings replace every reserved set and the loader refuses any
 reserved rec_id; the output is labelled "DRY RUN — development data" and its numbers are not results.
@@ -14,6 +16,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -74,9 +77,16 @@ def committed_code() -> None:
             raise Refused(f"{p} has uncommitted changes")
 
 
+def partial_dir(out: Path) -> Path:
+    """Outputs are written here first and renamed to `out` only after every file is written (crash safety)."""
+    return out.with_name(out.name + ".partial")
+
+
 def preconditions(dry_run: bool, out: Path):
     from ml.inference import get_bundle
     protocol = committed_protocol()
+    if partial_dir(out).exists():
+        raise Refused(f"{partial_dir(out)} exists: an interrupted run's partial output must be deleted unread first")
     if not dry_run:
         committed_code()
         if out.exists():
@@ -348,8 +358,7 @@ def run(dry_run: bool, limit: int | None, classes: list[str], n_boot: int | None
                       "r18ft_secondary": {"closed": q2(sr, nb, seed)}},
                "q1": {"bundle": {k: q1(v, nb, seed) for k, v in bsets.items()}},
                "q3": q3(sl, sets["loco"], member, nb, seed)}
-    if out.exists() and dry_run:
-        shutil.rmtree(out)
+    final_out, out = out, partial_dir(out)
     out.mkdir(parents=True)
     label = DRY_LABEL if dry_run else "F1 final evaluation (CLAUDE.md §12)"
     prov = {"label": label, "dry_run": dry_run, "started_at": started,
@@ -370,8 +379,11 @@ def run(dry_run: bool, limit: int | None, classes: list[str], n_boot: int | None
     (out / "README.md").write_text(f"# {label}\n\n" + ("These numbers are NOT results: development recordings stood in for "
                                                         "every reserved set to check shapes, metrics, bootstrap and files.\n"
                                                         if dry_run else "Final evaluation per CLAUDE.md §12, run once.\n"))
+    if dry_run and final_out.exists():
+        shutil.rmtree(final_out)
+    os.rename(out, final_out)                      # every file is written: publish the output in one step
     print(json.dumps({"label": label, "timing": timing, "set_sizes": prov["set_sizes"]}, indent=1, default=float))
-    return {"provenance": prov, "loader_touched": loader.touched, "out": out}
+    return {"provenance": prov, "loader_touched": loader.touched, "out": final_out}
 
 
 def main() -> int:
