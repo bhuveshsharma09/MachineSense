@@ -40,8 +40,27 @@ def reserved_ids(bundle_path):
     return reserved_rec_ids(meta, load_bundle(bundle_path, device="cpu").config)
 
 
+def no_reserved_read() -> bool:
+    """MACHINESENSE_NO_RESERVED_READ=1 (Stage D1): no test may open a reserved raw array. The guard fixture then uses the
+    existing index file as is (never rebuilt), and tests that would open a reserved signal skip."""
+    import os
+    return os.environ.get("MACHINESENSE_NO_RESERVED_READ", "") == "1"
+
+
+@pytest.fixture
+def reserved_raw_allowed():
+    """Request this in a test that opens a reserved raw array: it skips under MACHINESENSE_NO_RESERVED_READ=1."""
+    if no_reserved_read():
+        pytest.skip("MACHINESENSE_NO_RESERVED_READ=1: this test opens a reserved raw array")
+
+
 @pytest.fixture(scope="session")
 def guard_path(tmp_path_factory, reserved_ids):
+    if no_reserved_read():
+        from backend.settings import guard_index
+        if not guard_index().exists():
+            _unavailable(f"MACHINESENSE_NO_RESERVED_READ=1 needs the existing index {guard_index()} (never rebuilt here)")
+        return guard_index()
     from backend.guard import build_index
     p = tmp_path_factory.mktemp("guard") / "reserved_fingerprints.json"
     build_index(reserved_ids[:GUARD_TEST_RESERVED], data_dir() / "raw_npy", p)

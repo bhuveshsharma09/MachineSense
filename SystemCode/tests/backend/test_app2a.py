@@ -110,7 +110,7 @@ def test_showcase_uses_development_recordings_only(client):
         assert client.get("/api/showcase").json() == committed
 
 
-def test_upload_guard_refuses_a_reserved_recording_written_to_csv(client, reserved_ids):
+def test_upload_guard_refuses_a_reserved_recording_written_to_csv(reserved_raw_allowed, client, reserved_ids):
     rid = reserved_ids[0]
     x = np.load(data_dir() / "raw_npy" / f"{rid}.npy")
     buf = io.StringIO()

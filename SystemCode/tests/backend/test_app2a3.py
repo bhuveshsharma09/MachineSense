@@ -59,7 +59,7 @@ def test_rerun_with_a_missing_stored_array_is_refused_clearly(client):
     assert client.get("/api/cases/no-such-case/meta").status_code == 404
 
 
-def test_rerun_still_applies_the_upload_guard(client, reserved_ids):
+def test_rerun_still_applies_the_upload_guard(reserved_raw_allowed, client, reserved_ids):
     """A stored array that matches a reserved recording (planted directly; never uploaded) is refused on rerun."""
     orig = _upload(client).json()
     path = Path(client.app.state.engine.store.get(orig["case_id"])["array_path"])
