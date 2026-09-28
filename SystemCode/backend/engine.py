@@ -36,6 +36,13 @@ class UploadError(ValueError):
     """An uploaded file that cannot be diagnosed; the message is shown to the user."""
 
 
+RERUN_MISSING = "the stored upload is no longer available; re-upload the file to run again"
+
+
+class StoredUploadMissing(RuntimeError):
+    """A rerun of an uploaded case whose stored array is gone."""
+
+
 class ReservedUploadError(ValueError):
     """An upload that matches a reserved test recording's fingerprint (best-effort guard)."""
 
@@ -124,8 +131,32 @@ class Engine:
                  "severity_unit": "mm" if "misalignment" in r.class10 else ("g" if r.class10 != "normal" else ""),
                  "speed_hz": float(r.fr_measured_hz), "used_for": used[r.split_closed]} for r in pool.itertuples()]
 
+    def meta(self, case_id: str) -> dict | None:
+        """What the UI needs to offer "Run again" on a reopened case (App-2a.3)."""
+        c = self.store.get(case_id)
+        if c is None:
+            return None
+        rec = c["record"]
+        stored = bool(c["array_path"]) and Path(c["array_path"]).exists()
+        can = rec["source"] == "dataset" or stored
+        return {"case_id": case_id, "source": rec["source"], "rec_id": rec["input"]["rec_id"], "rerun_of": c["rerun_of"],
+                "can_rerun": can, "rerun_note": None if can else RERUN_MISSING}
+
+    def rerun(self, case_id: str) -> dict:
+        """Re-run diagnose() on a stored case as a NEW case linked to it: a dataset case by its rec_id, an upload on its
+        stored array (the upload guard still applies)."""
+        c = self.store.get(case_id)
+        if c is None:
+            raise KeyError(case_id)
+        rec = c["record"]
+        if rec["source"] == "dataset":
+            return self.diagnose(rec_id=rec["input"]["rec_id"], rerun_of=case_id)
+        if not c["array_path"] or not Path(c["array_path"]).exists():
+            raise StoredUploadMissing(RERUN_MISSING)
+        return self.diagnose(array=np.load(c["array_path"]), rerun_of=case_id)
+
     def diagnose(self, rec_id: str | None = None, array: np.ndarray | None = None, healthy_rule: str | None = None,
-                 nominal_speed_hz: float | None = None) -> dict:
+                 nominal_speed_hz: float | None = None, rerun_of: str | None = None) -> dict:
         source = "dataset" if rec_id is not None else "upload"
         if array is not None:
             hit = self.guard.match(array)
@@ -148,7 +179,7 @@ class Engine:
             d.mkdir(parents=True, exist_ok=True)
             array_path = str(d / f"{record['case_id']}.npy")
             np.save(array_path, np.asarray(array, dtype=np.float32))
-        self.store.put(record, activity, array_path)
+        self.store.put(record, activity, array_path, rerun_of=rerun_of)
         return record
 
     def _activity(self, r: dict, steps: dict, report_ms: float) -> list[dict]:

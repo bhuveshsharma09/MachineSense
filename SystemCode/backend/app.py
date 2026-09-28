@@ -10,8 +10,8 @@ from functools import lru_cache
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-from backend.engine import (Engine, InputError, ReservedRecordingError, ReservedUploadError, UploadError,
-                            parse_upload)
+from backend.engine import (Engine, InputError, ReservedRecordingError, ReservedUploadError, StoredUploadMissing,
+                            UploadError, parse_upload)
 from backend.checks import assessment
 from backend.report import build_report, build_sections
 from backend.settings import showcase_file
@@ -66,10 +66,17 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None) -> FastA
             return {"showcase": [], "states_without_a_development_recording": [], "note": "showcase not built"}
         return json.loads(p.read_text())
 
+    def _echo(record: dict, request_id: str | None, input_id: str | None) -> JSONResponse:
+        """The record, with the client's request id and input id (rec_id / upload id) echoed as headers so the UI can
+        discard a response that no longer matches its selection (App-2a.3)."""
+        headers = {"X-Request-Id": request_id or "", "X-Input-Id": input_id or ""}
+        return JSONResponse(record, headers={k: v for k, v in headers.items() if v})
+
     @app.post("/api/diagnose")
     async def diagnose(request: Request):
         eng = engine(request)
         ctype = request.headers.get("content-type", "")
+        rid = request.headers.get("x-request-id")
         try:
             if ctype.startswith("multipart/form-data"):
                 form = await request.form()
@@ -78,12 +85,14 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None) -> FastA
                     raise UploadError("no file in the upload (form field 'file')")
                 x = parse_upload(await f.read(), eng.bundle.config)
                 nominal = form.get("nominal_speed_hz")
-                return eng.diagnose(array=x, healthy_rule=form.get("healthy_rule") or None,
-                                    nominal_speed_hz=float(nominal) if nominal else None)
+                rec = eng.diagnose(array=x, healthy_rule=form.get("healthy_rule") or None,
+                                   nominal_speed_hz=float(nominal) if nominal else None)
+                return _echo(rec, rid or form.get("request_id"), form.get("upload_id"))
             body = await request.json()
             if not isinstance(body, dict) or not body.get("rec_id"):
                 raise HTTPException(422, "send JSON {\"rec_id\": ...} or a multipart upload with a CSV in field 'file'")
-            return eng.diagnose(rec_id=str(body["rec_id"]), healthy_rule=body.get("healthy_rule"))
+            rec = eng.diagnose(rec_id=str(body["rec_id"]), healthy_rule=body.get("healthy_rule"))
+            return _echo(rec, rid or body.get("request_id"), str(body["rec_id"]))
         except (ReservedRecordingError, ReservedUploadError) as e:
             raise HTTPException(403, str(e)) from e
         except UploadError as e:
@@ -103,8 +112,31 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None) -> FastA
 
     @app.get("/api/cases/{case_id}/activity")
     def activity(case_id: str, request: Request):
-        return {"case_id": case_id, "steps": _need(engine(request), case_id)["activity"],
+        c = _need(engine(request), case_id)
+        return {"case_id": case_id, "steps": c["activity"], "rerun_of": c["rerun_of"],
                 "planned": "investigation agents; planned, not connected"}
+
+    @app.get("/api/cases/{case_id}/meta")
+    def meta(case_id: str, request: Request):
+        m = engine(request).meta(case_id)
+        if m is None:
+            raise HTTPException(404, f"no case {case_id}")
+        return m
+
+    @app.post("/api/cases/{case_id}/rerun")
+    def rerun(case_id: str, request: Request):
+        """A new case from the stored input of `case_id` (dataset: its rec_id; upload: its stored array, through the
+        upload guard). 404 unknown case; 409 when the stored upload is missing; 403 if the guard refuses."""
+        eng = engine(request)
+        try:
+            rec = eng.rerun(case_id)
+        except KeyError as e:
+            raise HTTPException(404, f"no case {case_id}") from e
+        except StoredUploadMissing as e:
+            raise HTTPException(409, str(e)) from e
+        except (ReservedRecordingError, ReservedUploadError) as e:
+            raise HTTPException(403, str(e)) from e
+        return _echo(rec, request.headers.get("x-request-id"), f"case:{case_id}")
 
     @app.get("/api/cases/{case_id}/channels")
     def channels(case_id: str, request: Request):
