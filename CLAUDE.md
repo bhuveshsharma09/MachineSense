@@ -623,3 +623,80 @@ without it, usefulness claims stay limited.
 Proposed agent kill rule: if the minimum agent loop is not working on 18 Oct, D6 ships as the fixed report plus
 chat over that report, and D7 becomes a smaller pilot. Stop and ask Bhuvesh about anything listed as open in
 the plan's Decisions (provider, references, reviewer, cuts, dates).
+
+## 12. Final evaluation protocol (declared 28 Sep 2026, Stage F0, before any final-model training)
+
+This section freezes the final evaluation (F1). It is committed before the final models are trained. After F1 starts,
+nothing in it changes. No reserved-test recording is read, scored, listed or fingerprinted before F1.
+
+**a. Frozen models** (the Q3 LOCO models and R18-ft are trained in F0 on development data only; they are saved in
+`artifacts/final/` with a manifest: sha256 per file, git sha, split hash; they are verified on load, like the bundle).
+- **Primary: the ML-4.2 bundle** (`artifacts/bundle/`, manifest sha256 521cc746…), unchanged: CNN-6, AE-6, B1s, LR,
+  Mahalanobis and the thresholds τ_p, τ_d, τ_e, τ_b set on the CPU deployment scoring path.
+- **Secondary, reported only (never selected on test results): R18-ft**, trained once with the Stage ML-5 recipe
+  (CLAUDE.md §7; `configs/resnet.yaml`), seed 42, on the bundle's training subset (closed train within the development
+  pool, 660 recordings); normalisation from those recordings; no thresholds (Q2 only).
+- **Q3: 9 final CNN-6 LOCO models** (Stage 3C recipe: Stage 3A architecture and fixed settings, seed 42, 9 known
+  classes). For withheld class c: **fit** = closed train within the development pool minus class c; **calibration** =
+  closed val within the development pool minus class c (the bundle's scheme). Normalisation (`norm_stats`, development
+  mode) on the fit recordings. Mahalanobis on the fit-window embeddings: class centroids with **one shared within-class
+  Ledoit–Wolf covariance** (primary, as 3C) and **per-class Ledoit–Wolf covariances** (secondary, "added after ML-5,
+  declared before F1"). **AE-6 (frame level) and B1s** are refit on the fit normals. Class normal is never withheld, so
+  the fit normals (20) and calibration normals (5) are the same for all 9 models: AE-6 and B1s are trained ONCE and shared
+  by the 9 LOCO models. Thresholds by the 3C / bundle rules on each model's calibration recordings: τ_p, τ_d = the 97.5 %
+  order statistic over all calibration recordings (known classes including normal; MSP on its negation; ties
+  accepted); τ_e, τ_b = the maximum over the 5 calibration normals. Nothing is chosen against fault outcomes.
+- **Scoring path:** every calibration and test score (bundle, LOCO models, R18-ft) is computed on the CPU from the raw
+  recording with its metadata speed, on the deployment path of ML-4.2: `clean_recording` → windows → R1 features and
+  the cache-C representation computed online → models (`ml.inference.score_recording` for the bundle; `ml.final` for
+  the LOCO models and R18-ft, which reproduces `score_recording` exactly on the bundle, tested). Recording decisions use
+  the mean over its 9 windows (rule 5).
+
+**b. Tests and models** (each reserved test is opened once, in F1).
+- **split_closed test (290):** bundle for Q1 and Q2; R18-ft for Q2 only.
+- **split_severity test (370):** bundle; declared task severity extrapolation: Q2 primary, Q1 detection secondary.
+- **split_speed_block test (776):** bundle; declared task speed extrapolation: Q2 primary, Q1 secondary. All its
+  recordings run at 40.0–60.7 Hz, above the training speed range (11.80–39.75 Hz), so every one is expected to carry
+  the speed warning; warning counts are reported.
+- **loco_<class> test × 9:** the matching LOCO model. **Known side** = the recordings with loco_<class> = test (240–270
+  per class, all reserved, all of known classes). **Unknown side, primary** = the withheld-class recordings that are
+  reserved (in any of the three test columns; 68–189 per class; never seen in development). **Unknown side, secondary,
+  labelled** = all withheld-class recordings (adds the 69–144 per class in the development pool; the final LOCO models
+  never trained on them, but Stage 3C evaluated them and the rule choice after Stage 3D was informed by them).
+- **Breakdown by origin (Bhuvesh, 28 Sep):** every Q3 result is also reported by where each reserved recording comes
+  from (split_closed test / split_severity test / split_speed_block test), on both the unknown and the known side, so a
+  speed- or severity-driven "unknown" can be told apart from fault-type novelty. The three columns overlap (union 1,147;
+  closed ∩ severity 71, closed ∩ speed 125, severity ∩ speed 121, all three 28): the breakdown counts by membership (a
+  recording appears once in each column it belongs to) and also reports the 7 exclusive combinations with their counts.
+  The headline stays the pooled primary number.
+
+**c. Metrics.**
+- **Q2:** class10 and class6 macro-F1 and balanced accuracy, per-class F1, class10 confusion matrix (recording level).
+- **Q1:** at the frozen thresholds, per decision rule: detection rate (fault recordings not called healthy) and false-
+  alarm rate (normal recordings not called healthy; healthy-with-caution counts as healthy and is reported separately),
+  with Clopper–Pearson intervals (few normals: 7 / 7 / 20); AUROC of the AE error and of B1s (normal vs fault).
+- **Q3:** per withheld class: threshold-free AUROC and OSCR (known side vs unknown side) for MSP and Mahalanobis
+  (shared = primary; per-class Ledoit–Wolf = secondary, "added after ML-5, declared before F1"); three-way outcomes at
+  the frozen thresholds (unknown / known fault / healthy) for the unknown side and the known side. **Headline:** the
+  macro-average over the 9 withheld classes of the Mahalanobis (shared) AUROC and of the MSP AUROC, and the pooled
+  unknown recall of the primary rule (unknown-side recordings called "unknown") with its false-unknown rate on the
+  known side, on the primary unknown set.
+- **Uncertainty:** stratified mixed-unit bootstrap (fault folders within class, normal recordings individually;
+  `ml.evaluation.mixed_bootstrap_draws`, the Stage 3A settings: n and seed from `baselines`) for macro-F1, balanced
+  accuracy and AUROC; Clopper–Pearson for rates from few recordings. Every table states the number of instances and of
+  distinct recordings (Q3 known-side recordings recur across LOCO runs).
+
+**d. Decision rules.** A, B, C, D and B_with_caution are all reported; the primary is **B_with_caution** (a provisional
+research setting, not tuned on any test data).
+
+**e. Once-only rules.** F1 is a single committed script, `scripts/30_final_eval.py`, run once. It refuses to run unless
+this §12 is committed and unmodified, the script itself is committed and unmodified, and `artifacts/final/` and the
+bundle verify; it refuses if `results/final/` already exists. It writes `results/final/` with provenance (manifest
+sha256s, git sha, split hash, run timestamp, its own sha256). No retraining, recalibration, threshold or rule change
+after F1 starts. Every result is reported. A bug found afterwards is reported as a deviation with both the original
+and the corrected numbers.
+- **Dry run (F0 only):** `--dry-run` substitutes development-pool recordings for every reserved set (closed test ←
+  closed val ∩ pool; severity test ← the largest development-pool severity of each fault family; speed-block test ←
+  pool recordings above 35 Hz; loco known side ← calibration set minus class c; loco unknown side ← pool recordings of
+  class c). It writes only to `results/final_dry_run/`, every file labelled "DRY RUN — development data"; its numbers
+  are not results and are never mixed with `results/final/`. In dry-run mode the loader refuses any reserved rec_id.
