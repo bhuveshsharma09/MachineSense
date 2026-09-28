@@ -19,6 +19,7 @@ class CaseStore:
                 record TEXT NOT NULL, activity TEXT NOT NULL, array_path TEXT)""")
             if "rerun_of" not in [r[1] for r in c.execute("PRAGMA table_info(cases)")]:
                 c.execute("ALTER TABLE cases ADD COLUMN rerun_of TEXT")  # databases created before App-2a.3
+            c.execute("CREATE TABLE IF NOT EXISTS explanations (case_id TEXT PRIMARY KEY, payload TEXT NOT NULL)")  # App-3
 
     def _conn(self):
         return sqlite3.connect(self.path)
@@ -36,6 +37,16 @@ class CaseStore:
         if row is None:
             return None
         return {"record": json.loads(row[0]), "activity": json.loads(row[1]), "array_path": row[2], "rerun_of": row[3]}
+
+    def put_explanation(self, case_id: str, payload: dict) -> None:
+        """The latest explanation of a case (a regeneration replaces it; every call is also logged to the JSONL file)."""
+        with self._conn() as c:
+            c.execute("INSERT OR REPLACE INTO explanations VALUES (?, ?)", (case_id, json.dumps(payload, ensure_ascii=False)))
+
+    def get_explanation(self, case_id: str) -> dict | None:
+        with self._conn() as c:
+            row = c.execute("SELECT payload FROM explanations WHERE case_id = ?", (case_id,)).fetchone()
+        return None if row is None else json.loads(row[0])
 
     def recent(self, limit: int = 20) -> list[dict]:
         with self._conn() as c:

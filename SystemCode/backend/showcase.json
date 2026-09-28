@@ -6,11 +6,11 @@
    "states": [
     "healthy"
    ],
-   "rec_id": "normal__18.432",
+   "rec_id": "normal__24.576",
    "class10": "normal",
    "used_for": "threshold calibration",
    "display_label": "healthy",
-   "reason": "normal recording; healthy, no caution, all rule variants agree, no warnings"
+   "reason": "normal recording; healthy, no caution, all rule variants agree, no warnings; not a threshold-defining recording, every check at least 5% from its threshold (MSP on the 1 − MSP scale)"
   },
   {
    "state": "known fault · imbalance",
@@ -105,11 +105,11 @@
    "states": [
     "narrow margin"
    ],
-   "rec_id": "overhang__cage_fault__6g__13.1072",
-   "class10": "overhang_cage",
+   "rec_id": "normal__18.432",
+   "class10": "normal",
    "used_for": "threshold calibration",
-   "display_label": "known fault: overhang cage",
-   "reason": "Exactly at the familiarity (Mahalanobis distance) threshold (ties are accepted)."
+   "display_label": "healthy",
+   "reason": "Exactly at the autoencoder error threshold (ties are accepted). Exactly at the speed-aware baseline (B1s) threshold (ties are accepted)."
   },
   {
    "state": "signal-quality warning",

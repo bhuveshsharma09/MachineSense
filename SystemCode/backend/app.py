@@ -17,11 +17,13 @@ from backend.report import build_report, build_sections
 from backend.settings import showcase_file
 
 
-def create_app(bundle_directory=None, cases_path=None, guard_path=None) -> FastAPI:
+def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_transport=None) -> FastAPI:
+    """llm_transport: an httpx transport for the explanation provider (tests mock the model with it)."""
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         # raises BundleIntegrityError → the server does not start
         app.state.engine = Engine(bundle_directory, cases_path=cases_path, guard_path=guard_path)
+        app.state.llm_transport = llm_transport
         yield
 
     app = FastAPI(title="MachineSense API", version="0.2.0", lifespan=lifespan,
@@ -149,6 +151,41 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None) -> FastA
         eng = engine(request)
         _need(eng, case_id)
         return {"case_id": case_id, **_evidence(eng, case_id, "signals")}
+
+    def _explain(request: Request, case_id: str, user_fields: dict | None) -> dict:
+        from backend.explain import explain_case
+        from backend.explain.provider import OpenAICompatibleProvider
+        from backend.settings import (explanations_log, llm_api_key, llm_base_url, llm_enabled, llm_model,
+                                      llm_timeout_s)
+        eng = engine(request)
+        rec = _need(eng, case_id)["record"]
+        ch = _evidence(eng, case_id, "channels") if eng.case_array(case_id) is not None else None
+        provider = OpenAICompatibleProvider(llm_base_url(), llm_model(), llm_timeout_s(), llm_api_key(),
+                                            transport=request.app.state.llm_transport)
+        out = explain_case(rec, assessment(rec), ch, user_fields, provider, enabled=llm_enabled(), log_path=explanations_log())
+        eng.store.put_explanation(case_id, out)
+        return out
+
+    @app.get("/api/cases/{case_id}/explanation")
+    def get_explanation(case_id: str, request: Request):
+        eng = engine(request)
+        _need(eng, case_id)
+        e = eng.store.get_explanation(case_id)
+        if e is None:
+            raise HTTPException(404, "no explanation yet; POST to generate one")
+        return e
+
+    @app.post("/api/cases/{case_id}/explanation")
+    async def post_explanation(case_id: str, request: Request):
+        """Generate (or regenerate) the explanation. Optional JSON {"user_fields": {"upload_filename", "user_name"}}:
+        user-provided strings, passed to the model only as data fields."""
+        body = {}
+        if request.headers.get("content-type", "").startswith("application/json"):
+            body = await request.json() or {}
+        uf = body.get("user_fields") if isinstance(body, dict) else None
+        uf = {k: str(v)[:200] for k, v in (uf or {}).items() if k in ("upload_filename", "user_name") and v}
+        from starlette.concurrency import run_in_threadpool
+        return await run_in_threadpool(_explain, request, case_id, uf)
 
     @app.get("/api/cases/{case_id}/report")
     def report(case_id: str, request: Request):

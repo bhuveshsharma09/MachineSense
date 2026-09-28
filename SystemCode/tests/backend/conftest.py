@@ -86,10 +86,33 @@ def uploads_path(tmp_path_factory):
         os.environ["MACHINESENSE_UPLOADS_DIR"] = old
 
 
+def no_llm_transport():
+    """No test ever reaches a live language model: every explanation request fails as 'connection refused'."""
+    import httpx
+
+    def refuse(request):
+        raise httpx.ConnectError("no language model in tests", request=request)
+    return httpx.MockTransport(refuse)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def explanations_log_path(tmp_path_factory):
+    import os
+    p = tmp_path_factory.mktemp("explain") / "explanations.jsonl"
+    old = os.environ.get("MACHINESENSE_EXPLANATIONS_LOG")
+    os.environ["MACHINESENSE_EXPLANATIONS_LOG"] = str(p)
+    yield p
+    if old is None:
+        os.environ.pop("MACHINESENSE_EXPLANATIONS_LOG", None)
+    else:
+        os.environ["MACHINESENSE_EXPLANATIONS_LOG"] = old
+
+
 @pytest.fixture(scope="session")
 def client(bundle_path, guard_path, cases_path):
     from fastapi.testclient import TestClient
 
     from backend.app import create_app
-    with TestClient(create_app(bundle_path, cases_path=cases_path, guard_path=guard_path)) as c:
+    with TestClient(create_app(bundle_path, cases_path=cases_path, guard_path=guard_path,
+                               llm_transport=no_llm_transport())) as c:
         yield c

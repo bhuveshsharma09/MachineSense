@@ -10,6 +10,9 @@
 | typical healthy variation (built from training normals) | MACHINESENSE_VARIATION | SystemCode/backend/data/healthy_variation.json |
 | raw development recordings | (fixed by ml.paths.data_dir) | SystemCode/data/raw_npy |
 | require the bundle in tests | MACHINESENSE_REQUIRE_BUNDLE=1 | off |
+| LLM endpoint / model / timeout / on-off (App-3) | MACHINESENSE_LLM_BASE_URL / _MODEL / _TIMEOUT_S / _ENABLED | http://localhost:1234/v1 / google/gemma-4-e4b / 20 / true |
+| LLM API key (optional; read from SystemCode/.env only) | MACHINESENSE_LLM_API_KEY in .env | none |
+| explanation call log | MACHINESENSE_EXPLANATIONS_LOG | SystemCode/backend/data/explanations.jsonl |
 """
 from __future__ import annotations
 
@@ -56,3 +59,40 @@ def raw_dir() -> Path:
 
 def require_bundle() -> bool:
     return os.environ.get("MACHINESENSE_REQUIRE_BUNDLE", "") == "1"
+
+
+# ----------------------------------------------------------------------------------------------------------- LLM (App-3)
+# The explanation layer (backend/explain/) is optional: with no model reachable the app uses the fixed template.
+LLM_KEY_NAME = "MACHINESENSE_LLM_API_KEY"
+
+
+def llm_base_url() -> str:
+    return os.environ.get("MACHINESENSE_LLM_BASE_URL") or "http://localhost:1234/v1"
+
+
+def llm_model() -> str:
+    return os.environ.get("MACHINESENSE_LLM_MODEL") or "google/gemma-4-e4b"
+
+
+def llm_timeout_s() -> float:
+    return float(os.environ.get("MACHINESENSE_LLM_TIMEOUT_S") or 20)
+
+
+def llm_enabled() -> bool:
+    return (os.environ.get("MACHINESENSE_LLM_ENABLED") or "true").strip().lower() not in ("0", "false", "no", "off")
+
+
+def llm_api_key(env_file: Path | None = None) -> str | None:
+    """An API key, if any, is read from SystemCode/.env ONLY (never from the process environment); LM Studio needs none."""
+    p = Path(env_file or SYSTEM_CODE_DIR / ".env")
+    if not p.exists():
+        return None
+    for line in p.read_text().splitlines():
+        k, _, v = line.partition("=")
+        if k.strip() == LLM_KEY_NAME and v.strip():
+            return v.strip().strip('"').strip("'")
+    return None
+
+
+def explanations_log() -> Path:
+    return _p("MACHINESENSE_EXPLANATIONS_LOG", BACKEND_DIR / "data" / "explanations.jsonl")

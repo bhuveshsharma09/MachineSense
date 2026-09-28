@@ -51,6 +51,16 @@ def _assess(r: dict) -> dict:
                                      "lr_secondary": {"top_class": r["lr_top"]}}})
 
 
+CLEAR_MARGIN = 0.05  # App-3: the healthy example sits clearly inside every threshold
+
+
+def threshold_defining() -> set:
+    """Recordings that define a bundle threshold (they sit exactly on τ_p, τ_d, τ_e or τ_b)."""
+    from backend.settings import bundle_dir
+    t = json.loads((bundle_dir() / "thresholds.json").read_text())
+    return {r for v in t.get("defining_recordings", {}).values() for r in v}
+
+
 def select(rows: list[dict]) -> dict:
     """First match by name within each state (deterministic); calibration recordings preferred over training ones. One
     recording per state: a recording already shown is skipped; if a state has no other recording, the existing entry is
@@ -81,8 +91,12 @@ def select(rows: list[dict]) -> dict:
 
     agree = lambda r: len(set(r["rule_comparison"].values())) == 1
     clean = lambda r: not r["warnings"]
+    defining = threshold_defining()
+    clear = lambda r: "_a" in r and "checks" in r["_a"] and all(abs(c["margin_rel"]) >= CLEAR_MARGIN for c in r["_a"]["checks"])
     add("healthy", lambda r: r["class10"] == "normal" and r["decision"] == "healthy" and not r["caution"] and agree(r)
-        and clean(r), lambda r: "normal recording; healthy, no caution, all rule variants agree, no warnings")
+        and clean(r) and r["rec_id"] not in defining and clear(r),
+        lambda r: "normal recording; healthy, no caution, all rule variants agree, no warnings; not a threshold-defining "
+                  f"recording, every check at least {CLEAR_MARGIN:.0%} from its threshold (MSP on the 1 − MSP scale)")
     for fam in dict.fromkeys(FAMILY.values()):
         add(f"known fault · {fam}", lambda r, fam=fam: r["decision"] == "known_fault" and r["fault_class"] == r["class10"]
             and FAMILY.get(r["class10"]) == fam and not r["caution"] and agree(r) and r["top_class"] == r["lr_top"] and clean(r),
