@@ -1,0 +1,733 @@
+{
+ "label": "F1 final evaluation (CLAUDE.md §12)",
+ "primary": {
+  "macro_auroc": {
+   "maha_shared": 0.8786477230642512,
+   "msp": 0.8340074260928626,
+   "maha_per_class": 0.8670208496939611
+  },
+  "n_classes": 9,
+  "unknown_recall_primary_rule": {
+   "k": 925,
+   "n": 1123,
+   "rate": 0.8236865538735529,
+   "ci95_clopper_pearson": [
+    0.8001136480764197,
+    0.8455494671448195
+   ]
+  },
+  "false_unknown_known_side_primary_rule": {
+   "k": 765,
+   "n": 2327,
+   "rate": 0.32874946282767514,
+   "ci95_clopper_pearson": [
+    0.3096736756668755,
+    0.3482573081519679
+   ]
+  },
+  "instances_known": 2327,
+  "distinct_known": 290,
+  "instances_unknown": 1123,
+  "distinct_unknown": 1123,
+  "breakdown_pooled": {
+   "membership": {
+    "closed": {
+     "known_side": {
+      "n": 2327,
+      "called_unknown_primary_rule": {
+       "k": 765,
+       "n": 2327,
+       "rate": 0.32874946282767514,
+       "ci95_clopper_pearson": [
+        0.3096736756668755,
+        0.3482573081519679
+       ]
+      },
+      "mean_msp": 0.9777633862783244,
+      "mean_maha": 20.325399250221977
+     },
+     "unknown_side": {
+      "n": 283,
+      "called_unknown_primary_rule": {
+       "k": 221,
+       "n": 283,
+       "rate": 0.7809187279151943,
+       "ci95_clopper_pearson": [
+        0.7281403377863298,
+        0.8277086817206709
+       ]
+      },
+      "mean_msp": 0.8967803290149275,
+      "mean_maha": 43.78578873018048
+     },
+     "auroc_maha_shared": 0.8242766965154789,
+     "auroc_msp": 0.7899401859565311
+    },
+    "severity": {
+     "known_side": {
+      "n": 575,
+      "called_unknown_primary_rule": {
+       "k": 337,
+       "n": 575,
+       "rate": 0.5860869565217391,
+       "ci95_clopper_pearson": [
+        0.5446027542217542,
+        0.6266822120316969
+       ]
+      },
+      "mean_msp": 0.9487466498775168,
+      "mean_maha": 29.212592348651548
+     },
+     "unknown_side": {
+      "n": 363,
+      "called_unknown_primary_rule": {
+       "k": 297,
+       "n": 363,
+       "rate": 0.8181818181818182,
+       "ci95_clopper_pearson": [
+        0.7745817331520329,
+        0.8565004018152562
+       ]
+      },
+      "mean_msp": 0.901807201305832,
+      "mean_maha": 44.05967515045141
+     },
+     "auroc_maha_shared": 0.7171828961552281,
+     "auroc_msp": 0.684532279314888
+    },
+    "speed_block": {
+     "known_side": {
+      "n": 1003,
+      "called_unknown_primary_rule": {
+       "k": 544,
+       "n": 1003,
+       "rate": 0.5423728813559322,
+       "ci95_clopper_pearson": [
+        0.5109560972050735,
+        0.5735402782417438
+       ]
+      },
+      "mean_msp": 0.9603621102480501,
+      "mean_maha": 27.98334842993401
+     },
+     "unknown_side": {
+      "n": 756,
+      "called_unknown_primary_rule": {
+       "k": 658,
+       "n": 756,
+       "rate": 0.8703703703703703,
+       "ci95_clopper_pearson": [
+        0.8443149723310203,
+        0.8934932769171807
+       ]
+      },
+      "mean_msp": 0.9024694159401406,
+      "mean_maha": 50.41811166591888
+     },
+     "auroc_maha_shared": 0.7834723343197919,
+     "auroc_msp": 0.7319602040439528
+    }
+   },
+   "exclusive": {
+    "closed": {
+     "known_side": {
+      "n": 976,
+      "called_unknown_primary_rule": {
+       "k": 51,
+       "n": 976,
+       "rate": 0.05225409836065574,
+       "ci95_clopper_pearson": [
+        0.03915067181169914,
+        0.06813527838162649
+       ]
+      },
+      "mean_msp": 0.9978897368771248,
+      "mean_maha": 11.206884471211522
+     },
+     "unknown_side": {
+      "n": 122,
+      "called_unknown_primary_rule": {
+       "k": 78,
+       "n": 122,
+       "rate": 0.639344262295082,
+       "ci95_clopper_pearson": [
+        0.5474675128628519,
+        0.7242838656942421
+       ]
+      },
+      "mean_msp": 0.9007244433761183,
+      "mean_maha": 36.66388774189929
+     },
+     "auroc_maha_shared": 0.9320075248589088,
+     "auroc_msp": 0.8765284869658694
+    },
+    "closed & severity": {
+     "known_side": {
+      "n": 348,
+      "called_unknown_primary_rule": {
+       "k": 170,
+       "n": 348,
+       "rate": 0.4885057471264368,
+       "ci95_clopper_pearson": [
+        0.43484299869388393,
+        0.5423656973971056
+       ]
+      },
+      "mean_msp": 0.9714707474103238,
+      "mean_maha": 23.82754694293185
+     },
+     "unknown_side": {
+      "n": 39,
+      "called_unknown_primary_rule": {
+       "k": 34,
+       "n": 39,
+       "rate": 0.8717948717948718,
+       "ci95_clopper_pearson": [
+        0.7257005895552842,
+        0.9570316569982108
+       ]
+      },
+      "mean_msp": 0.8649951508618628,
+      "mean_maha": 43.414753127632316
+     },
+     "auroc_maha_shared": 0.809755378720896,
+     "auroc_msp": 0.7922929560860595
+    },
+    "closed & severity & speed_block": {
+     "known_side": {
+      "n": 227,
+      "called_unknown_primary_rule": {
+       "k": 167,
+       "n": 227,
+       "rate": 0.73568281938326,
+       "ci95_clopper_pearson": [
+        0.6732677127279583,
+        0.7918292338188573
+       ]
+      },
+      "mean_msp": 0.9139097074043153,
+      "mean_maha": 37.46808045962271
+     },
+     "unknown_side": {
+      "n": 25,
+      "called_unknown_primary_rule": {
+       "k": 24,
+       "n": 25,
+       "rate": 0.96,
+       "ci95_clopper_pearson": [
+        0.796483086077586,
+        0.9989878003006891
+       ]
+      },
+      "mean_msp": 0.9272379458978142,
+      "mean_maha": 47.798819844059906
+     },
+     "auroc_maha_shared": 0.6724229074889867,
+     "auroc_msp": 0.5487224669603524
+    },
+    "closed & speed_block": {
+     "known_side": {
+      "n": 776,
+      "called_unknown_primary_rule": {
+       "k": 377,
+       "n": 776,
+       "rate": 0.48582474226804123,
+       "ci95_clopper_pearson": [
+        0.4501264602989464,
+        0.5216311085804697
+       ]
+      },
+      "mean_msp": 0.9739506353067199,
+      "mean_maha": 25.20881985939363
+     },
+     "unknown_side": {
+      "n": 97,
+      "called_unknown_primary_rule": {
+       "k": 85,
+       "n": 97,
+       "rate": 0.8762886597938144,
+       "ci95_clopper_pearson": [
+        0.7938704093836051,
+        0.934412561604836
+       ]
+      },
+      "mean_msp": 0.896749396786392,
+      "mean_maha": 51.85812410361034
+     },
+     "auroc_maha_shared": 0.8200791795089807,
+     "auroc_msp": 0.7645472420023381
+    },
+    "severity": {
+     "known_side": {
+      "n": 0,
+      "called_unknown_primary_rule": {
+       "k": 0,
+       "n": 0,
+       "rate": null,
+       "ci95_clopper_pearson": [
+        null,
+        null
+       ]
+      },
+      "mean_msp": null,
+      "mean_maha": null
+     },
+     "unknown_side": {
+      "n": 206,
+      "called_unknown_primary_rule": {
+       "k": 155,
+       "n": 206,
+       "rate": 0.7524271844660194,
+       "ci95_clopper_pearson": [
+        0.6876685893918708,
+        0.8097675359211436
+       ]
+      },
+      "mean_msp": 0.8985935711997793,
+      "mean_maha": 39.153357923715056
+     }
+    },
+    "severity & speed_block": {
+     "known_side": {
+      "n": 0,
+      "called_unknown_primary_rule": {
+       "k": 0,
+       "n": 0,
+       "rate": null,
+       "ci95_clopper_pearson": [
+        null,
+        null
+       ]
+      },
+      "mean_msp": null,
+      "mean_maha": null
+     },
+     "unknown_side": {
+      "n": 93,
+      "called_unknown_primary_rule": {
+       "k": 84,
+       "n": 93,
+       "rate": 0.9032258064516129,
+       "ci95_clopper_pearson": [
+        0.824227428918531,
+        0.9547863832604851
+       ]
+      },
+      "mean_msp": 0.917526654578543,
+      "mean_maha": 54.1927363360151
+     }
+    },
+    "speed_block": {
+     "known_side": {
+      "n": 0,
+      "called_unknown_primary_rule": {
+       "k": 0,
+       "n": 0,
+       "rate": null,
+       "ci95_clopper_pearson": [
+        null,
+        null
+       ]
+      },
+      "mean_msp": null,
+      "mean_maha": null
+     },
+     "unknown_side": {
+      "n": 541,
+      "called_unknown_primary_rule": {
+       "k": 465,
+       "n": 541,
+       "rate": 0.8595194085027726,
+       "ci95_clopper_pearson": [
+        0.8273501186718248,
+        0.8876945946102531
+       ]
+      },
+      "mean_msp": 0.8997620322351504,
+      "mean_maha": 49.63208762667943
+     }
+    }
+   }
+  }
+ },
+ "all": {
+  "macro_auroc": {
+   "maha_shared": 0.8583364452325145,
+   "msp": 0.8133429390873546,
+   "maha_per_class": 0.8536669063705321
+  },
+  "n_classes": 9,
+  "unknown_recall_primary_rule": {
+   "k": 1468,
+   "n": 1902,
+   "rate": 0.7718191377497371,
+   "ci95_clopper_pearson": [
+    0.7522851165209423,
+    0.790511350173807
+   ]
+  },
+  "false_unknown_known_side_primary_rule": {
+   "k": 765,
+   "n": 2327,
+   "rate": 0.32874946282767514,
+   "ci95_clopper_pearson": [
+    0.3096736756668755,
+    0.3482573081519679
+   ]
+  },
+  "instances_known": 2327,
+  "distinct_known": 290,
+  "instances_unknown": 1902,
+  "distinct_unknown": 1902,
+  "breakdown_pooled": {
+   "membership": {
+    "closed": {
+     "known_side": {
+      "n": 2327,
+      "called_unknown_primary_rule": {
+       "k": 765,
+       "n": 2327,
+       "rate": 0.32874946282767514,
+       "ci95_clopper_pearson": [
+        0.3096736756668755,
+        0.3482573081519679
+       ]
+      },
+      "mean_msp": 0.9777633862783244,
+      "mean_maha": 20.325399250221977
+     },
+     "unknown_side": {
+      "n": 283,
+      "called_unknown_primary_rule": {
+       "k": 221,
+       "n": 283,
+       "rate": 0.7809187279151943,
+       "ci95_clopper_pearson": [
+        0.7281403377863298,
+        0.8277086817206709
+       ]
+      },
+      "mean_msp": 0.8967803290149275,
+      "mean_maha": 43.78578873018048
+     },
+     "auroc_maha_shared": 0.8242766965154789,
+     "auroc_msp": 0.7899401859565311
+    },
+    "severity": {
+     "known_side": {
+      "n": 575,
+      "called_unknown_primary_rule": {
+       "k": 337,
+       "n": 575,
+       "rate": 0.5860869565217391,
+       "ci95_clopper_pearson": [
+        0.5446027542217542,
+        0.6266822120316969
+       ]
+      },
+      "mean_msp": 0.9487466498775168,
+      "mean_maha": 29.212592348651548
+     },
+     "unknown_side": {
+      "n": 363,
+      "called_unknown_primary_rule": {
+       "k": 297,
+       "n": 363,
+       "rate": 0.8181818181818182,
+       "ci95_clopper_pearson": [
+        0.7745817331520329,
+        0.8565004018152562
+       ]
+      },
+      "mean_msp": 0.901807201305832,
+      "mean_maha": 44.05967515045141
+     },
+     "auroc_maha_shared": 0.7171828961552281,
+     "auroc_msp": 0.684532279314888
+    },
+    "speed_block": {
+     "known_side": {
+      "n": 1003,
+      "called_unknown_primary_rule": {
+       "k": 544,
+       "n": 1003,
+       "rate": 0.5423728813559322,
+       "ci95_clopper_pearson": [
+        0.5109560972050735,
+        0.5735402782417438
+       ]
+      },
+      "mean_msp": 0.9603621102480501,
+      "mean_maha": 27.98334842993401
+     },
+     "unknown_side": {
+      "n": 756,
+      "called_unknown_primary_rule": {
+       "k": 658,
+       "n": 756,
+       "rate": 0.8703703703703703,
+       "ci95_clopper_pearson": [
+        0.8443149723310203,
+        0.8934932769171807
+       ]
+      },
+      "mean_msp": 0.9024694159401406,
+      "mean_maha": 50.41811166591888
+     },
+     "auroc_maha_shared": 0.7834723343197919,
+     "auroc_msp": 0.7319602040439528
+    }
+   },
+   "exclusive": {
+    "closed": {
+     "known_side": {
+      "n": 976,
+      "called_unknown_primary_rule": {
+       "k": 51,
+       "n": 976,
+       "rate": 0.05225409836065574,
+       "ci95_clopper_pearson": [
+        0.03915067181169914,
+        0.06813527838162649
+       ]
+      },
+      "mean_msp": 0.9978897368771248,
+      "mean_maha": 11.206884471211522
+     },
+     "unknown_side": {
+      "n": 122,
+      "called_unknown_primary_rule": {
+       "k": 78,
+       "n": 122,
+       "rate": 0.639344262295082,
+       "ci95_clopper_pearson": [
+        0.5474675128628519,
+        0.7242838656942421
+       ]
+      },
+      "mean_msp": 0.9007244433761183,
+      "mean_maha": 36.66388774189929
+     },
+     "auroc_maha_shared": 0.9320075248589088,
+     "auroc_msp": 0.8765284869658694
+    },
+    "closed & severity": {
+     "known_side": {
+      "n": 348,
+      "called_unknown_primary_rule": {
+       "k": 170,
+       "n": 348,
+       "rate": 0.4885057471264368,
+       "ci95_clopper_pearson": [
+        0.43484299869388393,
+        0.5423656973971056
+       ]
+      },
+      "mean_msp": 0.9714707474103238,
+      "mean_maha": 23.82754694293185
+     },
+     "unknown_side": {
+      "n": 39,
+      "called_unknown_primary_rule": {
+       "k": 34,
+       "n": 39,
+       "rate": 0.8717948717948718,
+       "ci95_clopper_pearson": [
+        0.7257005895552842,
+        0.9570316569982108
+       ]
+      },
+      "mean_msp": 0.8649951508618628,
+      "mean_maha": 43.414753127632316
+     },
+     "auroc_maha_shared": 0.809755378720896,
+     "auroc_msp": 0.7922929560860595
+    },
+    "closed & severity & speed_block": {
+     "known_side": {
+      "n": 227,
+      "called_unknown_primary_rule": {
+       "k": 167,
+       "n": 227,
+       "rate": 0.73568281938326,
+       "ci95_clopper_pearson": [
+        0.6732677127279583,
+        0.7918292338188573
+       ]
+      },
+      "mean_msp": 0.9139097074043153,
+      "mean_maha": 37.46808045962271
+     },
+     "unknown_side": {
+      "n": 25,
+      "called_unknown_primary_rule": {
+       "k": 24,
+       "n": 25,
+       "rate": 0.96,
+       "ci95_clopper_pearson": [
+        0.796483086077586,
+        0.9989878003006891
+       ]
+      },
+      "mean_msp": 0.9272379458978142,
+      "mean_maha": 47.798819844059906
+     },
+     "auroc_maha_shared": 0.6724229074889867,
+     "auroc_msp": 0.5487224669603524
+    },
+    "closed & speed_block": {
+     "known_side": {
+      "n": 776,
+      "called_unknown_primary_rule": {
+       "k": 377,
+       "n": 776,
+       "rate": 0.48582474226804123,
+       "ci95_clopper_pearson": [
+        0.4501264602989464,
+        0.5216311085804697
+       ]
+      },
+      "mean_msp": 0.9739506353067199,
+      "mean_maha": 25.20881985939363
+     },
+     "unknown_side": {
+      "n": 97,
+      "called_unknown_primary_rule": {
+       "k": 85,
+       "n": 97,
+       "rate": 0.8762886597938144,
+       "ci95_clopper_pearson": [
+        0.7938704093836051,
+        0.934412561604836
+       ]
+      },
+      "mean_msp": 0.896749396786392,
+      "mean_maha": 51.85812410361034
+     },
+     "auroc_maha_shared": 0.8200791795089807,
+     "auroc_msp": 0.7645472420023381
+    },
+    "none": {
+     "known_side": {
+      "n": 0,
+      "called_unknown_primary_rule": {
+       "k": 0,
+       "n": 0,
+       "rate": null,
+       "ci95_clopper_pearson": [
+        null,
+        null
+       ]
+      },
+      "mean_msp": null,
+      "mean_maha": null
+     },
+     "unknown_side": {
+      "n": 779,
+      "called_unknown_primary_rule": {
+       "k": 543,
+       "n": 779,
+       "rate": 0.6970474967907574,
+       "ci95_clopper_pearson": [
+        0.6634334495710061,
+        0.7291618935033481
+       ]
+      },
+      "mean_msp": 0.8834013366042882,
+      "mean_maha": 38.44846318968386
+     }
+    },
+    "severity": {
+     "known_side": {
+      "n": 0,
+      "called_unknown_primary_rule": {
+       "k": 0,
+       "n": 0,
+       "rate": null,
+       "ci95_clopper_pearson": [
+        null,
+        null
+       ]
+      },
+      "mean_msp": null,
+      "mean_maha": null
+     },
+     "unknown_side": {
+      "n": 206,
+      "called_unknown_primary_rule": {
+       "k": 155,
+       "n": 206,
+       "rate": 0.7524271844660194,
+       "ci95_clopper_pearson": [
+        0.6876685893918708,
+        0.8097675359211436
+       ]
+      },
+      "mean_msp": 0.8985935711997793,
+      "mean_maha": 39.153357923715056
+     }
+    },
+    "severity & speed_block": {
+     "known_side": {
+      "n": 0,
+      "called_unknown_primary_rule": {
+       "k": 0,
+       "n": 0,
+       "rate": null,
+       "ci95_clopper_pearson": [
+        null,
+        null
+       ]
+      },
+      "mean_msp": null,
+      "mean_maha": null
+     },
+     "unknown_side": {
+      "n": 93,
+      "called_unknown_primary_rule": {
+       "k": 84,
+       "n": 93,
+       "rate": 0.9032258064516129,
+       "ci95_clopper_pearson": [
+        0.824227428918531,
+        0.9547863832604851
+       ]
+      },
+      "mean_msp": 0.917526654578543,
+      "mean_maha": 54.1927363360151
+     }
+    },
+    "speed_block": {
+     "known_side": {
+      "n": 0,
+      "called_unknown_primary_rule": {
+       "k": 0,
+       "n": 0,
+       "rate": null,
+       "ci95_clopper_pearson": [
+        null,
+        null
+       ]
+      },
+      "mean_msp": null,
+      "mean_maha": null
+     },
+     "unknown_side": {
+      "n": 541,
+      "called_unknown_primary_rule": {
+       "k": 465,
+       "n": 541,
+       "rate": 0.8595194085027726,
+       "ci95_clopper_pearson": [
+        0.8273501186718248,
+        0.8876945946102531
+       ]
+      },
+      "mean_msp": 0.8997620322351504,
+      "mean_maha": 49.63208762667943
+     }
+    }
+   }
+  }
+ }
+}

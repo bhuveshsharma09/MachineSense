@@ -1,0 +1,89 @@
+{
+ "label": "F1 final evaluation (CLAUDE.md §12)",
+ "dry_run": false,
+ "started_at": "2026-09-28T13:22:24+00:00",
+ "finished_at": "2026-09-28T13:51:52+00:00",
+ "git_sha": "83fac229cb9cac7f326b55fc335c5c3dfe4d870d",
+ "protocol_commit": "842286cc11a91f63ab3e3a970b199b70f69d9081",
+ "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+ "script_sha256": "54858e22aacaa33f3466d2c1438a8ba0124d5ac57c1ac35f133346c4f0a2a28e",
+ "ml_final_sha256": "a25e7ebcccecfc4fc5f1afe2bd8b642fd0e91745077d6f4b5f9b69e8169a03c6",
+ "bundle_manifest_sha256": "521cc746208940e04b3ffb2b33c583772c989ae8cdc59f6ace4f51b7e3c3b0e9",
+ "final_manifest_sha256": "8f08818e385396e9773df9e8677d24557fd067c4ec55871ce06c8520e17e4249",
+ "primary_rule": "B_with_caution",
+ "n_bootstrap": 2000,
+ "bootstrap_seed": 42,
+ "limit": null,
+ "classes": [
+  "imbalance",
+  "horizontal_misalignment",
+  "vertical_misalignment",
+  "underhang_ball",
+  "underhang_cage",
+  "underhang_outer",
+  "overhang_ball",
+  "overhang_cage",
+  "overhang_outer"
+ ],
+ "set_sizes": {
+  "bundle": {
+   "closed": 290,
+   "severity": 370,
+   "speed_block": 776
+  },
+  "r18ft": 290,
+  "loco": {
+   "imbalance": {
+    "known": 240,
+    "unknown_primary": 189,
+    "unknown_all": 333
+   },
+   "horizontal_misalignment": {
+    "known": 261,
+    "unknown_primary": 124,
+    "unknown_all": 197
+   },
+   "vertical_misalignment": {
+    "known": 245,
+    "unknown_primary": 176,
+    "unknown_all": 301
+   },
+   "underhang_ball": {
+    "known": 262,
+    "unknown_primary": 109,
+    "unknown_all": 186
+   },
+   "underhang_cage": {
+    "known": 262,
+    "unknown_primary": 116,
+    "unknown_all": 188
+   },
+   "underhang_outer": {
+    "known": 263,
+    "unknown_primary": 111,
+    "unknown_all": 184
+   },
+   "overhang_ball": {
+    "known": 270,
+    "unknown_primary": 68,
+    "unknown_all": 137
+   },
+   "overhang_cage": {
+    "known": 262,
+    "unknown_primary": 116,
+    "unknown_all": 188
+   },
+   "overhang_outer": {
+    "known": 262,
+    "unknown_primary": 114,
+    "unknown_all": 188
+   }
+  }
+ },
+ "recordings_read": 1926,
+ "timing": {
+  "seconds": 1681.2174753330182,
+  "recordings": 1926,
+  "seconds_per_recording": 0.8729062696433116
+ }
+}

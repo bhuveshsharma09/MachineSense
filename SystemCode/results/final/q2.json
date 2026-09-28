@@ -1,0 +1,687 @@
+{
+ "label": "F1 final evaluation (CLAUDE.md §12)",
+ "bundle": {
+  "closed": {
+   "n_recordings": 290,
+   "n_distinct_recordings": 290,
+   "class10": {
+    "macro_f1": 0.916349391785943,
+    "macro_f1_ci": [
+     0.8453275276289963,
+     0.9719680666627522
+    ],
+    "balanced_accuracy": 0.9140925013683635,
+    "balanced_accuracy_ci": [
+     0.8493802396396848,
+     0.9743037450022743
+    ],
+    "per_class_f1": {
+     "normal": 0.7143,
+     "imbalance": 0.9412,
+     "horizontal_misalignment": 0.7843,
+     "vertical_misalignment": 0.8958,
+     "underhang_ball": 0.9825,
+     "underhang_cage": 0.9231,
+     "underhang_outer": 1.0,
+     "overhang_ball": 0.9756,
+     "overhang_cage": 0.9643,
+     "overhang_outer": 0.9825
+    }
+   },
+   "class6": {
+    "macro_f1": 0.8840362204558342,
+    "macro_f1_ci": [
+     0.7772192287047206,
+     0.9690224054999798
+    ],
+    "balanced_accuracy": 0.8805586439903017,
+    "balanced_accuracy_ci": [
+     0.7818825318585948,
+     0.9740431349426562
+    ],
+    "per_class_f1": {
+     "normal": 0.7143,
+     "imbalance": 0.9412,
+     "horizontal_misalignment": 0.7843,
+     "vertical_misalignment": 0.8958,
+     "underhang_bearing": 0.9816,
+     "overhang_bearing": 0.987
+    }
+   },
+   "confusion_class10": {
+    "normal": {
+     "normal": 5,
+     "imbalance": 2,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "imbalance": {
+     "normal": 1,
+     "imbalance": 48,
+     "horizontal_misalignment": 1,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 2,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "horizontal_misalignment": {
+     "normal": 1,
+     "imbalance": 0,
+     "horizontal_misalignment": 20,
+     "vertical_misalignment": 1,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "vertical_misalignment": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 8,
+     "vertical_misalignment": 43,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "underhang_ball": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 28,
+     "underhang_cage": 1,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "underhang_cage": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 24,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "underhang_outer": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 27,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "overhang_ball": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 20,
+     "overhang_cage": 1,
+     "overhang_outer": 0
+    },
+    "overhang_cage": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 1,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 27,
+     "overhang_outer": 0
+    },
+    "overhang_outer": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 1,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 28
+    }
+   }
+  },
+  "severity": {
+   "n_recordings": 370,
+   "n_distinct_recordings": 370,
+   "class10": {
+    "macro_f1": 0.7469145486661183,
+    "macro_f1_ci": [
+     0.7192829697187498,
+     0.7616901879686647
+    ],
+    "balanced_accuracy": 0.7928416569879985,
+    "balanced_accuracy_ci": [
+     0.7499845141308555,
+     0.821413085559427
+    ],
+    "per_class_f1": {
+     "normal": 0.5263,
+     "imbalance": 0.6517,
+     "horizontal_misalignment": 0.0,
+     "vertical_misalignment": 0.7143,
+     "underhang_ball": 0.9383,
+     "underhang_cage": 0.7826,
+     "underhang_outer": 1.0,
+     "overhang_ball": 0.9756,
+     "overhang_cage": 0.9157,
+     "overhang_outer": 0.9647
+    }
+   },
+   "class6": {
+    "macro_f1": 0.6372867658164819,
+    "macro_f1_ci": [
+     0.5912341342375346,
+     0.6619128313207261
+    ],
+    "balanced_accuracy": 0.7122100122100122,
+    "balanced_accuracy_ci": [
+     0.6407814407814408,
+     0.7598290598290598
+    ],
+    "per_class_f1": {
+     "normal": 0.5263,
+     "imbalance": 0.6517,
+     "horizontal_misalignment": 0.0,
+     "vertical_misalignment": 0.7143,
+     "underhang_bearing": 0.9554,
+     "overhang_bearing": 0.9761
+    }
+   },
+   "confusion_class10": {
+    "normal": {
+     "normal": 5,
+     "imbalance": 7,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "imbalance": {
+     "normal": 1,
+     "imbalance": 29,
+     "horizontal_misalignment": 8,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 6,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "horizontal_misalignment": {
+     "normal": 1,
+     "imbalance": 9,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "vertical_misalignment": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 40,
+     "vertical_misalignment": 50,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "underhang_ball": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 38,
+     "underhang_cage": 5,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "underhang_cage": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 27,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "underhang_outer": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 37,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "overhang_ball": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 20,
+     "overhang_cage": 1,
+     "overhang_outer": 0
+    },
+    "overhang_cage": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 4,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 38,
+     "overhang_outer": 0
+    },
+    "overhang_outer": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 1,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 2,
+     "overhang_outer": 41
+    }
+   }
+  },
+  "speed_block": {
+   "n_recordings": 776,
+   "n_distinct_recordings": 776,
+   "class10": {
+    "macro_f1": 0.9005162918216735,
+    "macro_f1_ci": [
+     0.8293338929595808,
+     0.9500161142090823
+    ],
+    "balanced_accuracy": 0.8875560643824519,
+    "balanced_accuracy_ci": [
+     0.823292860782891,
+     0.9402656926406926
+    ],
+    "per_class_f1": {
+     "normal": 0.6207,
+     "imbalance": 0.9577,
+     "horizontal_misalignment": 0.8,
+     "vertical_misalignment": 0.8788,
+     "underhang_ball": 0.9542,
+     "underhang_cage": 0.8777,
+     "underhang_outer": 1.0,
+     "overhang_ball": 0.9863,
+     "overhang_cage": 0.9615,
+     "overhang_outer": 0.9682
+    }
+   },
+   "class6": {
+    "macro_f1": 0.8689095249296863,
+    "macro_f1_ci": [
+     0.7768996635848299,
+     0.9342635482451136
+    ],
+    "balanced_accuracy": 0.8457397237837031,
+    "balanced_accuracy_ci": [
+     0.7605614064106484,
+     0.9170758928571427
+    ],
+    "per_class_f1": {
+     "normal": 0.6207,
+     "imbalance": 0.9577,
+     "horizontal_misalignment": 0.8,
+     "vertical_misalignment": 0.8788,
+     "underhang_bearing": 0.977,
+     "overhang_bearing": 0.9793
+    }
+   },
+   "confusion_class10": {
+    "normal": {
+     "normal": 9,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "imbalance": {
+     "normal": 6,
+     "imbalance": 136,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 6,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "horizontal_misalignment": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 62,
+     "vertical_misalignment": 11,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "vertical_misalignment": {
+     "normal": 1,
+     "imbalance": 0,
+     "horizontal_misalignment": 20,
+     "vertical_misalignment": 116,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "underhang_ball": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 73,
+     "underhang_cage": 7,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "underhang_cage": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 61,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "underhang_outer": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 71,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "overhang_ball": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 36,
+     "overhang_cage": 1,
+     "overhang_outer": 0
+    },
+    "overhang_cage": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 4,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 75,
+     "overhang_outer": 0
+    },
+    "overhang_outer": {
+     "normal": 4,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 1,
+     "overhang_outer": 76
+    }
+   }
+  }
+ },
+ "r18ft_secondary": {
+  "closed": {
+   "n_recordings": 290,
+   "n_distinct_recordings": 290,
+   "class10": {
+    "macro_f1": 0.9157706148897441,
+    "macro_f1_ci": [
+     0.8421203627941984,
+     0.9681458307163473
+    ],
+    "balanced_accuracy": 0.902679802955665,
+    "balanced_accuracy_ci": [
+     0.8391273436794073,
+     0.9630105495703033
+    ],
+    "per_class_f1": {
+     "normal": 0.7273,
+     "imbalance": 0.9703,
+     "horizontal_misalignment": 0.7692,
+     "vertical_misalignment": 0.9278,
+     "underhang_ball": 1.0,
+     "underhang_cage": 0.9455,
+     "underhang_outer": 1.0,
+     "overhang_ball": 0.9756,
+     "overhang_cage": 0.8966,
+     "overhang_outer": 0.9455
+    }
+   },
+   "class6": {
+    "macro_f1": 0.8917466222661691,
+    "macro_f1_ci": [
+     0.7757202233297772,
+     0.9706746139420163
+    ],
+    "balanced_accuracy": 0.8673049105938923,
+    "balanced_accuracy_ci": [
+     0.7698727636432402,
+     0.965368737219421
+    ],
+    "per_class_f1": {
+     "normal": 0.7273,
+     "imbalance": 0.9703,
+     "horizontal_misalignment": 0.7692,
+     "vertical_misalignment": 0.9278,
+     "underhang_bearing": 0.9818,
+     "overhang_bearing": 0.974
+    }
+   },
+   "confusion_class10": {
+    "normal": {
+     "normal": 4,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "imbalance": {
+     "normal": 0,
+     "imbalance": 49,
+     "horizontal_misalignment": 2,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "horizontal_misalignment": {
+     "normal": 1,
+     "imbalance": 1,
+     "horizontal_misalignment": 20,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 1,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "vertical_misalignment": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 7,
+     "vertical_misalignment": 45,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "underhang_ball": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 28,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "underhang_cage": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 26,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 1,
+     "overhang_outer": 0
+    },
+    "underhang_outer": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 27,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 0
+    },
+    "overhang_ball": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 20,
+     "overhang_cage": 1,
+     "overhang_outer": 0
+    },
+    "overhang_cage": {
+     "normal": 2,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 0,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 26,
+     "overhang_outer": 2
+    },
+    "overhang_outer": {
+     "normal": 0,
+     "imbalance": 0,
+     "horizontal_misalignment": 0,
+     "vertical_misalignment": 0,
+     "underhang_ball": 0,
+     "underhang_cage": 1,
+     "underhang_outer": 0,
+     "overhang_ball": 0,
+     "overhang_cage": 0,
+     "overhang_outer": 26
+    }
+   }
+  }
+ }
+}

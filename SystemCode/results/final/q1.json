@@ -1,0 +1,443 @@
+{
+ "label": "F1 final evaluation (CLAUDE.md §12)",
+ "bundle": {
+  "closed": {
+   "n_recordings": 290,
+   "n_normals": 7,
+   "n_faults": 283,
+   "rules": {
+    "A": {
+     "detection": {
+      "k": 283,
+      "n": 283,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9870496767792868,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 5,
+      "n": 7,
+      "rate": 0.7142857142857143,
+      "ci95_clopper_pearson": [
+       0.29042086373734277,
+       0.9633074338239145
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "B": {
+     "detection": {
+      "k": 283,
+      "n": 283,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9870496767792868,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 5,
+      "n": 7,
+      "rate": 0.7142857142857143,
+      "ci95_clopper_pearson": [
+       0.29042086373734277,
+       0.9633074338239145
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "C": {
+     "detection": {
+      "k": 283,
+      "n": 283,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9870496767792868,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 5,
+      "n": 7,
+      "rate": 0.7142857142857143,
+      "ci95_clopper_pearson": [
+       0.29042086373734277,
+       0.9633074338239145
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "D": {
+     "detection": {
+      "k": 283,
+      "n": 283,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9870496767792868,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 5,
+      "n": 7,
+      "rate": 0.7142857142857143,
+      "ci95_clopper_pearson": [
+       0.29042086373734277,
+       0.9633074338239145
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "B_with_caution": {
+     "detection": {
+      "k": 283,
+      "n": 283,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9870496767792868,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 5,
+      "n": 7,
+      "rate": 0.7142857142857143,
+      "ci95_clopper_pearson": [
+       0.29042086373734277,
+       0.9633074338239145
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    }
+   },
+   "auroc": {
+    "ae_error": {
+     "auroc": 0.8975265017667844,
+     "ci95": [
+      0.7849566355751922,
+      0.9901709445223343
+     ],
+     "n_neg": 7,
+     "n_pos": 283,
+     "n_draws": 2000
+    },
+    "b1s": {
+     "auroc": 0.8167592125189299,
+     "ci95": [
+      0.6123027510124285,
+      0.9926755447941887
+     ],
+     "n_neg": 7,
+     "n_pos": 283,
+     "n_draws": 2000
+    }
+   },
+   "speed_warnings": {
+    "healthy thresholds were not calibrated at this speed": 171,
+    "a healthy verdict is less reliable": 171,
+    "speed outside the range the model was trained on": 128,
+    "results less reliable": 128
+   },
+   "recordings_with_any_speed_warning": 171
+  },
+  "severity": {
+   "n_recordings": 370,
+   "n_normals": 7,
+   "n_faults": 363,
+   "rules": {
+    "A": {
+     "detection": {
+      "k": 363,
+      "n": 363,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9898892583598201,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 5,
+      "n": 7,
+      "rate": 0.7142857142857143,
+      "ci95_clopper_pearson": [
+       0.29042086373734277,
+       0.9633074338239145
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "B": {
+     "detection": {
+      "k": 363,
+      "n": 363,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9898892583598201,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 5,
+      "n": 7,
+      "rate": 0.7142857142857143,
+      "ci95_clopper_pearson": [
+       0.29042086373734277,
+       0.9633074338239145
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "C": {
+     "detection": {
+      "k": 363,
+      "n": 363,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9898892583598201,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 5,
+      "n": 7,
+      "rate": 0.7142857142857143,
+      "ci95_clopper_pearson": [
+       0.29042086373734277,
+       0.9633074338239145
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "D": {
+     "detection": {
+      "k": 363,
+      "n": 363,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9898892583598201,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 5,
+      "n": 7,
+      "rate": 0.7142857142857143,
+      "ci95_clopper_pearson": [
+       0.29042086373734277,
+       0.9633074338239145
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "B_with_caution": {
+     "detection": {
+      "k": 363,
+      "n": 363,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9898892583598201,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 5,
+      "n": 7,
+      "rate": 0.7142857142857143,
+      "ci95_clopper_pearson": [
+       0.29042086373734277,
+       0.9633074338239145
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    }
+   },
+   "auroc": {
+    "ae_error": {
+     "auroc": 0.9264069264069263,
+     "ci95": [
+      0.8189689098780008,
+      1.0
+     ],
+     "n_neg": 7,
+     "n_pos": 363,
+     "n_draws": 2000
+    },
+    "b1s": {
+     "auroc": 0.8791814246359702,
+     "ci95": [
+      0.6993309720582448,
+      1.0
+     ],
+     "n_neg": 7,
+     "n_pos": 363,
+     "n_draws": 2000
+    }
+   },
+   "speed_warnings": {
+    "healthy thresholds were not calibrated at this speed": 188,
+    "a healthy verdict is less reliable": 188,
+    "speed outside the range the model was trained on": 122,
+    "results less reliable": 122
+   },
+   "recordings_with_any_speed_warning": 188
+  },
+  "speed_block": {
+   "n_recordings": 776,
+   "n_normals": 20,
+   "n_faults": 756,
+   "rules": {
+    "A": {
+     "detection": {
+      "k": 756,
+      "n": 756,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9951324150980663,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 18,
+      "n": 20,
+      "rate": 0.9,
+      "ci95_clopper_pearson": [
+       0.6830172859809176,
+       0.9876514728297052
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "B": {
+     "detection": {
+      "k": 756,
+      "n": 756,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9951324150980663,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 19,
+      "n": 20,
+      "rate": 0.95,
+      "ci95_clopper_pearson": [
+       0.7512672372279723,
+       0.9987349105020502
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "C": {
+     "detection": {
+      "k": 756,
+      "n": 756,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9951324150980663,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 19,
+      "n": 20,
+      "rate": 0.95,
+      "ci95_clopper_pearson": [
+       0.7512672372279723,
+       0.9987349105020502
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "D": {
+     "detection": {
+      "k": 756,
+      "n": 756,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9951324150980663,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 20,
+      "n": 20,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.8315665290169147,
+       1.0
+      ]
+     },
+     "healthy_with_caution_normals": 0,
+     "healthy_with_caution_faults": 0
+    },
+    "B_with_caution": {
+     "detection": {
+      "k": 756,
+      "n": 756,
+      "rate": 1.0,
+      "ci95_clopper_pearson": [
+       0.9951324150980663,
+       1.0
+      ]
+     },
+     "false_alarm": {
+      "k": 19,
+      "n": 20,
+      "rate": 0.95,
+      "ci95_clopper_pearson": [
+       0.7512672372279723,
+       0.9987349105020502
+      ]
+     },
+     "healthy_with_caution_normals": 1,
+     "healthy_with_caution_faults": 0
+    }
+   },
+   "auroc": {
+    "ae_error": {
+     "auroc": 0.9275793650793651,
+     "ci95": [
+      0.8855100213327184,
+      0.9657091755793227
+     ],
+     "n_neg": 20,
+     "n_pos": 756,
+     "n_draws": 2000
+    },
+    "b1s": {
+     "auroc": 0.7940476190476191,
+     "ci95": [
+      0.6858061315027552,
+      0.882847039473684
+     ],
+     "n_neg": 20,
+     "n_pos": 756,
+     "n_draws": 2000
+    }
+   },
+   "speed_warnings": {
+    "speed outside the range the model was trained on": 776,
+    "results less reliable": 776,
+    "healthy thresholds were not calibrated at this speed": 776,
+    "a healthy verdict is less reliable": 776
+   },
+   "recordings_with_any_speed_warning": 776
+  }
+ }
+}
