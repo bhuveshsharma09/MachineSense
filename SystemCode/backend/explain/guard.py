@@ -1,5 +1,6 @@
 """Checks applied by application code to generated text (never trusted to the prompt): schema, the fixed next step,
-numbers (only the record's mechanic numbers; raw scores refused), forbidden phrases and percentages."""
+numbers (only the record's mechanic numbers; raw scores refused), forbidden phrases and percentages, and the direction
+(higher / lower) of any measured change whose factor is quoted."""
 from __future__ import annotations
 
 import json
@@ -12,6 +13,8 @@ FORBIDDEN = re.compile(r"%|\bper ?cent\b|\bconfirm(?:ed|s|ation)?\b|\broot[- ]ca
                        r"\burgent(?:ly)?\b|\bimmediate(?:ly)?\b|\bimminent\b|\bremaining (?:useful )?life\b|"
                        r"\bguarantee(?:d|s)?\b|\bdefinitely\b|\bcertainly\b", re.IGNORECASE)
 NUMBER = re.compile(r"(?<![\w.])\d[\d,]*(?:\.\d+)?")
+UP = re.compile(r"\b(?:higher|increased?|increases|greater|more|above|larger|raised|elevated)\b", re.IGNORECASE)
+DOWN = re.compile(r"\b(?:lower|decreased?|decreases|less|below|smaller|reduced|weaker)\b", re.IGNORECASE)
 
 
 class ExplanationRejected(ValueError):
@@ -54,7 +57,21 @@ def _matches(token: str, values: list[float]) -> bool:
     return any(abs(round(v, dec) - x) < 10 ** (-dec) / 2 + 1e-9 for v in values)
 
 
-def check_content(obj: dict, allowed: list[float], raw: list[float]) -> None:
+def check_directions(texts: list[str], changes: list[dict]) -> None:
+    """A sentence that quotes a change factor must not state the opposite direction (Part D: Gemma once wrote "5.7 times
+    higher" for a level that was 5.7 times lower). Only sentences whose quoted factors all share one direction are judged."""
+    for t in texts:
+        dirs = {c["direction"] for c in changes for tok in NUMBER.findall(t)
+                if "." in tok and _matches(tok, [c["factor_vs_healthy_example"]])}
+        if len(dirs) != 1:
+            continue
+        d = dirs.pop()
+        right, wrong = (UP, DOWN) if d == "higher" else (DOWN, UP)
+        if wrong.search(t) and not right.search(t):
+            raise ExplanationRejected(f"direction contradicts the record (should be {d}): {t[:80]!r}", retryable=False)
+
+
+def check_content(obj: dict, allowed: list[float], raw: list[float], changes: list[dict] | None = None) -> None:
     texts = [obj["finding"], *obj["why_flagged"], *obj["uncertainty"]]
     for t in texts:
         m = FORBIDDEN.search(t)
@@ -72,3 +89,4 @@ def check_content(obj: dict, allowed: list[float], raw: list[float]) -> None:
         if _matches(tok, raw):
             raise ExplanationRejected(f"raw model score quoted: {tok}", retryable=False)
         raise ExplanationRejected(f"number not in the evidence record: {tok}", retryable=False)
+    check_directions(texts, changes or [])

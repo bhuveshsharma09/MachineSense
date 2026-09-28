@@ -115,6 +115,30 @@ def test_forbidden_phrases_fall_back(app, case, model, phrase):
     assert e["source"] == "template" and "forbidden phrase" in e["fallback_reason"]
 
 
+def test_a_contradicted_direction_falls_back(app, model):
+    """Part D: Gemma once called a level that was 5.7 times lower "5.7 times higher"; application code refuses that."""
+    from backend.explain.guard import check_directions
+
+    changes = [{"direction": "lower", "factor_vs_healthy_example": 5.7}, {"direction": "higher", "factor_vs_healthy_example": 6.2}]
+    with pytest.raises(Exception, match="direction contradicts"):
+        check_directions(["The overall level is 5.7 times higher than a healthy example."], changes)
+    check_directions(["The overall level is 5.7 times lower than a healthy example.",
+                      "Vibration once per rotation is higher by a factor of 6.2.",
+                      "Changes of 5.7 and 6.2 were measured, one higher and one lower."], changes)  # mixed: not judged
+
+    rec = app.post("/api/diagnose", json={"rec_id": "imbalance__10g__13.9264"}).json()
+    ch = app.get(f"/api/cases/{rec['case_id']}/channels").json()
+    rows = {c["channel"]: c for c in ch["channels"]}
+    c = rows[(ch.get("marked") or ch.get("exceeding"))[0]]
+    f = round(float(c["change_factor"]), 1)
+    wrong = "lower" if c["direction"] == "up" else "higher"
+    model.reply = lambda body: good(rec, finding="Further inspection is needed.",
+                                    why_flagged=[f"One reading is {f} times {wrong} than a healthy example.", "The pattern is unfamiliar."],
+                                    numbers_used=[f])
+    e = explain(app, rec)
+    assert e["source"] == "template" and "direction contradicts" in e["fallback_reason"]
+
+
 def test_verdict_caution_and_warnings_never_come_from_generated_text(app, model):
     rec = app.post("/api/diagnose", json={"rec_id": CAUTION}).json()
     before = app.get(f"/api/cases/{rec['case_id']}").json()
@@ -146,6 +170,21 @@ def test_model_never_sees_the_raw_signal(app, case, model):
     explain(app, case)
     data = json.loads(model.calls[-1]["messages"][1]["content"].removeprefix("DATA = "))
     assert len(json.dumps(data)) < 8000 and "signals" not in data and "waveform" not in json.dumps(data)
+
+
+def test_model_input_carries_no_raw_scores_or_margins(app, case, model):
+    """Gemma copied margins labelled "not to quote" (App-3 Part D), so no raw score, margin or threshold is sent at all:
+    the only numbers in DATA are the mechanic numbers (speed, rpm, change factors)."""
+    import re
+
+    model.reply = lambda body: good(case)
+    explain(app, case)
+    data = json.loads(model.calls[-1]["messages"][1]["content"].removeprefix("DATA = "))
+    m = data.pop("mechanic_numbers")
+    allowed = {m["speed_hz"], m["speed_rpm"], *m["change_factors"]}
+    # standalone numbers only (digits inside labels such as "B1s" or "2×" are names, not values)
+    found = {float(x) for x in re.findall(r"(?<![\w.])-?\d+(?:\.\d+)?(?![\w.×])", json.dumps(data, ensure_ascii=False))}
+    assert found <= allowed, found
 
 
 def test_calls_are_logged(app, case, model, explanations_log_path):

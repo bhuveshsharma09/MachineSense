@@ -72,7 +72,7 @@ def explain_case(record: dict, assessment: dict, channels: dict | None, user_fie
                 content, _ = provider.complete(messages(view), temperature=TEMPERATURE, schema=SCHEMA)
                 obj = parse(content)
                 check_schema(obj)
-                check_content(obj, allowed_numbers(view), raw_numbers(record, assessment))
+                check_content(obj, allowed_numbers(view), raw_numbers(record, assessment), view["largest_measured_changes"])
                 text, reason = obj, None
                 break
             except ProviderError as e:
