@@ -8,6 +8,7 @@ import LimitationsBanner from "./LimitationsBanner.jsx";
 import NameModal from "./NameModal.jsx";
 import Scene, { markerFor } from "./Scene.jsx";
 import TopBar from "./TopBar.jsx";
+import MobileLayout from "./MobileLayout.jsx";
 
 // One set of sizes for the panels (CSS variables) and the 3D rig (insets), from the viewport.
 export function layoutFor(w, h) {
@@ -16,9 +17,11 @@ export function layoutFor(w, h) {
   return { compact, aside, strip, top, insets: { top, right: aside + 32, bottom: strip + 52, left: 16 } };
 }
 
-function useViewport() {
-  const get = () => (typeof window === "undefined" ? { w: 1440, h: 900 } : { w: window.innerWidth, h: window.innerHeight });
-  const [vp, setVp] = useState(get);
+export const MOBILE_MAX = 1024;  // below this width: the stacked small-screen layout (no 3D)
+
+function useViewport(initial) {
+  const get = () => (typeof window === "undefined" ? initial || { w: 1440, h: 900 } : { w: window.innerWidth, h: window.innerHeight });
+  const [vp, setVp] = useState(() => initial || get());
   useEffect(() => {
     const on = () => setVp(get());
     window.addEventListener("resize", on);
@@ -53,10 +56,12 @@ function Legend({ open, onToggle }) {
 
 export default function Workspace(props) {
   const { recordings, showcase, selection, upload, status, error, record, channels, signals, activity, report, limitations,
-    userName, needsName, onSaveName, onChangeName, onPick, onFile, onClearUpload, onStart, forceStatic, initialUi } = props;
-  const vp = useViewport();
+    userName, needsName, onSaveName, onChangeName, onPick, onFile, onClearUpload, onStart, forceStatic, initialUi,
+    runningFor, initialViewport } = props;
+  const vp = useViewport(initialViewport);
   const L = layoutFor(vp.w, vp.h);
   const [ui, setUi] = useState({ sel: null, hover: null, exploded: false, labels: false, evCh: null, evView: "spectrum", tab: "activity", resetTick: 0, legend: null, ...initialUi });
+  if (vp.w < MOBILE_MAX) return <MobileLayout {...props} />;
   const set = (p) => setUi((u) => ({ ...u, ...p }));
   const tab = props.tab ?? ui.tab;
   const onTab = props.onTab ?? ((t) => set({ tab: t }));
@@ -100,7 +105,7 @@ export default function Workspace(props) {
       <Legend open={legendOpen} onToggle={() => set({ legend: !legendOpen })} />
       <TopBar recordings={recordings} showcase={showcase} value={selection?.kind === "dataset" ? selection.rec_id : ""} onPick={onPick}
         onFile={onFile} upload={upload} onClearUpload={onClearUpload} onStart={onStart} status={status} hasRecord={!!record}
-        userName={userName} onChangeName={onChangeName} />
+        userName={userName} onChangeName={onChangeName} runningFor={runningFor} />
       <LimitationsBanner items={limitations?.map(cleanText)} />
       <div className="controls">
         <button className="ctl" onClick={() => set({ sel: null, resetTick: ui.resetTick + 1 })}>Reset view</button>
@@ -111,7 +116,8 @@ export default function Workspace(props) {
       </div>
       <EvidenceStrip record={record} channels={channels} signals={signals} flags={flags} selCh={part ? chId : null} upload={upload}
         facts={factsFor(record, upload, error)} onTile={(c) => set({ sel: c.sensor, evCh: c.id })} />
-      <Aside record={record} status={status} error={error} selection={selection} activity={activity} report={report} tab={tab} onTab={onTab} />
+      <Aside record={record} status={status} error={error} selection={selection} runningFor={runningFor} activity={activity}
+        report={report} tab={tab} onTab={onTab} />
       {needsName && <NameModal initial={userName} onSave={onSaveName} />}
     </div>
   );

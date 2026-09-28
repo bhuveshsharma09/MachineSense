@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  diagnoseRecording, diagnoseUpload, errorInfo, getActivity, getCase, getChannels, getHealth, getRecordings, getReport,
-  getShowcase, getSignals,
+  diagnoseRecording, diagnoseUpload, getActivity, getCase, getCaseMeta, getChannels, getHealth, getRecordings, getReport,
+  getShowcase, getSignals, rerunCase,
 } from "./api.js";
+import { createSession } from "./lib/session.js";
 import Scene from "./components/Scene.jsx";
 import Workspace from "./components/Workspace.jsx";
 
@@ -32,6 +33,8 @@ export default function App() {
   return useRef(query()).current.capture ? <Capture /> : <Main />;
 }
 
+let uploadCounter = 0;
+
 function Main() {
   const init = useRef(query()).current;
   const [health, setHealth] = useState(null);
@@ -39,74 +42,49 @@ function Main() {
   const [showcase, setShowcase] = useState([]);
   const [name, setName] = useState(readName());
   const [editingName, setEditingName] = useState(false);
-  const [selection, setSelection] = useState(null);
-  const [upload, setUpload] = useState(null);
-  const [status, setStatus] = useState("idle");
-  const [error, setError] = useState(null);
-  const [record, setRecord] = useState(null);
-  const [ev, setEv] = useState({ channels: null, signals: null, activity: null, report: null });
+  const [s, setS] = useState(null);
   const [tab, setTab] = useState(init.tab || "activity");
+  const session = useRef(null);
+  if (!session.current) {
+    session.current = createSession({
+      diagnoseRecording, diagnoseUpload, rerunCase, getCase, getCaseMeta, getActivity, getReport, getChannels, getSignals,
+      onCase: (id) => window.history.replaceState(null, "", window.location.search + `#/case/${id}`),
+    }, setS);
+  }
+  const st = s || session.current.get();
 
   useEffect(() => {
-    getHealth().then(setHealth).catch((e) => setError(errorInfo(e)));
+    getHealth().then(setHealth).catch(() => {});
     getRecordings().then(setRecordings).catch(() => {});
-    getShowcase().then((s) => setShowcase(s.showcase || [])).catch(() => {});
-  }, []);
-
-  const reset = () => { setRecord(null); setError(null); setEv({ channels: null, signals: null, activity: null, report: null }); setStatus("idle"); };
-
-  async function loadCase(r) {
-    setRecord(r);
-    const id = r.case_id;
-    const [activity, report] = await Promise.all([getActivity(id), getReport(id)]);
-    setEv((e) => ({ ...e, activity, report }));
-    setStatus("done");
-    setTab(init.tab || "report");
-    const [channels, signals] = await Promise.all([getChannels(id), getSignals(id)]);
-    setEv((e) => ({ ...e, channels, signals }));
-  }
-
-  async function run(sel = selection, file = upload) {
-    reset();
-    setStatus("running");
-    setTab("activity");
-    try {
-      const r = file ? await diagnoseUpload(file) : await diagnoseRecording(sel.rec_id);
-      window.history.replaceState(null, "", window.location.search + `#/case/${r.case_id}`);
-      await loadCase(r);
-    } catch (e) {
-      setError(errorInfo(e));
-      setStatus("error");
-      setTab("activity");
-    }
-  }
-
-  useEffect(() => {
+    getShowcase().then((x) => setShowcase(x.showcase || [])).catch(() => {});
     const [, kind, id] = window.location.hash.replace(/^#/, "").split("/");
-    if (kind === "case" && id) {
-      getCase(id).then((r) => {
-        if (r.source === "dataset") setSelection({ kind: "dataset", rec_id: r.input.rec_id, label: r.input.rec_id });
-        else setUpload({ name: "uploaded recording", size: 0, stored: true });
-        return loadCase(r);
-      }).catch((e) => { setError(errorInfo(e)); setStatus("error"); });
-    } else if (kind === "diagnose" && id) {
-      const sel = { kind: "dataset", rec_id: decodeURIComponent(id), label: decodeURIComponent(id) };
-      setSelection(sel);
-      run(sel, null);
+    if (kind === "case" && id) session.current.open(id);
+    else if (kind === "diagnose" && id) {
+      const r = decodeURIComponent(id);
+      session.current.select({ kind: "dataset", rec_id: r, label: r });
+      session.current.run();
     }
+    return () => session.current.abort();
   }, []);
 
-  const onPick = (rec_id) => { setUpload(null); setSelection({ kind: "dataset", rec_id, label: rec_id }); reset(); };
-  const onFile = (f) => { setSelection(null); setUpload(f); reset(); };
-  const onStart = () => { if (upload?.stored) return; run(); };
+  // tab follows the run: activity while running, report when done (unless a tab was linked)
+  useEffect(() => { if (st.status === "running") setTab("activity"); if (st.status === "done") setTab(init.tab || "report"); },
+    [st.status, st.record?.case_id]);
+
+  const input = st.input;
+  const selection = input?.kind === "dataset" ? input : null;
+  const upload = input?.kind === "upload" ? { name: input.file.name, size: input.file.size }
+    : input?.kind === "stored" ? { name: input.label, size: 0, stored: true, canRerun: input.canRerun, note: input.note } : null;
+  const onPick = (rec_id) => session.current.select({ kind: "dataset", rec_id, label: rec_id });
+  const onFile = (f) => session.current.select({ kind: "upload", file: f, uploadId: `upload-${Date.now().toString(36)}-${++uploadCounter}`, label: f.name });
 
   return (
-    <Workspace recordings={recordings} showcase={showcase} selection={selection} upload={upload} status={status} error={error}
-      record={record} channels={ev.channels} signals={ev.signals} activity={ev.activity} report={ev.report}
-      limitations={record?.limitations || health?.limitations} tab={tab} onTab={setTab}
+    <Workspace recordings={recordings} showcase={showcase} selection={selection} upload={upload} status={st.status} error={st.error}
+      record={st.record} channels={st.ev.channels} signals={st.ev.signals} activity={st.ev.activity} report={st.ev.report}
+      runningFor={st.runningFor} limitations={st.record?.limitations || health?.limitations} tab={tab} onTab={setTab}
       userName={name} needsName={!name || editingName} onChangeName={() => setEditingName(true)}
       onSaveName={(n) => { try { localStorage.setItem(NAME_KEY, n); } catch { /* browser-local only */ } setName(n); setEditingName(false); }}
-      onPick={onPick} onFile={onFile} onClearUpload={() => { setUpload(null); reset(); }} onStart={onStart}
+      onPick={onPick} onFile={onFile} onClearUpload={() => session.current.select(null)} onStart={() => session.current.run()}
       forceStatic={init.forceStatic} initialUi={init.ui} />
   );
 }

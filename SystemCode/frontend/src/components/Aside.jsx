@@ -56,13 +56,13 @@ function Checks({ a }) {
   );
 }
 
-function Diagnosis({ record, status, error, selection, assessment }) {
+export function Diagnosis({ record, status, error, selection, assessment, runningFor }) {
   if (status === "running") {
     return (
       <>
-        <Chip kind="running" text="Investigation in progress" />
+        <Chip kind="running" text={`Diagnosing ${runningFor || selection?.label || "this recording"}`} />
         <div className="dx-title">Running the deterministic pipeline</div>
-        <p className="dx-sub">Signal quality, CNN-6, the healthy-baseline checks, the decision rule and the report are computed on the server for {selection?.label || "this recording"}.</p>
+        <p className="dx-sub">Signal quality, CNN-6, the healthy-baseline checks, the decision rule and the report are computed on the server for <b style={{ overflowWrap: "anywhere" }}>{runningFor || selection?.label || "this recording"}</b>.</p>
         <div className="progress"><div /></div>
       </>
     );
@@ -188,7 +188,7 @@ function Activity({ status, activity }) {
   );
 }
 
-function Report({ status, report }) {
+export function Report({ status, report }) {
   if (!report) {
     return <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: "oklch(0.45 0.008 260)" }}>
       {status === "running" ? "The report is written after the decision rule." : "Select a recording and start the investigation to produce a report."}</p>;
@@ -211,13 +211,14 @@ function Report({ status, report }) {
   );
 }
 
-export default function Aside({ record, status, error, selection, activity, report, tab, onTab }) {
+export default function Aside({ record, status, error, selection, activity, report, tab, onTab, runningFor }) {
   return (
     <aside aria-label="Diagnosis and investigation" className="glass aside" style={{ position: "absolute", right: 16, bottom: 16, zIndex: 5, display: "flex", flexDirection: "column", borderRadius: 20, overflow: "hidden" }}>
       <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
         <div className="dx-block" style={{ display: "flex", flexDirection: "column", borderBottom: "1px solid oklch(0.23 0.006 260 / 0.08)" }}>
           <span className="mono kicker">Diagnosis</span>
-          <Diagnosis record={record} status={status} error={error} selection={selection} assessment={report?.assessment} />
+          <Diagnosis record={record} status={status} error={error} selection={selection} assessment={report?.assessment}
+            runningFor={runningFor} />
         </div>
         <div role="tablist" className="seg" style={{ margin: "12px 16px 0", display: "flex", padding: 3, borderRadius: 11 }}>
           {[["activity", "Activity"], ["report", "Report"]].map(([k, lab]) => (

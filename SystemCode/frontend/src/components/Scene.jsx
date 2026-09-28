@@ -3,7 +3,7 @@ import { K, al } from "../lib/theme.js";
 import { PARTS } from "../lib/model.js";
 
 export const INSETS = { top: 124, right: 412, bottom: 190, left: 16 };
-const FALLBACK = { img: "rig-fallback.png", anchors: "rig-fallback.json" };
+export const FALLBACK = { img: "rig-fallback.png", anchors: "rig-fallback.json" };
 
 // One marker per part/sensor. Colours follow the design: orange = location according to the dataset label (model),
 // amber dashed = candidate, lime = largest measured change vs the healthy reference, amber sensor = quality flag.
@@ -30,7 +30,7 @@ export function markerFor(h, { fault, cand, unusual, flags, sel, hover, labelsAl
     labelBorder: selected ? al(K.violet, 0.55) : labelBorder };
 }
 
-function Marker({ m, onClick, onEnter, onLeave, style }) {
+export function Marker({ m, onClick, onEnter, onLeave, style }) {
   return (
     <div data-anchor={m.id} style={{ position: "absolute", left: 0, top: 0, width: 0, height: 0, willChange: "transform", ...style }}>
       <button onClick={onClick} onMouseEnter={onEnter} onMouseLeave={onLeave} aria-pressed={m.selected}

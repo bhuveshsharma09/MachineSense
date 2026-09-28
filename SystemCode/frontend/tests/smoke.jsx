@@ -47,6 +47,11 @@ const screens = {
   "reserved upload refused": [{ ...base, upload: { name: "r.csv", size: 17280033 }, status: "error", error: { status: 403, message: "this appears to be a reserved test recording" } },
     ["Upload refused", "This appears to be a reserved test recording", "Server response · 403"]],
   "static fallback": [done(knownFault, { forceStatic: true }), ["Static view · rendered frame of the 3D rig", "rig-fallback.png"]],
+  "running names the recording (App-2a.3)": [{ ...base, selection: sel(knownFault), status: "running", runningFor: sel(knownFault).label },
+    [`Diagnosing ${sel(knownFault).label}`, "Investigating…"]],
+  "reopened upload without its stored array (App-2a.3)": [done(knownFault, { selection: null,
+    upload: { name: "uploaded recording (case abcdef12)", size: 0, stored: true, canRerun: false, note: "re-upload the file to run again" } }),
+    ["re-upload the file to run again", "Run again"], [], () => true],
 };
 const always = ["Limitations", "Available when the investigation assistant is connected", "Illustrative 3D geometry",
   "Orange glow is a visual highlight, not a measured temperature."];
@@ -65,5 +70,46 @@ for (const [name, [props, expect, absent = [], extra]] of Object.entries(screens
   if (miss.length || bad.length) { failed++; console.error(`✗ ${name}: missing ${JSON.stringify(miss)} forbidden ${JSON.stringify(bad)}`); }
   else console.log(`✓ ${name}`);
 }
+// The disabled "Run again" of a reopened upload whose array is gone (App-2a.3)
+{
+  const html = renderToString(<Workspace {...{ ...done(knownFault, { selection: null,
+    upload: { name: "uploaded recording", size: 0, stored: true, canRerun: false } }), onPick() {}, onFile() {}, onStart() {} }} />);
+  const btn = html.match(/<button[^>]*class="start-btn"[^>]*>/)?.[0] || "";
+  if (!/disabled=""/.test(btn) || !/title="re-upload the file to run again"/.test(btn)) { failed++; console.error("✗ Run again not disabled with the tooltip"); }
+  else console.log("✓ Run again disabled with the tooltip when the stored upload is missing");
+}
+
+// Small screens (App-2a.3): the stacked layout at 390 px, and no horizontal scroll (document width ≤ viewport width).
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const MOBILE = { w: 390, h: 844 };
+const mobileScreens = {
+  "390 px · no recording": { ...base },
+  "390 px · known fault": done(knownFault),
+  "390 px · running": { ...base, selection: sel(knownFault), status: "running", runningFor: sel(knownFault).label },
+};
+const here = dirname(fileURLToPath(import.meta.url));
+const root = join(here, "..", "..");  // tests/.ssr → frontend/
+const cssDir = join(root, "dist", "assets");
+const css = existsSync(cssDir) ? readdirSync(cssDir).filter((f) => f.endsWith(".css")).map((f) => readFileSync(join(cssDir, f), "utf8")).join("\n") : "";
+for (const [name, props] of Object.entries(mobileScreens)) {
+  const p = { onPick() {}, onFile() {}, onClearUpload() {}, onStart() {}, onSaveName() {}, onChangeName() {}, ...props, initialViewport: MOBILE };
+  const html = renderToString(<Workspace {...p} />);
+  const text = html.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  const miss = ["Best viewed on a desktop screen.", "Diagnosis", "Report", "Measured change vs healthy reference", "Rotor test rig",
+    "Limitations", "rig-fallback.png"].filter((s) => !text.includes(s) && !html.includes(s));
+  if (!html.includes('class="ms-mobile"') || html.includes("<canvas")) miss.push("stacked layout without 3D");
+  if (miss.length) { failed++; console.error(`✗ ${name}: missing ${JSON.stringify(miss)}`); continue; }
+  // Written for tests/mobile-width.mjs, which measures them in headless Chrome at 390 × 844 (device-metrics emulation).
+  const out = join(here, "mobile");
+  mkdirSync(out, { recursive: true });
+  writeFileSync(join(out, name.replace(/[^a-z0-9]+/gi, "_") + ".html"),
+    `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>${css}</style></head><body><div id="root">${html}</div></body></html>`);
+  console.log(`✓ ${name} rendered (stacked layout, no 3D)`);
+}
+
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }
-console.log(`all ${Object.keys(screens).length} screens rendered`);
+console.log(`all ${Object.keys(screens).length + Object.keys(mobileScreens).length + 1} screens rendered`);
