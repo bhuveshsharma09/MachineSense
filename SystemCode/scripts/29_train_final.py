@@ -244,7 +244,9 @@ def run_manifest() -> None:
     dirty = subprocess.run(["git", "status", "--porcelain"], cwd=SYSTEM_CODE_DIR, capture_output=True, text=True).stdout
     protocol = subprocess.run(["git", "log", "-1", "--format=%H", "--", "../CLAUDE.md"], cwd=SYSTEM_CODE_DIR,
                               capture_output=True, text=True).stdout.strip()
-    info = {"created_at": now_iso(), "git_sha": git_sha(), "unrelated_worktree_changes": dirty.splitlines(),
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=SYSTEM_CODE_DIR, capture_output=True, text=True).stdout.strip()
+    # the committed revision (HEAD, no "-dirty" suffix); working-tree changes are listed, never hidden (ML-4.1 rule)
+    info = {"created_at": now_iso(), "git_sha": head, "unrelated_worktree_changes": dirty.splitlines(),
             "split_hash": split_hash(meta), "protocol": "CLAUDE.md §12", "protocol_commit": protocol,
             "bundle_manifest_sha256": sha256_file(bundle_dir() / "manifest.json"),
             "loco_classes": list(FAULT_CLASSES), "seed": SEED, "training": rep["models"], "thresholds": cal["thresholds"],
