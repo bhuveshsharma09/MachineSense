@@ -64,10 +64,16 @@ export MLFLOW_DISABLE_AGENT_HINT=1     # silences an MLflow banner
 mlflow ui --backend-store-uri sqlite:///mlruns.db --port 5000
 ```
 
-## 6. Running the app (after Stage 6)
+## 6. Running the app
+
+From `SystemCode/` with the venv active (details, endpoints and settings: `backend/README.md`):
 
 ```bash
-uvicorn backend.main:app --port 8000          # serves the API and the built frontend/dist/
-python -m ml.inference demo/normal_1230.csv.gz  # command-line verdict, no server needed
-pytest                                         # golden tests on the demo recordings
+uvicorn backend.app:create_app --factory --port 8000   # the API; verifies the model bundle at start, refuses on mismatch
+cd frontend && npm ci && npm run dev                    # the app at http://localhost:5173 (Vite proxies /api to :8000)
+MACHINESENSE_REQUIRE_BUNDLE=1 python -m pytest tests    # backend and ml tests (golden outputs included)
+cd frontend && npm test                                 # frontend: build, server-side renders, browser checks
 ```
+
+The pipeline page ("How this diagnosis was made") opens from a diagnosis via its link, or at
+`http://localhost:5173/#/case/<case_id>/pipeline`; see "Pipeline page" in `backend/README.md`.

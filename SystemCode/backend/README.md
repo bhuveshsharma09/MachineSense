@@ -1,4 +1,4 @@
-# MachineSense backend (Stages App-1, App-2a, App-2a.1, App-2a.2)
+# MachineSense backend and app (Stages App-1 to App-4.5)
 
 A FastAPI service that serves `ml.inference.diagnose()` from the **approved, hash-verified model bundle** as the evidence
 record in `backend/schemas.py`, plus measured evidence views computed with existing `ml` functions. Research
@@ -67,6 +67,44 @@ From `SystemCode/` with the project venv (`source .venv/bin/activate`):
     reported descriptively by the tests, the band is not tuned on them).
 - `GET /api/cases/{id}/signals`: per channel, a 0.5 s cleaned waveform (min/max per bucket) and the order spectrum
   (`ml.features.order_spectrum`) with physics cursors at the measured speed.
+- `GET /api/cases/{id}/explanation` (404 until generated) and `POST /api/cases/{id}/explanation`: the plain-language
+  explanation (App-3; a local language model behind guards, or the fixed template).
+- `GET /api/cases/{id}/trace`: the read-only pipeline trace of a saved case (below).
+
+## Pipeline trace (schema)
+`GET /api/cases/{id}/trace` (`backend/trace.py`), **trace_version "1.1"**. A derived, versioned, read-only view of a saved
+case: it never re-runs inference, never changes anything, and **the evidence record (`backend/schemas.py`) is unchanged**.
+- `{case_id, trace_version, bundle_matches_record, bundle_note, value_sources, edge_kinds, blocks, edges}`; ten blocks in
+  the order of `ml.inference.diagnose` (input, validation, signal_quality, preparation, representations → physics_features
+  / order_spectrogram, models → cnn6 / class6 / mahalanobis / ae6 / b1s / lr, decision, evidence_record, explanation,
+  presentation), each with `purpose`, `operation` (what the step always does), `operation_case` (wording that depends on
+  this case, or null; added in 1.1), `input` / `output` / `technical`, `status`, `timing_ms`, `derived`, `ports_in` /
+  `ports_out`; `edges` are the real data dependencies (`from`, `to`, `kind`, `label`).
+- Every value carries its source (`record:`, `activity:`, `config:`, `manifest:`, `explanation:`, `store:`, or `derived:`
+  for a value computed for this view), or is `{"value": null, "reason": ...}` when it was never recorded. `timing_ms` is
+  copied from the stored activity log or null. `bundle_matches_record` is false when the loaded bundle is not the one that
+  produced the case; config and manifest values then describe the loaded (current) bundle.
+- One example: `frontend/tests/fixtures/trace_known_fault.json`.
+
+## Pipeline page (App-4.2 to App-4.5)
+`#/case/<case_id>/pipeline` in the app, reached from a diagnosis by "How this diagnosis was made". Loading it is one
+`GET /trace`: it reads the saved case and runs no inference.
+- **Two modes.** "This diagnosis" (the default from a case): what happened to this recording, with each step's status as
+  a word and a dot, its values, the verdict exactly as saved ("further inspection needed" verbatim; a predicted fault
+  marked "model prediction"), the rule comparison as a secondary, read-only box, and "not recorded: <reason>" for any
+  null. "General architecture": the same graph with no case values.
+- **Two reading levels.** Mechanic: plain-language outcomes, no thresholds, raw scores, hashes or model names. Developer:
+  the numbers with their thresholds, each model's aggregation note, provenance, and "computed for this view" on derived
+  values. Both show the same verdict and evidence.
+- **Previews** (This diagnosis only, fetched only on an explicit "Load" in a step's drawer): the cleaned waveform and the
+  order spectrum come from `/signals`, computed on demand and never part of the saved diagnosis (dashed, hatched frame,
+  "computed now"); the envelope spectrum is the saved record's (plain frame, "saved evidence").
+- **Screens.** A pan-and-zoom canvas from 900 px wide (keyboard: Tab through the steps in order, Enter opens a step's
+  drawer, Escape closes it, arrow keys pan, + and − zoom); below 900 px, a stacked list of the steps with the same values
+  and drawer content. Error states (unknown case, network failure, a malformed response) show a plain message, never a
+  partial diagram.
+- **Audit against the real case history:** `cd frontend && npm run audit:cases -- <directory of saved /trace responses>`
+  renders every case in both modes, both levels and at phone width, and checks every shown value against its trace.
 
 ## Upload guard (a guard, not a guarantee)
 After an upload is parsed, its fingerprint (sha256 of the float32 array; and a signature of the first 1,000 samples
@@ -78,6 +116,8 @@ resampled, rescaled, noise added) is not recognised.
 ## Tests
 Frontend: `cd frontend && npm test` — production build, then a server-side render of every main screen from recorded real
 API responses (`frontend/tests/fixtures`, re-recorded with `PYTHONPATH=. python frontend/tests/make_fixtures.py`).
+It also runs the pipeline-page checks (value walker against the trace fixtures, previews, phone width, error states) and
+`tests/pipeline-requests.mjs` in headless Chrome (one `/trace` on load, previews only on request, focus and keyboard).
 The WebGL fallback frame `frontend/public/rig-fallback.png` (+ marker anchors `.json`) is a rendered frame of the app's
 own 3D rig (`?capture=1`), not a photo.
 
