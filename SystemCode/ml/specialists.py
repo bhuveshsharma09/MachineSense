@@ -100,3 +100,46 @@ def empirical_rank_scores(errors: pd.DataFrame, roles: pd.Series, classes: pd.Se
             r[i] = np.searchsorted(rr, e[i], side="right") / (len(rr) + 1)
         out[u] = r
     return out
+
+
+# ----------------------------------------------------------------------------------------------------------- Stage R5
+def healthy_gates(ae: float, b1s: float, thresholds: dict) -> bool:
+    """The arbitrator's healthy gates, AE-6 ≤ τ_e AND B1s ≤ τ_b (ties accepted), taken from ml.arbitrator.decide itself:
+    with the classifier outcome fixed to a confident normal, B_with_caution says healthy with no caution exactly when both
+    gates pass. Scores should already be tie-snapped (ml.rejection.snap_ties)."""
+    from ml.arbitrator import decide
+
+    t = {k: float(thresholds[k]) for k in ("tau_p", "tau_d", "tau_e", "tau_b")}
+    d = decide("B_with_caution", NORMAL, t["tau_p"], t["tau_d"], float(ae), float(b1s), t)
+    return d["decision"] == "healthy" and d["caution"] is None
+
+
+def gated_verdict(gates_pass: bool, fault_accepting: str) -> str:
+    """Gated composition (E1): the healthy gates decide healthy; otherwise the fault-only bank decides between unfamiliar
+    (no fault specialist accepts), a named fault, or an ambiguous fault set."""
+    if gates_pass:
+        return "healthy"
+    a = [x for x in fault_accepting.split("+") if x]
+    if NORMAL in a:
+        raise ValueError("the gated composition uses fault specialists only")
+    return "unfamiliar" if not a else ("known_fault" if len(a) == 1 else "ambiguous_fault")
+
+
+def db_to_ln_power(level_db):
+    """A dB level (10·log10 power, or 20·log10 amplitude) in natural-log power units: × ln(10) / 10."""
+    return np.asarray(level_db, dtype=float) * np.log(10.0) / 10.0
+
+
+def within_class_slope(own_score, L, classes) -> float:
+    """Pooled within-class OLS slope of the own-class specialist score on L (each class demeaned), for β in E2b; fitted on
+    known-class calibration recordings only by the caller. Returns 0 if L has no within-class spread."""
+    df = pd.DataFrame({"s": np.asarray(own_score, dtype=float), "L": np.asarray(L, dtype=float), "c": np.asarray(classes)})
+    ds = df.s - df.groupby("c").s.transform("mean")
+    dl = df.L - df.groupby("c").L.transform("mean")
+    den = float((dl ** 2).sum())
+    return float((ds * dl).sum() / den) if den > 0 else 0.0
+
+
+def level_corrected(scores: pd.DataFrame, L, beta: float) -> pd.DataFrame:
+    """s'_u = s_u − β L for every specialist column (L aligned with the rows)."""
+    return scores.sub(beta * np.asarray(L, dtype=float), axis=0)
