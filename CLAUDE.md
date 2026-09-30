@@ -289,7 +289,66 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage R4 — condition-specialist autoencoder bank for unfamiliar-fault detection (Q3, development data only)
+## 7. Current stage: Stage R5 — decision design for the specialist bank (Q3, development data only)
+
+Exploratory further analysis of existing development data. The reserved partitions stay sealed and are not reopened; F1
+has already been run, so nothing here can become an independent final claim. Seed 42 only for the screen; seeds 43 / 44
+only for a variant that passes, and only after Bhuvesh approves (§10). `metadata.csv`, `artifacts/bundle/`,
+`artifacts/final/`, `results/final/` and the app are untouched. Code: pure helpers in `ml/specialists.py`,
+`scripts/35_decision_design.py` (no training); notebook `notebooks/06_research_layer/15_decision_design.ipynb`; outputs
+`results/research/r5_decision_design.json`, `r5_per_variant.csv`, `r5_per_recording.csv`, figures
+`results/figures/r5_level_correction.png` (and `r5_background_difference.png` if E3 runs).
+
+**Stage R5 protocol (declared before running anything; changes only as dated addenda with a reason).**
+1. **Data (no training in Step 0, E1, E2).** R4's saved per-recording table `results/research/r4_ambiguity.csv` (11,548 rows
+   = 27 runs × their cal / eval / foldk_known / foldk_withheld recordings; per-specialist scores s_u, `level`, speed,
+   severity), with the Stage 3C saved scores (`cnn6ae6_s42_loco_decisions.parquet`: CNN-6 top class, MSP, Mahalanobis,
+   AE-6 error), B1s and τ_b (`b1s_nomic_loco_q3fit_scores.parquet`) and τ_p, τ_d, τ_e (`results/loco/decision_thresholds.csv`).
+   Same 27 runs, roles and leave-one-class-out discipline as R4.
+2. **Step 0, the floor (reported first).** Over the 779 withheld instances (one per distinct recording): how many pass the
+   arbitrator's healthy gates, AE-6 ≤ τ_e AND B1s ≤ τ_b. The gates come from `ml.arbitrator.decide` itself (helper
+   `ml.specialists.healthy_gates`: decide("B_with_caution") with the classifier outcome fixed to a confident normal, so the
+   verdict is healthy and the caution is None exactly when both gates pass); R0's tie rule (`ml.rejection.snap_ties`, 1e-12)
+   is applied first. Context: the healthy counts of the full rules A, B, C, D, B_with_caution (`decide` on the saved top
+   class, MSP and Mahalanobis).
+3. **Two compositions.**
+   - **Bank composition (R4):** all nine specialists including normal; verdicts as R4.
+   - **Gated composition (E1):** the healthy gates decide healthy; a recording failing them goes to the bank of the **eight
+     fault specialists only** (normal removed from A(x)): no fault specialist accepts → unfamiliar; otherwise the accepting
+     fault set (named fault; ambiguous if several).
+   Baselines: **M0**, Mahalanobis-only as in R4 (maha > τ_d → unknown; else the CNN-6 top class, normal → healthy), for bank-
+   composition variants; **M1**, Mahalanobis in the gated composition (gates pass → healthy; else maha > τ_d → unknown; else
+   the CNN-6 top class if it is a fault; top class normal with failed gates → unknown), for gated variants. The E1 healthy
+   count equals the floor and equals M1's by construction; that is stated wherever criterion 2 is read.
+4. **Scores.** Unfamiliarity score of a variant = the minimum over its specialists of the (possibly corrected) s_u; τ
+   recalibrated per run and per variant as in R4: `ml.protocol.order_statistic_threshold` at 0.975 over ALL the run's
+   calibration recordings (never R4's τ_S). Sensitivity (secondary, declared): for gated variants τ also over the run's
+   known-FAULT calibration recordings only (the recordings the fault bank actually judges).
+5. **E2, level correction.** L = level × ln(10) / 10 (the cached dB level in natural-log power units, so that β = 1 gives
+   s − L = log(e / power), the plain energy-relative error); s'_u = s_u − β L. **E2a** β = 1. **E2b** β fitted per run on the
+   run's known-class calibration recordings only: the within-class pooled OLS slope of the recording's OWN-class specialist
+   score on L (class-demeaned; never a withheld recording). Caveat (declared): e is a squared error of dB values, already
+   scale-free in amplitude, so the correction is empirical. Each E2 variant runs in both compositions (E2x-bank vs M0;
+   E1+E2x vs M1). Reported per withheld class and by severity, with the loud classes (imbalance, ball faults) called out.
+6. **Variants:** R4 (reference, recalibrated), E1, E2a-bank, E2b-bank, E1+E2a, E1+E2b.
+7. **Evaluation (every variant):** primary, unknown recall (withheld called unfamiliar / unknown) at a **matched known-side
+   rejection count**: per run the variant's threshold is placed so that it calls exactly as many foldk_known recordings
+   unfamiliar as its baseline does at τ_d (gated variants: among known recordings failing the gates; if the count cannot be
+   reached it is reported); also both at their own calibrated thresholds, labelled each time; withheld called healthy;
+   unknown recall at the mildest severity of each family (`anomaly.mildest`); per withheld class; AUROC and OSCR per fold of
+   the variant's score (known vs withheld; OSCR correctness = CNN-6 top class); CPU ms per recording (the specialists used:
+   9 AEs for bank variants; the gated variants need the AE-6 for the gate and the 8 fault AEs, also 9). Sampling
+   uncertainty: Clopper–Pearson for rates; a class-stratified bootstrap over the 779 withheld recordings (2,000 draws, seed
+   42, thresholds fixed) for the paired matched-recall difference. One seed: no seed spread yet, and none is merged.
+8. **Acceptance bar (vs the composition's Mahalanobis baseline, matched known-side rejection count):** a variant **helps** only
+   if (1) pooled unknown recall ≥ baseline + 5 percentage points AND (2) withheld called healthy ≤ baseline. **Does not
+   help** if the recall difference ≤ 0 or (2) fails; otherwise **too thin to tell**. Nothing is selected or deployed; no app
+   change is proposed unless a variant clears the bar at three seeds.
+9. **E3 deferred (Bhuvesh, 1 Oct):** the background autoencoder on the pooled fit set costs ≈ 80 min for seed 42 (285–335
+   recordings per run at 0.556 s per recording, from R4's timings), not ≈ 10 min; it is declared in a dated addendum after
+   Step 0, E1 and E2 are reported. **E4** runs only if a variant helps, with its own criteria and time budget declared first.
+
+## 7-prev4. Previous stage: Stage R4 — condition-specialist autoencoder bank for unfamiliar-fault detection (Q3, development data only)
 
 Research question: can reconstruction by per-condition specialists identify recordings of a fault class the system never
 trained on better than the current Mahalanobis distance (shared Ledoit–Wolf) on the CNN-6 embedding? Exploratory
