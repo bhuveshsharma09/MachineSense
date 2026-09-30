@@ -289,7 +289,85 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage R1 — speed-conditioned healthy thresholds (development data only)
+## 7. Current stage: Stage R3 — contrastive encoder for known-condition recognition (Q2, development data only)
+
+Research question: does training the encoder with a supervised contrastive objective, instead of cross-entropy alone,
+improve recognition of known conditions across operating settings and speeds, and separate the confusable pairs?
+Exploratory development experiment. Reserved tests stay sealed; `metadata.csv`, `artifacts/bundle/`, `artifacts/final/`,
+`results/final/` and the app are untouched. Code: `ml/contrastive.py` (pure: loss, pair sampler, embedding model,
+training function reusing `ml.train`), `configs/contrastive.yaml` (separate from base.yaml so the packaged bundle config
+hash is unchanged), `scripts/33_train_contrastive.py`; notebook `notebooks/06_research_layer/13_contrastive_encoder.ipynb`;
+outputs `results/research/r3_contrastive.json`, `r3_per_fold.csv`, `r3_confusion.csv`, `results/figures/r3_confusion.png`,
+`r3_embedding.png`; weights `artifacts/contrastive/` (gitignored, state_dict).
+
+**Ceiling, stated before training.** On these folds CNN-6 misclassifies 8 / 11 / 4 of 804 development recordings (seeds
+42 / 43 / 44; class10 macro-F1 per fold 0.969–1.000). The named pairs account for 0 errors (imbalance ↔ vertical
+misalignment) and 2 (horizontal ↔ vertical misalignment, seed 42); most errors are underhang cage ↔ overhang cage. The
+development pool runs below 40 Hz and excludes the largest severity of each family, so this stage cannot measure the
+development-to-final gap (0.990 → 0.916); it can only detect small changes in a handful of recordings.
+
+**Stage R3 protocol (declared before any training; nothing here changes after a result; changes only as dated addenda).**
+1. **Data and folds.** Development pool, `results/dev_folds.csv` (K = 3, folder-grouped, CLAUDE.md §5 rule 12); cache C
+   (the CNN-6 representation, `ml.spectro.stacked_representation`), vibration channels 0–5; normalisation per fold from
+   `ml.datasets.fold_norm_stats` (development mode, fit = the other two folds' recordings). Every window of a recording is in
+   one partition; every pool recording is scored once, by its own fold's model; decisions per recording (mean
+   log-probability over the 9 windows, `ml.evaluation.recording_predictions`, prob floor as 3A).
+2. **Encoder = CNN-6 unchanged** (`ml.models.cnn.ScratchCNN`, the `cnn:` settings of base.yaml: widths 32/64/128/128, 3
+   pooled blocks, 128-d embedding z = ReLU(BN(Linear)), dropout 0.2 + linear head). **Projection head** (training-time
+   loss component only, not part of the encoder, discarded after stage A): Linear 128→128, ReLU, Linear 128→64, output
+   L2-normalised. The deployed model is a ScratchCNN with the same parameter count as CNN-6.
+3. **Stage A, supervised contrastive pretraining (SupCon, Khosla et al. 2020, "L_out").** For anchor i in a batch,
+   positives P(i) = windows of the same class10 from a DIFFERENT recording; the candidate set A(i) = every other window of
+   the batch except windows of i's own recording. loss_i = −(1/|P(i)|) Σ_{p∈P(i)} log[exp(s_ip/T) / Σ_{a∈A(i)} exp(s_ia/T)],
+   s = cosine similarity of the projections, T = 0.1; anchors without a positive are skipped; loss = mean over anchors.
+   **Same-recording positives: excluded entirely (fraction 0)**, both as positives and from the denominator, and there is
+   one view per window (no two augmented views of one window), so the objective cannot be met by recognising a recording.
+   **Negatives** = every window of a different class10 in the batch. Folders are class-specific, so every negative pair
+   is necessarily across folders; negatives are not sub-sampled.
+4. **Pair sampler (class-balanced batches).** Per batch: for each of the 10 classes, 24 recordings drawn without
+   replacement (all of the class's fit recordings if it has fewer; normal has 16–17 per fold), with probability ∝ 1 /
+   (number of fit recordings in that recording's folder), so folders are equally represented and positives cross folders
+   where the class has more than one folder (normal has one folder, so its positives never do); one window per recording,
+   uniform over its 9 windows. Batches per epoch = ceil(fit windows / 256), as CNN-6. Realised pair statistics are recorded
+   for every run: positive pairs total, from different recordings (must be 100 %), different folders, and different
+   speeds (|Δ measured speed| ≥ 1 Hz), with the median |Δ speed|.
+5. **Augmentations: exactly CNN-6's**, applied per window before the encoder in both stages: gain offset uniform ±1 dB per
+   window and channel (before normalisation), circular time shift ±2 frames, one time mask of 0–4 frames. **Gain argued
+   explicitly (§5 rule 7):** it is kept only so that the objective is the single difference from CNN-6; ±1 dB is small
+   against the level differences between conditions, is independent per channel, and does not alter the order axis or
+   the relative spectral shape; normalisation stays global per channel. No augmentation touches the order axis or speed
+   (**no speed invariance is encouraged**: positives are not selected to differ in speed, and speed information stays in
+   the representation, consistent with R1, where removing the speed trend cost detection), and none simulates a fault.
+6. **Stage A settings (fixed):** 100 epochs, AdamW lr 3e-3, weight decay 0.01, linear warm-up 1 epoch then cosine decay
+   to 0 (`ml.train.lr_lambda`), fp32 on MPS, no early stopping, nothing chosen on the evaluated fold.
+7. **Stage B, classifier head: encoder FROZEN** (no gradients; its BatchNorm layers stay in eval mode), the same for every
+   seed and fold. The CNN-6 head (dropout 0.2 + Linear 128→10), newly initialised, is trained with `ml.train.train_model`
+   unchanged: cross-entropy with balanced class weights, the same augmentations, AdamW lr 3e-3, weight decay 0.01,
+   warm-up 1 epoch + cosine, 40 epochs, batch 256.
+8. **Seeds 42, 43, 44** (`ml.utils.seed_everything`, sampler and augmentation generators seeded with the run seed),
+   compared with the saved CNN-6 runs of the same seed on the same folds (seed 42: `results/scores/cnn6_dev.parquet`;
+   43 / 44: `cnn6_s43_dev_logits.parquet`, `cnn6_s44_dev_logits.parquet`).
+9. **Time estimate and guard.** From CNN-6 (≈ 60 s per 40-epoch fold): ≈ 150 s stage A + ≈ 30 s stage B per fold, ≈ 30
+   min for 9 fold × seed runs. After the first fold the total is projected; above 60 min the run stops and is reported
+   (§10). One GPU job at a time (`artifacts/gpu.lock`).
+10. **Evaluation** (recording level; contrastive vs CNN-6, same seed): class10 and class6 macro-F1 and balanced accuracy
+    per fold, mean and spread across folds (§5 rule 13); per-class recall; class10 confusion matrices with imbalance ↔
+    vertical misalignment and horizontal ↔ vertical misalignment called out; accuracy per folder (operating setting) and
+    per speed band (< 20, 20–30, ≥ 30 Hz); seed spread (std over seeds) reported separately from sampling uncertainty
+    (paired mixed-unit bootstrap per seed, `ml.evaluation.paired_mixed`, the 3A draws); median CPU latency per recording
+    (9 windows from the cache, the 3A method) against CNN-6.
+11. **Pre-declared reading** (Δ_s = contrastive − CNN-6 of the mean over folds of class10 macro-F1, seed s):
+    **helps** only if all hold: (a) Δ_s > 0 for every seed; (b) mean Δ over seeds ≥ +0.003; (c) in every seed the
+    contrastive per-fold macro-F1 is ≥ CNN-6's in at least 2 of 3 folds; (d) class6 mean Δ ≥ −0.003.
+    **Does not help** if Δ_s ≤ 0 for every seed, or mean Δ ≤ −0.003. Otherwise **too thin to tell**.
+    Pairs (secondary): "separates pair X better" only if its confusions (recordings, both directions) are fewer than
+    CNN-6's in every seed; where CNN-6 has none, only a worsening can be observed, and that is said.
+12. **Optional Q3 step** (Mahalanobis familiarity on the new embedding, `ml.openset.fit_mahalanobis`, saved Q3
+    assignment, withheld class excluded from fitting, normalisation and calibration) runs **only if the reading is
+    "helps"**. R0's tie rule (a score within 1e-12 of its threshold is a tie, accepted) carries forward to any threshold
+    comparison.
+
+## 7-prev1. Previous stage: Stage R1 — speed-conditioned healthy thresholds (development data only)
 
 Exploratory research experiment testing R0's hypothesis (healthy false alarms concentrate at speeds outside the calibration
 normals' range). No training, no new model, no threshold change in the bundle or the app, no reserved read; `artifacts/`
