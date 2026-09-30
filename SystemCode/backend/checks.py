@@ -9,7 +9,9 @@
 - "Checks disagree" is used only when the decision-rule variants disagree for a reason other than a narrow margin, or
   when CNN-6 and the secondary logistic regression rank different classes first.
 - Healthy-baseline checks above their limit on a fault verdict are "above healthy limit — consistent with a fault"
-  (neutral), not a failure.
+  (neutral), not a failure. On an abstention ("further inspection needed") they are "above healthy limit — not consistent
+  with healthy": exceeding a healthy-only detector's limit does not establish a fault (it can equally be an unfamiliar
+  condition, a sensor problem or an operating point outside the calibration range) (App-4.4).
 """
 from __future__ import annotations
 
@@ -61,8 +63,10 @@ def checks(r: dict) -> list[dict]:
             status, tone = "within healthy limit", "good"
         elif healthy:
             status, tone = "above healthy limit — caution", "warn"
-        else:
+        elif d["decision"] == "known_fault":
             status, tone = "above healthy limit — consistent with a fault", "neutral"
+        else:  # abstention: a healthy-only detector's limit exceeded says "not healthy", not "a fault" (App-4.4)
+            status, tone = "above healthy limit — not consistent with healthy", "neutral"
         out.append({"key": key, "name": name, "role": role, "value": v, "threshold": thr, "value_text": _num(v),
                     "threshold_text": _num(thr), "relation": relation, "required": "≥" if sign > 0 else "≤",
                     "passed": ok, "margin_abs": v - thr, "margin_rel": rel, "narrow": abs(rel) <= NARROW_REL,

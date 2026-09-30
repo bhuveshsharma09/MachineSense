@@ -46,6 +46,20 @@ def test_relations_and_fault_wording(rec):
     assert h["ae"]["relation"] == "≤" and h["ae"]["status"] == "within healthy limit"
 
 
+def test_abstention_wording_does_not_assert_a_fault(client):
+    """App-4.4: on "further inspection needed" the healthy-baseline checks above their limit read "not consistent with
+    healthy", never "consistent with a fault"; the report, sections and assessment all carry it."""
+    rec = client.post("/api/diagnose", json={"rec_id": "imbalance__10g__13.9264"}).json()
+    assert rec["diagnosis"]["decision"] == "unknown"
+    c = _by(checks(rec))
+    for k in ("ae", "b1s"):
+        assert c[k]["relation"] == ">" and c[k]["status"] == "above healthy limit — not consistent with healthy"
+        assert c[k]["tone"] == "neutral"
+    rep = client.get(f"/api/cases/{rec['case_id']}/report").json()
+    blob = rep["report"] + json.dumps(rep["sections"]) + json.dumps(rep["assessment"])
+    assert "consistent with a fault" not in blob and "not consistent with healthy" in rep["report"]
+
+
 # 2 ---------------------------------------------------------------------------------------------------------------
 def test_margins_are_value_minus_threshold(rec):
     r = rec(CAUTION)["record"]
