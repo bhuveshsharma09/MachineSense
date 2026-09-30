@@ -4,6 +4,7 @@ import { TAG } from "../lib/theme.js";
 import { LayoutError, layoutPipeline } from "../lib/pipelineLayout.js";
 import { usePanelView } from "./Aside.jsx";
 import PipelineCanvas, { MiniMap, edgeColour } from "./PipelineCanvas.jsx";
+import { CaseHeading, CaseSection } from "./PipelineCase.jsx";
 import { Logo } from "./TopBar.jsx";
 
 // App-4.2: #/case/<case_id>/pipeline — the general architecture of a diagnosis, drawn from one GET of the case's trace.
@@ -24,7 +25,8 @@ function EmptyState({ message }) {
   );
 }
 
-export default function Pipeline({ caseId, initialTrace = null, fetchTrace = getTrace, ...rest }) {
+// The route opens in case mode ("This diagnosis"); PipelineView on its own defaults to the general architecture.
+export default function Pipeline({ caseId, initialTrace = null, fetchTrace = getTrace, initialMode = "case", ...rest }) {
   const [st, setSt] = useState(initialTrace ? { trace: initialTrace } : { loading: true });
   useEffect(() => {
     if (initialTrace) return undefined;
@@ -36,7 +38,7 @@ export default function Pipeline({ caseId, initialTrace = null, fetchTrace = get
   }, [caseId]);
   if (st.loading) return <EmptyState message="Loading the pipeline…" />;
   if (st.error) return <EmptyState message={st.error} />;
-  return <PipelineView trace={st.trace} caseId={caseId} {...rest} />;
+  return <PipelineView trace={st.trace} caseId={caseId} initialMode={initialMode} {...rest} />;
 }
 
 // a small on/off preference remembered in this browser (legend, overview, labels; App-4.2.1)
@@ -48,13 +50,15 @@ function useRemembered(key, initial) {
   return [v, set];
 }
 
-export function PipelineView({ trace, caseId, initialLevel, initialSelected = null, initialSize, warn }) {
+export function PipelineView({ trace, caseId, initialLevel, initialSelected = null, initialSize, warn, initialMode = "architecture" }) {
   const layout = useMemo(() => {
     try { return layoutPipeline(trace, warn ? { warn } : undefined); } catch (e) { if (e instanceof LayoutError) return null; throw e; }
   }, [trace]);
   const [level, setLevel] = usePanelView(initialLevel);
   const [selected, setSelected] = useState(initialSelected);
   const [vs, setVs] = useState(null);
+  const [mode, setMode] = useState(initialMode === "case" ? "case" : "architecture");
+  const caseMode = mode === "case";
   const [legendOpen, setLegendOpen] = useRemembered("ms_pipeline_legend", true);
   const [mapOpen, setMapOpen] = useRemembered("ms_pipeline_overview", false);
   const [allLabels, setAllLabels] = useRemembered("ms_pipeline_all_labels", false);
@@ -69,12 +73,19 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
   const block = selected ? findBlock(trace.blocks, selected) : null;
   const kinds = [...new Set(Object.keys(trace.edge_kinds || {}))];
   return (
-    <div className="pl-root">
+    <div className={"pl-root" + (caseMode ? " is-case" : "")}>
       <header className="pl-header glass">
         <div className="pl-brand"><Logo /><span style={{ fontSize: 17, fontWeight: 500 }}>MachineSense</span></div>
         <div className="pl-heading">
-          <h1>How a diagnosis is made</h1>
-          <p>General architecture view: the steps every diagnosis goes through, not the result of a specific diagnosis.</p>
+          <h1><span className={"mono kicker pl-mode-pill" + (caseMode ? " is-case" : "")}>{caseMode ? "This diagnosis" : "General architecture"}</span>
+            {caseMode ? "How this diagnosis was made" : "How a diagnosis is made"}</h1>
+          {caseMode ? <CaseHeading trace={trace} />
+            : <p>General architecture view: the steps every diagnosis goes through, not the result of a specific diagnosis.</p>}
+        </div>
+        <div role="radiogroup" aria-label="View" className="seg pl-mode">
+          {[["case", "This diagnosis"], ["architecture", "General architecture"]].map(([k, lab]) => (
+            <button key={k} role="radio" aria-checked={mode === k} className={mode === k ? "on" : ""} onClick={() => setMode(k)}>{lab}</button>
+          ))}
         </div>
         <div role="radiogroup" aria-label="Reading level" className="seg">
           {[["mechanic", "Mechanic"], ["developer", "Developer"]].map(([k, lab]) => (
@@ -84,7 +95,14 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
         {caseId && <a className="ctl pl-link" href={`#/case/${encodeURIComponent(caseId)}`}>Back to the case</a>}
       </header>
 
-      <PipelineCanvas ref={canvas} layout={layout} edgeKinds={trace.edge_kinds} level={level} selected={selected}
+      {caseMode && trace.bundle_matches_record?.value === false && (
+        <div className="pl-banner glass" role="alert">
+          This case was produced by a different bundle than the one now loaded, so configuration and manifest values on this
+          page describe the current bundle. {trace.bundle_note}
+        </div>
+      )}
+
+      <PipelineCanvas ref={canvas} mode={mode} trace={caseMode ? trace : null} layout={layout} edgeKinds={trace.edge_kinds} level={level} selected={selected}
         onSelect={(id) => setSelected(id)} initialSize={initialSize} onViewChange={(view, size) => setVs({ view, size })}
         showAllLabels={allLabels} />
 
@@ -117,7 +135,7 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
         {mapOpen && vs && <MiniMap layout={layout} view={vs.view} size={vs.size} onCentre={(x, y) => canvas.current?.centreOn(x, y)} />}
       </div>
 
-      {block && <Drawer block={block} trace={trace} layout={layout} level={level} onClose={() => setSelected(null)} />}
+      {block && <Drawer block={block} trace={trace} layout={layout} level={level} caseMode={caseMode} onClose={() => setSelected(null)} />}
     </div>
   );
 }
@@ -131,7 +149,7 @@ function findBlock(blocks, id) {
   return null;
 }
 
-function Drawer({ block, trace, layout, level, onClose }) {
+function Drawer({ block, trace, layout, level, caseMode, onClose }) {
   const t = layout.title(block, level);
   const dev = level === "developer";
   const name = (ref) => {
@@ -152,6 +170,7 @@ function Drawer({ block, trace, layout, level, onClose }) {
       <h2>{t}</h2>
       {block.purpose && <p>{block.purpose}</p>}
       {members && <p className="pl-muted">Contains: {members.join(", ")}.</p>}
+      {caseMode && <CaseSection trace={trace} block={block} level={level} />}
       {dev && (
         <>
           {block.operation && (<><h3 className="mono kicker">How it works</h3><p>{block.operation}</p></>)}

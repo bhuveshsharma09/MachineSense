@@ -224,15 +224,15 @@ const DESK = { w: 1440, h: 900 };
 
 // App-4.2.1: legibility of the rebalanced layout, labels on demand, and the way in and out of the page.
 import { countCrossings, edgeThroughBlock, GEOM, layoutPipeline, titleWidth } from "../src/lib/pipelineLayout.js";
-import { fitView, LEGIBLE } from "../src/components/PipelineCanvas.jsx";
+import { fitView, INSET, LEGIBLE } from "../src/components/PipelineCanvas.jsx";
 {
   const L = layoutPipeline(traceFx);
   const through = edgeThroughBlock(L);
   pcheck(`no edge passes through a block (${countCrossings(L)} line crossings)`, through.length === 0, JSON.stringify(through));
   const f1440 = fitView(L.bounds, { w: 1440, h: 900 }), f1280 = fitView(L.bounds, { w: 1280, h: 800 });
-  const whole1440 = Math.min((1440 - 32) / L.bounds.w, (900 - 112) / L.bounds.h);
+  const whole1440 = Math.min((1440 - 2 * INSET.side) / L.bounds.w, (900 - INSET.top - INSET.bottom) / L.bounds.h);
   pcheck(`fit to screen at 1440×900 shows the whole graph at scale ${f1440.scale.toFixed(3)} ≥ ${LEGIBLE}`, f1440.scale >= LEGIBLE && Math.abs(f1440.scale - whole1440) < 1e-9);
-  pcheck(`fit to screen at 1280×800 keeps a legible scale (${f1280.scale.toFixed(3)}; width fitted, vertical pan)`, f1280.scale >= LEGIBLE && f1280.scale * L.bounds.w <= 1280 - 32 + 1e-6);
+  pcheck(`fit to screen at 1280×800 keeps a legible scale (${f1280.scale.toFixed(3)}; width fitted, vertical pan)`, f1280.scale >= LEGIBLE && f1280.scale * L.bounds.w <= 1280 - 2 * INSET.side + 1e-6);
   const short = Object.values(L.nodes).filter((n) => n.w < titleWidth(n.block.title_developer) + 2 * GEOM.PAD_X);
   pcheck("no block is narrower than its Developer title", short.length === 0, JSON.stringify(short.map((n) => n.id)));
   const none = renderToString(<PipelineView trace={traceFx} initialLevel="developer" initialSize={DESK} />);
@@ -246,6 +246,84 @@ import { fitView, LEGIBLE } from "../src/components/PipelineCanvas.jsx";
     back.includes(`href="#/case/${traceFx.case_id}"`) && !textOf(back).includes(traceFx.case_id));
   const panel = renderToString(<PanelContent record={knownFault.record} status="done" report={knownFault.report} activity={knownFault.activity} view="mechanic" onView={() => {}} />);
   pcheck("the case view links to the pipeline page", panel.includes(`href="#/case/${knownFault.record.case_id}/pipeline"`) && textOf(panel).includes("How this diagnosis was made"));
+}
+
+// App-4.3: the case-populated page ("This diagnosis"). Every displayed value is checked against the fixture trace.
+import { walkPage } from "./pipeline_walk.js";
+import fxHealthy from "./fixtures/trace_healthy.json";
+import fxCaution from "./fixtures/trace_caution.json";
+import fxKnown from "./fixtures/trace_known_fault.json";
+import fxUnknown from "./fixtures/trace_unknown.json";
+import fxUpload from "./fixtures/trace_upload.json";
+import fxNoExpl from "./fixtures/trace_no_explanation.json";
+{
+  const CASES = { healthy: fxHealthy, caution: fxCaution, known_fault: fxKnown, unknown: fxUnknown, upload: fxUpload, no_explanation: fxNoExpl };
+  const page = (fx, level, sel = null, mode = "case") => renderToString(<PipelineView trace={fx} initialMode={mode} initialLevel={level}
+    initialSelected={sel} initialSize={DESK} />);
+  const svgOf = (h) => (/<svg class="pl-canvas"[\s\S]*?<\/svg>/.exec(h) || [""])[0];
+  const drawerOf = (h) => (/<aside[\s\S]*<\/aside>/.exec(h) || [""])[0];
+  const verdicts = (h) => [...h.matchAll(/data-verdict="1"[^>]*>([^<]*)</g)].map((m) => m[1].replace(/&amp;/g, "&"));
+  let values = 0;
+  for (const [name, fx] of Object.entries(CASES)) {
+    const dec = fx.blocks.find((b) => b.id === "decision").output;
+    const label = dec.display_label.value;
+    const errs = [];
+    const seen = {};
+    for (const level of ["mechanic", "developer"]) {
+      const pages = [page(fx, level), ...flat(fx.blocks).map((b) => page(fx, level, b.id))];
+      for (const h of pages) { const w = walkPage(h, fx); values += w.checked; errs.push(...w.errors); }
+      seen[level] = new Set(pages.flatMap(verdicts));
+      // per-channel autoencoder errors: never on the diagram, never in Mechanic, only in the Developer drawer of AE-6
+      for (const h of pages) {
+        if (svgOf(h).includes("ae_channel_errors")) errs.push(`${level}: per-channel AE errors on the diagram`);
+        const inDrawer = drawerOf(h).includes(".technical.ae_channel_errors");
+        if (inDrawer && !(level === "developer" && /About: AE-6/.test(h))) errs.push(`${level}: per-channel AE errors outside the AE-6 Developer drawer`);
+      }
+      const ae = page(fx, level, "ae6");
+      const caveat = fx.blocks.find((b) => b.id === "models").children.find((c) => c.id === "ae6").technical.ae_channel_errors_caveat;
+      if (level === "developer" && !(drawerOf(ae).includes(".technical.ae_channel_errors") && textOf(drawerOf(ae)).includes(caveat)))
+        errs.push("developer AE-6 drawer lacks the per-channel errors with their caveat");
+      if (level === "mechanic" && drawerOf(ae).includes("ae_channel_errors")) errs.push("mechanic AE-6 drawer shows per-channel errors");
+    }
+    pcheck(`case ${name}: every shown value equals the fixture (both levels, every drawer)`, errs.length === 0, JSON.stringify(errs.slice(0, 4)));
+    pcheck(`case ${name}: Mechanic and Developer show the same verdict "${label}"`, seen.mechanic.size === 1 && seen.developer.size === 1 &&
+      seen.mechanic.has(label) && seen.developer.has(label), JSON.stringify([...seen.mechanic, ...seen.developer]));
+    if (dec.decision.value === "known_fault") pcheck(`case ${name}: a predicted fault is labelled a model prediction`, textOf(page(fx, "mechanic")).includes("model prediction"));
+  }
+  pcheck(`case pages: ${values} displayed values checked`, values > 2000);
+
+  // the walker is not trivially passing: a doctored copy renders a value the fixture does not have
+  const doctored = JSON.parse(JSON.stringify(fxKnown));
+  doctored.blocks.find((b) => b.id === "models").children.find((c) => c.id === "cnn6").output.msp.value = 0.9512;
+  const bad = walkPage(page(doctored, "developer"), fxKnown);
+  pcheck("walker catches a doctored value (MSP changed in the rendered copy)", bad.errors.some((e) => e.includes("output.msp")), JSON.stringify(bad.errors.slice(0, 2)));
+  pcheck("walker catches a bare number that is not in the trace", walkPage("<div><span>distance 0.4213</span></div>", fxKnown).errors.length === 1);
+
+  // abstention: "further inspection needed" exactly; no "new fault" / "unknown fault detected" wording (the trace's own
+  // disclaimer "it does not mean a new fault was found" is the one allowed mention, and it is a negation)
+  const disclaimers = [...new Set(flat(fxUnknown.blocks).flatMap((b) => [b.operation, b.output?.unknown_meaning]).filter((x) => typeof x === "string" && /new fault/.test(x)))];
+  const leaks = [];
+  for (const level of ["mechanic", "developer"]) for (const sel of [null, ...flat(fxUnknown.blocks).map((b) => b.id)]) {
+    let t = textOf(page(fxUnknown, level, sel));
+    for (const d of disclaimers) t = t.split(d).join(" ");
+    if (/new fault|unknown fault|fault detected/i.test(t)) leaks.push(`${level}/${sel}`);
+  }
+  pcheck("abstention: no \"new fault\" or \"unknown fault detected\" wording; the verdict reads \"further inspection needed\"",
+    !leaks.length && textOf(page(fxUnknown, "mechanic")).includes("further inspection needed"), JSON.stringify(leaks));
+
+  const decPage = textOf(page(fxKnown, "developer", "decision"));
+  pcheck("rule comparison is marked as a comparison of alternative rules, not the verdict", decPage.includes("comparison only, not the verdict"));
+  const drawnCase = [...page(fxKnown, "developer").matchAll(/data-edge="([^"]+)"/g)].map((m) => m[1].replace(/&gt;/g, ">"));
+  pcheck("case mode: lr still has no edge to decision", drawnCase.length === fxKnown.edges.length && !drawnCase.some((d) => /^lr\./.test(d) && /->decision\./.test(d)));
+  pcheck("case mode: a not-recorded value shows the trace's reason", textOf(page(fxKnown, "developer")).includes("not recorded: the number of R1 feature columns"));
+  const other = { ...fxKnown, bundle_matches_record: { ...fxKnown.bundle_matches_record, value: false },
+    bundle_note: "this case was produced by a different bundle" };
+  pcheck("different bundle: a visible banner in case mode", textOf(page(other, "mechanic")).includes("produced by a different bundle than the one now loaded"));
+  pcheck("architecture mode of a case trace shows no case value", !page(fxKnown, "developer", null, "architecture").includes("data-p=") &&
+    !page(fxKnown, "developer", null, "architecture").includes(fxKnown.case_id));
+  const small = renderToString(<PipelineView trace={fxUnknown} initialMode="case" initialLevel="mechanic" initialSelected="decision" initialSize={MOBILE} />);
+  writeFileSync(join(here, "mobile", "pipeline_case_390.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>${css}</style></head><body><div id="root">${small}</div></body></html>`);
 }
 
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }

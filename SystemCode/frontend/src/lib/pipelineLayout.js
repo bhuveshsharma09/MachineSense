@@ -13,12 +13,12 @@ export const GEOM = {
   OUT_BAND: 18,      // below a row: room for the output-port labels before the first edge track
   IN_BAND: 16,       // above a row: room for the input-port labels after the last edge track
   CH_MIN: 40,        // smallest channel between two rows
-  FRAME_PAD: 20, FRAME_TOP: 20, FRAME_BOTTOM: 18,
+  FRAME_PAD: 20, FRAME_TOP: 18, FRAME_BOTTOM: 16,
   TRACK: 6,          // spacing of parallel horizontal jogs in one channel
   LANE: 6,           // spacing of parallel vertical runs in one corridor
   CLEAR: 16,         // clearance of a vertical run from a block
   RADIUS: 8,         // rounded corners of edge routes
-  MARGIN: 12,        // around the whole graph
+  MARGIN: 4,         // around the whole graph
 };
 
 // Where each block sits: row (top to bottom, in trace order) and x, the block's centre in px (0 = the spine). Rows are
@@ -32,14 +32,14 @@ export const PLACEMENT = {
   physics_features: { row: 3, x: 280 },
   cnn6: { row: 4, x: -559 },
   ae6: { row: 4, x: -226 },
-  b1s: { row: 4, x: 160 },
-  lr: { row: 4, x: 527 },                     // off the spine, to the side: it does not feed the decision
+  b1s: { row: 4, x: 190 },
+  lr: { row: 4, x: 557 },                     // off the spine, to the side: it does not feed the decision
   class6: { row: 5, x: -600 },                // second tier of the models group: both read CNN-6's outputs
-  mahalanobis: { row: 5, x: -230 },
-  decision: { row: 6, x: -330 },
-  evidence_record: { row: 6, x: 20 },        // the record, explanation and views run along the bottom row
-  explanation: { row: 6, x: 350 },
-  presentation: { row: 6, x: 600 },
+  mahalanobis: { row: 5, x: -275 },           // leaves a clear lane between AE-6 and B1s for the long record edges
+  decision: { row: 6, x: -390 },
+  evidence_record: { row: 6, x: -40 },        // the record, explanation and views run along the bottom row
+  explanation: { row: 6, x: 303 },
+  presentation: { row: 6, x: 598 },
 };
 
 const title = (b, level) => (level === "developer" ? b.title_developer : b.title_mechanic) || b.id;
@@ -194,24 +194,26 @@ export function layoutPipeline(trace, { warn = (m) => console.warn(m) } = {}) {
 }
 
 // ------------------------------------------------------------------------------------------------------------ routes
-// obstacles of the rows [r0, r1] for a vertical run: blocks and the group frames the edge is not inside. A downward run
+// obstacles of the rows [r0, r1] for a vertical run. Blocks are hard: a run never passes through one. A downward run
 // starts below its source and ends above its target, so those two are skipped; an upward run passes their rows (withEnds).
+// Group frames the edge is not inside are soft (App-4.3): a run may pass between a group's blocks at FRAME_COST, so a
+// long edge takes the short way through a group rather than a detour around it that reads as a second frame.
+const FRAME_COST = 260;
 function obstacles(rows, nodes, frames, a, b, withEnds = false) {
   const out = [];
   for (const n of Object.values(nodes)) {
     if ((!withEnds && (n.id === a.id || n.id === b.id)) || n.row < rows[0] || n.row > rows[1]) continue;
     out.push([n.x - GEOM.CLEAR, n.x + n.w + GEOM.CLEAR]);
   }
-  for (const f of frames) {
-    if (f.members.has(a.id) || f.members.has(b.id)) continue;
-    if (f.rows.some((r) => r >= rows[0] && r <= rows[1])) out.push([f.x - 10, f.x + f.w + 10]);
-  }
+  const soft = frames.filter((f) => !f.members.has(a.id) && !f.members.has(b.id) && f.rows.some((r) => r >= rows[0] && r <= rows[1]))
+    .map((f) => [f.x - 10, f.x + f.w + 10]);
   out.sort((p, q) => p[0] - q[0]);
   const merged = [];
   for (const o of out) {
     if (merged.length && o[0] <= merged[merged.length - 1][1]) merged[merged.length - 1][1] = Math.max(merged[merged.length - 1][1], o[1]);
     else merged.push([...o]);
   }
+  merged.soft = soft;
   return merged;
 }
 
@@ -220,21 +222,22 @@ function corridor(ax, bx, blocked, used, span) {
   let lo = -Infinity;
   for (const [s, e] of blocked) { free.push([lo, s]); lo = e; }
   free.push([lo, Infinity]);
-  let best = null;
+  const cost = (x) => Math.abs(x - ax) + Math.abs(x - bx) + (blocked.soft || []).filter(([p, q]) => x > p && x < q).length * FRAME_COST;
+  const clash = (v) => used.some((u) => Math.abs(u.x - v) < GEOM.LANE - 0.5 && u.s0 < span[1] && u.s1 > span[0]);
+  // every lane position in every free interval near the preferred points, cheapest first; the first that does not run
+  // alongside another vertical run wins (parallel runs keep LANE apart)
+  const cands = [];
   for (const [s, e] of free) {
     for (const want of [ax, bx, (ax + bx) / 2]) {
-      const x = Math.min(Math.max(want, s + 1), e - 1);
-      if (!(x > s && x < e)) continue;
-      const cost = Math.abs(x - ax) + Math.abs(x - bx);
-      if (!best || cost < best.cost) best = { x, cost, s, e };
+      const x0 = Math.min(Math.max(want, s + 1), e - 1);
+      for (let k = 0; k < 12; k++) {
+        const x = x0 + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * GEOM.LANE;
+        if (x > s && x < e) cands.push(x);
+      }
     }
   }
-  let x = best.x;  // keep parallel vertical runs apart
-  const clash = (v) => used.some((u) => Math.abs(u.x - v) < GEOM.LANE - 0.5 && u.s0 < span[1] && u.s1 > span[0]);
-  for (let k = 1; clash(x) && k < 40; k++) {
-    const cand = best.x + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * GEOM.LANE;
-    if (cand > best.s && cand < best.e) x = cand;
-  }
+  cands.sort((p, q) => cost(p) - cost(q) || Math.abs(p) - Math.abs(q));
+  const x = cands.find((c) => !clash(c)) ?? cands[0];
   used.push({ x, s0: span[0], s1: span[1] });
   return x;
 }

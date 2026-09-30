@@ -212,7 +212,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pl-title { font-family: "Outfit", system-ui, sans-serif; font-size: 16px; font-weight: 400; color: oklch(0.23 0.006 260); line-height: 1.25;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; flex: none; }
 .pl-sub { font-size: 12px; color: oklch(0.50 0.008 260); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pl-frame-cap { display: inline-block; padding: 3px 8px; border-radius: 6px; background: oklch(0.945 0.004 85); font-size: 10px; letter-spacing: 0.09em;
+.pl-frame-cap { display: inline-block; padding: 3px 8px; border-radius: 6px; background: oklch(0.945 0.004 85); font-size: 12px; letter-spacing: 0.09em;
   text-transform: uppercase; color: oklch(0.50 0.008 260); cursor: pointer; white-space: nowrap; }
 .pl-frame-cap.is-sel { color: oklch(0.54 0.21 277); }
 .pl-frame-label { font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: 0.09em; fill: oklch(0.50 0.008 260); }
@@ -242,3 +242,30 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .pl-legend { top: auto; bottom: 64px; }
   .pl-drawer { top: auto; left: 16px; right: 16px; width: auto; max-height: 60vh; }
 }
+
+/* App-4.3 case mode */
+.pl-mode-pill { display: inline-block; padding: 2px 7px; margin-right: 10px; border-radius: 5px; background: oklch(0.23 0.006 260 / 0.07); vertical-align: 2px; }
+.pl-mode-pill.is-case { color: oklch(0.54 0.21 277); background: oklch(0.54 0.21 277 / 0.1); }
+.pl-root.is-case .pl-header { box-shadow: inset 0 3px 0 oklch(0.54 0.21 277), 0 14px 44px oklch(0.35 0.01 260 / 0.10); }
+.pl-mode button { white-space: nowrap; }
+.pl-case-heading { margin: 0; font-size: 12.5px; color: oklch(0.23 0.006 260); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-verdict { font-weight: 500; }
+.pl-tag { margin-left: 6px; color: oklch(0.44 0.09 250); background: oklch(0.55 0.1 250 / 0.12); }
+.pl-case { color: oklch(0.40 0.008 260); white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.pl-root.is-case .pl-block { padding: 9px 18px; justify-content: center; }
+.pl-status { display: inline-flex; align-items: center; gap: 4px; }
+.pl-status b { font-weight: 500; color: oklch(0.23 0.006 260); }
+.pl-nr { color: oklch(0.50 0.11 65); }
+.pl-derived { font-size: 11px; color: oklch(0.54 0.21 277); }
+.pl-case-drawer { margin-top: 10px; padding-top: 10px; border-top: 1px solid oklch(0.23 0.006 260 / 0.1); }
+.pl-case-note { color: oklch(0.40 0.008 260); font-size: 13px; }
+.pl-status-row { margin: 4px 0 6px; }
+.pl-fields { display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; }
+.pl-field { display: grid; grid-template-columns: minmax(96px, 38%) 1fr; gap: 8px; align-items: baseline; }
+.pl-field .pl-fields { font-size: 12px; }
+.pl-key { color: oklch(0.50 0.008 260); overflow-wrap: anywhere; }
+.pl-fv { font-family: "Geist Mono", monospace; font-size: 11.5px; overflow-wrap: anywhere; min-width: 0; }
+.pl-static { font-family: "Outfit", system-ui, sans-serif; font-size: 12.5px; }
+.pl-comparison { margin: 6px 0; padding: 6px 8px; border-left: 2px solid oklch(0.23 0.006 260 / 0.12); color: oklch(0.50 0.008 260); font-size: 12px; }
+.pl-banner { position: absolute; left: 50%; transform: translateX(-50%); top: 96px; z-index: 6; max-width: min(760px, calc(100% - 32px));
+  padding: 8px 14px; border-radius: 12px; font-size: 12.5px; color: oklch(0.50 0.11 65); }

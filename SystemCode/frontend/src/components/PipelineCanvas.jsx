@@ -1,5 +1,6 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { K, TAG } from "../lib/theme.js";
+import { CaseLine } from "./PipelineCase.jsx";
 
 
 // App-4.2: the SVG canvas of the pipeline architecture. Structure only: titles, one subtitle line (the block's purpose),
@@ -8,8 +9,9 @@ import { K, TAG } from "../lib/theme.js";
 const ZOOM = { min: 0.2, max: 2.5, step: 1.25 };
 const PAN_STEP = 80;  // screen px per arrow key
 const LABEL_MIN_SCALE = 0.6;  // edge labels are hidden when zoomed out below readable size (they stay in the drawer)
+const PORT_LABEL_MIN_SCALE = 0.9;  // App-4.3: the 9.5px port micro-labels only where they stay about 10px or larger
 export const LEGIBLE = 0.8;  // App-4.2.1: below this scale block titles are no longer comfortably readable
-const INSET = { top: 96, side: 16, bottom: 16 };  // the header floats over the canvas; fit frames the area below it
+export const INSET = { top: 100, side: 40, bottom: 36 };  // screen margins of fit to screen; the header floats above ``top``
 
 export const edgeColour = (kind, edgeKinds) => TAG[edgeKinds?.[kind]]?.c || K.ink3;
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -32,17 +34,23 @@ export function fitView(bounds, size) {
 export const homeView = (bounds, size) => topAligned(bounds, size, 1);
 
 const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, level, selected, onSelect, initialSize, onViewChange,
-  showAllLabels = false }, ref) {
+  showAllLabels = false, mode = "architecture", trace = null }, ref) {
   const wrap = useRef(null);
   const [size, setSize] = useState(initialSize || { w: 1440, h: 800 });
-  const [view, setView] = useState(() => homeView(layout.bounds, initialSize || { w: 1440, h: 800 }));
+  // App-4.3: the page opens at fit to screen (port micro-labels are hidden at that scale, so no text is below ~10px)
+  const [view, setView] = useState(() => fitView(layout.bounds, initialSize || { w: 1440, h: 800 }));
+  const fitted = useRef(false);
   const [hover, setHover] = useState(null);
   const drag = useRef(null);
 
   useEffect(() => {
     const el = wrap.current;
     if (!el || typeof ResizeObserver === "undefined") return undefined;
-    const ro = new ResizeObserver(([e]) => setSize({ w: e.contentRect.width, h: e.contentRect.height }));
+    const ro = new ResizeObserver(([e]) => {
+      const s = { w: e.contentRect.width, h: e.contentRect.height };
+      setSize(s);
+      if (!fitted.current && s.w > 0 && s.h > 0) { fitted.current = true; setView(fitView(layout.bounds, s)); }  // fit the real size once
+    });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -126,7 +134,7 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
           onClick={act} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } }}
           onFocus={() => reveal(n)} onMouseEnter={() => setHover(b.id)} onMouseLeave={() => setHover(null)}>
           <div className="pl-title">{titleOf(b)}</div>
-          {b.purpose && <div className="pl-sub">{b.purpose}</div>}
+          {mode === "case" && trace ? <CaseLine trace={trace} id={b.id} level={level} /> : b.purpose && <div className="pl-sub">{b.purpose}</div>}
         </div>
       </foreignObject>
     );
@@ -139,7 +147,7 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
         <circle cx={p.x} cy={p.y} r={2.5} fill={c || "oklch(0.995 0.002 85)"} stroke={c || K.ink3} strokeWidth={1}>
           <title>{p.label}</title>
         </circle>
-        <text x={p.x + 5} y={below ? p.y + 13 : p.y - 5} className="pl-port-label">{p.short}</text>
+        {view.scale >= PORT_LABEL_MIN_SCALE && <text x={p.x + 5} y={below ? p.y + 13 : p.y - 5} className="pl-port-label">{p.short}</text>}
       </g>
     );
   };

@@ -70,12 +70,15 @@ const WARN = [
   [/missing \(NaN\) samples/, "Some samples were missing."],
 ];
 
+// One signal-quality warning in plain words
+export const plainWarning = (w) => (WARN.find(([re]) => re.test(w)) || [null, "A recording-quality warning applies."])[1];
+
 export function warnings(record) {
   const healthy = record.diagnosis.decision === "healthy";
   const out = [];
   for (const w of record.signal_quality.warnings) {
     if (/not calibrated at this speed/.test(w) && !healthy) continue;
-    const p = (WARN.find(([re]) => re.test(w)) || [null, "A recording-quality warning applies."])[1];
+    const p = plainWarning(w);
     if (!out.includes(p)) out.push(p);
   }
   return out;

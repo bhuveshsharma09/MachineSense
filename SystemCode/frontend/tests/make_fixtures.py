@@ -31,11 +31,34 @@ def _refuse(request):  # no language model while recording fixtures: explanation
     raise httpx.ConnectError("no model while recording fixtures", request=request)
 
 
+TRACE_CASES = {  # App-4.3: one saved case per verdict, an upload, and a case with no explanation (signal-quality warnings)
+    "trace_healthy": ("normal__24.576", True), "trace_caution": ("normal__20.2752", True),
+    "trace_known_fault": ("overhang__cage_fault__0g__34.2016", True), "trace_unknown": ("imbalance__10g__13.9264", True),
+    "trace_no_explanation": ("imbalance__25g__15.1552", False),
+}
+
+
 def record_trace(c) -> None:
-    """GET /trace of a real case (the known-fault showcase recording, after its template explanation is stored)."""
-    cid = c.post("/api/diagnose", json={"rec_id": CASES["known_fault"]}).json()["case_id"]
-    c.post(f"/api/cases/{cid}/explanation")
-    json.dump(c.get(f"/api/cases/{cid}/trace").json(), open(OUT / "trace.json", "w"), ensure_ascii=False)
+    """GET /trace of real saved cases: trace.json (the architecture fixture: the known-fault showcase recording, after
+    its template explanation is stored) and the App-4.3 case fixtures."""
+    import io
+
+    import numpy as np
+
+    from ml.paths import data_dir
+
+    def save(name, cid, explain):
+        if explain:
+            c.post(f"/api/cases/{cid}/explanation")
+        json.dump(c.get(f"/api/cases/{cid}/trace").json(), open(OUT / f"{name}.json", "w"), ensure_ascii=False)
+
+    save("trace", c.post("/api/diagnose", json={"rec_id": CASES["known_fault"]}).json()["case_id"], True)
+    for name, (rid, explain) in TRACE_CASES.items():
+        save(name, c.post("/api/diagnose", json={"rec_id": rid}).json()["case_id"], explain)
+    buf = io.StringIO()
+    np.savetxt(buf, np.load(data_dir() / "raw_npy" / "normal__24.576.npy"), fmt="%.9g", delimiter=",")
+    up = c.post("/api/diagnose", files={"file": ("my_recording.csv", buf.getvalue().encode(), "text/csv")}).json()
+    save("trace_upload", up["case_id"], True)
 
 
 ONLY_TRACE = sys.argv[1:] == ["trace"]
@@ -43,7 +66,7 @@ with TestClient(create_app(llm_transport=httpx.MockTransport(_refuse))) as c:
     OUT.mkdir(exist_ok=True)
     record_trace(c)
     if ONLY_TRACE:
-        print("trace fixture written to", OUT / "trace.json")
+        print("trace fixtures written to", OUT)
         sys.exit(0)
     recs = c.get("/api/recordings").json()["recordings"]
     json.dump({"recordings": [r for r in recs if r["rec_id"] in CASES.values()], "health": c.get("/api/health").json(),

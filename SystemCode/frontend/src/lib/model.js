@@ -113,6 +113,12 @@ export function fmtScore(v, digits = 4) {
   return v.toFixed(digits);
 }
 
+// A check value or threshold as the report and main panel show it (backend.checks._num: value_text / threshold_text):
+// scores in [0, 1] as fmtScore with 6 digits; other values with 4 decimals below 10, else 2 decimals.
+export function fmtCheck(v) {
+  return v >= 0 && v <= 1 ? fmtScore(v, 6) : Math.abs(v) < 10 ? v.toFixed(4) : v.toFixed(2);
+}
+
 // User-facing text without internal rule codes (limitations come from the bundle manifest).
 export const cleanText = (x) => x.replace(/\s*\((?:rule )?B_with_caution\)/g, "").replace("provisional demo default", "provisional research setting");
 
