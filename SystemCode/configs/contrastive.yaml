@@ -1,0 +1,23 @@
+# Stage R3: supervised contrastive pretraining of the CNN-6 encoder (development experiment; not in the bundle).
+# Separate from base.yaml on purpose: adding a section to the main Config would change the packaged bundle config's hash.
+# Declared in CLAUDE.md §7 before any training. The encoder is the cnn: section of base.yaml, unchanged; stage B (the
+# classifier head) uses the cnn: training settings unchanged. The augmentation fields mirror cnn: so ml.train.prepare_batch
+# applies exactly CNN-6's augmentations.
+seed: 42
+temperature: 0.1
+proj_hidden: 128
+proj_dim: 64
+recs_per_class: 24
+epochs: 100            # stage A
+head_epochs: 40        # stage B (= cnn.epochs)
+batch_size: 256        # batches per epoch = ceil(fit windows / batch_size), as CNN-6
+lr: 3.0e-3
+weight_decay: 0.01
+warmup_epochs: 1
+gain_jitter_db: 1.0
+time_shift_frames: 2
+time_mask_frames: 4
+eval_batch_size: 512
+mps_memory_fraction: 0.7
+speed_diff_hz: 1.0     # "different speed" in the pair statistics: |Δ measured speed| ≥ this
+time_guard_minutes: 60
