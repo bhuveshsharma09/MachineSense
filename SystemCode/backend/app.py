@@ -152,6 +152,16 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         _need(eng, case_id)
         return {"case_id": case_id, **_evidence(eng, case_id, "signals")}
 
+    @app.get("/api/cases/{case_id}/trace")
+    def trace(case_id: str, request: Request):
+        """Read-only pipeline trace of a saved case (App-4.1): a derived, versioned view; never re-runs inference."""
+        from backend.trace import build_trace
+        eng = engine(request)
+        c = _need(eng, case_id)
+        b = eng.bundle
+        return build_trace(case_id, c, eng.store.get_explanation(case_id), b.config.model_dump(mode="json"),
+                           b.manifest.model_dump(mode="json"), b.manifest_sha256, eng.meta(case_id)["can_rerun"])
+
     def _explain(request: Request, case_id: str, user_fields: dict | None) -> dict:
         from backend.explain import explain_case
         from backend.explain.provider import OpenAICompatibleProvider
