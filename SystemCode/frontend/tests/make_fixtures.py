@@ -1,7 +1,9 @@
 """Record real API responses as fixtures for the frontend smoke test (run from SystemCode/ with the venv and
-MACHINESENSE_BUNDLE_DIR set):  PYTHONPATH=. python frontend/tests/make_fixtures.py
-Signals are downsampled (every 8th order bin, 100 waveform buckets) to keep the fixtures small."""
+MACHINESENSE_BUNDLE_DIR set):  PYTHONPATH=. python frontend/tests/make_fixtures.py [trace]
+Signals are downsampled (every 8th order bin, 100 waveform buckets) to keep the fixtures small. With the argument
+"trace", only the pipeline-trace fixture (App-4.2) is recorded and the other fixtures are left as they are."""
 import json
+import sys
 from pathlib import Path
 
 import httpx
@@ -29,8 +31,20 @@ def _refuse(request):  # no language model while recording fixtures: explanation
     raise httpx.ConnectError("no model while recording fixtures", request=request)
 
 
+def record_trace(c) -> None:
+    """GET /trace of a real case (the known-fault showcase recording, after its template explanation is stored)."""
+    cid = c.post("/api/diagnose", json={"rec_id": CASES["known_fault"]}).json()["case_id"]
+    c.post(f"/api/cases/{cid}/explanation")
+    json.dump(c.get(f"/api/cases/{cid}/trace").json(), open(OUT / "trace.json", "w"), ensure_ascii=False)
+
+
+ONLY_TRACE = sys.argv[1:] == ["trace"]
 with TestClient(create_app(llm_transport=httpx.MockTransport(_refuse))) as c:
     OUT.mkdir(exist_ok=True)
+    record_trace(c)
+    if ONLY_TRACE:
+        print("trace fixture written to", OUT / "trace.json")
+        sys.exit(0)
     recs = c.get("/api/recordings").json()["recordings"]
     json.dump({"recordings": [r for r in recs if r["rec_id"] in CASES.values()], "health": c.get("/api/health").json(),
                "showcase": c.get("/api/showcase").json()}, open(OUT / "common.json", "w"))

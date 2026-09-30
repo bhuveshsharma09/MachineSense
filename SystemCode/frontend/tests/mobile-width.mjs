@@ -14,6 +14,8 @@ const chrome = [process.env.CHROME, "/Applications/Google Chrome.app/Contents/Ma
   "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find((p) => p && existsSync(p));
 const pages = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".html")) : [];
 if (!pages.length) { console.error("✗ no small-screen pages found (run the smoke test first)"); process.exit(1); }
+// App-4.2: the pipeline architecture page must be among them
+if (!pages.includes("pipeline_390.html")) { console.error("✗ the 390 px pipeline page is missing (tests/smoke.jsx writes it)"); process.exit(1); }
 if (!chrome || typeof WebSocket === "undefined") {
   console.log(`⚠ 390 px width check SKIPPED (${!chrome ? "no Chrome/Chromium found; set CHROME" : "Node without WebSocket"})`);
   process.exit(0);

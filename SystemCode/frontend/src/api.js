@@ -31,3 +31,4 @@ export const getSignals = (id, { signal } = {}) => api.get(`/cases/${id}/signals
 export const getExplanation = (id, { signal } = {}) => api.get(`/cases/${id}/explanation`, { signal }).then((r) => r.data);
 export const postExplanation = (id, userFields = {}, { signal } = {}) =>
   api.post(`/cases/${id}/explanation`, { user_fields: userFields }, { signal }).then((r) => r.data);
+export const getTrace = (id, { signal } = {}) => api.get(`/cases/${id}/trace`, { signal }).then((r) => r.data);
