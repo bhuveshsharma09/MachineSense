@@ -215,7 +215,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; flex: none; }
 .pl-sub { font-size: 12px; color: oklch(0.50 0.008 260); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pl-frame-cap { display: inline-block; padding: 2px 10px; border-radius: 8px; background: oklch(0.93 0.003 260); font-size: 14px; letter-spacing: 0;
-  font-family: "Outfit", system-ui, sans-serif !important; text-transform: none !important; color: oklch(0.55 0.008 260) !important;
+  font-family: "Outfit", system-ui, sans-serif !important; text-transform: none !important; color: oklch(0.50 0.008 260) !important;
   text-transform: uppercase; color: oklch(0.50 0.008 260); cursor: pointer; white-space: nowrap; }
 .pl-frame-cap.is-sel { color: oklch(0.54 0.21 277); }
 .pl-frame-label { font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: 0.09em; fill: oklch(0.50 0.008 260); }
@@ -270,17 +270,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pl-fv { font-family: "Geist Mono", monospace; font-size: 11.5px; overflow-wrap: anywhere; min-width: 0; }
 .pl-static { font-family: "Outfit", system-ui, sans-serif; font-size: 12.5px; }
 .pl-comparison { margin: 6px 0; padding: 6px 8px; border-left: 2px solid oklch(0.23 0.006 260 / 0.12); color: oklch(0.50 0.008 260); font-size: 12px; }
-.pl-banner { position: absolute; left: 50%; transform: translateX(-50%); top: 96px; z-index: 6; max-width: min(760px, calc(100% - 32px));
-  padding: 8px 14px; border-radius: 12px; font-size: 12.5px; color: oklch(0.50 0.11 65); }
+.pl-banner { margin: 4px 0 0; font-size: 12.5px; color: oklch(0.50 0.11 65); }  /* in the header (App-4.5) */
 .pl-legend-tag { color: oklch(0.30 0.008 260); }
-.pl-port-label { fill: oklch(0.58 0.006 260); }
+.pl-port-label { fill: oklch(0.40 0.008 260); }  /* App-4.5: K.ink2, 7.5:1 at 9.5px */
 .pl-root .pl-case .pl-status b { font-weight: 500; }
 
 /* App-4.4 signal previews: computed-now (from /signals) vs saved evidence, visibly different */
 .pl-bl-row { display: flex; align-items: center; gap: 10px; width: 100%; min-width: 0; }
 .pl-bl-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .pl-prev { position: relative; border-radius: 8px; box-sizing: border-box; }
-.pl-prev.is-computed { border: 1.25px dashed oklch(0.66 0.14 65); background: repeating-linear-gradient(135deg, oklch(0.80 0.14 75 / 0.10) 0 6px, oklch(0.99 0.002 85 / 0.6) 6px 12px); }
+.pl-prev.is-computed { border: 1.25px dashed oklch(0.50 0.11 65); background: repeating-linear-gradient(135deg, oklch(0.80 0.14 75 / 0.10) 0 6px, oklch(0.99 0.002 85 / 0.6) 6px 12px); }
 .pl-prev.is-saved { border: 1.25px solid oklch(0.54 0.21 277 / 0.45); background: oklch(0.99 0.002 260 / 0.8); }
 .pl-thumb { flex: none; width: 96px; height: 48px; padding: 13px 4px 3px; overflow: hidden; }
 .pl-prev-badge { font-family: "Geist Mono", monospace; font-size: 8.5px; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -298,3 +297,26 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pl-load { margin-top: 8px; height: auto; min-height: 34px; padding: 6px 12px; text-align: left; }
 .pl-fv .pl-field { display: block; }
 .pl-fv .pl-field .pl-key { display: block; font-size: 11.5px; }
+/* App-4.5 contrast: a light halo behind edge labels (they sit on lines and the canvas) */
+.pl-edge-label { paint-order: stroke; stroke: oklch(0.975 0.002 260); stroke-width: 3px; stroke-linejoin: round; }
+
+/* App-4.5 phone width: stacked steps instead of the canvas */
+.pl-root.is-narrow { height: auto; min-height: 100vh; overflow-x: hidden; overflow-y: auto; }
+.pl-root.is-narrow .pl-header { position: static; margin: 12px; }
+.pl-steps { padding: 0 12px 24px; display: flex; flex-direction: column; gap: 10px; }
+.pl-steps-note { margin: 0; }
+.pl-steps-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; }
+.pl-steps-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.pl-swatch { width: 18px; height: 3px; border-radius: 2px; display: inline-block; }
+.pl-step { border-radius: 12px; background: oklch(0.975 0.002 260 / 0.9); border: 1.25px solid oklch(0.62 0.006 260 / 0.55); padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.pl-step.is-group { background: oklch(0.985 0.002 260 / 0.45); border-color: oklch(0.23 0.006 260 / 0.09); }
+.pl-step-head { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left; border: 0; background: transparent; padding: 0; cursor: pointer; min-width: 0; width: 100%; }
+.pl-step-title { font-size: 16px; color: oklch(0.23 0.006 260); overflow-wrap: anywhere; }
+.pl-step .pl-case, .pl-step .pl-sub { display: block; -webkit-line-clamp: unset; white-space: normal; text-align: left; overflow-wrap: anywhere; }
+.pl-step .pl-thumb { width: 100%; height: 56px; }
+.pl-step-body { border-top: 1px solid oklch(0.23 0.006 260 / 0.1); padding-top: 8px; overflow-wrap: anywhere; min-width: 0; }
+.pl-step-children { display: flex; flex-direction: column; gap: 8px; }
+.pl-step-body .pl-field { grid-template-columns: 1fr; gap: 0; }
+.pl-root:has(.pl-banner) .pl-legend, .pl-root:has(.pl-banner) .pl-controls { top: 136px; }
+.pl-root:has(.pl-banner) .pl-drawer { top: 180px; }

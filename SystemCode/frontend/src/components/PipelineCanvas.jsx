@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { K, PIPE, PIPE_KIND } from "../lib/theme.js";
+import { K, PIPE, PIPE_CASING, PIPE_KIND, PIPE_TEXT } from "../lib/theme.js";
 import { CaseLine } from "./PipelineCase.jsx";
+import { STATUS_WORD } from "../lib/pipelineCase.js";
 import { PREVIEW_BLOCKS, Thumb } from "./PipelinePreview.jsx";
 
 
@@ -15,31 +16,33 @@ export const LEGIBLE = 0.8;  // App-4.2.1: below this scale block titles are no 
 export const INSET = { top: 100, side: 40, bottom: 36 };  // screen margins of fit to screen; the header floats above ``top``
 
 export const edgeColour = (kind, edgeKinds) => PIPE_KIND[kind]?.c || PIPE[edgeKinds?.[kind]]?.c || K.ink3;
+// App-4.5 contrast: label text and a casing under lines whose colour is too light to read on the canvas
+export const edgeTextColour = (kind, edgeKinds) => PIPE_KIND[kind]?.text || PIPE_TEXT[edgeKinds?.[kind]] || edgeColour(kind, edgeKinds);
+export const edgeCasing = (kind, edgeKinds) => PIPE_CASING[edgeKinds?.[kind]] || null;
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-const usable = (size) => ({ w: Math.max(1, size.w - 2 * INSET.side), h: Math.max(1, size.h - INSET.top - INSET.bottom) });
-const topAligned = (bounds, size, scale) => ({ cx: bounds.x + bounds.w / 2, cy: bounds.y + (size.h / 2 - INSET.top) / scale, scale });
+// top: the header's height when it grows (App-4.5: the different-bundle notice adds a line), so fit never hides a block
+const usable = (size, top = INSET.top) => ({ w: Math.max(1, size.w - 2 * INSET.side), h: Math.max(1, size.h - top - INSET.bottom) });
+const topAligned = (bounds, size, scale, top = INSET.top) => ({ cx: bounds.x + bounds.w / 2, cy: bounds.y + (size.h / 2 - top) / scale, scale });
 
 // Fit to screen with a legibility floor: the whole graph when that is legible (scale ≥ LEGIBLE); otherwise the width at
 // a legible scale, top-aligned and pannable vertically; on a screen too narrow even for that, LEGIBLE and pan both ways.
-export function fitView(bounds, size) {
-  const u = usable(size);
+export function fitView(bounds, size, top = INSET.top) {
+  const u = usable(size, top);
   const whole = Math.min(u.w / bounds.w, u.h / bounds.h);
   if (whole >= LEGIBLE) {
     const scale = clamp(whole, ZOOM.min, 1.2);
-    return { cx: bounds.x + bounds.w / 2, cy: bounds.y + bounds.h / 2 - (INSET.top - INSET.bottom) / 2 / scale, scale };
+    return { cx: bounds.x + bounds.w / 2, cy: bounds.y + bounds.h / 2 - (top - INSET.bottom) / 2 / scale, scale };
   }
-  return topAligned(bounds, size, clamp(Math.max(u.w / bounds.w, LEGIBLE), LEGIBLE, 1.2));
+  return topAligned(bounds, size, clamp(Math.max(u.w / bounds.w, LEGIBLE), LEGIBLE, 1.2), top);
 }
 
-// the default view: scale 1 (no text below its nominal size), top-aligned, centred on the graph
-export const homeView = (bounds, size) => topAligned(bounds, size, 1);
 
 const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, level, selected, onSelect, initialSize, onViewChange,
-  showAllLabels = false, mode = "architecture", trace = null, preview = null }, ref) {
+  showAllLabels = false, mode = "architecture", trace = null, preview = null, topInset = INSET.top }, ref) {
   const wrap = useRef(null);
   const [size, setSize] = useState(initialSize || { w: 1440, h: 800 });
   // App-4.3: the page opens at fit to screen (port micro-labels are hidden at that scale, so no text is below ~10px)
-  const [view, setView] = useState(() => fitView(layout.bounds, initialSize || { w: 1440, h: 800 }));
+  const [view, setView] = useState(() => fitView(layout.bounds, initialSize || { w: 1440, h: 800 }, topInset));
   const fitted = useRef(false);
   const [hover, setHover] = useState(null);
   const drag = useRef(null);
@@ -50,7 +53,7 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
     const ro = new ResizeObserver(([e]) => {
       const s = { w: e.contentRect.width, h: e.contentRect.height };
       setSize(s);
-      if (!fitted.current && s.w > 0 && s.h > 0) { fitted.current = true; setView(fitView(layout.bounds, s)); }  // fit the real size once
+      if (!fitted.current && s.w > 0 && s.h > 0) { fitted.current = true; setView(fitView(layout.bounds, s, topInset)); }  // fit the real size once
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -69,7 +72,7 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
 
   useImperativeHandle(ref, () => ({
     zoomIn: () => zoomBy(ZOOM.step), zoomOut: () => zoomBy(1 / ZOOM.step),
-    fit: () => setView(fitView(layout.bounds, size)), reset: () => setView(homeView(layout.bounds, size)), centreOn,
+    fit: () => setView(fitView(layout.bounds, size, topInset)), reset: () => setView(fitView(layout.bounds, size, topInset)), centreOn,
   }), [layout, size, zoomBy]);
 
   useEffect(() => {  // wheel zoom needs a non-passive listener to stop the page from scrolling
@@ -124,13 +127,19 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
     return vis.size ? layout.labels(vis) : {};
   }, [layout, visibleKey]);
   const titleOf = (b) => layout.title(b, level);
+  // App-4.5: the accessible name carries the status (not only the dot) and, on the decision, the verdict
+  const nameOf = (b) => {
+    if (mode !== "case" || !trace) return titleOf(b);
+    const verdict = b.id === "decision" ? b.output?.display_label?.value : null;
+    return `${titleOf(b)}, ${STATUS_WORD[b.status] || b.status}${verdict ? `, ${verdict}` : ""}`;
+  };
   const connected = new Set(hover ? layout.edges.filter((e) => e.from.startsWith(hover + ".") || e.to.startsWith(hover + ".")).map((e) => e.id) : []);
   const blockEl = (n) => {
     const b = n.block, sel = selected === b.id;
     const act = () => onSelect(b.id);
     return (
       <foreignObject key={b.id} x={n.x - 4} y={n.y - 4} width={n.w + 8} height={n.h + 8} style={{ overflow: "visible" }}>
-        <div className={"pl-block" + (sel ? " glass-soft is-sel" : "")} role="button" tabIndex={0} aria-label={titleOf(b)} aria-pressed={sel}
+        <div className={"pl-block" + (sel ? " glass-soft is-sel" : "")} role="button" tabIndex={0} aria-label={nameOf(b)} aria-pressed={sel}
           title={titleOf(b)} data-block={b.id} style={{ width: n.w, height: n.h }}
           onClick={act} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } }}
           onFocus={() => reveal(n)} onMouseEnter={() => setHover(b.id)} onMouseLeave={() => setHover(null)}>
@@ -152,7 +161,7 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
     const below = p.side === "out";
     return (
       <g key={key} data-port={key}>
-        <circle cx={p.x} cy={p.y} r={4.5} fill={c || "oklch(0.975 0.002 260)"} stroke={c ? "oklch(0.99 0.002 260 / 0.9)" : "oklch(0.62 0.006 260)"}
+        <circle cx={p.x} cy={p.y} r={4.5} fill={c || "oklch(0.975 0.002 260)"} stroke={c ? "oklch(0.99 0.002 260 / 0.9)" : K.ink3}
           strokeWidth={c ? 1.5 : 1.25}>
           <title>{p.label}</title>
         </circle>
@@ -181,11 +190,12 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
             const dim = hover && !connected.has(e.id);
             return (
               <g key={e.id} data-edge={e.id} data-kind={e.kind} opacity={dim ? 0.28 : 1}>
+                {edgeCasing(e.kind, edgeKinds) && <path d={e.d} fill="none" stroke={edgeCasing(e.kind, edgeKinds)} strokeWidth={3.75} strokeLinejoin="round" strokeLinecap="round" />}
                 <path d={e.d} fill="none" stroke={c} strokeWidth={1.75} strokeLinejoin="round" strokeLinecap="round"><title>{e.label || e.kind}</title></path>
                 <circle cx={s[0]} cy={s[1]} r={4.5} fill={c} />
                 <circle cx={z[0]} cy={z[1]} r={4.5} fill={c} />
                 {e.label && labelAt[e.id] && view.scale >= LABEL_MIN_SCALE && (
-                  <text x={labelAt[e.id].x} y={labelAt[e.id].y} textAnchor={labelAt[e.id].anchor} className="pl-edge-label" fill={c}>{e.label}</text>
+                  <text x={labelAt[e.id].x} y={labelAt[e.id].y} textAnchor={labelAt[e.id].anchor} className="pl-edge-label" fill={edgeTextColour(e.kind, edgeKinds)}>{e.label}</text>
                 )}
               </g>
             );
@@ -197,7 +207,7 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
             const sel = selected === id;
             return (
               <foreignObject key={id} x={f.captionX} y={f.y - 11} width={f.captionW} height={22} style={{ overflow: "visible" }}>
-                <div className={"pl-frame-cap mono" + (sel ? " is-sel" : "")} role="button" tabIndex={0} aria-label={titleOf(f.block)}
+                <div className={"pl-frame-cap mono" + (sel ? " is-sel" : "")} role="button" tabIndex={0} aria-label={nameOf(f.block)}
                   aria-pressed={sel} data-block={id} onClick={() => onSelect(id)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(id); } }}>
                   {titleOf(f.block)}

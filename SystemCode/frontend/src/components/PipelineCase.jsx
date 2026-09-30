@@ -3,13 +3,16 @@ import { FMT, STATUS_WORD, at, blockPaths, caseLine, isDerived, mechanicDetail, 
 
 // App-4.3: case-mode rendering. Every value is a <span data-p="<trace path>" data-fmt="<formatter>"> so the tests can
 // check it against the fixture; a missing value reads "not recorded: <the trace's reason>", never 0, blank or a dash.
-export const STATUS_COLOUR = { completed: K.violet, warning: K.amber, failed: K.orange, not_run: "oklch(0.62 0.006 260)", unavailable: "oklch(0.62 0.006 260)" };
+const NONE_FORMATS = new Set(["none", "noneText", "rerun", "recid", "full"]);  // formatters that word a null themselves
+// App-4.5 (WCAG 1.4.11, 3:1 against the block): the text-safe amber / orange / grey tones
+export const STATUS_COLOUR = { completed: K.violet, warning: K.amberT, failed: K.orangeT, not_run: K.ink3, unavailable: K.ink3 };
 
 export function V({ trace, p, f = "full" }) {
   const n = at(trace, p);
   if (missing(n)) return <span className="pl-nr" data-p={p} data-nr="1">not recorded: {n.reason}</span>;
   const v = valueOf(n);
-  if (v === undefined) return <span className="pl-nr" data-p={p} data-nr="1">not recorded</span>;
+  // a null where the field has no "none" meaning reads "not recorded" (App-4.5: never 0, blank, "null" or a crash)
+  if (v === undefined || (v === null && !NONE_FORMATS.has(f))) return <span className="pl-nr" data-p={p} data-nr="1">not recorded</span>;
   return <span className="pl-val" data-p={p} data-fmt={f}>{FMT[f](v)}</span>;
 }
 

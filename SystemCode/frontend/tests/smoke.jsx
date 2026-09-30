@@ -371,5 +371,49 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
 <style>${css}</style></head><body><div id="root">${smallCase}</div></body></html>`);
 }
 
+// App-4.5: phone-width treatment, error states, and no new motion.
+{
+  const PHONE = { w: 390, h: 844 };
+  const CASES = { healthy: fxHealthy, caution: fxCaution, known_fault: fxKnown, unknown: fxUnknown, upload: fxUpload, no_explanation: fxNoExpl };
+  const errs = [];
+  let walked = 0;
+  for (const [name, fx] of Object.entries(CASES)) for (const level of ["mechanic", "developer"]) {
+    const label = fx.blocks.find((b) => b.id === "decision").output.display_label.value;
+    const opened = flat(fx.blocks).map((b) => renderToString(<PipelineView trace={fx} initialMode="case" initialLevel={level} initialSelected={b.id} initialSize={PHONE} />));
+    const h = opened[0];
+    if (h.includes('class="pl-canvas"') || !h.includes('class="pl-steps"')) errs.push(`${name}/${level}: not the step list`);
+    for (const b of flat(fx.blocks)) if (!h.includes(`data-block="${b.id}"`)) errs.push(`${name}/${level}: step ${b.id} missing`);
+    const v = new Set(opened.flatMap((x) => [...x.matchAll(/data-verdict="1"[^>]*>([^<]*)</g)].map((m) => m[1].replace(/&amp;/g, "&"))));
+    if (!(v.size === 1 && v.has(label))) errs.push(`${name}/${level}: verdict ${[...v]}`);
+    for (const x of opened) { const w = walkPage(stripPreviews(x), fx); walked += w.checked; errs.push(...w.errors.map((e) => `${name}/${level}: ${e}`)); }
+  }
+  pcheck(`phone width (390 px): a step list, every step, the desktop verdict, every value equals the trace (${walked} values)`, !errs.length && walked > 2000, JSON.stringify(errs.slice(0, 4)));
+  const phoneOpen = renderToString(<PipelineView trace={fxKnown} initialMode="case" initialLevel="developer" initialSelected="evidence_record" initialSize={PHONE}
+    initialSignals={knownFault.signals} initialSaved={knownFault.record} />);
+  const phonePrev = previewSections(phoneOpen);
+  pcheck("phone width keeps the computed-now and saved labelling", phonePrev.some((x) => x.kind === "computed" && /computed now/i.test(textOf(x.html))) &&
+    phonePrev.filter((x) => x.kind === "saved").every((x) => !/computed now/i.test(textOf(x.html)) && /saved/i.test(textOf(x.html))) &&
+    textOf(phoneOpen).includes("Saved evidence · part of the evidence record"));
+  pcheck("phone width, architecture mode: the step list, no case values, no previews",
+    (() => { const a = renderToString(<PipelineView trace={fxKnown} initialMode="architecture" initialSize={PHONE} />); return a.includes('class="pl-steps"') && !a.includes("data-p=") && !a.includes("data-preview"); })());
+
+  const decisionless = JSON.parse(JSON.stringify(fxKnown));
+  decisionless.blocks.find((b) => b.id === "decision").output = null;
+  const broken = { "HTML instead of JSON": "<html><body>502 Bad Gateway</body></html>", "empty object": {}, "blocks not a list": { blocks: "x", edges: [], edge_kinds: {} },
+    "a block without an id": { blocks: [{ title_mechanic: "x" }], edges: [], edge_kinds: {} }, "an edge without ends": { ...fxKnown, edges: [{ kind: "signal" }] },
+    "case mode without a decision": decisionless };
+  const bad = [];
+  for (const [what, t] of Object.entries(broken)) {
+    let h = "";
+    try { h = renderToString(<PipelineView trace={t} initialMode="case" initialSize={DESK} />); } catch (e) { bad.push(`${what}: threw ${e.message}`); continue; }
+    if (h.includes("pl-canvas") || h.includes("pl-steps") || !textOf(h).includes("could not be drawn")) bad.push(what);
+  }
+  pcheck(`malformed traces show the plain error state, never a partial diagram (${Object.keys(broken).length} kinds)`, !bad.length, JSON.stringify(bad));
+  const cssText = readFileSync(join(root, "src", "index.css"), "utf8");
+  const moving = (cssText.match(/\.pl-[^{]*\{[^}]*\b(transition|animation)\b[^}]*\}/g) || []);
+  pcheck("no pipeline rule animates or transitions; the global reduced-motion rule is in place",
+    !moving.length && /prefers-reduced-motion: reduce\)[^{]*\{[^}]*animation: none !important; transition: none !important/.test(cssText), JSON.stringify(moving));
+}
+
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }
 console.log(`all ${Object.keys(screens).length + Object.keys(mobileScreens).length + 1} screens rendered; ${pipelineChecks} pipeline checks passed`);

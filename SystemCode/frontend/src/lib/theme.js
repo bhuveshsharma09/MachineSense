@@ -16,7 +16,11 @@ export const PIPE = {
   Missing: { c: K.amberT, b: "oklch(0.80 0.14 75 / 0.2)" },
 };
 // per-kind accent where one tag covers two kinds: decisions in orange, apart from model outputs (App-4.4)
-export const PIPE_KIND = { decision: { c: K.orange, b: "oklch(0.66 0.19 42 / 0.14)" } };
+// App-4.5 (WCAG AA): the text-safe orange (K.orangeT) for decision lines, 4.6:1 against the canvas
+export const PIPE_KIND = { decision: { c: K.orangeT, b: "oklch(0.66 0.19 42 / 0.14)", text: K.orangeT } };
+// label text and line casing where the line colour itself is too light for its size (lime: 1.2:1 on the canvas)
+export const PIPE_TEXT = { Guidance: K.limeT };
+export const PIPE_CASING = { Guidance: K.limeT };
 export const TAG = {
   Measured: { c: K.ink, b: "oklch(0.23 0.006 260 / 0.07)" },
   Model: { c: "oklch(0.44 0.09 250)", b: "oklch(0.55 0.1 250 / 0.12)" },

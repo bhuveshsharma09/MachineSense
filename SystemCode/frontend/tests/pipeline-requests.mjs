@@ -24,6 +24,10 @@ const server = createServer((req, res) => {
   const url = decodeURIComponent(req.url.split("?")[0]);
   if (url.startsWith("/api/")) {
     api.push(`${req.method} ${url}`);
+    // App-4.5 failure states: a 404, a dropped connection and a malformed (HTML) body
+    if (url === "/api/cases/missing-case/trace") { res.writeHead(404, { "content-type": "application/json" }); return res.end('{"detail":"no case missing-case"}'); }
+    if (url === "/api/cases/network-failure/trace") return req.socket.destroy();
+    if (url === "/api/cases/malformed/trace") { res.writeHead(200, { "content-type": "text/html" }); return res.end("<html><body>502 Bad Gateway</body></html>"); }
     if (req.method === "GET" && url === `/api/cases/${fixture.case_id}/trace`) {
       res.writeHead(200, { "content-type": "application/json" });
       return res.end(JSON.stringify(fixture));
@@ -91,6 +95,40 @@ try {
   await click("[data-block=preparation]"); await sleep(400);
   check(specDrawn && sigGets() === 1, "opening another preview and reopening do not refetch (still one /signals)");
   check(api.every((r) => !/\/diagnose|\/rerun/.test(r)), "no /diagnose or /rerun at any point");
+
+  // App-4.5 focus: Enter on a block moves focus into the drawer; Escape closes it and returns focus to the block
+  await evaluate("document.querySelector('[data-block=decision]').focus()");
+  await evaluate("document.querySelector('[data-block=decision]').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))");
+  await sleep(300);
+  const inDrawer = await evaluate("(() => { const a = document.activeElement; return !!a && !!a.closest('aside.pl-drawer') && a.tagName === 'H2' ? a.textContent : ''; })()");
+  check(!!inDrawer, `focus moves into the drawer when it opens (focused: "${inDrawer}")`);
+  await evaluate("window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))");
+  await sleep(300);
+  check(await evaluate("document.activeElement?.dataset?.block === 'decision' && !document.querySelector('aside.pl-drawer')"), "Escape closes the drawer and returns focus to its block");
+  // every interactive element is keyboard-reachable and named; blocks carry their status in the name
+  await evaluate("document.querySelector('[data-block=preparation]').click()");
+  await sleep(300);
+  const a11y = JSON.parse(await evaluate(`JSON.stringify((() => {
+    const els = [...document.querySelectorAll('button, a[href], [role=button], [tabindex]')].filter((e) => e.tabIndex >= 0 && !e.closest('[aria-hidden=true]'));
+    const name = (e) => (e.getAttribute('aria-label') || e.textContent || '').trim();
+    return { n: els.length, unnamed: els.filter((e) => !name(e)).map((e) => e.outerHTML.slice(0, 80)),
+      blocksWithoutStatus: [...document.querySelectorAll('.pl-block')].filter((b) => !/, (Completed|Warning|Failed|Not run|Unavailable)/.test(b.getAttribute('aria-label'))).length,
+      has: ['This diagnosis', 'General architecture', 'Mechanic', 'Developer', 'Zoom in', 'Zoom out', 'Fit to screen', 'Reset', 'Close']
+        .filter((t) => !els.some((e) => name(e) === t)),
+      // the preview control: the Load button before loading, the channel picker after (this run loaded it above)
+      load: els.some((e) => /Load signal preview/.test(name(e))) || els.filter((e) => e.closest('[aria-label=Channel]')).length > 1, toggles: els.filter((e) => e.classList.contains('pl-panel-toggle')).length };
+  })())`));
+  check(a11y.unnamed.length === 0 && a11y.has.length === 0 && a11y.load && a11y.toggles === 2 && a11y.blocksWithoutStatus === 0,
+    `keyboard: ${a11y.n} focusable elements, all named (mode, level, zoom, fit, reset, legend and overview toggles, drawer close, preview load); every block's name carries its status ${JSON.stringify({ load: a11y.load, toggles: a11y.toggles, noStatus: a11y.blocksWithoutStatus, unnamed: a11y.unnamed.slice(0, 2), missing: a11y.has })}`);
+
+  // App-4.5 failure states: each a plain error, never a diagram
+  for (const [id, want] of [["missing-case", "No such case."], ["network-failure", "The pipeline could not be loaded."], ["malformed", "could not be drawn"]]) {
+    await send("Page.navigate", { url: `http://127.0.0.1:${httpPort}/#/case/${id}/pipeline` });
+    let shown = "";
+    for (let i = 0; i < 40 && !shown; i++) { await sleep(100); shown = await evaluate("document.querySelector('.pl-empty')?.textContent || ''"); }
+    const partial = await evaluate("!!document.querySelector('svg.pl-canvas, .pl-steps')");
+    check(shown.includes(want) && !partial, `${id}: a plain error state ("${want}"), no partial diagram`);
+  }
   ws.close();
 } finally {
   proc.kill();
