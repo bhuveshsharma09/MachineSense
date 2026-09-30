@@ -1,0 +1,314 @@
+{
+ "stage": "R1",
+ "what": "reproduction of the saved Stage 3C (AE-6) and Stage 3D (B1s) cal/eval scores before the fit-normal scores are used",
+ "b1s_tolerance": 1e-12,
+ "ae_tolerance_rel_tau_e": 1e-05,
+ "device": "mps",
+ "git_sha": "06ae43fdb99ef23802c348bef4355803e873094a-dirty",
+ "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+ "b1s": {
+  "imbalance/0": {
+   "n_saved": 416,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "imbalance/1": {
+   "n_saved": 423,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "imbalance/2": {
+   "n_saved": 411,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "horizontal_misalignment/0": {
+   "n_saved": 430,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "horizontal_misalignment/1": {
+   "n_saved": 440,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "horizontal_misalignment/2": {
+   "n_saved": 422,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "vertical_misalignment/0": {
+   "n_saved": 411,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "vertical_misalignment/1": {
+   "n_saved": 431,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "vertical_misalignment/2": {
+   "n_saved": 415,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "underhang_ball/0": {
+   "n_saved": 423,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "underhang_ball/1": {
+   "n_saved": 439,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "underhang_ball/2": {
+   "n_saved": 420,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "underhang_cage/0": {
+   "n_saved": 428,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "underhang_cage/1": {
+   "n_saved": 444,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "underhang_cage/2": {
+   "n_saved": 419,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "underhang_outer/0": {
+   "n_saved": 433,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "underhang_outer/1": {
+   "n_saved": 434,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "underhang_outer/2": {
+   "n_saved": 426,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "overhang_ball/0": {
+   "n_saved": 428,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "overhang_ball/1": {
+   "n_saved": 443,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "overhang_ball/2": {
+   "n_saved": 420,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "overhang_cage/0": {
+   "n_saved": 429,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "overhang_cage/1": {
+   "n_saved": 441,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "overhang_cage/2": {
+   "n_saved": 424,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "overhang_outer/0": {
+   "n_saved": 431,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "overhang_outer/1": {
+   "n_saved": 445,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  },
+  "overhang_outer/2": {
+   "n_saved": 422,
+   "max_abs_diff": 0.0,
+   "reproduced": true
+  }
+ },
+ "ae": {
+  "imbalance/0": {
+   "n_saved": 416,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.374684429830975e-06,
+   "reproduced": true
+  },
+  "imbalance/1": {
+   "n_saved": 423,
+   "max_abs_diff": 0.0,
+   "tolerance": 1.616623833499572e-06,
+   "reproduced": true
+  },
+  "imbalance/2": {
+   "n_saved": 411,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.9448136756265603e-06,
+   "reproduced": true
+  },
+  "horizontal_misalignment/0": {
+   "n_saved": 430,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.5184143113869202e-06,
+   "reproduced": true
+  },
+  "horizontal_misalignment/1": {
+   "n_saved": 440,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.417868134324197e-06,
+   "reproduced": true
+  },
+  "horizontal_misalignment/2": {
+   "n_saved": 422,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.349076442144535e-06,
+   "reproduced": true
+  },
+  "vertical_misalignment/0": {
+   "n_saved": 411,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.4677255377173423e-06,
+   "reproduced": true
+  },
+  "vertical_misalignment/1": {
+   "n_saved": 431,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.9334254052352023e-06,
+   "reproduced": true
+  },
+  "vertical_misalignment/2": {
+   "n_saved": 415,
+   "max_abs_diff": 0.0,
+   "tolerance": 1.6795939248469143e-06,
+   "reproduced": true
+  },
+  "underhang_ball/0": {
+   "n_saved": 423,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.057627566434719e-06,
+   "reproduced": true
+  },
+  "underhang_ball/1": {
+   "n_saved": 439,
+   "max_abs_diff": 0.0,
+   "tolerance": 3.124603749149375e-06,
+   "reproduced": true
+  },
+  "underhang_ball/2": {
+   "n_saved": 420,
+   "max_abs_diff": 0.0,
+   "tolerance": 3.1862320681964913e-06,
+   "reproduced": true
+  },
+  "underhang_cage/0": {
+   "n_saved": 428,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.4382724833709223e-06,
+   "reproduced": true
+  },
+  "underhang_cage/1": {
+   "n_saved": 444,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.694582537644439e-06,
+   "reproduced": true
+  },
+  "underhang_cage/2": {
+   "n_saved": 419,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.805132147062708e-06,
+   "reproduced": true
+  },
+  "underhang_outer/0": {
+   "n_saved": 433,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.643903371084619e-06,
+   "reproduced": true
+  },
+  "underhang_outer/1": {
+   "n_saved": 434,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.0838078028625912e-06,
+   "reproduced": true
+  },
+  "underhang_outer/2": {
+   "n_saved": 426,
+   "max_abs_diff": 0.0,
+   "tolerance": 1.620000769142751e-06,
+   "reproduced": true
+  },
+  "overhang_ball/0": {
+   "n_saved": 428,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.4392039121852983e-06,
+   "reproduced": true
+  },
+  "overhang_ball/1": {
+   "n_saved": 443,
+   "max_abs_diff": 0.0,
+   "tolerance": 3.0147924425977243e-06,
+   "reproduced": true
+  },
+  "overhang_ball/2": {
+   "n_saved": 420,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.394470100601514e-06,
+   "reproduced": true
+  },
+  "overhang_cage/0": {
+   "n_saved": 429,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.4091829676870944e-06,
+   "reproduced": true
+  },
+  "overhang_cage/1": {
+   "n_saved": 441,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.930811806409447e-06,
+   "reproduced": true
+  },
+  "overhang_cage/2": {
+   "n_saved": 424,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.605548140903314e-06,
+   "reproduced": true
+  },
+  "overhang_outer/0": {
+   "n_saved": 431,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.020649090409279e-06,
+   "reproduced": true
+  },
+  "overhang_outer/1": {
+   "n_saved": 445,
+   "max_abs_diff": 0.0,
+   "tolerance": 1.8434427692382422e-06,
+   "reproduced": true
+  },
+  "overhang_outer/2": {
+   "n_saved": 422,
+   "max_abs_diff": 0.0,
+   "tolerance": 2.2431468977420423e-06,
+   "reproduced": true
+  }
+ },
+ "infeasible": {
+  "b1s": [],
+  "ae": []
+ }
+}
