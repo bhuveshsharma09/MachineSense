@@ -289,7 +289,49 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage D1 — nested learned unfamiliarity combiner (development data only)
+## 7. Current stage: Stage R0 — diagnose the existing healthy rejections (development data only)
+
+Exploratory analysis, no training, no new models, no scoring of recordings, no threshold tuning or re-derivation, no fix.
+Reserved tests stay sealed (no reserved recording is read); `artifacts/bundle/`, `artifacts/final/` and `metadata.csv`
+are untouched; `results/final/` is historical context only, never a tuning target. Question: which checks reject healthy
+development recordings, and under what conditions, before any false alarm is attributed to a model. Code:
+`ml/rejection.py` (pure); notebook `notebooks/06_research_layer/11_rejection_analysis.ipynb`; outputs
+`results/research/r0_rejection_analysis.json`, `results/research/r0_attribution.csv`.
+
+**Stage R0 protocol (declared before running).**
+1. **Healthy sample.** The 25 development-pool normals (`ml.splits.development_pool`; 20 closed train, 5 closed val),
+   all from one folder (`ml.splits.folder_proxy` = `normal/-`), so a folder breakdown is degenerate and is reported as
+   such; the grouping used instead is the saved outer fold / run. Every Q1 number states: 25 recordings from one folder,
+   with Clopper–Pearson intervals over distinct recordings (with n = 25, one recording moves a rate by 4 points).
+2. **Three evidence sources, each with its own models and its own thresholds (never mixed):**
+   - **(A) Deployed bundle**, thresholds from `artifacts/bundle/manifest.json`, scores from
+     `artifacts/bundle/calibration_scores.csv`: only the 5 calibration normals are scored. They SET τ_e and τ_b (each the
+     maximum over them) and are among the 144 that set τ_p and τ_d: **in-sample, not a false-alarm rate**. The 20
+     bundle-training normals have no saved bundle scores; they are reported as not available (this stage scores nothing).
+   - **(B) Q1 development folds** (Stage 2D.1 / 3B, `results/q1q3/q1_fit_cal_assignment.csv`): standalone B1s
+     (`b1s_nomic` = the bundle's vibration-only variant; `b1s_all` for comparison) and standalone AE-6, each against its
+     own per-fold threshold. Roles: `cal` (17 instances; set the threshold; in-sample) and `test` (25 instances, each
+     normal once; used for neither fitting nor thresholds; out of sample).
+   - **(C) Stage 3C LOCO runs** (seed 42, 27 runs, `results/q1q3/q3_fit_cal_eval_assignment.csv`): per-run CNN-6 top class,
+     MSP and Mahalanobis (shared) and AE-6 (`results/scores/cnn6ae6_s42_loco_decisions.parquet`), B1s with its τ_b
+     (`results/scores/b1s_nomic_loco_q3fit_scores.parquet`), and the run's τ_p, τ_d, τ_e (`results/loco/decision_thresholds.csv`).
+     The **full rule** is `ml.arbitrator.decide` (B_with_caution) on these scores and thresholds; standalone checks are
+     reported separately. Roles: `cal` (71 instances; set the run's thresholds; in-sample) versus not used: `eval` (74,
+     seen-folder) and `foldk_known` (225, the unseen outer fold). Each normal recurs across runs, so rates are given per
+     distinct recording (primary) and per instance.
+3. **Failed checks** use the rule's own inequalities (ties accepted): msp < τ_p, maha > τ_d, ae > τ_e, b1s > τ_b, plus a
+   fifth cause, **top class not normal** (a confident non-normal top class is a known-fault verdict with no failed check).
+   `ml/rejection.py` does not import `backend` (the dependency runs backend → ml); a test shows it agrees with
+   `backend.checks.checks` and with `ml.arbitrator.decide` on the same scores.
+4. **Outcomes** of the full rule on a normal, reported separately: plain healthy; healthy with caution (ae and/or b1s
+   above its limit); abstention (msp and/or maha fails); known fault (top class not normal). For every non-accepted
+   normal, the failed checks and their **joint pattern** (combination) are recorded, with counts.
+5. **Breakdown** by measured speed (`fr_measured_hz`), against the calibration-normal speed range in the bundle manifest
+   and against each run's own calibration normals' speed range; and by outer fold / withheld-class run.
+6. **Attribution statement:** a model is named only if the evidence singles it out; otherwise "it does not separate".
+   Hypotheses go to Findings; nothing is fixed or tuned in this stage.
+
+## 7-prev. Previous stage: Stage D1 — nested learned unfamiliarity combiner (development data only)
 
 Exploratory development experiment, seed 42 only; the candidate was designed after seeing the 3D and ML-5 results. F1
 stays unrun; reserved tests stay sealed; the bundle, `artifacts/final/`, §12 and the app are unchanged. Nothing enters F1
