@@ -330,6 +330,12 @@ development recordings, and under what conditions, before any false alarm is att
    and against each run's own calibration normals' speed range; and by outer fold / withheld-class run.
 6. **Attribution statement:** a model is named only if the evidence singles it out; otherwise "it does not separate".
    Hypotheses go to Findings; nothing is fixed or tuned in this stage.
+7. **Addendum (found while implementing item 3, before any Finding was written):** in the saved Stage 3C files the
+   recording that defines a run's τ_p (the order statistic) is stored one floating-point step (1.1e-16) below the stored
+   τ_p, so a plain re-comparison would reject it although the run accepted it as a tie. A score within 1e-12 of its
+   threshold is therefore treated as a tie (`ml.rejection.snap_ties`; accepted; the snapped instances are recorded).
+   With it, the attribution reproduces the saved 3C msp_ok / maha_ok flags on all 11,548 rows and rule A reproduces the
+   saved classifier-first decisions exactly. Thresholds are unchanged.
 
 ## 7-prev. Previous stage: Stage D1 — nested learned unfamiliarity combiner (development data only)
 
