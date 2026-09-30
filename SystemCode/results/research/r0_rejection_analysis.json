@@ -1,0 +1,523 @@
+{
+ "stage": "R0",
+ "label": "exploratory; development data only; reserved tests sealed; no training, scoring or threshold change",
+ "healthy_sample": {
+  "recordings": 25,
+  "folders": 1,
+  "note": "25 development normals from one folder (normal/-); one recording = 4 percentage points"
+ },
+ "config_sha256": "ba2f775e17a664ce76142232e781319e0b0b55216cb73c45779c7c292de5d653",
+ "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+ "A_bundle_in_sample": {
+  "normals": 5,
+  "outcomes": {
+   "healthy": 5
+  },
+  "thresholds": {
+   "tau_p": 0.9988950587656379,
+   "tau_d": 30.042556620744595,
+   "tau_e": 0.24307194628097395,
+   "tau_b": 0.8721431922050334
+  },
+  "not_available": "the 20 bundle-training normals have no saved bundle scores"
+ },
+ "B_q1_dev_standalone": [
+  {
+   "detector": "B1s (vibration only)",
+   "role": "cal",
+   "group": "calibration (in-sample)",
+   "instances": 17,
+   "recordings": 15,
+   "alarms": 0,
+   "alarm_recordings": [],
+   "rate": {
+    "k": 0,
+    "n": 15,
+    "rate": 0.0,
+    "ci95": [
+     0.0,
+     0.218019360910534
+    ]
+   }
+  },
+  {
+   "detector": "B1s (vibration only)",
+   "role": "test",
+   "group": "not used (out of sample)",
+   "instances": 25,
+   "recordings": 25,
+   "alarms": 6,
+   "alarm_recordings": [
+    "normal__13.1072",
+    "normal__19.6608",
+    "normal__20.2752",
+    "normal__27.4432",
+    "normal__39.3216",
+    "normal__40.3456"
+   ],
+   "rate": {
+    "k": 6,
+    "n": 25,
+    "rate": 0.24,
+    "ci95": [
+     0.09356443933174288,
+     0.4512880178166864
+    ]
+   }
+  },
+  {
+   "detector": "B1s (all features)",
+   "role": "cal",
+   "group": "calibration (in-sample)",
+   "instances": 17,
+   "recordings": 15,
+   "alarms": 0,
+   "alarm_recordings": [],
+   "rate": {
+    "k": 0,
+    "n": 15,
+    "rate": 0.0,
+    "ci95": [
+     0.0,
+     0.218019360910534
+    ]
+   }
+  },
+  {
+   "detector": "B1s (all features)",
+   "role": "test",
+   "group": "not used (out of sample)",
+   "instances": 25,
+   "recordings": 25,
+   "alarms": 5,
+   "alarm_recordings": [
+    "normal__13.1072",
+    "normal__19.6608",
+    "normal__20.2752",
+    "normal__27.4432",
+    "normal__40.3456"
+   ],
+   "rate": {
+    "k": 5,
+    "n": 25,
+    "rate": 0.2,
+    "ci95": [
+     0.06831146401248403,
+     0.4070374322786773
+    ]
+   }
+  },
+  {
+   "detector": "AE-6",
+   "role": "cal",
+   "group": "calibration (in-sample)",
+   "instances": 17,
+   "recordings": 15,
+   "alarms": 0,
+   "alarm_recordings": [],
+   "rate": {
+    "k": 0,
+    "n": 15,
+    "rate": 0.0,
+    "ci95": [
+     0.0,
+     0.218019360910534
+    ]
+   }
+  },
+  {
+   "detector": "AE-6",
+   "role": "test",
+   "group": "not used (out of sample)",
+   "instances": 25,
+   "recordings": 25,
+   "alarms": 2,
+   "alarm_recordings": [
+    "normal__13.1072",
+    "normal__27.4432"
+   ],
+   "rate": {
+    "k": 2,
+    "n": 25,
+    "rate": 0.08,
+    "ci95": [
+     0.009839590018797513,
+     0.2603058421052142
+    ]
+   }
+  }
+ ],
+ "C_loco_full_rule": {
+  "instances": 370,
+  "recordings": 25,
+  "agreement_with_saved_3c": {
+   "msp_ok": true,
+   "maha_ok": true,
+   "rule_A_vs_saved": 1.0
+  },
+  "tie_snapped_normal_instances": 18,
+  "outcomes": [
+   {
+    "group": "calibration (in-sample)",
+    "outcome": "healthy",
+    "instances": "64/71",
+    "recordings (ever)": "20/20",
+    "ci95 (recordings)": "[0.83, 1.00]"
+   },
+   {
+    "group": "calibration (in-sample)",
+    "outcome": "healthy_with_caution",
+    "instances": "0/71",
+    "recordings (ever)": "0/20",
+    "ci95 (recordings)": "[0.00, 0.17]"
+   },
+   {
+    "group": "calibration (in-sample)",
+    "outcome": "abstention",
+    "instances": "6/71",
+    "recordings (ever)": "3/20",
+    "ci95 (recordings)": "[0.03, 0.38]"
+   },
+   {
+    "group": "calibration (in-sample)",
+    "outcome": "known_fault",
+    "instances": "1/71",
+    "recordings (ever)": "1/20",
+    "ci95 (recordings)": "[0.00, 0.25]"
+   },
+   {
+    "group": "calibration (in-sample)",
+    "outcome": "not plain healthy (any)",
+    "instances": "7/71",
+    "recordings (ever)": "3/20",
+    "ci95 (recordings)": "[0.03, 0.38]"
+   },
+   {
+    "group": "not used (out of sample)",
+    "outcome": "healthy",
+    "instances": "198/299",
+    "recordings (ever)": "23/25",
+    "ci95 (recordings)": "[0.74, 0.99]"
+   },
+   {
+    "group": "not used (out of sample)",
+    "outcome": "healthy_with_caution",
+    "instances": "52/299",
+    "recordings (ever)": "16/25",
+    "ci95 (recordings)": "[0.43, 0.82]"
+   },
+   {
+    "group": "not used (out of sample)",
+    "outcome": "abstention",
+    "instances": "49/299",
+    "recordings (ever)": "11/25",
+    "ci95 (recordings)": "[0.24, 0.65]"
+   },
+   {
+    "group": "not used (out of sample)",
+    "outcome": "known_fault",
+    "instances": "0/299",
+    "recordings (ever)": "0/25",
+    "ci95 (recordings)": "[0.00, 0.14]"
+   },
+   {
+    "group": "not used (out of sample)",
+    "outcome": "not plain healthy (any)",
+    "instances": "101/299",
+    "recordings (ever)": "19/25",
+    "ci95 (recordings)": "[0.55, 0.91]"
+   }
+  ],
+  "standalone_not_used": {
+   "msp": {
+    "instances": {
+     "k": 28,
+     "n": 299,
+     "rate": 0.09364548494983277,
+     "ci95": [
+      0.06313120937569836,
+      0.13249693526390935
+     ]
+    },
+    "recordings": {
+     "k": 7,
+     "n": 25,
+     "rate": 0.28,
+     "ci95": [
+      0.12071668850406664,
+      0.49387682180625553
+     ]
+    }
+   },
+   "maha": {
+    "instances": {
+     "k": 47,
+     "n": 299,
+     "rate": 0.15719063545150502,
+     "ci95": [
+      0.11784140489854925,
+      0.20349056532798326
+     ]
+    },
+    "recordings": {
+     "k": 11,
+     "n": 25,
+     "rate": 0.44,
+     "ci95": [
+      0.24402366514720808,
+      0.6507183660086642
+     ]
+    }
+   },
+   "ae": {
+    "instances": {
+     "k": 73,
+     "n": 299,
+     "rate": 0.24414715719063546,
+     "ci95": [
+      0.196533129449897,
+      0.29691041254985123
+     ]
+    },
+    "recordings": {
+     "k": 16,
+     "n": 25,
+     "rate": 0.64,
+     "ci95": [
+      0.4252063495538495,
+      0.8202831794163445
+     ]
+    }
+   },
+   "b1s": {
+    "instances": {
+     "k": 69,
+     "n": 299,
+     "rate": 0.23076923076923078,
+     "ci95": [
+      0.1842191842392524,
+      0.2827421555581116
+     ]
+    },
+    "recordings": {
+     "k": 14,
+     "n": 25,
+     "rate": 0.56,
+     "ci95": [
+      0.34928163399133577,
+      0.7559763348527919
+     ]
+    }
+   },
+   "top_not_normal": {
+    "instances": {
+     "k": 3,
+     "n": 299,
+     "rate": 0.010033444816053512,
+     "ci95": [
+      0.0020739363632890652,
+      0.029040380893126754
+     ]
+    },
+    "recordings": {
+     "k": 1,
+     "n": 25,
+     "rate": 0.04,
+     "ci95": [
+      0.0010121996993108454,
+      0.203516913922414
+     ]
+    }
+   }
+  },
+  "abstentions_containing_check": {
+   "msp": "28/49",
+   "maha": "47/49",
+   "ae": "39/49",
+   "b1s": "34/49",
+   "top_not_normal": "3/49"
+  },
+  "cautions_containing_check": {
+   "ae": "34/52",
+   "b1s": "35/52"
+  },
+  "joint_patterns_not_used": [
+   {
+    "outcome": "abstention",
+    "pattern": "maha+ae+b1s",
+    "instances": 14,
+    "recordings": 6
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "msp+maha+ae+b1s",
+    "instances": 14,
+    "recordings": 4
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "msp+maha+ae",
+    "instances": 5,
+    "recordings": 3
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "maha",
+    "instances": 3,
+    "recordings": 3
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "maha+b1s",
+    "instances": 3,
+    "recordings": 3
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "msp+maha",
+    "instances": 3,
+    "recordings": 3
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "msp+ae",
+    "instances": 2,
+    "recordings": 2
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "msp+maha+ae+b1s+top_not_normal",
+    "instances": 2,
+    "recordings": 1
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "maha+ae",
+    "instances": 1,
+    "recordings": 1
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "msp+maha+ae+top_not_normal",
+    "instances": 1,
+    "recordings": 1
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "msp+maha+b1s",
+    "instances": 1,
+    "recordings": 1
+   },
+   {
+    "outcome": "healthy_with_caution",
+    "pattern": "b1s",
+    "instances": 18,
+    "recordings": 7
+   },
+   {
+    "outcome": "healthy_with_caution",
+    "pattern": "ae",
+    "instances": 17,
+    "recordings": 10
+   },
+   {
+    "outcome": "healthy_with_caution",
+    "pattern": "ae+b1s",
+    "instances": 17,
+    "recordings": 9
+   }
+  ],
+  "joint_patterns_in_sample": [
+   {
+    "outcome": "abstention",
+    "pattern": "maha",
+    "instances": 3,
+    "recordings": 3
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "msp+maha",
+    "instances": 2,
+    "recordings": 1
+   },
+   {
+    "outcome": "abstention",
+    "pattern": "msp",
+    "instances": 1,
+    "recordings": 1
+   },
+   {
+    "outcome": "known_fault",
+    "pattern": "top_not_normal",
+    "instances": 1,
+    "recordings": 1
+   }
+  ]
+ },
+ "speed": {
+  "bundle_calibration_normal_range_hz": [
+   18.077305872077673,
+   38.341546496188045
+  ],
+  "by_bundle_range": [
+   {
+    "vs_bundle_cal_range": "above",
+    "recordings": 1,
+    "instances": 12,
+    "not_plain_healthy": 10,
+    "share": 0.833
+   },
+   {
+    "vs_bundle_cal_range": "below",
+    "recordings": 4,
+    "instances": 50,
+    "not_plain_healthy": 39,
+    "share": 0.78
+   },
+   {
+    "vs_bundle_cal_range": "inside",
+    "recordings": 20,
+    "instances": 237,
+    "not_plain_healthy": 52,
+    "share": 0.219
+   }
+  ],
+  "by_run_calibration_range": [
+   {
+    "vs_run_cal_range": "above",
+    "abstention": 8,
+    "healthy": 50,
+    "healthy_with_caution": 15,
+    "share_not_plain_healthy": 0.315
+   },
+   {
+    "vs_run_cal_range": "below",
+    "abstention": 25,
+    "healthy": 14,
+    "healthy_with_caution": 21,
+    "share_not_plain_healthy": 0.767
+   },
+   {
+    "vs_run_cal_range": "inside",
+    "abstention": 16,
+    "healthy": 134,
+    "healthy_with_caution": 16,
+    "share_not_plain_healthy": 0.193
+   }
+  ]
+ },
+ "historical_context_final_q1": {
+  "closed": {
+   "normals": 7,
+   "false_alarm": 5
+  },
+  "severity": {
+   "normals": 7,
+   "false_alarm": 5
+  },
+  "speed_block": {
+   "normals": 20,
+   "false_alarm": 19
+  }
+ }
+}
