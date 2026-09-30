@@ -289,7 +289,78 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage R3 — contrastive encoder for known-condition recognition (Q2, development data only)
+## 7. Current stage: Stage R4 — condition-specialist autoencoder bank for unfamiliar-fault detection (Q3, development data only)
+
+Research question: can reconstruction by per-condition specialists identify recordings of a fault class the system never
+trained on better than the current Mahalanobis distance (shared Ledoit–Wolf) on the CNN-6 embedding? Exploratory
+development experiment, **seed 42 only** (Bhuvesh, 30 Sep: the estimate for one seed is ≈ 87–95 min of MPS training, above
+the one-hour line of §10; approved for seed 42, the Stage D1 precedent; single seed is a stated limitation). Reserved tests
+stay sealed; `metadata.csv`, `artifacts/bundle/`, `artifacts/final/`, `results/final/` and the app are untouched. Code:
+`ml/specialists.py` (pure: run plan, score calibration, combining rule, verdicts), `scripts/34_train_specialists.py`;
+notebook `notebooks/06_research_layer/14_specialist_bank.ipynb`; outputs `results/research/r4_specialists.json`,
+`r4_per_run.csv`, `r4_ambiguity.csv`, `results/figures/r4_unknown_recall.png`, `r4_specialist_scores.png`; weights
+`artifacts/specialists/` (gitignored, state_dict).
+
+**Stage R4 protocol (declared before any training; changes only as dated addenda with a reason).**
+1. **Runs.** The 27 Stage 3C runs (9 withheld classes w × outer folds k = 0–2, seed 42) on the saved assignment
+   (`results/q1q3/q3_fit_cal_eval_assignment.csv`, `ml.openset.loco_run_ids`); roles fit, cal, eval, foldk_known,
+   foldk_withheld as in 3C.
+2. **The bank: nine specialists per run** (normal + the eight fault classes other than w; **w has no specialist**). Each
+   specialist u is the Stage 3B/3C frame-level autoencoder (`ml.train_ae.train_ae`, `AeConfig` from base.yaml unchanged:
+   conv 32/64/64, kernel 5, bottleneck 16, 150 epochs, batch 256, AdamW lr 1e-3, weight decay 1e-4, warm-up 5 epochs +
+   cosine, gain jitter ±1 dB, target = the augmented input, seed 42) on cache C, vibration channels 0–5, trained ONLY on
+   the run's fit recordings of class u, with its own normalisation from `ml.datasets.norm_stats` in development mode on
+   exactly those recordings (context = the run's calibration, evaluation and withheld recordings, which development mode
+   refuses as fit ids). **Normal specialist = the saved Stage 3C AE-6 of the run** (identical recipe, the same fit normals,
+   its saved normalisation; Bhuvesh, 30 Sep), not retrained. The withheld class is therefore excluded from every
+   specialist's training, every normalisation statistic and all calibration. Training set sizes per run: faults 29–67 fit
+   recordings (261–603 windows), normal 10–12; every class is trained (none is too small by this recipe's precedent, normal
+   at 10–12 recordings being the AE-6 itself), and the sizes are reported.
+3. **Specialist error:** recording error e_u(x) = mean over the 9 windows of the per-window reconstruction error (squared
+   error in the specialist's normalised units, mean over channels and frames; `window_channel_errors`, as AE-6).
+4. **Comparable scores (Bhuvesh, 30 Sep): log-ratio to the specialist's own calibration median.**
+   s_u(x) = log e_u(x) − log median{e_u(c) : c a calibration recording of class u in the run}. For a calibration recording of
+   class u itself, the median excludes that recording (leave-one-out; normal: the median of the other 1–2). Why not
+   `ml.openset.empirical_rank`: it is capped at n/(n + 1) and normal has only 2–3 calibration recordings per run (cap
+   0.67–0.75), so under any 97.5 % combined threshold the normal specialist would accept every recording; empirical rank is
+   reported as a secondary diagnostic with the cap stated. Per-specialist 97.5 % order-statistic thresholds are unattainable
+   (r = ceil(0.975 (n + 1)) > n for n < 39; the class calibration sets have 2–18) — reported as a finding.
+5. **Combining rule and calibration.** S(x) = min_u s_u(x) (the most compatible specialist). τ_S =
+   `ml.protocol.order_statistic_threshold` of S over ALL the run's calibration recordings (known classes including normal),
+   acceptance 0.975 (the 3C convention). The same τ_S applies to every specialist: specialist u accepts x iff s_u(x) ≤ τ_S;
+   A(x) = the set of accepting specialists. A(x) empty (equivalently S > τ_S) → **potentially unfamiliar**; otherwise
+   compatible with the conditions in A(x), and **the whole set is kept** (|A| ≥ 2 = ambiguous; counted, never collapsed).
+   Bank verdict: A = {normal} → healthy; A non-empty and without normal → known fault (ambiguous if |A| ≥ 2); normal ∈ A and
+   |A| ≥ 2 → ambiguous healthy / fault; A empty → unfamiliar. R0's tie rule carries forward (a score within 1e-12 of its
+   threshold is a tie, accepted).
+6. **Comparison: the saved Stage 3C Mahalanobis (shared) check** on the same runs (`cnn6ae6_s42_loco_decisions.parquet`,
+   `results/loco/decision_thresholds.csv`, τ_d), known side = foldk_known (fold-k known recordings incl. normals), unknown side
+   = foldk_withheld:
+   (i) **primary, threshold-free:** per-run AUROC (known vs withheld) and OSCR (`ml.openset.oscr`; correctness = the 3C CNN-6
+   top class, for both scores) of S vs Mahalanobis; per outer fold the mean over its 9 runs; mean and spread across folds;
+   per withheld class the mean over its 3 folds;
+   (ii) unknown recall at a **matched known-side rejection count**: per run, the bank threshold is placed to reject exactly as
+   many foldk_known recordings as Mahalanobis rejects at τ_d; also both at their own calibrated thresholds;
+   (iii) unfamiliar recordings called healthy vs called a known fault, separately: the bank verdicts vs the Mahalanobis-only
+   decision (accepted → the CNN top class: normal → healthy, else that fault); rule B of 3C (MSP and Mahalanobis) as context;
+   (iv) ambiguity: how often |A| ≥ 2 (by role and class), which specialists co-accept, and its association with speed and
+   severity; per-instance table `r4_ambiguity.csv`;
+   (v) speed bands (< 20, 20–30, ≥ 30 Hz) and severity levels within the development pool;
+   (vi) cost: training seconds, total parameters of the 9 specialists vs one CNN-6 + Mahalanobis, CPU latency per recording
+   (9 windows from the cache);
+   (vii) **generalisation check:** per specialist, reconstruction and acceptance of the withheld class (median s_u, acceptance
+   rate) against its acceptance of the other foreign known classes, the share of withheld recordings accepted by the normal
+   specialist, and the association of S with the recording's input level (mean cached log-spectral level, vibration channels).
+7. **Pre-declared reading** (Δ_k = bank − Mahalanobis in fold-k mean AUROC): **helps** only if all hold: (a) Δ_k > 0 in all 3
+   folds; (b) mean Δ ≥ +0.02; (c) pooled unknown recall at the matched known-side rejection count higher than Mahalanobis's by
+   ≥ 5 percentage points; (d) the per-withheld-class mean AUROC higher for at least 5 of the 9 classes. **Does not help** if
+   Δ_k ≤ 0 in all 3 folds or mean Δ ≤ −0.02. Otherwise **too thin to tell**. Secondary, per class: "helps for withheld X"
+   only if the bank's AUROC is higher in all 3 folds of X. Unfamiliar recordings called healthy are reported next to every
+   verdict.
+8. **Time guard:** after the first run the total is projected; above 120 min the stage stops and is reported. One GPU job at
+   a time (`artifacts/gpu.lock`).
+
+## 7-prev3. Previous stage: Stage R3 — contrastive encoder for known-condition recognition (Q2, development data only)
 
 Research question: does training the encoder with a supervised contrastive objective, instead of cross-entropy alone,
 improve recognition of known conditions across operating settings and speeds, and separate the confusable pairs?
