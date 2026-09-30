@@ -59,6 +59,13 @@ def record_trace(c) -> None:
     np.savetxt(buf, np.load(data_dir() / "raw_npy" / "normal__24.576.npy"), fmt="%.9g", delimiter=",")
     up = c.post("/api/diagnose", files={"file": ("my_recording.csv", buf.getvalue().encode(), "text/csv")}).json()
     save("trace_upload", up["case_id"], True)
+    # App-4.4: an upload case whose stored array has since been removed: the trace marks /signals unavailable with a reason
+    gone = c.post("/api/diagnose", files={"file": ("gone.csv", buf.getvalue().encode(), "text/csv")}).json()["case_id"]
+    from backend.settings import uploads_dir
+    (uploads_dir() / f"{gone}.npy").unlink()
+    save("trace_upload_missing", gone, False)
+    json.dump({"status": c.get(f"/api/cases/{gone}/signals").status_code, "detail": c.get(f"/api/cases/{gone}/signals").json()["detail"]},
+              open(OUT / "signals_missing.json", "w"))
 
 
 ONLY_TRACE = sys.argv[1:] == ["trace"]

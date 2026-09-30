@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 const here = dirname(fileURLToPath(import.meta.url));
 const dist = join(here, "..", "dist");
 const fixture = JSON.parse(readFileSync(join(here, "fixtures", "trace_known_fault.json"), "utf8"));
+const signals = JSON.parse(readFileSync(join(here, "fixtures", "known_fault.json"), "utf8")).signals;  // App-4.4 previews
 const chrome = [process.env.CHROME, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/usr/bin/google-chrome",
   "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find((p) => p && existsSync(p));
 if (!existsSync(join(dist, "index.html"))) { console.error("✗ no production build (run vite build first)"); process.exit(1); }
@@ -26,6 +27,10 @@ const server = createServer((req, res) => {
     if (req.method === "GET" && url === `/api/cases/${fixture.case_id}/trace`) {
       res.writeHead(200, { "content-type": "application/json" });
       return res.end(JSON.stringify(fixture));
+    }
+    if (req.method === "GET" && url === `/api/cases/${fixture.case_id}/signals`) {
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify({ ...signals, case_id: fixture.case_id }));
     }
     res.writeHead(404, { "content-type": "application/json" });
     return res.end(JSON.stringify({ detail: "not served by this test" }));
@@ -63,14 +68,29 @@ try {
   for (let i = 0; i < 100 && !drawn; i++) { await sleep(100); drawn = await evaluate("!!document.querySelector('svg.pl-canvas')"); }
   await sleep(1500);  // anything the page would still request
   const verdict = await evaluate("document.querySelector('[data-verdict]')?.textContent || ''");
+  const onLoad = [...api];
   const traceGets = api.filter((r) => r === `GET /api/cases/${fixture.case_id}/trace`).length;
   const inference = api.filter((r) => /\/diagnose|\/rerun/.test(r));
   const check = (ok, msg) => { if (ok) console.log(`✓ ${msg}`); else { failed++; console.error(`✗ ${msg}`); } };
   check(drawn, "the pipeline page drew the diagram");
-  check(traceGets === 1 && api.length === 1, `exactly one API request, GET /trace (saw: ${JSON.stringify(api)})`);
+  check(traceGets === 1 && onLoad.length === 1, `page load: exactly one API request, GET /trace, and no /signals (saw: ${JSON.stringify(onLoad)})`);
   check(inference.length === 0, "no /diagnose or /rerun request");
   const want = fixture.blocks.find((b) => b.id === "decision").output.display_label.value;
   check(verdict === want, `opened in "This diagnosis" mode showing the verdict "${want}"`);
+  // App-4.4: a preview is fetched only by the explicit load action, once; opening another preview or reopening does not refetch
+  const click = (sel) => evaluate(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (e) e.click(); return !!e; })()`);
+  const loadBtn = "(() => { const b = [...document.querySelectorAll('button')].find((x) => /Load signal preview/.test(x.textContent)); if (b) b.click(); return !!b; })()";
+  await click("[data-block=preparation]"); await sleep(300);
+  check(api.filter((r) => r.endsWith("/signals")).length === 0, "opening the step alone does not fetch /signals");
+  check(await evaluate(loadBtn), "the drawer offers an explicit load button");
+  for (let i = 0; i < 30 && !(await evaluate("!!document.querySelector('aside [data-preview=computed] path')")); i++) await sleep(100);
+  const sigGets = () => api.filter((r) => r === `GET /api/cases/${fixture.case_id}/signals`).length;
+  check(sigGets() === 1, "loading the preview issues exactly one GET /signals");
+  await click("[data-block=order_spectrogram]"); await sleep(400);
+  const specDrawn = await evaluate("!!document.querySelector('aside [data-preview=computed] path')");
+  await click("[data-block=preparation]"); await sleep(400);
+  check(specDrawn && sigGets() === 1, "opening another preview and reopening do not refetch (still one /signals)");
+  check(api.every((r) => !/\/diagnose|\/rerun/.test(r)), "no /diagnose or /rerun at any point");
   ws.close();
 } finally {
   proc.kill();

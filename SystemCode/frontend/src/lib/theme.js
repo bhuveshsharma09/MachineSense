@@ -15,6 +15,8 @@ export const PIPE = {
   Guidance: { c: "oklch(0.86 0.19 118)", b: "oklch(0.89 0.17 118 / 0.35)" },
   Missing: { c: K.amberT, b: "oklch(0.80 0.14 75 / 0.2)" },
 };
+// per-kind accent where one tag covers two kinds: decisions in orange, apart from model outputs (App-4.4)
+export const PIPE_KIND = { decision: { c: K.orange, b: "oklch(0.66 0.19 42 / 0.14)" } };
 export const TAG = {
   Measured: { c: K.ink, b: "oklch(0.23 0.006 260 / 0.07)" },
   Model: { c: "oklch(0.44 0.09 250)", b: "oklch(0.55 0.1 250 / 0.12)" },

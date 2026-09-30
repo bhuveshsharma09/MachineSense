@@ -275,3 +275,26 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pl-legend-tag { color: oklch(0.30 0.008 260); }
 .pl-port-label { fill: oklch(0.58 0.006 260); }
 .pl-root .pl-case .pl-status b { font-weight: 500; }
+
+/* App-4.4 signal previews: computed-now (from /signals) vs saved evidence, visibly different */
+.pl-bl-row { display: flex; align-items: center; gap: 10px; width: 100%; min-width: 0; }
+.pl-bl-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.pl-prev { position: relative; border-radius: 8px; box-sizing: border-box; }
+.pl-prev.is-computed { border: 1.25px dashed oklch(0.66 0.14 65); background: repeating-linear-gradient(135deg, oklch(0.80 0.14 75 / 0.10) 0 6px, oklch(0.99 0.002 85 / 0.6) 6px 12px); }
+.pl-prev.is-saved { border: 1.25px solid oklch(0.54 0.21 277 / 0.45); background: oklch(0.99 0.002 260 / 0.8); }
+.pl-thumb { flex: none; width: 96px; height: 48px; padding: 13px 4px 3px; overflow: hidden; }
+.pl-prev-badge { font-family: "Geist Mono", monospace; font-size: 8.5px; letter-spacing: 0.06em; text-transform: uppercase; }
+.pl-thumb .pl-prev-badge { position: absolute; left: 5px; top: 2px; }
+.pl-prev.is-computed .pl-prev-badge { color: oklch(0.50 0.11 65); }
+.pl-prev.is-saved .pl-prev-badge { color: oklch(0.44 0.12 277); }
+.pl-thumb-msg { display: block; font-size: 9.5px; line-height: 1.2; color: oklch(0.45 0.008 260); text-align: left; overflow: hidden; max-height: 32px; }
+.pl-plot { position: relative; width: 100%; }
+.pl-cursor { position: absolute; top: -12px; transform: translateX(-50%); font-family: "Geist Mono", monospace; font-size: 9.5px; color: oklch(0.50 0.008 260); }
+.pl-prev-full { margin-top: 14px; padding: 10px 12px 12px; }
+.pl-prev-full .pl-plot { margin-top: 18px; }
+.pl-prev-head { display: flex; flex-direction: column; gap: 2px; }
+.pl-prev-full .pl-prev-badge { font-size: 9.5px; }
+.pl-channels { flex-wrap: wrap; margin-top: 8px; }
+.pl-load { margin-top: 8px; height: auto; min-height: 34px; padding: 6px 12px; text-align: left; }
+.pl-fv .pl-field { display: block; }
+.pl-fv .pl-field .pl-key { display: block; font-size: 11.5px; }

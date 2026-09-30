@@ -326,5 +326,50 @@ import fxNoExpl from "./fixtures/trace_no_explanation.json";
 <style>${css}</style></head><body><div id="root">${small}</div></body></html>`);
 }
 
+const drawerOf = (h) => (/<aside[\s\S]*<\/aside>/.exec(h) || [""])[0];
+// App-4.4: signal previews. /signals-derived previews are labelled "computed now", the saved envelope spectrum is not;
+// a case without its stored array shows the API's reason; architecture mode shows none.
+import { previewSections, stripPreviews } from "./pipeline_walk.js";
+import fxMissing from "./fixtures/trace_upload_missing.json";
+import { layoutPipeline as layoutFor } from "../src/lib/pipelineLayout.js";
+import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.jsx";
+{
+  const sig = knownFault.signals, savedRec = knownFault.record;
+  const pv = (fx, sel = null, extra = {}) => renderToString(<PipelineView trace={fx} initialMode="case" initialLevel="developer" initialSelected={sel}
+    initialSize={DESK} initialSignals={sig} initialSaved={savedRec} {...extra} />);
+  const sections = (h, kind) => previewSections(h).filter((x) => x.kind === kind).map((x) => x.html);
+  const loaded = pv(fxKnown);
+  const comp = sections(loaded, "computed"), saved = sections(loaded, "saved");
+  pcheck("block thumbnails: two computed-now previews and one saved preview, each drawn", comp.length === 2 && saved.length === 1 &&
+    comp.every((x) => /computed now/i.test(textOf(x)) && x.includes("<path")) && saved.every((x) => x.includes("<path")));
+  pcheck("the saved envelope spectrum is never labelled computed now", saved.every((x) => !/computed now/i.test(textOf(x)) && /saved/i.test(textOf(x))));
+  const dPrep = drawerOf(pv(fxKnown, "preparation")), dSpec = drawerOf(pv(fxKnown, "order_spectrogram")), dRec = drawerOf(pv(fxKnown, "evidence_record"));
+  pcheck("drawer previews: waveform and order spectrum say computed now and not part of the saved diagnosis; the envelope says saved evidence",
+    textOf(dPrep).includes("Computed now for this view · not part of the saved diagnosis") && dPrep.includes("<path") &&
+    textOf(dSpec).includes("Computed now for this view · not part of the saved diagnosis") && dSpec.includes("<path") &&
+    textOf(dRec).includes("Saved evidence · part of the evidence record") && !/computed now/i.test(textOf(dRec)) && dRec.includes("<path"));
+  pcheck("drawer preview: channel choice defaults to under_radial and names units from the response",
+    dPrep.includes('aria-checked="true"') && textOf(dPrep).includes("Inner bearing, radial") && textOf(dPrep).includes("time (s)") &&
+    textOf(dSpec).includes("order (multiples of the measured shaft speed"));
+  const idle = drawerOf(renderToString(<PipelineView trace={fxKnown} initialMode="case" initialSelected="preparation" initialSize={DESK} />));
+  pcheck("before loading: an explicit load button, no chart", textOf(idle).includes("Load signal preview (computed now from the stored recording)") && !sections(idle, "computed").some((x) => x.includes("<path")));
+  const missing = drawerOf(renderToString(<PipelineView trace={fxMissing} initialMode="case" initialSelected="preparation" initialSize={DESK} />));
+  const reason = fxMissing.blocks.find((b) => b.id === "presentation").output.views.find((v) => v.endpoint.endsWith("/signals")).reason;
+  pcheck(`no stored array: the reason is shown instead of a chart ("${reason}")`, textOf(missing).includes(`Signal not available: ${reason}`) &&
+    !textOf(missing).includes("Load signal preview") && !sections(missing, "computed").some((x) => x.includes("<path")));
+  const arch = renderToString(<PipelineView trace={fxKnown} initialMode="architecture" initialSelected="preparation" initialSize={DESK} initialSignals={sig} initialSaved={savedRec} />);
+  pcheck("architecture mode shows no previews", !arch.includes("data-preview") && !/computed now/i.test(textOf(arch)));
+  const walked = walkPage(stripPreviews(pv(fxKnown, "decision")), fxKnown);
+  pcheck(`value walker still passes with previews loaded (preview sections excluded; ${walked.checked} values)`, walked.errors.length === 0 && walked.checked > 50, JSON.stringify(walked.errors.slice(0, 3)));
+  pcheck("previews carry no predicted fault", comp.concat(saved).every((x) => !/known fault|prediction|overhang cage/i.test(textOf(x))));
+  const Lc = layoutFor(fxKnown, { extraWidth: Object.fromEntries(Object.keys(PREVIEW_BLOCKS).map((k) => [k, THUMB_EXTRA])) });
+  const fc = fitView(Lc.bounds, { w: 1440, h: 900 });
+  pcheck(`case mode with thumbnail slots: fit at 1440×900 is ${fc.scale.toFixed(3)} (whole graph) and no edge passes through a block`,
+    fc.scale >= LEGIBLE && edgeThroughBlock(Lc).length === 0);
+  const smallCase = renderToString(<PipelineView trace={fxKnown} initialMode="case" initialLevel="mechanic" initialSelected="preparation" initialSize={MOBILE} initialSignals={sig} initialSaved={savedRec} />);
+  writeFileSync(join(here, "mobile", "pipeline_preview_390.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>${css}</style></head><body><div id="root">${smallCase}</div></body></html>`);
+}
+
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }
 console.log(`all ${Object.keys(screens).length + Object.keys(mobileScreens).length + 1} screens rendered; ${pipelineChecks} pipeline checks passed`);

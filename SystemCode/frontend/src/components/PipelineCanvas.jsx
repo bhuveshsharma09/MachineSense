@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { K, PIPE } from "../lib/theme.js";
+import { K, PIPE, PIPE_KIND } from "../lib/theme.js";
 import { CaseLine } from "./PipelineCase.jsx";
+import { PREVIEW_BLOCKS, Thumb } from "./PipelinePreview.jsx";
 
 
 // App-4.2: the SVG canvas of the pipeline architecture. Structure only: titles, one subtitle line (the block's purpose),
@@ -13,7 +14,7 @@ const PORT_LABEL_MIN_SCALE = 0.9;  // App-4.3: the 9.5px port micro-labels only 
 export const LEGIBLE = 0.8;  // App-4.2.1: below this scale block titles are no longer comfortably readable
 export const INSET = { top: 100, side: 40, bottom: 36 };  // screen margins of fit to screen; the header floats above ``top``
 
-export const edgeColour = (kind, edgeKinds) => PIPE[edgeKinds?.[kind]]?.c || K.ink3;
+export const edgeColour = (kind, edgeKinds) => PIPE_KIND[kind]?.c || PIPE[edgeKinds?.[kind]]?.c || K.ink3;
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const usable = (size) => ({ w: Math.max(1, size.w - 2 * INSET.side), h: Math.max(1, size.h - INSET.top - INSET.bottom) });
 const topAligned = (bounds, size, scale) => ({ cx: bounds.x + bounds.w / 2, cy: bounds.y + (size.h / 2 - INSET.top) / scale, scale });
@@ -34,7 +35,7 @@ export function fitView(bounds, size) {
 export const homeView = (bounds, size) => topAligned(bounds, size, 1);
 
 const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, level, selected, onSelect, initialSize, onViewChange,
-  showAllLabels = false, mode = "architecture", trace = null }, ref) {
+  showAllLabels = false, mode = "architecture", trace = null, preview = null }, ref) {
   const wrap = useRef(null);
   const [size, setSize] = useState(initialSize || { w: 1440, h: 800 });
   // App-4.3: the page opens at fit to screen (port micro-labels are hidden at that scale, so no text is below ~10px)
@@ -133,8 +134,15 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
           title={titleOf(b)} data-block={b.id} style={{ width: n.w, height: n.h }}
           onClick={act} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } }}
           onFocus={() => reveal(n)} onMouseEnter={() => setHover(b.id)} onMouseLeave={() => setHover(null)}>
-          <div className="pl-title">{titleOf(b)}</div>
-          {mode === "case" && trace ? <CaseLine trace={trace} id={b.id} level={level} /> : b.purpose && <div className="pl-sub">{b.purpose}</div>}
+          {mode === "case" && trace && preview && PREVIEW_BLOCKS[b.id] ? (
+            <div className="pl-bl-row">
+              <div className="pl-bl-text"><div className="pl-title">{titleOf(b)}</div><CaseLine trace={trace} id={b.id} level={level} /></div>
+              <Thumb kind={PREVIEW_BLOCKS[b.id]} st={preview} />
+            </div>
+          ) : (<>
+            <div className="pl-title">{titleOf(b)}</div>
+            {mode === "case" && trace ? <CaseLine trace={trace} id={b.id} level={level} /> : b.purpose && <div className="pl-sub">{b.purpose}</div>}
+          </>)}
         </div>
       </foreignObject>
     );

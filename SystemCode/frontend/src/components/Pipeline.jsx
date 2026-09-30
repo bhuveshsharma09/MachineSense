@@ -1,10 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getTrace } from "../api.js";
-import { PIPE } from "../lib/theme.js";
+import { getCase, getSignals, getTrace } from "../api.js";
+import { PIPE, PIPE_KIND } from "../lib/theme.js";
 import { LayoutError, layoutPipeline } from "../lib/pipelineLayout.js";
 import { usePanelView } from "./Aside.jsx";
 import PipelineCanvas, { MiniMap, edgeColour } from "./PipelineCanvas.jsx";
 import { CaseHeading, CaseSection } from "./PipelineCase.jsx";
+import { DEFAULT_CHANNEL, PREVIEW_BLOCKS, PreviewSection, THUMB_EXTRA } from "./PipelinePreview.jsx";
+
+// the trace's own statement that the stored signal cannot be read (presentation view /signals: available false + reason)
+function signalsUnavailable(trace) {
+  const pres = (trace.blocks || []).find((b) => b.id === "presentation");
+  const v = (pres?.output?.views || []).find((x) => String(x.endpoint || "").endsWith("/signals"));
+  return v && v.available?.value === false ? v.reason || "the stored signal is not available" : null;
+}
 import { Logo } from "./TopBar.jsx";
 
 // App-4.2: #/case/<case_id>/pipeline — the general architecture of a diagnosis, drawn from one GET of the case's trace.
@@ -50,15 +58,35 @@ function useRemembered(key, initial) {
   return [v, set];
 }
 
-export function PipelineView({ trace, caseId, initialLevel, initialSelected = null, initialSize, warn, initialMode = "architecture" }) {
+export function PipelineView({ trace, caseId, initialLevel, initialSelected = null, initialSize, warn, initialMode = "architecture",
+  fetchSignals = getSignals, fetchSaved = getCase, initialSignals = null, initialSaved = null }) {
+  const [mode, setMode] = useState(initialMode === "case" ? "case" : "architecture");
+  const caseMode = mode === "case";
   const layout = useMemo(() => {
-    try { return layoutPipeline(trace, warn ? { warn } : undefined); } catch (e) { if (e instanceof LayoutError) return null; throw e; }
-  }, [trace]);
+    // case mode: the three preview blocks get a thumbnail slot beside their text (width only; heights unchanged)
+    const extraWidth = caseMode ? Object.fromEntries(Object.keys(PREVIEW_BLOCKS).map((k) => [k, THUMB_EXTRA])) : {};
+    try { return layoutPipeline(trace, { ...(warn ? { warn } : {}), extraWidth }); } catch (e) { if (e instanceof LayoutError) return null; throw e; }
+  }, [trace, caseMode]);
+  // previews (App-4.4): fetched only by an explicit action in a drawer, once each, then cached
+  const [sig, setSig] = useState(initialSignals ? { status: "ok", data: initialSignals } : { status: "idle" });
+  const [saved, setSaved] = useState(initialSaved ? { status: "ok", data: initialSaved } : { status: "idle" });
+  const [channel, setChannel] = useState(DEFAULT_CHANNEL);
+  const failure = (e) => e?.response?.data?.detail || e?.message || "the request failed";
+  const load = (kind) => {
+    if (kind === "envelope") {
+      if (saved.status !== "idle") return;
+      setSaved({ status: "loading" });
+      fetchSaved(trace.case_id).then((d) => setSaved({ status: "ok", data: d })).catch((e) => setSaved({ status: "error", error: failure(e) }));
+    } else {
+      if (sig.status !== "idle") return;
+      setSig({ status: "loading" });
+      fetchSignals(trace.case_id).then((d) => setSig({ status: "ok", data: d })).catch((e) => setSig({ status: "error", error: failure(e) }));
+    }
+  };
+  const preview = caseMode ? { sig, saved, unavailable: signalsUnavailable(trace) } : null;
   const [level, setLevel] = usePanelView(initialLevel);
   const [selected, setSelected] = useState(initialSelected);
   const [vs, setVs] = useState(null);
-  const [mode, setMode] = useState(initialMode === "case" ? "case" : "architecture");
-  const caseMode = mode === "case";
   const [legendOpen, setLegendOpen] = useRemembered("ms_pipeline_legend", true);
   const [mapOpen, setMapOpen] = useRemembered("ms_pipeline_overview", false);
   const [allLabels, setAllLabels] = useRemembered("ms_pipeline_all_labels", false);
@@ -102,7 +130,7 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
         </div>
       )}
 
-      <PipelineCanvas ref={canvas} mode={mode} trace={caseMode ? trace : null} layout={layout} edgeKinds={trace.edge_kinds} level={level} selected={selected}
+      <PipelineCanvas key={mode} ref={canvas} mode={mode} trace={caseMode ? trace : null} preview={preview} layout={layout} edgeKinds={trace.edge_kinds} level={level} selected={selected}
         onSelect={(id) => setSelected(id)} initialSize={initialSize} onViewChange={(view, size) => setVs({ view, size })}
         showAllLabels={allLabels} />
 
@@ -124,7 +152,7 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
             <svg width="30" height="10" aria-hidden="true"><line x1="4" y1="5" x2="26" y2="5" stroke={edgeColour(k, trace.edge_kinds)} strokeWidth="1.75" />
               <circle cx="4.5" cy="5" r="3.5" fill={edgeColour(k, trace.edge_kinds)} /><circle cx="25.5" cy="5" r="3.5" fill={edgeColour(k, trace.edge_kinds)} /></svg>
             <span>{KIND_WORDS[k] || k}</span>
-            <span className="tag pl-legend-tag" style={{ background: PIPE[trace.edge_kinds[k]]?.b }}>{trace.edge_kinds[k]}</span>
+            <span className="tag pl-legend-tag" style={{ background: (PIPE_KIND[k] || PIPE[trace.edge_kinds[k]])?.b }}>{trace.edge_kinds[k]}</span>
           </div>
         ))}
       </div>
@@ -136,7 +164,9 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
         {mapOpen && vs && <MiniMap layout={layout} view={vs.view} size={vs.size} onCentre={(x, y) => canvas.current?.centreOn(x, y)} />}
       </div>
 
-      {block && <Drawer block={block} trace={trace} layout={layout} level={level} caseMode={caseMode} onClose={() => setSelected(null)} />}
+      {block && <Drawer block={block} trace={trace} layout={layout} level={level} caseMode={caseMode} onClose={() => setSelected(null)}
+        preview={caseMode && PREVIEW_BLOCKS[block.id] ? <PreviewSection kind={PREVIEW_BLOCKS[block.id]} st={preview} channel={channel}
+          onChannel={setChannel} onLoad={() => load(PREVIEW_BLOCKS[block.id])} /> : null} />}
     </div>
   );
 }
@@ -150,7 +180,7 @@ function findBlock(blocks, id) {
   return null;
 }
 
-function Drawer({ block, trace, layout, level, caseMode, onClose }) {
+function Drawer({ block, trace, layout, level, caseMode, onClose, preview }) {
   const t = layout.title(block, level);
   const dev = level === "developer";
   const name = (ref) => {
@@ -171,6 +201,7 @@ function Drawer({ block, trace, layout, level, caseMode, onClose }) {
       <h2>{t}</h2>
       {block.purpose && <p>{block.purpose}</p>}
       {members && <p className="pl-muted">Contains: {members.join(", ")}.</p>}
+      {preview}
       {caseMode && <CaseSection trace={trace} block={block} level={level} />}
       {dev && (
         <>

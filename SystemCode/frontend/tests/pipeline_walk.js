@@ -51,3 +51,38 @@ export function walkPage(html, fixture) {
   }
   return { checked, errors };
 }
+
+// App-4.4: preview sections (data-preview="computed" | "saved") show /signals or saved-record data, not trace values;
+// remove them (balanced tags) before walking the rest of the page.
+export function stripPreviews(html) {
+  let out = html;
+  for (let i = out.indexOf('data-preview="'); i >= 0; i = out.indexOf('data-preview="')) {
+    const start = out.lastIndexOf("<", i);
+    const tag = /^<([a-z]+)/.exec(out.slice(start))[1];
+    let depth = 0, j = start;
+    const re = new RegExp(`<(/?)${tag}\\b[^>]*>`, "g");
+    re.lastIndex = start;
+    let m;
+    while ((m = re.exec(out))) { depth += m[1] ? -1 : 1; if (depth === 0) { j = re.lastIndex; break; } }
+    out = out.slice(0, start) + out.slice(j);
+  }
+  return out;
+}
+
+// the preview sections themselves (balanced), with their kind
+export function previewSections(html) {
+  const out = [];
+  let from = 0;
+  for (let i = html.indexOf('data-preview="', from); i >= 0; i = html.indexOf('data-preview="', from)) {
+    const start = html.lastIndexOf("<", i);
+    const tag = /^<([a-z]+)/.exec(html.slice(start))[1];
+    const kind = /data-preview="([^"]+)"/.exec(html.slice(i - 20, i + 40))[1];
+    const re = new RegExp(`<(/?)${tag}\\b[^>]*>`, "g");
+    re.lastIndex = start;
+    let depth = 0, end = html.length, m;
+    while ((m = re.exec(html))) { depth += m[1] ? -1 : 1; if (depth === 0) { end = re.lastIndex; break; } }
+    out.push({ kind, html: html.slice(start, end) });
+    from = end;
+  }
+  return out;
+}

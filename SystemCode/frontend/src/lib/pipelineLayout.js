@@ -36,10 +36,10 @@ export const PLACEMENT = {
   lr: { row: 4, x: 557 },                     // off the spine, to the side: it does not feed the decision
   class6: { row: 5, x: -600 },                // second tier of the models group: both read CNN-6's outputs
   mahalanobis: { row: 5, x: -275 },           // leaves a clear lane between AE-6 and B1s for the long record edges
-  decision: { row: 6, x: -390 },
-  evidence_record: { row: 6, x: -40 },        // the record, explanation and views run along the bottom row
-  explanation: { row: 6, x: 303 },
-  presentation: { row: 6, x: 598 },
+  decision: { row: 6, x: -500 },
+  evidence_record: { row: 6, x: -110 },        // the record, explanation and views run along the bottom row
+  explanation: { row: 6, x: 290 },
+  presentation: { row: 6, x: 580 },
 };
 
 const title = (b, level) => (level === "developer" ? b.title_developer : b.title_mechanic) || b.id;
@@ -66,7 +66,9 @@ function flatten(blocks, parent = null, out = []) {
 export class LayoutError extends Error {}
 
 // ------------------------------------------------------------------------------------------------------------ layout
-export function layoutPipeline(trace, { warn = (m) => console.warn(m) } = {}) {
+// extraWidth: {block id: px} added to a block's width (App-4.4: the preview slot of three blocks in case mode; heights,
+// and so the fit scale, are unchanged)
+export function layoutPipeline(trace, { warn = (m) => console.warn(m), extraWidth = {} } = {}) {
   if (!trace || !Array.isArray(trace.blocks) || !Array.isArray(trace.edges)) throw new LayoutError("not a trace");
   const all = flatten(trace.blocks);
   const groups = all.filter((x) => x.block.children?.length);
@@ -79,13 +81,13 @@ export function layoutPipeline(trace, { warn = (m) => console.warn(m) } = {}) {
   // 1. x: blocks per row, resolved left to right so neighbours keep GAP_X
   const nodes = {};
   const put = (x, row, cx) => {
-    const w = blockWidth(x.block);
+    const w = blockWidth(x.block) + (extraWidth[x.block.id] || 0);
     nodes[x.block.id] = { id: x.block.id, block: x.block, parent: x.parent, row, w, h: GEOM.BH, x: cx - w / 2 };
   };
   for (const x of placed) put(x, PLACEMENT[x.block.id].row, PLACEMENT[x.block.id].x);
   const unplacedRow = unplaced.length ? lastRow + 1 : null;
   let ux = 0;
-  for (const x of unplaced) { const w = blockWidth(x.block); put(x, unplacedRow, ux + w / 2); ux += w + GEOM.GAP_X; }
+  for (const x of unplaced) { const w = blockWidth(x.block) + (extraWidth[x.block.id] || 0); put(x, unplacedRow, ux + w / 2); ux += w + GEOM.GAP_X; }
   const nRows = (unplacedRow ?? lastRow) + 1;
   for (let r = 0; r < nRows; r++) {
     const row = Object.values(nodes).filter((n) => n.row === r).sort((a, b) => a.x - b.x);
