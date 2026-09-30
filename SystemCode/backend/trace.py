@@ -18,7 +18,7 @@ from typing import Any
 
 from backend.checks import checks as record_checks
 
-TRACE_VERSION = "1.0"
+TRACE_VERSION = "1.1"  # 1.1 (App-4.3): operation is case-independent; case wording moved to operation_case
 # edge kind → the UI's evidence TAG (frontend/src/lib/theme.js); "Missing" is for not_run / unavailable blocks
 KIND_TAG = {"signal": "Measured", "model": "Model", "decision": "Model", "explanation": "Guidance"}
 STATUS_TAG = {"not_run": "Missing", "unavailable": "Missing"}
@@ -83,9 +83,11 @@ def _uses_derived(x: Any) -> bool:
 
 def _block(bid: str, title_mechanic: str, title_developer: str, purpose: str, input: Any, operation: str, output: Any,
            status: str, provenance: list[str], technical: Any, timing_ms: float | None, ports_in: list, ports_out: list,
-           children: list | None = None, parent: str | None = None) -> dict:
+           children: list | None = None, parent: str | None = None, operation_case: str | None = None) -> dict:
+    """operation: what this step always does (the same for every case); operation_case: wording that depends on this
+    case (trace 1.1), or None."""
     b = {"id": bid, "title_mechanic": title_mechanic, "title_developer": title_developer, "purpose": purpose,
-         "input": input, "operation": operation, "output": output, "status": status, "provenance": provenance,
+         "input": input, "operation": operation, "operation_case": operation_case, "output": output, "status": status, "provenance": provenance,
          "technical": technical, "timing_ms": timing_ms, "ports_in": ports_in, "ports_out": ports_out}
     b["derived"] = _uses_derived(b)
     if status in STATUS_TAG:
@@ -156,7 +158,7 @@ def _validation(R, rec: dict, rerun_of: str | None) -> dict:
         {"source": R("record:source")},
         "Uploads: parse_upload (columns, rows, finite values), then the reserved-recording fingerprint guard, then the "
         "shape and speed checks in diagnose(). Dataset recordings: check_rec_id refuses unknown and reserved rec_ids "
-        "before anything is loaded. Which checks applied is reconstructed from the code path for this case.",
+        "before anything is loaded. Which checks applied to a case is reconstructed from its input path.",
         {"checks": items}, "completed", ["record:source", "store:rerun_of"], None, None,
         [_port("raw", "raw 8-channel recording", "RAW")], [_port("accepted", "accepted recording", "OK")])
 
@@ -187,9 +189,8 @@ def _preparation(R, rec: dict) -> dict:
         "preparation", "Preparing the signal", "Speed, cleaning and windowing",
         "Measure the shaft speed, clean the whole recording and cut it into windows.",
         {"recording": "accepted recording"},
-        "Shaft speed: " + ("measured from the tachometer and vibration (ml.preprocess.estimate_speed)." if upload else
-                           "the metadata measured speed of the recording.") +
-        " clean_recording (microphone burst removal, the fixed ~22 kHz band-stop, the 10 kHz low-pass; tachometer "
+        "Shaft speed: for a dataset recording, the metadata measured speed of the recording; for an upload, measured from "
+        "the tachometer and vibration (ml.preprocess.estimate_speed). clean_recording (microphone burst removal, the fixed ~22 kHz band-stop, the 10 kHz low-pass; tachometer "
         "untouched) is applied to the whole recording before windowing. It is invoked inside feature building "
         "(ml.features.recording_features), representation building (ml.spectro.recording_representation) and the "
         "physics envelope spectrum (ml.inference._physics), not as a separate step. Per-window speeds come from "
@@ -211,7 +212,9 @@ def _preparation(R, rec: dict) -> dict:
         {"speed_source": _derived("tachometer and vibration" if upload else "metadata fr_measured_hz", "source of the case"),
          "measured_speed_ratio": R("config:preprocess.measured_speed_ratio")},
         None, [_port("raw", "accepted recording", "RAW")],
-        [_port("speed", "measured shaft speed", "SPD"), _port("prepared", "cleaned recording, windows, per-window speeds", "PREP")])
+        [_port("speed", "measured shaft speed", "SPD"), _port("prepared", "cleaned recording, windows, per-window speeds", "PREP")],
+        operation_case=("This case is an upload: its shaft speed was measured from the tachometer and vibration." if upload else
+                        "This case is a dataset recording: its metadata measured speed was used."))
 
 
 def _representations(R) -> dict:
@@ -416,6 +419,11 @@ def _evidence_record(R, rec: dict, activity: list) -> dict:
         [_port("record", "evidence record", "REC")])
 
 
+EXPLAIN_OPERATION = ("backend.explain.explain_case: the language model's JSON is checked by application code (schema, numbers "
+                     "only from the record, no raw scores, forbidden phrases, directions); any failure falls back to the "
+                     "fixed template. Generated only on request; the trace never generates one.")
+
+
 def _explanation(R, explanation: dict | None) -> dict:
     ports = ([_port("record", "evidence record (compact view, no signal)", "REC")],
              [_port("text", "plain-language explanation", "EXP")])
@@ -423,9 +431,9 @@ def _explanation(R, explanation: dict | None) -> dict:
         return _block(
             "explanation", "Plain-language explanation", "Explanation (App-3)",
             "A plain-language explanation of the saved evidence (language model with guards, or the fixed template).",
-            None, "Not generated for this case yet; the trace never generates one.",
+            None, EXPLAIN_OPERATION,
             {"generator": _missing("no explanation stored for this case")}, "not_run", ["explanation:none"], None, None,
-            *ports)
+            *ports, operation_case="Not generated for this case yet.")
     E = "explanation"
     reason = explanation.get("fallback_reason")
     outcome = ("generated text passed every check" if explanation["source"] == "llm" else
@@ -434,8 +442,7 @@ def _explanation(R, explanation: dict | None) -> dict:
         "explanation", "Plain-language explanation", "Explanation (App-3)",
         "A plain-language explanation of the saved evidence (language model with guards, or the fixed template).",
         {"record": "compact view of the evidence record; never the raw signal"},
-        "backend.explain.explain_case: the language model's JSON is checked by application code (schema, numbers only "
-        "from the record, no raw scores, forbidden phrases, directions); any failure falls back to the fixed template.",
+        EXPLAIN_OPERATION,
         {"source": R(f"{E}:source"), "badge": R(f"{E}:badge"),
          "template_fallback_used": _derived(explanation["source"] == "template", "explanation:source == template"),
          "fallback_reason": R(f"{E}:fallback_reason"),

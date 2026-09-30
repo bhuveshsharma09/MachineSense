@@ -133,7 +133,7 @@ def test_timings_are_stored_activity_steps_never_invented(client, dataset_case, 
 def test_dataset_case_statuses_and_validation(client, dataset_case):
     t = trace(client, dataset_case)
     b = blocks(t)
-    assert t["trace_version"] == "1.0" and t["case_id"] == dataset_case["case_id"] and len(t["blocks"]) == 10
+    assert t["trace_version"] == "1.1" and t["case_id"] == dataset_case["case_id"] and len(t["blocks"]) == 10
     assert [x["id"] for x in t["blocks"]] == ["input", "validation", "signal_quality", "preparation", "representations",
                                               "models", "decision", "evidence_record", "explanation", "presentation"]
     applied = {c["function"] + "|" + c["check"]: c["applied"]["value"] for c in b["validation"]["output"]["checks"]}
@@ -232,3 +232,24 @@ def test_reading_the_trace_never_changes_the_saved_record(client, warn_case):
         trace(client, warn_case)
     assert client.get(f"/api/cases/{cid}").json() == before == warn_case
     assert client.get(f"/api/cases/{cid}/activity").json() == acts
+
+
+def _operations(t):
+    return {b["id"]: b["operation"] for b in blocks(t).values()}
+
+
+def test_operation_is_case_independent_and_case_wording_is_separate(client, dataset_case, upload_case):
+    """Trace 1.1: `operation` says what a step always does, identical for a dataset case, an upload case and a case with
+    or without an explanation; wording that depends on the case is in `operation_case`."""
+    ds, up = trace(client, dataset_case), trace(client, upload_case)
+    assert _operations(ds) == _operations(up)
+    fresh = client.post("/api/diagnose", json={"rec_id": WARN}).json()      # no explanation stored
+    none = trace(client, fresh)
+    assert blocks(none)["explanation"]["status"] == "not_run" and _operations(none) == _operations(ds)
+    for t in (ds, up, none):
+        for b in blocks(t).values():
+            assert "operation_case" in b
+            assert not any(w in b["operation"] for w in ("This case", "for this case", "not generated", "Not generated"))
+    assert "dataset recording" in blocks(ds)["preparation"]["operation_case"]
+    assert "upload" in blocks(up)["preparation"]["operation_case"]
+    assert blocks(none)["explanation"]["operation_case"] == "Not generated for this case yet."
