@@ -289,7 +289,70 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage R0 — diagnose the existing healthy rejections (development data only)
+## 7. Current stage: Stage R1 — speed-conditioned healthy thresholds (development data only)
+
+Exploratory research experiment testing R0's hypothesis (healthy false alarms concentrate at speeds outside the calibration
+normals' range). No training, no new model, no threshold change in the bundle or the app, no reserved read; `artifacts/`
+(bundle, final, loco), `results/final/` and `metadata.csv` are untouched; nothing is written to `artifacts/`. Recordings
+are never moved between fit, calibration and evaluation. Code: `ml/speed_calibration.py` (pure), the fit-normal re-score
+`scripts/32_r1_fit_normal_scores.py`, notebook `notebooks/06_research_layer/12_speed_conditioned_thresholds.ipynb`;
+outputs `results/research/r1_fit_normal_scores.parquet`, `r1_speed_thresholds.json`, `r1_per_fold.csv`,
+`r1_healthy_outcomes.csv`, figure `results/figures/r1_score_vs_speed.png`.
+
+**Stage R1 protocol (declared before running).**
+1. **Data.** The 27 Stage 3C seed-42 LOCO runs on the saved assignment (`results/q1q3/q3_fit_cal_eval_assignment.csv`,
+   `ml.openset.loco_run_ids`); saved AE-6 errors (`results/scores/cnn6ae6_s42_loco_decisions.parquet`), saved B1s and τ_b
+   (`results/scores/b1s_nomic_loco_q3fit_scores.parquet`), τ_p, τ_d, τ_e (`results/loco/decision_thresholds.csv`); speed =
+   `fr_measured_hz`. Per run: **fit normals** (10–12; the AE-6 / B1s training normals), **calibration normals** (2–3; set
+   τ_e, τ_b), **evaluation** = roles eval, foldk_known, foldk_withheld (normals: 299 instances of 25 distinct recordings
+   pooled with the others as in R0; faults: every fault recording of those roles, the withheld class included).
+2. **Fit-normal re-score (Bhuvesh, Option A; strictly limited).** Only each run's healthy FIT normals are scored; never a
+   calibration, evaluation, fault or reserved recording. AE-6: inference only, with the saved Stage 3C weights
+   (`artifacts/loco/ae6_w-<c>_s42_loco/fold<k>.pt`, read only) and that run's saved AE normalisation
+   (`fold<k>_norm.json`), on the dev-pool cache C, exactly the 3C scoring (`window_channel_errors`, frame level, mean over
+   channels, mean over the 9 windows), on the device 3C used (MPS; one GPU job, `artifacts/gpu.lock`); no retraining or
+   re-initialisation. B1s: the deterministic Stage 3D refit
+   (`scripts/09c_loco_complementary.b1s_scores` recipe) is used ONLY after it reproduces that run's saved cal/eval B1s
+   scores within R0's tie tolerance 1e-12 (max absolute difference); a run that fails is reported **infeasible** for B1s
+   and no approximation is substituted. The same check is applied to AE-6 against the saved cal/eval AE errors (MPS is not
+   bit-deterministic, so the max absolute difference is recorded; a run is used for AE only if it is ≤ 1e-5 × the run's
+   τ_e, otherwise infeasible for AE). The per-run
+   reproduction evidence is recorded in `r1_speed_thresholds.json`. No threshold is changed, no model is created.
+3. **In-sample bias (required disclosure).** The fit normals are the recordings AE-6 was trained on and B1s was fitted on,
+   so their scores are in-sample and optimistically low. Fitting m(speed), d(speed) on them biases the standardised score
+   upward for calibration and evaluation recordings, which works AGAINST the new method: a positive result is therefore
+   conservative and meaningful; a negative result is partly attributable to this bias and does not by itself refute
+   speed-conditioning; the clean alternative (out-of-fold scores on the fit normals) does not exist in this project. This
+   is stated in the Findings, the JSON and beside every headline number.
+4. **Transformation** (per run, per detector, AE-6 and B1s separately): s_std = (s − m(v)) / d(v), x = log(speed Hz),
+   fitted on the run's fit normals only. m: least-squares polynomial in x, degree 2 (primary cap) and degree 1. d: scale of
+   the residuals r = s − m(x), degree 1 in x with a log link, d(x) = exp(a + b x), by maximum likelihood of a Laplace scale
+   (minimise Σ [log d + |r| / d]; convex, always positive). x is clipped to the fit normals' range before m and d are
+   evaluated (constant extrapolation; no polynomial runs away outside the fitted speeds). Variants: raw; std-m2d1; std-m1d1.
+   If m2 beats m1 only marginally (macro AUROC gain < 0.01, or not higher in at least 2 of 3 fold means), degree 1 is
+   preferred and that is said.
+5. **Threshold:** τ_std = the maximum s_std over the run's calibration normals (`ml.protocol.max_threshold`, the existing
+   rule); accept iff s_std ≤ τ_std; R0's tie rule carried forward (a score within 1e-12 of its threshold is a tie, accepted).
+6. **Evaluation**, each detector separately, never a combined number:
+   (i) **primary:** per-run AUROC healthy (evaluation normals) vs faulty (evaluation faults), raw vs each standardised
+   variant; summarised per outer fold (mean over its 9 runs) and as mean and spread across the 3 folds, plus the 27 runs;
+   (ii) healthy false alarms (score above its threshold) on the same 299 instances / 25 recordings, raw vs std, by speed
+   band (below / inside / above the run's own calibration normals' speed range; the bundle range 18.08–38.34 Hz as a
+   secondary band), instances and distinct recordings with Clopper–Pearson intervals;
+   (iii) **cost side (mandatory):** fault detection at a matched healthy false-alarm rate: per run, the std threshold is
+   placed so that the same number of evaluation normals is flagged as by the raw rule at its calibrated τ; detection per
+   fault class and at the mildest settings (`anomaly.mildest`), raw vs std; also detection at the calibrated thresholds;
+   (iv) three-way outcomes (healthy / healthy with caution / known fault / unknown) of rules A, B, C, D and B_with_caution
+   (`ml.arbitrator.decide`), old (raw scores, τ_e, τ_b) vs new (std scores, τ_std for AE and B1s; MSP and Mahalanobis
+   unchanged), on evaluation normals and faults.
+7. **Pre-declared reading** (per detector): "speed-conditioning helps" only if (a) the std AUROC fold mean is ≥ raw in all
+   3 folds and higher on average, (b) healthy false alarms (distinct recordings) at the calibrated threshold do not rise,
+   and (c) pooled fault detection at matched false-alarm rate is not lower; "does not help" if the std AUROC fold mean is
+   lower in all 3 folds; otherwise "too thin to tell". Every speed conclusion repeats: 25 recordings from one folder (one
+   recording = 4 points); speed and recording identity are completely confounded; only 5 recordings lie outside the
+   calibration range; R0's hypothesis remains a hypothesis.
+
+## 7-prev0. Previous stage: Stage R0 — diagnose the existing healthy rejections (development data only)
 
 Exploratory analysis, no training, no new models, no scoring of recordings, no threshold tuning or re-derivation, no fix.
 Reserved tests stay sealed (no reserved recording is read); `artifacts/bundle/`, `artifacts/final/` and `metadata.csv`
