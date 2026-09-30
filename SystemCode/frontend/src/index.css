@@ -320,3 +320,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pl-step-body .pl-field { grid-template-columns: 1fr; gap: 0; }
 .pl-root:has(.pl-banner) .pl-legend, .pl-root:has(.pl-banner) .pl-controls { top: 136px; }
 .pl-root:has(.pl-banner) .pl-drawer { top: 180px; }
+
+/* App-4.5: the button from a diagnosis to its pipeline page */
+.pl-open-btn { height: 40px; display: inline-flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 10px; white-space: nowrap;
+  border: 1.25px solid oklch(0.54 0.21 277 / 0.55); color: oklch(0.44 0.15 277); background: oklch(0.99 0.002 260 / 0.7);
+  font-size: 13.5px; text-decoration: none; }
+.pl-open-btn:hover { background: oklch(0.54 0.21 277 / 0.08); border-color: oklch(0.54 0.21 277); }
+/* narrow desktops: the short recording name repeats the picker; drop it so the picker keeps its width */
+@media (max-width: 1359px) { .rec-short { display: none; } }

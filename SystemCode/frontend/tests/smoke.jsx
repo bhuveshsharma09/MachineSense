@@ -415,5 +415,19 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
     !moving.length && /prefers-reduced-motion: reduce\)[^{]*\{[^}]*animation: none !important; transition: none !important/.test(cssText), JSON.stringify(moving));
 }
 
+// the main screen's way to the pipeline page: a button once a diagnosis is on screen (desktop top bar and phone header)
+{
+  const P = { onPick() {}, onFile() {}, onClearUpload() {}, onStart() {}, onSaveName() {}, onChangeName() {} };
+  const href = `href="#/case/${knownFault.record.case_id}/pipeline"`;
+  const desk = renderToString(<Workspace {...P} {...done(knownFault)} />);
+  const phone = renderToString(<Workspace {...P} {...done(knownFault)} initialViewport={MOBILE} />);
+  const running = renderToString(<Workspace {...P} {...base} selection={sel(knownFault)} status="running" runningFor="x" />);
+  pcheck("main screen: a \"Pipeline view\" button to this case's pipeline page (desktop and phone), none while running",
+    /class="pl-open-btn"[^>]*>/.test(desk) && desk.includes(href) && textOf(desk).includes("Pipeline view") &&
+    phone.includes('class="pl-open-btn"') && phone.includes(href) && !running.includes("pl-open-btn"));
+  pcheck("pipeline page: a \"← Back to the case\" button in the header",
+    textOf(renderToString(<PipelineView trace={fxKnown} caseId={fxKnown.case_id} initialMode="case" initialSize={DESK} />)).includes("← Back to the case"));
+}
+
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }
 console.log(`all ${Object.keys(screens).length + Object.keys(mobileScreens).length + 1} screens rendered; ${pipelineChecks} pipeline checks passed`);

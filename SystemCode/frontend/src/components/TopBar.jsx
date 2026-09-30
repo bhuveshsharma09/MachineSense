@@ -21,7 +21,19 @@ export function groupRecordings(recordings) {
   return g;
 }
 
-export default function TopBar({ recordings, showcase, value, onPick, onFile, upload, onClearUpload, onStart, status, hasRecord, userName, onChangeName, runningFor }) {
+// the way to the pipeline page of the case on screen (App-4.5): a button, shown once a diagnosis is on screen
+export function PipelineButton({ caseId, style }) {
+  if (!caseId) return null;
+  return (
+    <a className="pl-open-btn" href={`#/case/${encodeURIComponent(caseId)}/pipeline`} title="How this diagnosis was made: every step, from the saved case" style={style}>
+      <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="3" cy="3" r="2" fill="currentColor" /><circle cx="13" cy="8" r="2" fill="currentColor" />
+        <circle cx="3" cy="13" r="2" fill="currentColor" /><path d="M5 3h3v10H5M8 8h3" fill="none" stroke="currentColor" strokeWidth="1.4" /></svg>
+      Pipeline view
+    </a>
+  );
+}
+
+export default function TopBar({ recordings, showcase, value, onPick, onFile, upload, onClearUpload, onStart, status, hasRecord, userName, onChangeName, runningFor, caseId }) {
   const groups = groupRecordings(recordings);
   const byId = Object.fromEntries((recordings || []).map((r) => [r.rec_id, r]));
   const running = status === "running";
@@ -73,6 +85,7 @@ export default function TopBar({ recordings, showcase, value, onPick, onFile, up
       {!running && (value || upload) && (
         <span className="rec-short" title={value || upload?.name}>{shortName(value || upload?.name)}</span>
       )}
+      <PipelineButton caseId={caseId} />
       <button onClick={onStart} disabled={!canStart} className="start-btn"
         title={blocked ? "re-upload the file to run again" : undefined} aria-label={blocked ? "Run again (re-upload the file to run again)" : undefined}
         style={{ background: canStart || running ? K.ink : "oklch(0.23 0.006 260 / 0.1)", color: canStart || running ? K.white : K.ink3, cursor: canStart ? "pointer" : "default" }}>

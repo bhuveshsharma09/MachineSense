@@ -4,7 +4,7 @@ import { CHANNELS, PARTS, cleanText, locations, qualityFlags, recordingTitle, un
 import { PanelContent } from "./Aside.jsx";
 import { FALLBACK, markerFor } from "./Scene.jsx";
 import { changeText } from "./Inspector.jsx";
-import { Logo, groupRecordings } from "./TopBar.jsx";
+import { Logo, PipelineButton, groupRecordings } from "./TopBar.jsx";
 import NameModal from "./NameModal.jsx";
 import { human } from "../lib/model.js";
 
@@ -108,6 +108,7 @@ export default function MobileLayout(props) {
           </div>
         )}
         {blocked && <p className="m-note" style={{ color: K.amberT }}>{upload.note || "re-upload the file to run again"}</p>}
+        {record && status !== "running" && <PipelineButton caseId={record.case_id} style={{ alignSelf: "flex-start" }} />}
         <p className="m-note">Best viewed on a desktop screen.</p>
       </header>
       {rec && (

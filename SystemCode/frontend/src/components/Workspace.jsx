@@ -108,6 +108,7 @@ export default function Workspace(props) {
       <Legend open={legendOpen} onToggle={() => set({ legend: !legendOpen })} />
       <TopBar recordings={recordings} showcase={showcase} value={selection?.kind === "dataset" ? selection.rec_id : ""} onPick={onPick}
         onFile={onFile} upload={upload} onClearUpload={onClearUpload} onStart={onStart} status={status} hasRecord={!!record}
+        caseId={status !== "running" ? record?.case_id : null}
         userName={userName} onChangeName={onChangeName} runningFor={runningFor} />
       <LimitationsBanner items={limitations?.map(cleanText)} />
       <div className="controls">
