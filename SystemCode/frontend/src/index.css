@@ -187,6 +187,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .card-row { display: flex; flex-direction: column; gap: 3px; }
 .m-panel .dx-block { padding: 0; }
 
+/* App-4.2.1: quiet link from the diagnosis panel to the pipeline architecture view */
+.pl-entry { display: inline-block; margin-top: 12px; font-size: 12.5px; color: oklch(0.40 0.008 260); text-decoration: none; }
+.pl-entry:hover { color: oklch(0.54 0.21 277); text-decoration: underline; }
+
 /* App-4.2 pipeline architecture canvas (#/case/<id>/pipeline): existing tokens only. */
 .pl-root { position: relative; height: 100vh; width: 100%; max-width: 100vw; overflow: hidden; font-size: 14px; line-height: 1.45; box-sizing: border-box;
   background: radial-gradient(ellipse 75% 70% at 38% 46%, oklch(0.978 0.003 85) 0%, oklch(0.948 0.004 85) 55%, oklch(0.905 0.005 85) 100%); }
@@ -202,11 +206,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pl-canvas-wrap:active { cursor: grabbing; }
 .pl-canvas { display: block; }
 .pl-block { margin: 4px; padding: 16px 22px; border-radius: 14px; background: oklch(0.99 0.002 85 / 0.72); border: 1px solid oklch(0.23 0.006 260 / 0.12);
-  cursor: pointer; display: flex; flex-direction: column; justify-content: center; gap: 3px; overflow: hidden; }
+  cursor: pointer; display: flex; flex-direction: column; justify-content: flex-start; gap: 3px; overflow: hidden; box-sizing: border-box; }
 .pl-block:hover { border-color: oklch(0.23 0.006 260 / 0.22); }
 .pl-block.is-sel { border: 1.5px solid oklch(0.54 0.21 277); }
 .pl-title { font-family: "Outfit", system-ui, sans-serif; font-size: 16px; font-weight: 400; color: oklch(0.23 0.006 260); line-height: 1.25;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; flex: none; }
 .pl-sub { font-size: 12px; color: oklch(0.50 0.008 260); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pl-frame-cap { display: inline-block; padding: 3px 8px; border-radius: 6px; background: oklch(0.945 0.004 85); font-size: 10px; letter-spacing: 0.09em;
   text-transform: uppercase; color: oklch(0.50 0.008 260); cursor: pointer; white-space: nowrap; }
@@ -214,11 +218,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pl-frame-label { font-family: "Geist Mono", monospace; font-size: 10px; letter-spacing: 0.09em; fill: oklch(0.50 0.008 260); }
 .pl-port-label { font-family: "Geist Mono", monospace; font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; fill: oklch(0.50 0.008 260); }
 .pl-edge-label { font-family: "Outfit", system-ui, sans-serif; font-size: 10px; }
-.pl-controls { position: absolute; right: 16px; top: 96px; z-index: 4; display: flex; gap: 6px; }
-.pl-legend { position: absolute; left: 16px; bottom: 16px; z-index: 4; padding: 10px 12px; border-radius: 12px; display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
+.pl-controls { position: absolute; right: 16px; top: 96px; z-index: 4; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.pl-legend { position: absolute; left: 16px; top: 96px; z-index: 4; padding: 8px 12px 10px; border-radius: 12px; display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
+.pl-legend.is-closed, .pl-minimap-wrap.is-closed { padding: 4px 10px; }
+.pl-panel-toggle { border: 0; background: transparent; padding: 2px 0; cursor: pointer; text-align: left; }
 .pl-legend-row { display: flex; align-items: center; gap: 8px; }
-.pl-minimap-wrap { position: absolute; right: 16px; bottom: 16px; z-index: 4; }
-.pl-minimap { display: block; border-radius: 10px; cursor: pointer; }
+.pl-minimap-wrap { position: absolute; right: 16px; bottom: 16px; z-index: 4; padding: 6px 10px 10px; border-radius: 12px; display: flex; flex-direction: column; gap: 4px; }
+.pl-minimap { display: block; border-radius: 8px; cursor: pointer; background: oklch(0.945 0.004 85 / 0.6); }
 .pl-drawer { position: absolute; right: 16px; top: 140px; bottom: 16px; width: 380px; max-width: calc(100% - 32px); z-index: 6; border-radius: 16px;
   padding: 16px 20px; overflow-y: auto; }
 .pl-drawer h2 { margin: 6px 0 8px; font-size: 20px; font-weight: 400; }
@@ -233,6 +239,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .pl-header { gap: 10px; }
   .pl-controls { top: auto; bottom: 16px; right: 16px; }
   .pl-minimap-wrap { display: none; }
-  .pl-legend { bottom: 64px; }
+  .pl-legend { top: auto; bottom: 64px; }
   .pl-drawer { top: auto; left: 16px; right: 16px; width: auto; max-height: 60vh; }
 }

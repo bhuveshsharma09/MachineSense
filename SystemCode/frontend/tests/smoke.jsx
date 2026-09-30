@@ -222,5 +222,31 @@ const DESK = { w: 1440, h: 900 };
   pcheck("390 px pipeline page written", small.includes("pl-root"));
 }
 
+// App-4.2.1: legibility of the rebalanced layout, labels on demand, and the way in and out of the page.
+import { countCrossings, edgeThroughBlock, GEOM, layoutPipeline, titleWidth } from "../src/lib/pipelineLayout.js";
+import { fitView, LEGIBLE } from "../src/components/PipelineCanvas.jsx";
+{
+  const L = layoutPipeline(traceFx);
+  const through = edgeThroughBlock(L);
+  pcheck(`no edge passes through a block (${countCrossings(L)} line crossings)`, through.length === 0, JSON.stringify(through));
+  const f1440 = fitView(L.bounds, { w: 1440, h: 900 }), f1280 = fitView(L.bounds, { w: 1280, h: 800 });
+  const whole1440 = Math.min((1440 - 32) / L.bounds.w, (900 - 112) / L.bounds.h);
+  pcheck(`fit to screen at 1440×900 shows the whole graph at scale ${f1440.scale.toFixed(3)} ≥ ${LEGIBLE}`, f1440.scale >= LEGIBLE && Math.abs(f1440.scale - whole1440) < 1e-9);
+  pcheck(`fit to screen at 1280×800 keeps a legible scale (${f1280.scale.toFixed(3)}; width fitted, vertical pan)`, f1280.scale >= LEGIBLE && f1280.scale * L.bounds.w <= 1280 - 32 + 1e-6);
+  const short = Object.values(L.nodes).filter((n) => n.w < titleWidth(n.block.title_developer) + 2 * GEOM.PAD_X);
+  pcheck("no block is narrower than its Developer title", short.length === 0, JSON.stringify(short.map((n) => n.id)));
+  const none = renderToString(<PipelineView trace={traceFx} initialLevel="developer" initialSize={DESK} />);
+  const sel = renderToString(<PipelineView trace={traceFx} initialLevel="developer" initialSelected="decision" initialSize={DESK} />);
+  const labelled = (h) => [...h.matchAll(/<g data-edge="([^"]+)"[^>]*>(?:(?!<\/g>)[\s\S])*?class="pl-edge-label"/g)].map((m) => m[1].replace(/&gt;/g, ">"));
+  const decisionEdges = traceFx.edges.filter((e) => e.from.startsWith("decision.") || e.to.startsWith("decision."));
+  pcheck("edge labels by default only on the selected block's edges", labelled(none).length === 0 && labelled(sel).length > 0 &&
+    labelled(sel).every((id) => /(^|>)decision\./.test(id)) && labelled(sel).length <= decisionEdges.length, JSON.stringify(labelled(sel)));
+  const back = renderToString(<PipelineView trace={traceFx} caseId={traceFx.case_id} initialSize={DESK} />);
+  pcheck("back link to the case in the header (navigation only; the id is not shown as text)",
+    back.includes(`href="#/case/${traceFx.case_id}"`) && !textOf(back).includes(traceFx.case_id));
+  const panel = renderToString(<PanelContent record={knownFault.record} status="done" report={knownFault.report} activity={knownFault.activity} view="mechanic" onView={() => {}} />);
+  pcheck("the case view links to the pipeline page", panel.includes(`href="#/case/${knownFault.record.case_id}/pipeline"`) && textOf(panel).includes("How this diagnosis was made"));
+}
+
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }
 console.log(`all ${Object.keys(screens).length + Object.keys(mobileScreens).length + 1} screens rendered; ${pipelineChecks} pipeline checks passed`);

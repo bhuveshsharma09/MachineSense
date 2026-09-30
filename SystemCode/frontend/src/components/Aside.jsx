@@ -379,6 +379,9 @@ export function PanelContent(props) {
     <div className="dx-block panel">
       <div className="panel-head"><span className="mono kicker">Diagnosis</span><ViewSwitch view={view} onView={onView} /></div>
       {body}
+      {record?.case_id && status !== "running" && !error && (  // App-4.2.1: entry to the pipeline architecture view
+        <a className="pl-entry" href={`#/case/${encodeURIComponent(record.case_id)}/pipeline`}>How this diagnosis was made →</a>
+      )}
     </div>
   );
 }

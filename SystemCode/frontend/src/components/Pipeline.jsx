@@ -36,16 +36,28 @@ export default function Pipeline({ caseId, initialTrace = null, fetchTrace = get
   }, [caseId]);
   if (st.loading) return <EmptyState message="Loading the pipeline…" />;
   if (st.error) return <EmptyState message={st.error} />;
-  return <PipelineView trace={st.trace} {...rest} />;
+  return <PipelineView trace={st.trace} caseId={caseId} {...rest} />;
 }
 
-export function PipelineView({ trace, initialLevel, initialSelected = null, initialSize, warn }) {
+// a small on/off preference remembered in this browser (legend, overview, labels; App-4.2.1)
+function useRemembered(key, initial) {
+  const [v, setV] = useState(() => {
+    try { const s = typeof window !== "undefined" && localStorage.getItem(key); return s === null || s === false ? initial : s === "1"; } catch { return initial; }
+  });
+  const set = (x) => { setV(x); try { localStorage.setItem(key, x ? "1" : "0"); } catch { /* browser-local only */ } };
+  return [v, set];
+}
+
+export function PipelineView({ trace, caseId, initialLevel, initialSelected = null, initialSize, warn }) {
   const layout = useMemo(() => {
     try { return layoutPipeline(trace, warn ? { warn } : undefined); } catch (e) { if (e instanceof LayoutError) return null; throw e; }
   }, [trace]);
   const [level, setLevel] = usePanelView(initialLevel);
   const [selected, setSelected] = useState(initialSelected);
   const [vs, setVs] = useState(null);
+  const [legendOpen, setLegendOpen] = useRemembered("ms_pipeline_legend", true);
+  const [mapOpen, setMapOpen] = useRemembered("ms_pipeline_overview", false);
+  const [allLabels, setAllLabels] = useRemembered("ms_pipeline_all_labels", false);
   const canvas = useRef(null);
   useEffect(() => {
     const onKey = (e) => { if (e.key === "Escape") setSelected(null); };
@@ -69,21 +81,27 @@ export function PipelineView({ trace, initialLevel, initialSelected = null, init
             <button key={k} role="radio" aria-checked={level === k} className={level === k ? "on" : ""} onClick={() => setLevel(k)}>{lab}</button>
           ))}
         </div>
+        {caseId && <a className="ctl pl-link" href={`#/case/${encodeURIComponent(caseId)}`}>Back to the case</a>}
       </header>
 
       <PipelineCanvas ref={canvas} layout={layout} edgeKinds={trace.edge_kinds} level={level} selected={selected}
-        onSelect={(id) => setSelected(id)} initialSize={initialSize} onViewChange={(view, size) => setVs({ view, size })} />
+        onSelect={(id) => setSelected(id)} initialSize={initialSize} onViewChange={(view, size) => setVs({ view, size })}
+        showAllLabels={allLabels} />
 
       <div className="pl-controls" role="toolbar" aria-label="Canvas controls">
         <button className="ctl" onClick={() => canvas.current?.zoomIn()} aria-label="Zoom in">+</button>
         <button className="ctl" onClick={() => canvas.current?.zoomOut()} aria-label="Zoom out">−</button>
         <button className="ctl" onClick={() => canvas.current?.fit()}>Fit to screen</button>
         <button className="ctl" onClick={() => canvas.current?.reset()}>Reset</button>
+        <button className="ctl" aria-pressed={allLabels} onClick={() => setAllLabels(!allLabels)}
+          title="Connection labels: by default only for the hovered or selected step">{allLabels ? "Hide other labels" : "Show all labels"}</button>
       </div>
 
-      <div className="pl-legend glass-soft" aria-label="Edge colours">
-        <span className="mono kicker">Connections carry</span>
-        {kinds.map((k) => (
+      <div className={"pl-legend glass-soft" + (legendOpen ? "" : " is-closed")} aria-label="Edge colours">
+        <button className="pl-panel-toggle mono kicker" aria-expanded={legendOpen} onClick={() => setLegendOpen(!legendOpen)}>
+          {legendOpen ? "Connections carry ▾" : "Legend ▸"}
+        </button>
+        {legendOpen && kinds.map((k) => (
           <div key={k} className="pl-legend-row">
             <svg width="26" height="8" aria-hidden="true"><line x1="1" y1="4" x2="25" y2="4" stroke={edgeColour(k, trace.edge_kinds)} strokeWidth="1.5" /></svg>
             <span>{KIND_WORDS[k] || k}</span>
@@ -92,7 +110,12 @@ export function PipelineView({ trace, initialLevel, initialSelected = null, init
         ))}
       </div>
 
-      {vs && <div className="pl-minimap-wrap"><MiniMap layout={layout} view={vs.view} size={vs.size} onCentre={(x, y) => canvas.current?.centreOn(x, y)} /></div>}
+      <div className={"pl-minimap-wrap glass-soft" + (mapOpen ? "" : " is-closed")}>
+        <button className="pl-panel-toggle mono kicker" aria-expanded={mapOpen} onClick={() => setMapOpen(!mapOpen)}>
+          {mapOpen ? "Overview ▾" : "Overview ▸"}
+        </button>
+        {mapOpen && vs && <MiniMap layout={layout} view={vs.view} size={vs.size} onCentre={(x, y) => canvas.current?.centreOn(x, y)} />}
+      </div>
 
       {block && <Drawer block={block} trace={trace} layout={layout} level={level} onClose={() => setSelected(null)} />}
     </div>
