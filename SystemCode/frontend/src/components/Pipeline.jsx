@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getTrace } from "../api.js";
-import { TAG } from "../lib/theme.js";
+import { PIPE } from "../lib/theme.js";
 import { LayoutError, layoutPipeline } from "../lib/pipelineLayout.js";
 import { usePanelView } from "./Aside.jsx";
 import PipelineCanvas, { MiniMap, edgeColour } from "./PipelineCanvas.jsx";
@@ -121,9 +121,10 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
         </button>
         {legendOpen && kinds.map((k) => (
           <div key={k} className="pl-legend-row">
-            <svg width="26" height="8" aria-hidden="true"><line x1="1" y1="4" x2="25" y2="4" stroke={edgeColour(k, trace.edge_kinds)} strokeWidth="1.5" /></svg>
+            <svg width="30" height="10" aria-hidden="true"><line x1="4" y1="5" x2="26" y2="5" stroke={edgeColour(k, trace.edge_kinds)} strokeWidth="1.75" />
+              <circle cx="4.5" cy="5" r="3.5" fill={edgeColour(k, trace.edge_kinds)} /><circle cx="25.5" cy="5" r="3.5" fill={edgeColour(k, trace.edge_kinds)} /></svg>
             <span>{KIND_WORDS[k] || k}</span>
-            <span className="tag" style={{ color: TAG[trace.edge_kinds[k]]?.c, background: TAG[trace.edge_kinds[k]]?.b }}>{trace.edge_kinds[k]}</span>
+            <span className="tag pl-legend-tag" style={{ background: PIPE[trace.edge_kinds[k]]?.b }}>{trace.edge_kinds[k]}</span>
           </div>
         ))}
       </div>

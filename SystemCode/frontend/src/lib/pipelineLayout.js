@@ -161,8 +161,7 @@ export function layoutPipeline(trace, { warn = (m) => console.warn(m) } = {}) {
   });
   // frame captions sit on the frame's top edge, at the first stretch clear of input-port labels and entering lines
   for (const f of frames) {
-    const len = Math.max((f.block.title_mechanic || "").length, (f.block.title_developer || "").length);
-    const w = len * 6.6 + 18;
+    const w = Math.max(titleWidth(f.block.title_mechanic), titleWidth(f.block.title_developer)) * (14 / 16) + 20;  // Outfit 14px
     const busy = Object.values(ports).filter((p) => p.side === "in" && f.members.has(p.node) && nodes[p.node].row === f.r0)
       .map((p) => [p.x - 3, p.x + 7 + (p.short || "").length * 6.4]);
     for (const e of edges) for (let i = 1; i < e.points.length; i++) {

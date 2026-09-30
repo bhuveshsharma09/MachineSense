@@ -1,5 +1,5 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { K, TAG } from "../lib/theme.js";
+import { K, PIPE } from "../lib/theme.js";
 import { CaseLine } from "./PipelineCase.jsx";
 
 
@@ -13,7 +13,7 @@ const PORT_LABEL_MIN_SCALE = 0.9;  // App-4.3: the 9.5px port micro-labels only 
 export const LEGIBLE = 0.8;  // App-4.2.1: below this scale block titles are no longer comfortably readable
 export const INSET = { top: 100, side: 40, bottom: 36 };  // screen margins of fit to screen; the header floats above ``top``
 
-export const edgeColour = (kind, edgeKinds) => TAG[edgeKinds?.[kind]]?.c || K.ink3;
+export const edgeColour = (kind, edgeKinds) => PIPE[edgeKinds?.[kind]]?.c || K.ink3;
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const usable = (size) => ({ w: Math.max(1, size.w - 2 * INSET.side), h: Math.max(1, size.h - INSET.top - INSET.bottom) });
 const topAligned = (bounds, size, scale) => ({ cx: bounds.x + bounds.w / 2, cy: bounds.y + (size.h / 2 - INSET.top) / scale, scale });
@@ -144,7 +144,8 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
     const below = p.side === "out";
     return (
       <g key={key} data-port={key}>
-        <circle cx={p.x} cy={p.y} r={2.5} fill={c || "oklch(0.995 0.002 85)"} stroke={c || K.ink3} strokeWidth={1}>
+        <circle cx={p.x} cy={p.y} r={4.5} fill={c || "oklch(0.975 0.002 260)"} stroke={c ? "oklch(0.99 0.002 260 / 0.9)" : "oklch(0.62 0.006 260)"}
+          strokeWidth={c ? 1.5 : 1.25}>
           <title>{p.label}</title>
         </circle>
         {view.scale >= PORT_LABEL_MIN_SCALE && <text x={p.x + 5} y={below ? p.y + 13 : p.y - 5} className="pl-port-label">{p.short}</text>}
@@ -159,7 +160,7 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
         onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}>
         {layout.frames.map((f) => (
           <g key={f.id} data-frame={f.id}>
-            <rect x={f.x} y={f.y} width={f.w} height={f.h} rx={18} fill="none" stroke="oklch(0.23 0.006 260 / 0.12)" strokeDasharray="5 5" />
+            <rect x={f.x} y={f.y} width={f.w} height={f.h} rx={22} fill="oklch(0.985 0.002 260 / 0.45)" stroke="oklch(0.23 0.006 260 / 0.09)" />
           </g>
         ))}
         {layout.unplacedY !== null && (
@@ -172,9 +173,9 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
             const dim = hover && !connected.has(e.id);
             return (
               <g key={e.id} data-edge={e.id} data-kind={e.kind} opacity={dim ? 0.28 : 1}>
-                <path d={e.d} fill="none" stroke={c} strokeWidth={1.25} strokeLinejoin="round"><title>{e.label || e.kind}</title></path>
-                <circle cx={s[0]} cy={s[1]} r={2.25} fill={c} />
-                <circle cx={z[0]} cy={z[1]} r={2.25} fill={c} />
+                <path d={e.d} fill="none" stroke={c} strokeWidth={1.75} strokeLinejoin="round" strokeLinecap="round"><title>{e.label || e.kind}</title></path>
+                <circle cx={s[0]} cy={s[1]} r={4.5} fill={c} />
+                <circle cx={z[0]} cy={z[1]} r={4.5} fill={c} />
                 {e.label && labelAt[e.id] && view.scale >= LABEL_MIN_SCALE && (
                   <text x={labelAt[e.id].x} y={labelAt[e.id].y} textAnchor={labelAt[e.id].anchor} className="pl-edge-label" fill={c}>{e.label}</text>
                 )}

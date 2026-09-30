@@ -7,6 +7,14 @@ export const K = {
   greenT: "oklch(0.47 0.09 160)",
 };
 export const al = (c, x) => c.slice(0, -1) + " / " + x + ")";
+// Pipeline graph palette (App-4.3 restyle, from the reference "Diagnostics Flow" UI): neutral grey for measured signals,
+// the electric blue for model outputs and decisions, lime for explanations; keyed by the evidence tag the trace names.
+export const PIPE = {
+  Measured: { c: "oklch(0.52 0.008 260)", b: "oklch(0.52 0.008 260 / 0.12)" },
+  Model: { c: K.violet, b: "oklch(0.54 0.21 277 / 0.12)" },
+  Guidance: { c: "oklch(0.86 0.19 118)", b: "oklch(0.89 0.17 118 / 0.35)" },
+  Missing: { c: K.amberT, b: "oklch(0.80 0.14 75 / 0.2)" },
+};
 export const TAG = {
   Measured: { c: K.ink, b: "oklch(0.23 0.006 260 / 0.07)" },
   Model: { c: "oklch(0.44 0.09 250)", b: "oklch(0.55 0.1 250 / 0.12)" },
