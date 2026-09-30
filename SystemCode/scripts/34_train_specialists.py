@@ -201,21 +201,27 @@ def latency_and_size(cfg) -> dict:
     prec, cents = torch.eye(cfg.cnn.embedding_dim), torch.randn(9, cfg.cnn.embedding_dim)
     x = torch.randn(9, len(VIB), 128, 25)
     mu, sd = torch.zeros(len(VIB)), torch.ones(len(VIB))
-    t_bank, t_maha = [], []
-    with torch.no_grad():
-        for _ in range(51):
-            t0 = time.perf_counter()
-            for m in aes:  # frame level: 9 windows × 25 frames per specialist
-                f = normalise_any(x, mu, sd).permute(0, 3, 1, 2).reshape(-1, len(VIB), 128)
-                ((m(f) - f) ** 2).mean()
-            t_bank.append((time.perf_counter() - t0) * 1000)
-            t0 = time.perf_counter()
-            _, z = cnn(normalise(x, mu, sd))
-            d = z[:, None, :] - cents[None]
-            torch.einsum("wci,ij,wcj->wc", d, prec, d).min(dim=1)
-            t_maha.append((time.perf_counter() - t0) * 1000)
-    return {"cpu_ms_per_recording": {"bank_9_specialists": float(np.median(t_bank[1:])),
-                                     "cnn6_plus_mahalanobis": float(np.median(t_maha[1:]))},
+    lat = {}
+    default_threads = torch.get_num_threads()
+    for threads in (1, default_threads):  # CPU timing varies with the thread setting; both are reported
+        torch.set_num_threads(threads)
+        t_bank, t_maha = [], []
+        with torch.no_grad():
+            for _ in range(51):
+                t0 = time.perf_counter()
+                for m in aes:  # frame level: 9 windows × 25 frames per specialist
+                    f = normalise_any(x, mu, sd).permute(0, 3, 1, 2).reshape(-1, len(VIB), 128)
+                    ((m(f) - f) ** 2).mean()
+                t_bank.append((time.perf_counter() - t0) * 1000)
+                t0 = time.perf_counter()
+                _, z = cnn(normalise(x, mu, sd))
+                d = z[:, None, :] - cents[None]
+                torch.einsum("wci,ij,wcj->wc", d, prec, d).min(dim=1)
+                t_maha.append((time.perf_counter() - t0) * 1000)
+        lat[f"{threads}_threads"] = {"bank_9_specialists": float(np.median(t_bank[1:])),
+                                     "cnn6_plus_mahalanobis": float(np.median(t_maha[1:]))}
+    torch.set_num_threads(default_threads)
+    return {"cpu_ms_per_recording": lat,
             "parameters": {"bank_9_specialists": int(sum(sum(p.numel() for p in m.parameters()) for m in aes)),
                            "one_specialist": int(sum(p.numel() for p in aes[0].parameters())),
                            "cnn6_loco": int(n_parameters(cnn))},
