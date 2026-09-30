@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { K } from "../lib/theme.js";
+import { Logo } from "./TopBar.jsx";
 
 // Display name, stored in this browser only (localStorage key ms_display_name).
 export default function NameModal({ initial, onSave }) {
@@ -10,7 +11,7 @@ export default function NameModal({ initial, onSave }) {
       <form onSubmit={(e) => { e.preventDefault(); if (!invalid) onSave(draft.trim()); }} className="glass-strong"
         style={{ width: "100%", maxWidth: 440, display: "flex", flexDirection: "column", gap: 22, padding: 30, borderRadius: 22 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 22, height: 22, borderRadius: "50%", border: "1.5px solid " + K.ink, display: "grid", placeItems: "center" }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: K.orange }} /></span>
+          <Logo size={26} />
           <span style={{ fontSize: 17, fontWeight: 500 }}>MachineSense</span>
           <span className="mono kicker" style={{ marginLeft: "auto" }}>Research demo</span>
         </div>

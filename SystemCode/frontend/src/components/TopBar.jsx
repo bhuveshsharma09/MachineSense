@@ -1,12 +1,9 @@
 import { K } from "../lib/theme.js";
 import { human, recordingTitle } from "../lib/model.js";
 
-export function Logo() {
-  return (
-    <span style={{ width: 20, height: 20, borderRadius: "50%", border: "1.5px solid " + K.ink, display: "grid", placeItems: "center" }}>
-      <span style={{ width: 6, height: 6, borderRadius: "50%", background: K.orange }} />
-    </span>
-  );
+// The official MachineSense icon (frontend/public/icon-*.png); decorative beside the "MachineSense" wordmark.
+export function Logo({ size = 22 }) {
+  return <img src="/icon-64.png" width={size} height={size} alt="" aria-hidden="true" style={{ display: "block", flex: "none" }} />;
 }
 
 // A short, readable name for the selected recording, kept beside the Start button (App-3).
