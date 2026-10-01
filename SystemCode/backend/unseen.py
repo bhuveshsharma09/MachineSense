@@ -150,17 +150,28 @@ def select(rows: list[dict], runs: dict) -> dict:
                                          "a learned condition the same model accepts with its correct label, no caution, all "
                                          "rule variants agreeing" + (f"; the condition this model most often proposes for "
                                                                      f"the hidden class ({mistaken_for})" if len(same) else ""))}
-        picks, missing = [], []
-        for cat, (frame, why) in cands.items():
+        healthy_acc = accepted[accepted.decision == "healthy"]
+        cand_list = list(cands.items())
+        if len(wrong_fault) and len(healthy_acc):  # addendum (Bhuvesh, 1 Oct): the typical healthy acceptance as well
+            cand_list.insert(2, ("honest failure", (healthy_acc, "a withheld recording that passed both checks and was "
+                                                                 f"called healthy ({len(healthy_acc)} of {len(wh)} were)")))
+        picks, missing, why_missing = [], [], {}
+        for cat, (frame, why) in cand_list:
             if frame.empty:
                 missing.append(cat)
+                why_missing[cat] = (f"every one of the {len(wh)} eligible withheld recordings was rejected" if
+                                    cat == "honest failure" else "no eligible recording met this category's conditions")
                 continue
             f2 = frame.assign(_warn=frame.speed_warnings.map(bool), _dev=(frame.maha - frame.maha.median()).abs())
             r = f2.sort_values(["_warn", "_dev", "rec_id"]).iloc[0]
-            picks.append({"category": cat, "role": r.role, "rec_id": r.rec_id, "true_class": r.true_class,
-                          "reason": f"{why}; median-distance case among {len(frame)}" +
-                                    ("" if not r._warn else "; carries a speed-range warning (no warning-free case)")})
+            pick = {"category": cat, "role": r.role, "rec_id": r.rec_id, "true_class": r.true_class,
+                    "reason": f"{why}; median-distance case among {len(frame)}" +
+                              ("" if not r._warn else "; carries a speed-range warning (no warning-free case)")}
+            if cat == "honest failure":
+                pick["failure_kind"] = "called healthy" if r.decision == "healthy" else "a wrong familiar fault"
+            picks.append(pick)
         out[c] = {**info, "examples": picks, "categories_without_an_eligible_recording": missing,
+                  "why_missing": why_missing,
                   "counts": {"withheld_recordings": int(len(wh)), "rejected": int(len(rejected)),
                              "accepted_as_a_wrong_fault": int(len(wrong_fault)),
                              "accepted_as_healthy": int((accepted.decision == "healthy").sum()),

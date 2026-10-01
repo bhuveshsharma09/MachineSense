@@ -337,6 +337,11 @@ The normal application, its ten-class bundle, its scoring path, its verdicts, `E
    reserved id in `backend/unseen.json`; the API refuses a reserved id; per hidden class the withheld class is absent from the
    model's classes and calibration ids; live = saved (as item 4); the decision shown = `ml.arbitrator.decide` on the same
    scores; the curated set has a rejection and a failure case; the golden and main app tests unchanged.
+8. **Addendum (1 Oct, after the build sweep, Bhuvesh's decisions):** four hidden classes have no eligible honest failure (the
+   LOCO model rejected every eligible withheld recording: underhang cage 72 / 72, underhang outer 73 / 73, overhang ball
+   69 / 69, overhang outer 74 / 74); this is reported plainly (`why_missing`, the example list, Experiment details), never
+   substituted. Where a class has both wrong-fault and healthy acceptances (only horizontal misalignment: 1 wrong fault, 36
+   healthy of 73), a second honest failure "called healthy" (its median-distance case) is shown beside the declared one.
 
 ## 7-prev5. Previous stage: Stage R5 — decision design for the specialist bank (Q3, development data only)
 
