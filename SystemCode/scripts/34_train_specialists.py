@@ -3,6 +3,12 @@ Never imports LightGBM. Protocol: CLAUDE.md §7 (Stage R4), declared before any 
 
     caffeinate -i env MACHINESENSE_DEVICE=mps python scripts/34_train_specialists.py train     # 27 runs; resumable
     python scripts/34_train_specialists.py evaluate                                           # tables vs Mahalanobis
+    ... train --seed 43 / evaluate --seed 43                                                  # Stage R5 addendum
+
+--seed (default 42) only changes the plumbing: seed 42 reads and writes exactly the original paths; seeds 43 / 44 write
+seed-suffixed paths (results/specialists/s<seed>/, results/research/r4_*_s<seed>.*) and never touch a seed-42 file. For
+seeds other than 42 the saved CNN-6 / AE-6 scores are the 3C.1 recording files and the thresholds are calibrated per run with
+ml.calibration.thresholds_from_scores (saved to results/loco/decision_thresholds_s<seed>.csv).
 
 Per run (withheld w, outer fold k; the saved Stage 3C assignment): eight fault specialists (every fault class except w)
 are trained with the AE-6 recipe on the run's fit recordings of their class only, normalised on exactly those recordings;
@@ -27,7 +33,71 @@ from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, RunPaths, artifacts_dir, d
 from ml.splits import FAULT_CLASSES, development_pool, split_hash
 from ml.utils import git_sha
 
-SEED = 42
+SEED = 42  # set by main() from --seed; every path below is derived from it
+
+
+def set_seed(seed: int) -> None:
+    global SEED
+    SEED = int(seed)
+
+
+def spec_res():
+    """Per-specialist normalisation and training records: the original folder for seed 42, a seed subfolder otherwise."""
+    return SPEC_RES if SEED == 42 else SPEC_RES / f"s{SEED}"
+
+
+def out_file(stem: str, ext: str):
+    """results/research/<stem>.<ext> for seed 42 (the original files), <stem>_s<seed>.<ext> otherwise."""
+    return OUT / (f"{stem}.{ext}" if SEED == 42 else f"{stem}_s{SEED}.{ext}")
+
+
+def saved_scores() -> pd.DataFrame:
+    """The 3C CNN-6 / AE-6 recording scores of SEED's runs (withheld, outer_fold, rec_id, pred, msp, maha, ae, role,
+    class10, decision_classifier_first): the seed-42 decisions file, or the 3C.1 recording files with rule A's decision
+    from ml.arbitrator.decide for other seeds."""
+    if SEED == 42:
+        return pd.read_parquet(results_dir() / "scores" / "cnn6ae6_s42_loco_decisions.parquet")
+    from ml.arbitrator import decide
+    thr = thresholds()
+    parts = []
+    for c in FAULT_CLASSES:
+        for k in (0, 1, 2):
+            r = pd.read_parquet(results_dir() / "scores" / f"cnn6_w-{c}_s{SEED}_loco_fold{k}_recording.parquet")
+            t = thr.loc[(c, k)]
+            dd = [decide("A", p, m, d, a, 0.0, {"tau_p": t.tau_p, "tau_d": t.tau_d, "tau_e": t.tau_e, "tau_b": 1.0})
+                  for p, m, d, a in zip(r.pred, r.msp, r.maha, r.ae)]
+            r["decision_classifier_first"] = [x["fault_class"] if x["decision"] == "known_fault" else x["decision"] for x in dd]
+            parts.append(r[["withheld", "outer_fold", "rec_id", "pred", "msp", "maha", "ae", "role", "class10",
+                            "decision_classifier_first"]])
+    return pd.concat(parts, ignore_index=True)
+
+
+def thresholds() -> pd.DataFrame:
+    """τ_p, τ_d, τ_e (and τ_b) per run of SEED, indexed (withheld, outer_fold): the saved seed-42 file, or — for other seeds —
+    ml.calibration.thresholds_from_scores on each run's own calibration recordings, saved on first use."""
+    if SEED == 42:
+        return pd.read_csv(results_dir() / "loco" / "decision_thresholds.csv").set_index(["withheld", "outer_fold"])
+    path = results_dir() / "loco" / f"decision_thresholds_s{SEED}.csv"
+    if not path.exists():
+        path.write_text(calibrated_thresholds(SEED).to_csv(index=False))
+    return pd.read_csv(path).set_index(["withheld", "outer_fold"])
+
+
+def calibrated_thresholds(seed: int) -> pd.DataFrame:
+    """ml.calibration.thresholds_from_scores on each run's calibration recordings (3C / 3C.1 recording scores, B1s)."""
+    from ml.calibration import thresholds_from_scores
+    b1s = pd.read_parquet(results_dir() / "scores" / "b1s_nomic_loco_q3fit_scores.parquet")
+    rows = []
+    for c in FAULT_CLASSES:
+        for k in (0, 1, 2):
+            r = pd.read_parquet(results_dir() / "scores" / f"cnn6_w-{c}_s{seed}_loco_fold{k}_recording.parquet")
+            cal = r[r.role == "cal"].merge(b1s[(b1s.withheld == c) & (b1s.outer_fold == k)][["rec_id", "b1s"]],
+                                           on="rec_id").set_index("rec_id")
+            t = thresholds_from_scores(cal, cal.class10 == "normal")
+            rows.append({"withheld": c, "outer_fold": k, **{q: t[q] for q in ("tau_p", "tau_d", "tau_e", "tau_b",
+                                                                              "n_calibration", "order_statistic_r")},
+                         "n_cal_normals": t["n_calibration_normals_tau_e"], "seed": seed})
+    return pd.DataFrame(rows)
 VIB = [0, 1, 2, 3, 4, 5]
 ASSIGNMENT = results_dir() / "q1q3" / "q3_fit_cal_eval_assignment.csv"
 ROLES = ("cal", "eval", "foldk_known", "foldk_withheld")
@@ -76,9 +146,8 @@ def run_train() -> None:
     arr, index = load_representation(data_dir() / "representations", cfg, meta)
     rows = dev_window_rows(index, pool)
     rec_of = rows.rec_id.to_numpy()
-    saved_ae = pd.read_parquet(results_dir() / "scores" / "cnn6ae6_s42_loco_decisions.parquet").set_index(
-        ["withheld", "outer_fold", "rec_id"]).ae
-    tau_e = pd.read_csv(results_dir() / "loco" / "decision_thresholds.csv").set_index(["withheld", "outer_fold"]).tau_e
+    saved_ae = saved_scores().set_index(["withheld", "outer_fold", "rec_id"]).ae
+    tau_e = thresholds().tau_e
     todo = [(c, k) for c in FAULT_CLASSES for k in (0, 1, 2) if not errors_path(c, k).exists()]
     print(f"{len(todo)} runs to do", flush=True)
     if not todo:
@@ -99,7 +168,7 @@ def run_train() -> None:
             scored = sorted(role_of)
             sel = np.flatnonzero(np.isin(rec_of, scored))
             errs, info = {}, {}
-            (SPEC_RES / f"w-{c}").mkdir(parents=True, exist_ok=True)
+            (spec_res() / f"w-{c}").mkdir(parents=True, exist_ok=True)
             for u, sp in plan["specialists"].items():
                 if u == NORMAL:  # the saved Stage 3C AE-6 of this run (declared)
                     ra = RunPaths("loco", "ae6", SEED, protocol="loco", withheld=c)
@@ -113,7 +182,7 @@ def run_train() -> None:
                 else:
                     st = norm_stats(arr, index, meta, fit_ids=sp["fit"], context=ids["context"])
                     mean, std = st["mean"][VIB], st["std"][VIB]
-                    (SPEC_RES / f"w-{c}" / f"fold{k}_{u}_norm.json").write_text(json.dumps(
+                    (spec_res() / f"w-{c}" / f"fold{k}_{u}_norm.json").write_text(json.dumps(
                         {"withheld": c, "fold": k, "specialist": u, "fit_ids": sp["fit"], "n_windows": st["n_windows"],
                          "mean": mean.tolist(), "std": std.tolist()}))
                     fit_rows = np.flatnonzero(np.isin(rec_of, sp["fit"]))
@@ -139,7 +208,7 @@ def run_train() -> None:
             df["withheld"], df["outer_fold"] = c, k
             df.to_parquet(errors_path(c, k), index=False)
             run_s = time.perf_counter() - t_run
-            (SPEC_RES / f"w-{c}" / f"fold{k}_train.json").write_text(json.dumps(
+            (spec_res() / f"w-{c}" / f"fold{k}_train.json").write_text(json.dumps(
                 {"withheld": c, "fold": k, "specialists": info, "run_seconds": run_s, "normal_reproduction_max_abs_diff": diff,
                  "normal_reproduced": bool(ok), "device": str(device), "git_sha": git_sha(), "split_hash": split_hash(meta)},
                 indent=1))
@@ -152,7 +221,7 @@ def run_train() -> None:
                 proj = (time.perf_counter() - t_start) * len(todo) / 60
                 print(f"  TIME ESTIMATE after the first run: {proj:.0f} min for {len(todo)} runs (guard {GUARD_MIN:.0f})", flush=True)
                 OUT.mkdir(parents=True, exist_ok=True)
-                (OUT / "r4_time_estimate.json").write_text(json.dumps({"first_run_seconds": time.perf_counter() - t_start,
+                out_file("r4_time_estimate", "json").write_text(json.dumps({"first_run_seconds": time.perf_counter() - t_start,
                                                                        "runs": len(todo), "projected_minutes": proj,
                                                                        "guard_minutes": GUARD_MIN}, indent=1))
                 if proj > GUARD_MIN:
@@ -189,7 +258,7 @@ def latency_and_size(cfg) -> dict:
     ac = AeConfig(**cfg.ae.model_dump())
     c, k = "imbalance", 0
     aes = []
-    for u in sorted(set(json.loads((SPEC_RES / f"w-{c}" / f"fold{k}_train.json").read_text())["specialists"])):
+    for u in sorted(set(json.loads((spec_res() / f"w-{c}" / f"fold{k}_train.json").read_text())["specialists"])):
         m = build_ae("frame", len(VIB), ac)
         p = weights_path(c, k, u) if u != "normal" else RunPaths("loco", "ae6", SEED, protocol="loco", withheld=c).weights(k)
         m.load_state_dict(torch.load(p, map_location="cpu", weights_only=True))
@@ -238,8 +307,8 @@ def run_evaluate() -> None:
 
     cfg, meta, pool, assignment = setup()
     info = pool.set_index("rec_id")
-    dec = pd.read_parquet(results_dir() / "scores" / "cnn6ae6_s42_loco_decisions.parquet")
-    thr = pd.read_csv(results_dir() / "loco" / "decision_thresholds.csv").set_index(["withheld", "outer_fold"])
+    dec = saved_scores()
+    thr = thresholds()
     level = level_per_recording(cfg, meta, pool)
     runs, inst, gen_rows, trains = [], [], [], []
     for c in FAULT_CLASSES:
@@ -296,7 +365,7 @@ def run_evaluate() -> None:
             er = empirical_rank_scores(E, e.role, e.class10)
             t["empirical_rank_min"] = er.min(axis=1).to_numpy()
             t["empirical_rank_normal_cap"] = int(((e.role == "cal") & (e.class10 == NORMAL)).sum() - 1)
-            trains.append(json.loads((SPEC_RES / f"w-{c}" / f"fold{k}_train.json").read_text()))
+            trains.append(json.loads((spec_res() / f"w-{c}" / f"fold{k}_train.json").read_text()))
     R = pd.DataFrame(runs)
     I = pd.concat(inst, ignore_index=True)
     G = pd.DataFrame(gen_rows)
@@ -356,7 +425,7 @@ def run_evaluate() -> None:
             "normal_reused_from_3c": int(n_fit.reused_3c_ae6.sum()),
             "cnn6_loco_training_seconds_total_3c": 958.9, "ae6_loco_training_seconds_total_3c": 191.5,
             **latency_and_size(cfg)}
-    time_est = json.loads((OUT / "r4_time_estimate.json").read_text()) if (OUT / "r4_time_estimate.json").exists() else None
+    time_est = json.loads(out_file("r4_time_estimate", "json").read_text()) if out_file("r4_time_estimate", "json").exists() else None
     out = {"stage": "R4", "wording": WORDING, "seed": SEED, "split_hash": split_hash(meta), "git_sha": git_sha(),
            "calibration": "s_u = log(e_u / median of specialist u's own calibration errors), leave-one-out for its own "
                           "calibration recordings; S = min_u s_u; tau_S = 97.5 % order statistic over all calibration recordings",
@@ -385,13 +454,13 @@ def run_evaluate() -> None:
            "normal_reproduction_max_abs_diff": float(max(t["normal_reproduction_max_abs_diff"] for t in trains)),
            "cost": cost, "time_estimate": time_est}
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "r4_specialists.json").write_text(json.dumps(out, indent=1, default=lambda o: o.item() if hasattr(o, "item") else str(o)))
-    R.to_csv(OUT / "r4_per_run.csv", index=False)
+    out_file("r4_specialists", "json").write_text(json.dumps(out, indent=1, default=lambda o: o.item() if hasattr(o, "item") else str(o)))
+    R.to_csv(out_file("r4_per_run", "csv"), index=False)
     I[["withheld", "outer_fold", "rec_id", "role", "class10", "severity", "speed_hz", "level", "S", "tau_S", "best",
        "accepting", "n_accepting", "bank_verdict", "maha", "tau_d", "maha_rejects", "maha_only_verdict", "rule_B",
        "cnn_top", "empirical_rank_min", "empirical_rank_normal_cap"] + [c2 for c2 in I.columns if c2.startswith("s_")]] \
-        .to_csv(OUT / "r4_ambiguity.csv", index=False)
-    G.to_csv(OUT / "r4_generalisation.csv", index=False)
+        .to_csv(out_file("r4_ambiguity", "csv"), index=False)
+    G.to_csv(out_file("r4_generalisation", "csv"), index=False)
     print(fold.round(4)); print("Δ AUROC per fold:", delta.round(4).to_dict(), "mean", round(float(delta.mean()), 4))
     print(per_class.round(4))
     print("matched unknown recall: bank", round(pooled_matched, 4), "maha", round(pooled_maha, 4))
@@ -407,7 +476,9 @@ def run_evaluate() -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("task", choices=["train", "evaluate"])
+    ap.add_argument("--seed", type=int, default=42, choices=(42, 43, 44))
     a = ap.parse_args()
+    set_seed(a.seed)
     run_train() if a.task == "train" else run_evaluate()
     return 0
 

@@ -2,7 +2,9 @@
 E1 (gated composition) and E2 (level correction) re-score Stage R4's saved per-recording table. Protocol: CLAUDE.md §7
 (Stage R5), declared before running.
 
-    python scripts/35_decision_design.py
+    python scripts/35_decision_design.py                     # seed 42 (the original run; original output paths)
+    python scripts/35_decision_design.py --seed 43           # Stage R5 addendum: R4 and E1 only, seed-suffixed outputs
+    python scripts/35_decision_design.py seeds               # the three-seed table and reading (r5_seeds.json)
 
 Outputs: results/research/r5_decision_design.json, r5_per_variant.csv (one row per variant × run), r5_per_recording.csv
 (one row per recording × run, with every variant's score and verdicts). Exploratory further analysis of development data;
@@ -43,14 +45,24 @@ WORDING = ("Exploratory further analysis of Stage R4's development results, seed
            "sealed and F1 has already been run, so nothing here is an independent claim.")
 
 
-def load() -> tuple[pd.DataFrame, pd.DataFrame, object]:
+def r4_module(seed: int):
+    """scripts/34_train_specialists.py with its seed set (its path and saved-score plumbing is the single source)."""
+    spec = importlib.util.spec_from_file_location("s34", SYSTEM_CODE_DIR / "scripts" / "34_train_specialists.py")
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    m.set_seed(seed)
+    return m
+
+
+def load(seed: int = 42) -> tuple[pd.DataFrame, pd.DataFrame, object]:
     cfg = load_config(DEFAULT_CONFIG)
     meta = pd.read_csv(SYSTEM_CODE_DIR / "metadata.csv")
-    t = pd.read_csv(OUT / "r4_ambiguity.csv", keep_default_na=False, na_values=["", "nan", "NaN"])
+    m34 = r4_module(seed)
+    t = pd.read_csv(m34.out_file("r4_ambiguity", "csv"), keep_default_na=False, na_values=["", "nan", "NaN"])
     t["accepting"] = t.accepting.astype(str).replace("nan", "")
-    dec = pd.read_parquet(results_dir() / "scores" / "cnn6ae6_s42_loco_decisions.parquet")[KEY + ["pred", "msp", "ae"]]
+    dec = m34.saved_scores()[KEY + ["pred", "msp", "ae"]]
     b1s = pd.read_parquet(results_dir() / "scores" / "b1s_nomic_loco_q3fit_scores.parquet")[KEY + ["b1s", "tau_b"]]
-    thr = pd.read_csv(results_dir() / "loco" / "decision_thresholds.csv")[["withheld", "outer_fold", "tau_p", "tau_e"]]
+    thr = m34.thresholds().reset_index()[["withheld", "outer_fold", "tau_p", "tau_e"]]
     df = t.merge(dec, on=KEY, validate="1:1").merge(b1s, on=KEY, validate="1:1").merge(thr, on=["withheld", "outer_fold"])
     assert len(df) == len(t) == 11548 and (df.cnn_top == df.pred).all()
     df = snap_ties(df)  # R0 tie rule on msp, maha, ae, b1s against their thresholds
@@ -192,15 +204,17 @@ def bootstrap_diff(un: pd.DataFrame, a: str, b: str) -> dict:
     return {"diff": float(d.mean()), "ci95": [float(np.percentile(draws, 2.5)), float(np.percentile(draws, 97.5))]}
 
 
-def main() -> int:
-    df, meta, cfg = load()
+def compute(seed: int = 42, variants=None) -> dict:
+    """Step 0 and the declared variants for one seed, through the unchanged R5 functions (no file written)."""
+    variants = {k: VARIANTS[k] for k in (variants or VARIANTS)}
+    df, meta, cfg = load(seed)
     df = baselines(df)
     s0 = step0(df)
     print(f"STEP 0 floor: {s0['floor_gates_pass']} of {s0['withheld_instances']} withheld pass the healthy gates "
           f"({s0['floor_rate']:.3f}); AE gate {s0['ae_gate_pass']}, B1s gate {s0['b1s_gate_pass']}; full rules healthy "
           f"{ {k: v['healthy'] for k, v in s0['full_rules_healthy'].items()} }", flush=True)
     rows, recs = [], []
-    for name, (comp, corr) in VARIANTS.items():
+    for name, (comp, corr) in variants.items():
         parts = []
         for _, g in df.groupby(["withheld", "outer_fold"]):
             r, rc = run_variant(g, name, comp, corr)
@@ -215,7 +229,7 @@ def main() -> int:
     un["M1_unknown"] = un.M1 == "unknown"
     mild = mild_mask(un.set_index("rec_id").rename(columns={"class10": "class10"}), cfg.anomaly)
     summary = {}
-    for name, (comp, corr) in VARIANTS.items():
+    for name, (comp, corr) in variants.items():
         v = V[V.variant == name]
         base = BASELINE[comp]
         n_u = int(v.n_unknown.sum())
@@ -269,11 +283,21 @@ def main() -> int:
         print(f"{name:9s} vs {base}: matched recall {rec_m / n_u:.3f} vs {rec_b / n_u:.3f} (Δ {diff:+.3f}, "
               f"{summary[name]['matched']['paired_bootstrap']['ci95']}); healthy {healthy_m} vs {healthy_b}; "
               f"AUROC folds {fold.auroc.round(3).tolist()} vs {fold.maha_auroc.round(3).tolist()} → {reading}", flush=True)
-    s34 = importlib.util.spec_from_file_location("s34", SYSTEM_CODE_DIR / "scripts" / "34_train_specialists.py")
-    m34 = importlib.util.module_from_spec(s34)
-    s34.loader.exec_module(m34)
+    V.insert(0, "seed", seed)
+    return {"summary": summary, "V": V, "P": P, "s0": s0, "meta": meta, "cfg": cfg}
+
+
+SEED_VARIANTS = ("R4", "E1")  # the addendum: E2 is not rerun
+
+
+def run(seed: int) -> int:
+    res = compute(seed, None if seed == 42 else SEED_VARIANTS)
+    summary, V, P, s0, meta, cfg = (res[k] for k in ("summary", "V", "P", "s0", "meta", "cfg"))
+    m34 = r4_module(seed)
     lat = m34.latency_and_size(cfg)
-    out = {"stage": "R5", "wording": WORDING, "seed": 42, "split_hash": split_hash(meta), "git_sha": git_sha(),
+    sfx = "" if seed == 42 else f"_s{seed}"
+    out = {"stage": "R5" if seed == 42 else "R5 addendum (seeds 43 / 44)", "wording": WORDING, "seed": seed,
+           "split_hash": split_hash(meta), "git_sha": git_sha(),
            "step0_floor": s0, "variants": summary,
            "latency": {"note": "every variant uses 9 autoencoders per recording (bank: 9 specialists; gated: the AE-6 for "
                                "the healthy gate + 8 fault specialists) besides CNN-6 and B1s; measured as in R4",
@@ -281,13 +305,62 @@ def main() -> int:
            "e3": "deferred (Bhuvesh, 1 Oct): ~80 min for seed 42; declared in an addendum after these results",
            "e4": "not started: runs only if a variant passes the bar"}
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "r5_decision_design.json").write_text(json.dumps(out, indent=1, default=lambda o: o.item() if hasattr(o, "item") else str(o)))
-    V.to_csv(OUT / "r5_per_variant.csv", index=False)
+    (OUT / f"r5_decision_design{sfx}.json").write_text(json.dumps(out, indent=1, default=lambda o: o.item() if hasattr(o, "item") else str(o)))
+    V.to_csv(OUT / f"r5_per_variant{sfx}.csv", index=False)
     keep = ["withheld", "outer_fold", "rec_id", "role", "class10", "severity", "speed_hz", "level", "L", "fault_family",
             "gates_pass", "ae", "tau_e", "b1s", "tau_b", "maha", "tau_d", "pred", "M0", "M1"]
-    P[keep + [c for c in P.columns if "__" in c]].to_csv(OUT / "r5_per_recording.csv", index=False)
+    P[keep + [c for c in P.columns if "__" in c]].to_csv(OUT / f"r5_per_recording{sfx}.csv", index=False)
     print("latency:", lat["cpu_ms_per_recording"])
     return 0
+
+
+def seeds() -> int:
+    """The addendum's three-seed table and reading: E1 vs M1 and R4 vs M0 per seed from the per-seed result files;
+    r5_per_variant.csv rewritten with every seed (seed column)."""
+    res = {s: json.loads((OUT / ("r5_decision_design.json" if s == 42 else f"r5_decision_design_s{s}.json")).read_text())
+           for s in (42, 43, 44)}
+    table = {}
+    for s, r in res.items():
+        for name in ("E1", "R4"):
+            v = r["variants"][name]
+            table[f"{name}_s{s}"] = {"seed": s, "variant": name, "baseline": v["baseline"],
+                                     "matched_recall": v["matched"]["variant_recall"], "baseline_recall": v["matched"]["baseline_recall"],
+                                     "gain": v["matched"]["diff"], "gain_ci95_sampling": v["matched"]["paired_bootstrap"]["ci95"],
+                                     "withheld_healthy": v["withheld_healthy"]["variant_matched"],
+                                     "baseline_healthy": v["withheld_healthy"]["baseline"],
+                                     "calibrated_recall": v["calibrated"]["variant_recall"],
+                                     "calibrated_known_rejection": v["calibrated"]["variant_known_rejection"],
+                                     "baseline_known_rejection": v["calibrated"]["baseline_known_rejection"],
+                                     "per_fold": v["matched"]["per_fold"], "reading_single_seed": v["reading"]}
+    e1 = [table[f"E1_s{s}"] for s in (42, 43, 44)]
+    gains = np.array([t["gain"] for t in e1])
+    fails = [{"seed": t["seed"], "condition": c} for t in e1 for c, bad in
+             (("matched recall below M1 + 5 points", t["gain"] < 0.05), ("withheld called healthy above M1", t["withheld_healthy"] > t["baseline_healthy"]))
+             if bad]
+    reading = "helps, confirmed on three seeds" if not fails else "seed-dependent"
+    out = {"addendum": "Stage R5 — E1 confirmed on seeds 43 and 44 (1 Oct 2026)", "table": table,
+           "e1_gain": {"per_seed": dict(zip((42, 43, 44), gains.tolist())), "mean": float(gains.mean()),
+                       "worst": float(gains.min()), "seed_sd": float(gains.std(ddof=1)),
+                       "note": "seed spread (across seeds) and sampling uncertainty (per-seed bootstrap) are reported apart"},
+           "failures": fails, "reading": reading}
+    (OUT / "r5_seeds.json").write_text(json.dumps(out, indent=1, default=lambda o: o.item() if hasattr(o, "item") else str(o)))
+    v42 = pd.read_csv(OUT / "r5_per_variant.csv")
+    v42 = v42[v42.seed == 42] if "seed" in v42 else v42.assign(seed=42)
+    allv = pd.concat([v42] + [pd.read_csv(OUT / f"r5_per_variant_s{s}.csv") for s in (43, 44)], ignore_index=True)
+    allv = allv[["seed"] + [c for c in allv.columns if c != "seed"]]
+    allv.to_csv(OUT / "r5_per_variant.csv", index=False)
+    print(json.dumps({k: (v["gain"], v["withheld_healthy"], v["baseline_healthy"]) for k, v in table.items()}, indent=1))
+    print("E1 gain per seed:", out["e1_gain"]["per_seed"], "→", reading, fails)
+    return 0
+
+
+def main() -> int:
+    import argparse
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("task", nargs="?", default="run", choices=["run", "seeds"])
+    ap.add_argument("--seed", type=int, default=42, choices=(42, 43, 44))
+    a = ap.parse_args()
+    return seeds() if a.task == "seeds" else run(a.seed)
 
 
 if __name__ == "__main__":
