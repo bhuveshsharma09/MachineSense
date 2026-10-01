@@ -1,0 +1,664 @@
+{
+ "stage": "R4",
+ "wording": "Exploratory development results, seed 42 only (27 LOCO runs of Stage 3C); the design and its reading were declared before training. Every fault class has informed earlier development decisions; reserved tests stay sealed.",
+ "seed": 44,
+ "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+ "git_sha": "84301132a76e8a7953f84a786874d88028977a89-dirty",
+ "calibration": "s_u = log(e_u / median of specialist u's own calibration errors), leave-one-out for its own calibration recordings; S = min_u s_u; tau_S = 97.5 % order statistic over all calibration recordings",
+ "primary_per_fold": {
+  "0": {
+   "auroc_bank": 0.913928,
+   "auroc_maha": 0.855404,
+   "oscr_bank": 0.895185,
+   "oscr_maha": 0.838999
+  },
+  "1": {
+   "auroc_bank": 0.941925,
+   "auroc_maha": 0.882765,
+   "oscr_bank": 0.933164,
+   "oscr_maha": 0.876815
+  },
+  "2": {
+   "auroc_bank": 0.850497,
+   "auroc_maha": 0.864913,
+   "oscr_bank": 0.844329,
+   "oscr_maha": 0.857692
+  }
+ },
+ "delta_auroc_per_fold": {
+  "0": 0.058524,
+  "1": 0.059161,
+  "2": -0.014416
+ },
+ "mean_delta_auroc": 0.03442282264412185,
+ "fold_spread": {
+  "auroc_bank": [
+   0.8504972892369214,
+   0.9419252873915522
+  ],
+  "auroc_maha": [
+   0.8554038598678224,
+   0.882764719130601
+  ],
+  "oscr_bank": [
+   0.8443289536742181,
+   0.9331638758575677
+  ],
+  "oscr_maha": [
+   0.8389990966628977,
+   0.8768145402729023
+  ]
+ },
+ "per_withheld_class": {
+  "horizontal_misalignment": {
+   "auroc_bank": 0.692293,
+   "auroc_maha": 0.962254,
+   "oscr_bank": 0.690985,
+   "oscr_maha": 0.956253
+  },
+  "imbalance": {
+   "auroc_bank": 0.878425,
+   "auroc_maha": 0.534408,
+   "oscr_bank": 0.866541,
+   "oscr_maha": 0.532256
+  },
+  "overhang_ball": {
+   "auroc_bank": 1.0,
+   "auroc_maha": 0.992866,
+   "oscr_bank": 0.986122,
+   "oscr_maha": 0.982418
+  },
+  "overhang_cage": {
+   "auroc_bank": 0.850065,
+   "auroc_maha": 0.956452,
+   "oscr_bank": 0.843532,
+   "oscr_maha": 0.951438
+  },
+  "overhang_outer": {
+   "auroc_bank": 0.873568,
+   "auroc_maha": 0.981897,
+   "oscr_bank": 0.861902,
+   "oscr_maha": 0.970179
+  },
+  "underhang_ball": {
+   "auroc_bank": 1.0,
+   "auroc_maha": 0.99374,
+   "oscr_bank": 0.979409,
+   "oscr_maha": 0.975232
+  },
+  "underhang_cage": {
+   "auroc_bank": 0.865877,
+   "auroc_maha": 0.967994,
+   "oscr_bank": 0.853322,
+   "oscr_maha": 0.951845
+  },
+  "underhang_outer": {
+   "auroc_bank": 1.0,
+   "auroc_maha": 0.994639,
+   "oscr_bank": 0.979315,
+   "oscr_maha": 0.975998
+  },
+  "vertical_misalignment": {
+   "auroc_bank": 0.958824,
+   "auroc_maha": 0.424997,
+   "oscr_bank": 0.956904,
+   "oscr_maha": 0.424899
+  }
+ },
+ "runs_bank_better_per_class": {
+  "horizontal_misalignment": 0,
+  "imbalance": 3,
+  "overhang_ball": 2,
+  "overhang_cage": 1,
+  "overhang_outer": 0,
+  "underhang_ball": 3,
+  "underhang_cage": 1,
+  "underhang_outer": 3,
+  "vertical_misalignment": 3
+ },
+ "matched_unknown_recall": {
+  "bank": 0.6123234916559692,
+  "mahalanobis": 0.6110397946084724,
+  "per_fold": {
+   "0": {
+    "bank": 0.7906976744186046,
+    "mahalanobis": 0.6627906976744186
+   },
+   "1": {
+    "bank": 0.47985347985347987,
+    "mahalanobis": 0.6410256410256411
+   },
+   "2": {
+    "bank": 0.5725806451612904,
+    "mahalanobis": 0.5241935483870968
+   }
+  }
+ },
+ "calibrated": {
+  "bank_known_rejection": 0.10159516803469103,
+  "maha_known_rejection": 0.10345361623044758,
+  "bank_unknown_recall": 0.6854942233632862,
+  "maha_unknown_recall": 0.6110397946084724
+ },
+ "unknown_outcomes": {
+  "bank": {
+   "unfamiliar": 534,
+   "healthy": 92,
+   "ambiguous_healthy_fault": 77,
+   "known_fault": 69,
+   "ambiguous_fault": 7
+  },
+  "mahalanobis_only": {
+   "unknown": 476,
+   "known_fault": 279,
+   "healthy": 24
+  },
+  "rule_B_3C": {
+   "unknown": 482,
+   "known_fault": 261,
+   "healthy": 36
+  },
+  "distinct_recordings": 779
+ },
+ "criteria": {
+  "a_all_folds_positive": false,
+  "b_mean_delta_ge_0.02": true,
+  "c_matched_recall_gain_ge_5pp": false,
+  "d_classes_better_ge_5_of_9": true
+ },
+ "reading": "too thin to tell",
+ "ambiguity": {
+  "by_role": {
+   "cal": {
+    "instances": 2151,
+    "ambiguous": 0.3389121338912134,
+    "mean_n_accepting": 1.4249186424918643
+   },
+   "eval": {
+    "instances": 2161,
+    "ambiguous": 0.35030078667283665,
+    "mean_n_accepting": 1.4372975474317446
+   },
+   "foldk_known": {
+    "instances": 6457,
+    "ambiguous": 0.32739662381911105,
+    "mean_n_accepting": 1.3283258479169893
+   },
+   "foldk_withheld": {
+    "instances": 779,
+    "ambiguous": 0.10783055198973042,
+    "mean_n_accepting": 0.4865211810012837
+   }
+  },
+  "known_side_by_class": {
+   "horizontal_misalignment": 0.7945,
+   "imbalance": 0.3368,
+   "normal": 0.8,
+   "overhang_ball": 0.0,
+   "overhang_cage": 0.4253,
+   "overhang_outer": 0.5895,
+   "underhang_ball": 0.0,
+   "underhang_cage": 0.4844,
+   "underhang_outer": 0.0,
+   "vertical_misalignment": 0.209
+  },
+  "top_sets": {
+   "horizontal_misalignment+normal": 835,
+   "imbalance+vertical_misalignment": 704,
+   "normal+overhang_outer": 438,
+   "normal+underhang_cage": 328,
+   "normal+overhang_cage": 212,
+   "imbalance+normal+vertical_misalignment": 157,
+   "normal+vertical_misalignment": 107,
+   "horizontal_misalignment+normal+vertical_misalignment": 86,
+   "normal+overhang_cage+underhang_cage": 79,
+   "overhang_cage+underhang_cage": 76,
+   "normal+overhang_outer+underhang_cage": 59,
+   "horizontal_misalignment+normal+overhang_outer": 58
+  },
+  "by_speed_band": {
+   "<20 Hz": 0.359,
+   "20-30 Hz": 0.3456,
+   ">=30 Hz": 0.2577
+  }
+ },
+ "speed": {
+  "unknown_recall_bank_calibrated": {
+   "<20 Hz": 0.6205357142857143,
+   "20-30 Hz": 0.6958041958041958,
+   ">=30 Hz": 0.7286245353159851
+  },
+  "unknown_recall_maha_calibrated": {
+   "<20 Hz": 0.7008928571428571,
+   "20-30 Hz": 0.5944055944055944,
+   ">=30 Hz": 0.5539033457249071
+  },
+  "known_rejection_bank_calibrated": {
+   "<20 Hz": 0.07978436657681941,
+   "20-30 Hz": 0.06854499579478554,
+   ">=30 Hz": 0.15512589928057555
+  },
+  "known_rejection_maha_calibrated": {
+   "<20 Hz": 0.1326145552560647,
+   "20-30 Hz": 0.07653490328006729,
+   ">=30 Hz": 0.1079136690647482
+  }
+ },
+ "severity_unknown_recall": [
+  {
+   "class10": "horizontal_misalignment",
+   "severity": 0.5,
+   "n": 25,
+   "bank": 0.36,
+   "maha": 0.6
+  },
+  {
+   "class10": "horizontal_misalignment",
+   "severity": 1.0,
+   "n": 27,
+   "bank": 0.037037037037037035,
+   "maha": 1.0
+  },
+  {
+   "class10": "horizontal_misalignment",
+   "severity": 1.5,
+   "n": 21,
+   "bank": 0.0,
+   "maha": 0.3333333333333333
+  },
+  {
+   "class10": "imbalance",
+   "severity": 6.0,
+   "n": 23,
+   "bank": 0.0,
+   "maha": 0.0
+  },
+  {
+   "class10": "imbalance",
+   "severity": 10.0,
+   "n": 24,
+   "bank": 0.4583333333333333,
+   "maha": 0.0
+  },
+  {
+   "class10": "imbalance",
+   "severity": 15.0,
+   "n": 22,
+   "bank": 0.36363636363636365,
+   "maha": 0.045454545454545456
+  },
+  {
+   "class10": "imbalance",
+   "severity": 20.0,
+   "n": 24,
+   "bank": 0.8333333333333334,
+   "maha": 0.0
+  },
+  {
+   "class10": "imbalance",
+   "severity": 25.0,
+   "n": 24,
+   "bank": 1.0,
+   "maha": 0.3333333333333333
+  },
+  {
+   "class10": "imbalance",
+   "severity": 30.0,
+   "n": 27,
+   "bank": 0.9259259259259259,
+   "maha": 0.037037037037037035
+  },
+  {
+   "class10": "overhang_ball",
+   "severity": 0.0,
+   "n": 25,
+   "bank": 1.0,
+   "maha": 1.0
+  },
+  {
+   "class10": "overhang_ball",
+   "severity": 6.0,
+   "n": 24,
+   "bank": 1.0,
+   "maha": 1.0
+  },
+  {
+   "class10": "overhang_ball",
+   "severity": 20.0,
+   "n": 20,
+   "bank": 1.0,
+   "maha": 1.0
+  },
+  {
+   "class10": "overhang_cage",
+   "severity": 0.0,
+   "n": 21,
+   "bank": 0.0,
+   "maha": 0.19047619047619047
+  },
+  {
+   "class10": "overhang_cage",
+   "severity": 6.0,
+   "n": 25,
+   "bank": 0.4,
+   "maha": 0.84
+  },
+  {
+   "class10": "overhang_cage",
+   "severity": 20.0,
+   "n": 26,
+   "bank": 0.8461538461538461,
+   "maha": 0.46153846153846156
+  },
+  {
+   "class10": "overhang_outer",
+   "severity": 0.0,
+   "n": 26,
+   "bank": 0.8076923076923077,
+   "maha": 1.0
+  },
+  {
+   "class10": "overhang_outer",
+   "severity": 6.0,
+   "n": 27,
+   "bank": 0.5925925925925926,
+   "maha": 1.0
+  },
+  {
+   "class10": "overhang_outer",
+   "severity": 20.0,
+   "n": 21,
+   "bank": 0.0,
+   "maha": 1.0
+  },
+  {
+   "class10": "underhang_ball",
+   "severity": 0.0,
+   "n": 27,
+   "bank": 1.0,
+   "maha": 1.0
+  },
+  {
+   "class10": "underhang_ball",
+   "severity": 6.0,
+   "n": 26,
+   "bank": 1.0,
+   "maha": 1.0
+  },
+  {
+   "class10": "underhang_ball",
+   "severity": 20.0,
+   "n": 24,
+   "bank": 1.0,
+   "maha": 0.9583333333333334
+  },
+  {
+   "class10": "underhang_cage",
+   "severity": 0.0,
+   "n": 25,
+   "bank": 0.48,
+   "maha": 1.0
+  },
+  {
+   "class10": "underhang_cage",
+   "severity": 6.0,
+   "n": 22,
+   "bank": 0.6818181818181818,
+   "maha": 1.0
+  },
+  {
+   "class10": "underhang_cage",
+   "severity": 20.0,
+   "n": 25,
+   "bank": 1.0,
+   "maha": 1.0
+  },
+  {
+   "class10": "underhang_outer",
+   "severity": 0.0,
+   "n": 23,
+   "bank": 1.0,
+   "maha": 1.0
+  },
+  {
+   "class10": "underhang_outer",
+   "severity": 6.0,
+   "n": 26,
+   "bank": 1.0,
+   "maha": 1.0
+  },
+  {
+   "class10": "underhang_outer",
+   "severity": 20.0,
+   "n": 24,
+   "bank": 1.0,
+   "maha": 1.0
+  },
+  {
+   "class10": "vertical_misalignment",
+   "severity": 0.51,
+   "n": 25,
+   "bank": 1.0,
+   "maha": 0.24
+  },
+  {
+   "class10": "vertical_misalignment",
+   "severity": 0.63,
+   "n": 25,
+   "bank": 0.12,
+   "maha": 0.24
+  },
+  {
+   "class10": "vertical_misalignment",
+   "severity": 1.27,
+   "n": 24,
+   "bank": 1.0,
+   "maha": 0.16666666666666666
+  },
+  {
+   "class10": "vertical_misalignment",
+   "severity": 1.4,
+   "n": 26,
+   "bank": 1.0,
+   "maha": 0.0
+  },
+  {
+   "class10": "vertical_misalignment",
+   "severity": 1.78,
+   "n": 25,
+   "bank": 0.72,
+   "maha": 0.0
+  }
+ ],
+ "generalisation": {
+  "per_specialist_mean": {
+   "horizontal_misalignment": {
+    "withheld_accept_rate": 0.0572,
+    "foreign_known_accept_rate": 0.0671,
+    "own_known_accept_rate": 0.9423,
+    "withheld_median_s": 1.7553
+   },
+   "imbalance": {
+    "withheld_accept_rate": 0.0271,
+    "foreign_known_accept_rate": 0.0297,
+    "own_known_accept_rate": 0.9828,
+    "withheld_median_s": 1.967
+   },
+   "normal": {
+    "withheld_accept_rate": 0.2456,
+    "foreign_known_accept_rate": 0.2373,
+    "own_known_accept_rate": 0.9907,
+    "withheld_median_s": 1.354
+   },
+   "overhang_ball": {
+    "withheld_accept_rate": 0.0,
+    "foreign_known_accept_rate": 0.0,
+    "own_known_accept_rate": 0.79,
+    "withheld_median_s": 2.2498
+   },
+   "overhang_cage": {
+    "withheld_accept_rate": 0.0588,
+    "foreign_known_accept_rate": 0.0295,
+    "own_known_accept_rate": 0.8167,
+    "withheld_median_s": 1.7731
+   },
+   "overhang_outer": {
+    "withheld_accept_rate": 0.0286,
+    "foreign_known_accept_rate": 0.0236,
+    "own_known_accept_rate": 0.8274,
+    "withheld_median_s": 1.8145
+   },
+   "underhang_ball": {
+    "withheld_accept_rate": 0.0,
+    "foreign_known_accept_rate": 0.0,
+    "own_known_accept_rate": 0.8001,
+    "withheld_median_s": 2.1853
+   },
+   "underhang_cage": {
+    "withheld_accept_rate": 0.0703,
+    "foreign_known_accept_rate": 0.0277,
+    "own_known_accept_rate": 0.8766,
+    "withheld_median_s": 1.7306
+   },
+   "underhang_outer": {
+    "withheld_accept_rate": 0.0,
+    "foreign_known_accept_rate": 0.0004,
+    "own_known_accept_rate": 0.7129,
+    "withheld_median_s": 1.9974
+   },
+   "vertical_misalignment": {
+    "withheld_accept_rate": 0.0662,
+    "foreign_known_accept_rate": 0.1029,
+    "own_known_accept_rate": 0.9808,
+    "withheld_median_s": 1.7319
+   }
+  },
+  "best_specialist_share_on_withheld": {
+   "horizontal_misalignment|normal": 0.904,
+   "horizontal_misalignment|overhang_cage": 0.082,
+   "horizontal_misalignment|vertical_misalignment": 0.014,
+   "imbalance|vertical_misalignment": 0.972,
+   "imbalance|normal": 0.028,
+   "overhang_ball|underhang_ball": 0.536,
+   "overhang_ball|underhang_outer": 0.449,
+   "overhang_ball|normal": 0.014,
+   "overhang_cage|normal": 0.611,
+   "overhang_cage|overhang_outer": 0.333,
+   "overhang_cage|horizontal_misalignment": 0.056,
+   "overhang_outer|normal": 0.568,
+   "overhang_outer|horizontal_misalignment": 0.216,
+   "overhang_outer|overhang_cage": 0.203,
+   "overhang_outer|underhang_cage": 0.014,
+   "underhang_ball|overhang_ball": 0.455,
+   "underhang_ball|normal": 0.416,
+   "underhang_ball|underhang_cage": 0.065,
+   "underhang_ball|underhang_outer": 0.065,
+   "underhang_cage|normal": 0.806,
+   "underhang_cage|overhang_outer": 0.069,
+   "underhang_cage|horizontal_misalignment": 0.056,
+   "underhang_cage|overhang_cage": 0.056,
+   "underhang_cage|underhang_outer": 0.014,
+   "underhang_outer|overhang_ball": 0.507,
+   "underhang_outer|underhang_cage": 0.315,
+   "underhang_outer|horizontal_misalignment": 0.178,
+   "vertical_misalignment|imbalance": 0.864,
+   "vertical_misalignment|normal": 0.104,
+   "vertical_misalignment|horizontal_misalignment": 0.032
+  },
+  "withheld_accepted_by_normal_specialist": 0.21694480102695765,
+  "spearman_S_vs_input_level_withheld": 0.5976196393209834,
+  "spearman_S_vs_input_level_known": 0.4426701217438553
+ },
+ "training_set_sizes": {
+  "horizontal_misalignment": {
+   "n_fit_recordings_min": 29,
+   "n_fit_recordings_max": 35,
+   "n_cal_recordings_min": 7,
+   "n_cal_recordings_max": 10
+  },
+  "imbalance": {
+   "n_fit_recordings_min": 62,
+   "n_fit_recordings_max": 67,
+   "n_cal_recordings_min": 15,
+   "n_cal_recordings_max": 17
+  },
+  "normal": {
+   "n_fit_recordings_min": 10,
+   "n_fit_recordings_max": 12,
+   "n_cal_recordings_min": 2,
+   "n_cal_recordings_max": 3
+  },
+  "overhang_ball": {
+   "n_fit_recordings_min": 29,
+   "n_fit_recordings_max": 33,
+   "n_cal_recordings_min": 7,
+   "n_cal_recordings_max": 9
+  },
+  "overhang_cage": {
+   "n_fit_recordings_min": 29,
+   "n_fit_recordings_max": 35,
+   "n_cal_recordings_min": 7,
+   "n_cal_recordings_max": 9
+  },
+  "overhang_outer": {
+   "n_fit_recordings_min": 30,
+   "n_fit_recordings_max": 36,
+   "n_cal_recordings_min": 7,
+   "n_cal_recordings_max": 10
+  },
+  "underhang_ball": {
+   "n_fit_recordings_min": 33,
+   "n_fit_recordings_max": 37,
+   "n_cal_recordings_min": 8,
+   "n_cal_recordings_max": 10
+  },
+  "underhang_cage": {
+   "n_fit_recordings_min": 30,
+   "n_fit_recordings_max": 34,
+   "n_cal_recordings_min": 7,
+   "n_cal_recordings_max": 9
+  },
+  "underhang_outer": {
+   "n_fit_recordings_min": 31,
+   "n_fit_recordings_max": 34,
+   "n_cal_recordings_min": 7,
+   "n_cal_recordings_max": 9
+  },
+  "vertical_misalignment": {
+   "n_fit_recordings_min": 48,
+   "n_fit_recordings_max": 67,
+   "n_cal_recordings_min": 12,
+   "n_cal_recordings_max": 18
+  }
+ },
+ "normal_reproduction_max_abs_diff": 0.0,
+ "cost": {
+  "specialist_training_seconds_total": 4547.253575417562,
+  "specialists_trained": 216,
+  "normal_reused_from_3c": 27,
+  "cnn6_loco_training_seconds_total_3c": 958.9,
+  "ae6_loco_training_seconds_total_3c": 191.5,
+  "cpu_ms_per_recording": {
+   "1_threads": {
+    "bank_9_specialists": 120.18587498459965,
+    "cnn6_plus_mahalanobis": 14.832188084255904
+   },
+   "10_threads": {
+    "bank_9_specialists": 107.66777099343017,
+    "cnn6_plus_mahalanobis": 4.099854035302997
+   }
+  },
+  "parameters": {
+   "bank_9_specialists": 881478,
+   "one_specialist": 97942,
+   "cnn6_loco": 601545
+  },
+  "note": "the Mahalanobis check needs the CNN-6 forward pass (which the system runs anyway for Q2); the bank is additional to it in a deployment"
+ },
+ "time_estimate": {
+  "first_run_seconds": 155.68091016600374,
+  "runs": 27,
+  "projected_minutes": 70.05635947486152,
+  "guard_minutes": 120.0
+ }
+}

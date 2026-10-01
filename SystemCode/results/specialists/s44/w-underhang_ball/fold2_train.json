@@ -1,0 +1,66 @@
+{
+ "withheld": "underhang_ball",
+ "fold": 2,
+ "specialists": {
+  "horizontal_misalignment": {
+   "n_fit_recordings": 35,
+   "n_cal_recordings": 9,
+   "train_seconds": 18.34907487500459,
+   "reused_3c_ae6": false
+  },
+  "imbalance": {
+   "n_fit_recordings": 64,
+   "n_cal_recordings": 16,
+   "train_seconds": 34.59716858295724,
+   "reused_3c_ae6": false
+  },
+  "normal": {
+   "n_fit_recordings": 11,
+   "n_cal_recordings": 3,
+   "train_seconds": 0.0,
+   "reused_3c_ae6": true
+  },
+  "overhang_ball": {
+   "n_fit_recordings": 33,
+   "n_cal_recordings": 8,
+   "train_seconds": 17.767714750021696,
+   "reused_3c_ae6": false
+  },
+  "overhang_cage": {
+   "n_fit_recordings": 35,
+   "n_cal_recordings": 8,
+   "train_seconds": 18.915842209011316,
+   "reused_3c_ae6": false
+  },
+  "overhang_outer": {
+   "n_fit_recordings": 36,
+   "n_cal_recordings": 9,
+   "train_seconds": 19.839320958941244,
+   "reused_3c_ae6": false
+  },
+  "underhang_cage": {
+   "n_fit_recordings": 33,
+   "n_cal_recordings": 8,
+   "train_seconds": 17.61244816693943,
+   "reused_3c_ae6": false
+  },
+  "underhang_outer": {
+   "n_fit_recordings": 34,
+   "n_cal_recordings": 8,
+   "train_seconds": 18.58732708299067,
+   "reused_3c_ae6": false
+  },
+  "vertical_misalignment": {
+   "n_fit_recordings": 50,
+   "n_cal_recordings": 12,
+   "train_seconds": 27.75290154106915,
+   "reused_3c_ae6": false
+  }
+ },
+ "run_seconds": 176.34654454200063,
+ "normal_reproduction_max_abs_diff": 0.0,
+ "normal_reproduced": true,
+ "device": "mps",
+ "git_sha": "84301132a76e8a7953f84a786874d88028977a89-dirty",
+ "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2"
+}
