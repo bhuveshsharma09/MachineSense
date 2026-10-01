@@ -1,4 +1,4 @@
-# MachineSense backend and app (Stages App-1 to App-4.5)
+# MachineSense backend and app (Stages App-1 to App-6)
 
 A FastAPI service that serves `ml.inference.diagnose()` from the **approved, hash-verified model bundle** as the evidence
 record in `backend/schemas.py`, plus measured evidence views computed with existing `ml` functions. Research
@@ -14,6 +14,8 @@ Every path is an environment variable with a default relative to `SystemCode/` (
 | uploaded arrays (for the evidence views) | `MACHINESENSE_UPLOADS_DIR` | `SystemCode/backend/data/uploads` |
 | reserved-recording fingerprint index | `MACHINESENSE_GUARD_INDEX` | `SystemCode/backend/data/reserved_fingerprints.json` |
 | showcase list (committed) | `MACHINESENSE_SHOWCASE` | `SystemCode/backend/showcase.json` |
+| unseen-fault selection (committed, App-6) | `MACHINESENSE_UNSEEN` | `SystemCode/backend/unseen.json` |
+| unseen-fault sweep cache (App-6) | `MACHINESENSE_UNSEEN_SWEEP` | `SystemCode/backend/data/unseen_sweep.json` |
 | typical healthy variation (built on first start) | `MACHINESENSE_VARIATION` | `SystemCode/backend/data/healthy_variation.json` |
 | raw development recordings | fixed by `ml.paths.data_dir()` | `SystemCode/data/raw_npy` |
 | fail (not skip) tests without the bundle | `MACHINESENSE_REQUIRE_BUNDLE=1` | off |
@@ -105,6 +107,36 @@ case: it never re-runs inference, never changes anything, and **the evidence rec
   partial diagram.
 - **Audit against the real case history:** `cd frontend && npm run audit:cases -- <directory of saved /trace responses>`
   renders every case in both modes, both levels and at phone width, and checks every shown value against its trace.
+
+## Explore an unseen fault (App-6)
+A research demonstration page (`#/unseen`, "Explore an unseen fault" in the top bar and the phone header): a saved
+**leave-one-class-out CNN-6** (`artifacts/final/loco/<class>/`, seed 42, CLAUDE.md §12), trained with one fault class
+withheld, is run on a recording of that class. It is a **simulated unseen fault inside MAFAULDA, not evidence that the
+system recognises genuinely novel real-world faults**; the page says so in its own copy. The main app, its bundle, its
+scoring and its verdicts are unchanged.
+- **Works on a clean clone.** `artifacts/final/` is gitignored, so the page serves the committed selection
+  `backend/unseen.json` (every displayed value). When `artifacts/final/` verifies (`ml.final.load_final`, every hash) and
+  `data/raw_npy` exists, the API recomputes live (`source: "live"`); otherwise it returns the saved values (`"saved"`).
+  `tests/backend/test_app6.py` checks live = saved (1e-9 relative, identical decisions), skipping with the reason when
+  the weights or the raw recordings are absent.
+- **Build** (where the weights exist): `python -m backend.unseen build` sweeps the 804 eligible recordings through the
+  nine models (~17 min; cached in `backend/data/unseen_sweep.json`, gitignored) and writes `backend/unseen.json`: per
+  hidden class a successful rejection, an honest failure and a familiar comparison, with reasons. A category with no
+  eligible recording is reported in `why_missing`, never substituted (four bearing classes reject every eligible
+  withheld recording, so they have no honest failure).
+- **Scoring and decision:** `ml.final.recording_inputs` → `ml.final.score_cnn` with that class's CNN-6, normalisation and
+  the **shared** Mahalanobis (τ_d is calibrated for it), plus the shared AE-6 and B1s; τ_p, τ_d, τ_e, τ_b from the
+  class's `thresholds.json`; the verdict is `ml.arbitrator.decide("B_with_caution")` with `rule_comparison`; the check
+  pass / fail is `ml.rejection.failed_checks`. AE-6 and B1s appear only as a caution; they do not gate the verdict.
+- **Eligibility, one predicate** (`backend.unseen.may_show`, used by the build and every request): `split_closed` train or
+  val, and neither `split_speed_block` nor `split_severity` test (the F1 partitions stay sealed); the withheld example is
+  of the hidden class; the familiar example is a learned class and not one of that run's calibration or
+  threshold-defining recordings. The eligible examples therefore exclude the largest severities and the fastest speeds:
+  the page shows the easier part of the unfamiliar-fault problem.
+- **Endpoints:** `GET /api/unseen` (the curated examples, without results, and whether live values are available);
+  `GET /api/unseen/run?withheld=<class>&rec_id=<id>&role=withheld|familiar` (the result; 403 for a reserved or
+  ineligible recording; 404 for a non-curated example when the weights are absent).
+- Screenshots: `design/app6_screenshots/`.
 
 ## Upload guard (a guard, not a guarantee)
 After an upload is parsed, its fingerprint (sha256 of the float32 array; and a signature of the first 1,000 samples
