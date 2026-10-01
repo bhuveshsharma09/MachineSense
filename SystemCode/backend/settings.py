@@ -7,6 +7,8 @@
 | uploaded arrays (for evidence views) | MACHINESENSE_UPLOADS_DIR | SystemCode/backend/data/uploads |
 | reserved-recording fingerprint index | MACHINESENSE_GUARD_INDEX | SystemCode/backend/data/reserved_fingerprints.json |
 | showcase list | MACHINESENSE_SHOWCASE | SystemCode/backend/showcase.json |
+| unseen-fault selection (App-6) | MACHINESENSE_UNSEEN | SystemCode/backend/unseen.json |
+| unseen-fault sweep cache (gitignored) | MACHINESENSE_UNSEEN_SWEEP | SystemCode/backend/data/unseen_sweep.json |
 | typical healthy variation (built from training normals) | MACHINESENSE_VARIATION | SystemCode/backend/data/healthy_variation.json |
 | raw development recordings | (fixed by ml.paths.data_dir) | SystemCode/data/raw_npy |
 | require the bundle in tests | MACHINESENSE_REQUIRE_BUNDLE=1 | off |
@@ -46,6 +48,14 @@ def guard_index() -> Path:
 
 def showcase_file() -> Path:
     return _p("MACHINESENSE_SHOWCASE", BACKEND_DIR / "showcase.json")
+
+
+def unseen_file() -> Path:
+    return _p("MACHINESENSE_UNSEEN", BACKEND_DIR / "unseen.json")
+
+
+def unseen_sweep_file() -> Path:
+    return _p("MACHINESENSE_UNSEEN_SWEEP", BACKEND_DIR / "data" / "unseen_sweep.json")
 
 
 def variation_file() -> Path:

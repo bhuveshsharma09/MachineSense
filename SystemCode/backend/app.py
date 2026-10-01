@@ -17,13 +17,16 @@ from backend.report import build_report, build_sections
 from backend.settings import showcase_file
 
 
-def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_transport=None) -> FastAPI:
-    """llm_transport: an httpx transport for the explanation provider (tests mock the model with it)."""
+def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_transport=None, unseen_path=None,
+               final_directory=None) -> FastAPI:
+    """llm_transport: an httpx transport for the explanation provider (tests mock the model with it). unseen_path /
+    final_directory: the App-6 curated file and the leave-one-class-out models (tests point them elsewhere)."""
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         # raises BundleIntegrityError → the server does not start
         app.state.engine = Engine(bundle_directory, cases_path=cases_path, guard_path=guard_path)
         app.state.llm_transport = llm_transport
+        app.state.unseen = None  # App-6: created on first use (the final models load lazily)
         yield
 
     app = FastAPI(title="MachineSense API", version="0.2.0", lifespan=lifespan,
@@ -67,6 +70,28 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         if not p.exists():
             return {"showcase": [], "states_without_a_development_recording": [], "note": "showcase not built"}
         return json.loads(p.read_text())
+
+    def unseen_service(request: Request):
+        from backend.unseen import UnseenService
+        if request.app.state.unseen is None:
+            request.app.state.unseen = UnseenService(engine(request).bundle, unseen_path, final_directory)
+        return request.app.state.unseen
+
+    @app.get("/api/unseen")
+    def unseen(request: Request):
+        """App-6: the curated "Explore an unseen fault" examples (no results until an example is run)."""
+        return unseen_service(request).summary()
+
+    @app.get("/api/unseen/run")
+    def unseen_run(request: Request, withheld: str, rec_id: str, role: str = "withheld"):
+        """App-6: one example through the leave-one-class-out model of `withheld` (live when the weights exist, else the
+        saved values). Reserved recordings and ineligible examples are refused."""
+        try:
+            return unseen_service(request).run(withheld, rec_id, role)
+        except (PermissionError, ReservedRecordingError) as e:
+            raise HTTPException(403, str(e)) from e
+        except LookupError as e:
+            raise HTTPException(404, str(e)) from e
 
     def _echo(record: dict, request_id: str | None, input_id: str | None) -> JSONResponse:
         """The record, with the client's request id and input id (rec_id / upload id) echoed as headers so the UI can
