@@ -289,7 +289,56 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage R5 — decision design for the specialist bank (Q3, development data only)
+## 7. Current stage: Stage App-6 — "Explore an unseen fault" research demonstration page
+
+A page that runs a saved **leave-one-class-out CNN-6** (artifacts/final/loco/<class>/, seed 42, §12) on a recording of
+the class it never trained on, and shows the checks and the verdict step by step. It is a **simulated unseen fault inside
+MAFAULDA**, not evidence that the system recognises genuinely novel real-world faults; the page says so in its own copy.
+The normal application, its ten-class bundle, its scoring path, its verdicts, `EvidenceRecord` and `ml/` are unchanged.
+
+**App-6 protocol (declared before writing code).**
+1. **Architecture (the showcase pattern).** `artifacts/final/` is gitignored, so the page must work without it:
+   `python -m backend.unseen build` (run where the weights and raw recordings exist) sweeps every eligible recording through
+   the real models and writes `backend/data/unseen_sweep.json` (gitignored) and the curated `backend/unseen.json`
+   (committed, every displayed value). The page serves `backend/unseen.json`; when `artifacts/final/` verifies and the raw
+   recordings exist, the API recomputes live and serves the live values (`source` = "live" or "saved"). Nothing is trained at
+   request time or in a test.
+2. **Eligibility — one predicate, `backend.unseen.may_show`, called by the build step and the request path.** A recording may
+   be shown only if `metadata.csv` has `split_closed` ∈ {train, val} AND `split_speed_block` ≠ test AND `split_severity` ≠
+   test (the partitions consumed by F1 stay sealed). Role "withheld": class10 = the selected model's withheld class (unseen
+   by construction). Role "familiar": class10 ≠ the withheld class, and not in that run's `calibration_scores.csv` nor its
+   `thresholds.json → defining_recordings` (as `backend.showcase.threshold_defining` does for the bundle). The predicate lives
+   in `backend/`, so `ml/` gains nothing.
+3. **Scoring and decision.** Per (withheld class, recording): `ml.final.load_final` (verifies every hash), the raw
+   recording via `ml.inference.load_recording` (refuses reserved ids), `ml.final.recording_inputs` → `ml.final.score_cnn`
+   with that class's CNN-6, normalisation and the **shared** Mahalanobis (τ_d is calibrated for it; the per-class file is not
+   used), plus the shared AE-6 and B1s. τ_p, τ_d, τ_e, τ_b from that class's `thresholds.json`. The verdict is
+   `ml.arbitrator.decide("B_with_caution", …)` and `ml.arbitrator.rule_comparison`; the check pass / fail shown is
+   `ml.rejection.failed_checks` (the rule's own inequalities, ties accepted), tested equal to the decision. AE-6 and B1s are
+   shown only as a possible caution; the page states that they do not gate the verdict under the default rule.
+4. **Live vs saved agreement:** a test recomputes every curated example when the weights and raw data are present and
+   requires |live − saved| ≤ 1e-9 × max(1, |saved|) per score and identical decisions (ML-4.2 found repeated CPU scoring
+   bit-identical); skipped with the reason when either is absent.
+5. **Curated set** (deterministic, reasons recorded, like `showcase.py`): per hidden class, a **successful rejection** (a
+   withheld recording whose checks fail → "further inspection needed"), an **honest failure** (a withheld recording that
+   passes both checks and receives a confident familiar label — a wrong fault or healthy, recorded which), and a **familiar
+   comparison** (a learned class, accepted with its correct label, no caution, all rule variants agreeing). Preference: no
+   speed-range warning, then the median Mahalanobis distance within the category (a typical case, not the most extreme),
+   then rec_id. A category with no eligible recording is reported in `categories_without_an_eligible_recording`, never
+   substituted; a missing required category is a stop-and-ask item.
+6. **Page:** route `#/unseen`, entry "Explore an unseen fault" in the navigation (desktop and phone). Default hidden class
+   imbalance. Steps revealed one at a time after "Run investigation": proposed label → top probability vs τ_p → familiarity
+   distance vs τ_d → which checks passed → verdict → the true dataset label (behind "Reveal actual condition", marked as
+   hidden from this model during fitting). Mechanic / Developer views as in the main app (technical names in Developer only).
+   Required copy: what "further inspection needed" means and does not mean; simulated unseen fault in one dataset from one
+   rig; the eligible examples exclude the largest severities and fastest speeds (reserved), so the page shows the easier
+   part of the problem. A collapsible "Experiment details": withheld class, seed, recording id, final manifest sha256, source.
+7. **Tests:** the predicate rejects a split_closed-test, a split_speed_block-test and a split_severity-test recording; no
+   reserved id in `backend/unseen.json`; the API refuses a reserved id; per hidden class the withheld class is absent from the
+   model's classes and calibration ids; live = saved (as item 4); the decision shown = `ml.arbitrator.decide` on the same
+   scores; the curated set has a rejection and a failure case; the golden and main app tests unchanged.
+
+## 7-prev5. Previous stage: Stage R5 — decision design for the specialist bank (Q3, development data only)
 
 Exploratory further analysis of existing development data. The reserved partitions stay sealed and are not reopened; F1
 has already been run, so nothing here can become an independent final claim. Seed 42 only for the screen; seeds 43 / 44
