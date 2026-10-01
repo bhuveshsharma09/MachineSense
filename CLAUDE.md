@@ -289,7 +289,78 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage App-6 — "Explore an unseen fault" research demonstration page
+## 7. Current stage: Stage R6 — autoencoder experiments for healthy versus faulty separation (Q1, development data only)
+
+Exploratory, development data only; seeds 42, 43, 44 throughout. The bundle, decision rules, thresholds, `artifacts/final/`,
+`results/final/`, `metadata.csv` and the app are untouched; no reserved recording is read. Runs after Stage R5 (done).
+Deliverable: `notebooks/06_research_layer/16_ae_experiments.ipynb` (defines the protocol, presents every result, writes
+`results/research/r6_ae_experiments.json` and companion CSVs and the figures). Training (≈ 50 min in total, too long for a
+notebook cell) runs in `scripts/36_r6_train.py`, which only saves per-recording scores; the notebook loads and analyses
+them. Reusable code: `ml/ae_experiments.py` (pure, typed, tested in `tests/test_ae_experiments.py`). Weights gitignored.
+
+**Stage R6 protocol (declared before training; changes only as dated addenda with a reason).**
+1. **Partitions: the Q1 development folds** (Stage 2D.1 / 3B; `results/q1q3/q1_fit_cal_assignment.csv`, `ml.q1.fold_ids`):
+   per outer fold k, **11 healthy fit normals and 5–6 calibration normals** (from folds ≠ k), evaluation = every
+   development-pool recording of fold k; over the 3 folds every one of the **25 development normals** is evaluated once out
+   of sample, and every fault recording once. (Not the shared / final AE-6: 20 fit / 5 cal; not the LOCO runs: ≈ 11 / 2–3.)
+2. **Measurement limit (stated before results):** 25 healthy recordings from one folder: a false-alarm rate moves in 4-point
+   steps; no folder-grouped interval exists on the healthy side (Clopper–Pearson, n = 25, always stated); speed and
+   recording identity are confounded (R0). All 49 healthy recordings are from one session: augmentation cannot create the
+   missing session and operating diversity.
+3. **Correction to the brief (recorded):** the existing gain jitter (±1 dB, independent per example and per channel) is
+   applied to the input AND the target (`AeConfig.reconstruct = augmented_input`), so it adds input diversity but does not
+   teach level invariance. It is already per-channel, so it already contains per-channel mismatch. The frame-level AE sees
+   each time frame independently, so a time shift within the recording is a no-op and is not used.
+4. **Experiment 1 arms** (healthy fit normals only; the AE-6 architecture, normalisation, epochs budget, error and recording
+   score unchanged; vibration channels 0–5):
+   - **A0 baseline:** the AE-6 recipe, retrained by the same code as the other arms (reproduction against Stage 3B's saved
+     seed-42 AE-6 scores reported; MPS is not bit-deterministic).
+   - **A1 control:** V = max(5, ceil(100 / n_fit)) = 10 materialised recording-level views per fit normal (110 views per
+     fold), each a fixed per-channel offset vector drawn once from U(±1 dB) (the same distribution as the jitter);
+     stochastic jitter off; target = the view (as A0). Same number of optimiser steps as A0 (epochs = 150 / V = 15).
+     **Prediction recorded before running: no difference from A0.**
+   - **A2 denoising:** A0's stochastic jitter on the input; target = the **un-augmented** normalised input.
+   - **A3 wider plausible set, A2 target:** a common gain offset U(±1 dB) over all channels + a per-channel mismatch
+     N(0, σ_mm) with σ_mm estimated from the fit normals (the across-recording SD of each channel's mean dB level relative
+     to the recording's mean over channels, pooled over channels) + additive noise at the measured floor: in power units,
+     10^(x/10) + u · 10^(F_c/10), u ~ Exp(1) per bin and frame, F_c = the 5th percentile of channel c's cached dB values over
+     the fit normals' frames. Nothing outside the allowed list (overall gain, per-channel gain mismatch, measured noise
+     floor; time shift is a no-op here).
+   Views and augmentations stay linked to their source recording, are never counted as recordings, and never enter
+   calibration, evaluation or any uncertainty calculation; tables report original recordings and generated views apart.
+5. **Experiment 2, fault-only AE (F):** the AE-6 architecture and recipe trained on the **fault** recordings of folds ≠ k
+   (all development-pool faults outside fold k; 506–531 per fold), normalised on exactly those recordings (`norm_stats`
+   development mode; fold k and the calibration normals excluded); scored by the same recording procedure; higher error =
+   more healthy-like. Threshold on fold k from the calibration normals only: τ_F = their minimum error; alarm (fault) iff
+   error < τ_F (ties no alarm). **Prior recorded before running: expected to fail** (a fault recording contains the healthy
+   machine plus a signature, and R4 showed these AEs reconstruct what they never saw). **Level controls:** Spearman of the
+   F error with the recording's input level (`ml.ae_experiments.recording_level`, as R4); the comparison repeated on a
+   level-corrected score log e − β L (R5 convention: L in natural-log power units; β as in item 7); and healthy vs the **three
+   quietest fault classes** (lowest median input level among the fit recordings) separately from the loud ones. No
+   leave-one-class-out analysis is run for F (not required; none is reported).
+6. **Scores on a common scale:** per fold, z = log e − log τ_k for the healthy-AE arms (τ_k = maximum calibration-normal
+   error) and z = log τ_F − log e for F; alarm iff z > 0 (ties no alarm); pooled over folds. **Primary operating point:**
+   per seed, K_s = A0's pooled healthy false alarms at its calibrated thresholds; every arm's pooled threshold on z is set
+   to flag exactly K_s of the 25 test normals (`ml.speed_calibration.matched_threshold`); detection = fault test
+   recordings flagged. Also reported: K = 0…5 (0–20 %), each arm at its own calibrated thresholds, AUROC (pooled z and per
+   fold), distributions by class, speed band (< 20, 20–30, ≥ 30 Hz) and severity, the mildest setting of each family
+   (`anomaly.mildest`).
+7. **Exploratory two-score combination (H + F, separate):** each score standardised by its own calibration normals (z minus
+   their mean, divided by their SD, in log units, per fold), combined as the mean of A0 and F; same operating points.
+   Level-corrected F (item 5): β = pooled within-class OLS slope of log e_F on L over the F model's fit fault recordings
+   (class-demeaned), applied as log e_F − β L before the z transform.
+8. **Uncertainty:** seeds 42 / 43 / 44 (spread across seeds) and, per seed, sampling: Clopper–Pearson for healthy rates
+   (n = 25); for detection differences vs A0 a stratified mixed-unit bootstrap (fault folders within class, normals
+   individually; `ml.evaluation.mixed_bootstrap_draws`, the 3A settings) over recordings, never windows, frames or views.
+   Never merged.
+9. **Acceptance (vs A0 at the matched point):** an arm **helps** only if (1) detection is higher on all three seeds, (2)
+   the mean improvement exceeds 4 percentage points, and (3) at the mildest setting of every family the seed-mean
+   detection is not lower than A0's. **Does not help** if the mean improvement ≤ 0 or it is not higher on any seed;
+   otherwise **too thin to tell**. Nothing is selected or deployed.
+10. **Cost:** training seconds per model, parameters, CPU ms per recording (9 windows). Time guard: the script projects the
+   total after its first fault-AE fold and stops above 60 min (§10). One GPU job at a time.
+
+## 7-prev6. Previous stage: Stage App-6 — "Explore an unseen fault" research demonstration page
 
 A page that runs a saved **leave-one-class-out CNN-6** (artifacts/final/loco/<class>/, seed 42, §12) on a recording of
 the class it never trained on, and shows the checks and the verdict step by step. It is a **simulated unseen fault inside
