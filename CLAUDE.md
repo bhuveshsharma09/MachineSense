@@ -289,7 +289,73 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage R6 — autoencoder experiments for healthy versus faulty separation (Q1, development data only)
+## 7. Current stage: Stage R7 — diagnostics on saved models: where the open-set failures come from (no training)
+
+Exploratory, development data only. **No model is trained**: saved checkpoints are run forward and their outputs analysed.
+Reserved partitions sealed; F1 already run; nothing here is an independent claim; the bundle, rules and thresholds are
+unchanged. Deliverable: `notebooks/06_research_layer/17_diagnostics.ipynb` (question, protocol, figures, tables, verdict).
+Forward passes (≈ 10 min) run in `scripts/37_r7_forward.py`, which only reproduces and saves model outputs; pure helpers
+in `ml/diagnostics.py` (tested). Outputs `results/research/r7_diagnostics.json`, `r7_d1_mild_hm.csv`, `r7_d2_probe.csv`,
+`r7_d3_gates.csv`, figures `results/figures/r7_*.png`.
+
+**Stage R7 protocol (declared before computing anything; changes only as dated addenda with a reason).**
+1. **Reproduction first.** For the 81 LOCO runs (9 withheld classes × 3 outer folds × seeds 42 / 43 / 44;
+   `artifacts/loco/cnn6_w-<c>_s<seed>_loco/fold<k>.pt`, normalisation `results/loco/cnn6_w-<c>_s<seed>_loco/fold<k>_norm.json`,
+   roles from `results/q1q3/q3_fit_cal_eval_assignment.csv`), every window of every role is run forward on the device the runs
+   were trained on (MPS); window logits and embeddings must match the saved Stage 3C / 3C.1 window outputs
+   (`results/scores/cnn6_w-<c>_s<seed>_loco_fold<k>_{logits,embeddings}`) and the recording MSP and shared Mahalanobis must
+   match the saved recording scores (seed 42 also `cnn6ae6_s42_loco_decisions.parquet`) within |Δ MSP| ≤ 1e-5, |Δ maha| ≤
+   1e-4 × maha, with identical top classes; maximum differences are reported. Seed-42 τ_p, τ_d recomputed from the saved
+   calibration scores (`ml.protocol.order_statistic_threshold`, 0.975; MSP on its negation) must equal
+   `results/loco/decision_thresholds.csv` within 1e-12; seeds 43 / 44 thresholds are computed the same way (τ_e = maximum AE
+   error of the run's calibration normals; B1s and τ_b from `b1s_nomic_loco_q3fit_scores.parquet`, seed-independent).
+   **Any failure stops the stage and is reported.** After a pass, the saved (verified) outputs are used.
+   Conventions unchanged: recording probabilities = mean window log-probability, renormalised; Mahalanobis = per window the
+   minimum over classes with one shared within-class Ledoit–Wolf covariance from the fit windows, mean over windows;
+   recording embedding = mean of the 9 window embeddings.
+2. **D1 — does the gate catch mild horizontal misalignment?** Population: the 25 development-pool horizontal misalignment
+   0.5 mm recordings (none reserved), with the 14 that R6's A0 missed at seed 42 flagged. **Gate verdict (Bhuvesh, 1 Oct):**
+   the closed-set development CNN-6 models have no valid calibration (every recording outside fold k trained fold k's
+   model), so the default rule `ml.arbitrator.decide("B_with_caution")` is applied with the saved **LOCO runs that learned
+   horizontal misalignment** (withheld ≠ horizontal misalignment: 8 runs per fold per seed), for which each 0.5 mm recording
+   of fold k is out of sample (role foldk_known), with each run's own τ_p, τ_d, τ_e, τ_b. Per recording and seed: the 8
+   verdicts (healthy incl. caution / horizontal misalignment / another fault / further inspection); a recording counts as
+   **called healthy** on a seed if at least 4 of its 8 runs say healthy (the strict "any run" count is reported too).
+   Threshold-free context: the closed-set development CNN-6 (seeds 42 / 43 / 44, its own fold) top class, top probability,
+   and shared Mahalanobis (fitted on that fold model's training windows, forward pass only); horizontal ↔ vertical
+   misalignment confusion counted for both. **Reading:** covered by the gate if, on every seed, ≤ 1 recording is called
+   healthy; system blind spot if ≥ 3 are on any seed; otherwise unclear.
+3. **D2 — feature collapse (linear probe), per run and seed.** Descriptors (fixed now): `f_under_radial_ratio_2x_1x`,
+   `f_over_radial_ratio_2x_1x`, `f_under_ratio_axial_radial_1x`, `f_over_ratio_axial_radial_1x`, `f_under_axial_o1`,
+   `f_under_axial_o2`, `f_under_radial_o1`, `f_under_radial_o2`, `f_under_tangential_o1`, `f_under_tangential_o2`,
+   `f_over_axial_o1`, `f_over_axial_o2`, `f_over_radial_o1`, `f_over_radial_o2`, `f_over_tangential_o1`,
+   `f_over_tangential_o2` (16; recording value = mean over the 9 windows of the capped R1 table). Descriptors and embeddings
+   are standardised with the run's **fit** recordings (known classes only); one ridge (multi-output, a single α) from z to
+   the 16 descriptors is fitted on the fit recordings with α chosen by 5-fold cross-validation on those same recordings
+   (α ∈ logspace(−3, 4, 15), shuffled with the run's seed). R² per descriptor (sklearn `r2_score` against each evaluated
+   set's own mean) and averaged, on (a) known-class evaluation recordings (roles eval and foldk_known) and (b) withheld
+   recordings (foldk_withheld); RMSE in standardised units reported beside R² (R² on a narrow-range set is sensitive to
+   that set's variance). The probe never sees a withheld recording. Per run: withheld-class Mahalanobis AUROC (foldk_known
+   vs foldk_withheld). **Reading:** collapse supported if, for withheld vertical misalignment, mean withheld R² < 0.5 while
+   known R² ≥ 0.8 on all three seeds, AND across the 27 runs of each seed Spearman(withheld R², Mahalanobis AUROC) > 0.4;
+   not supported if withheld R² ≥ 0.8 for vertical misalignment on all seeds; otherwise unclear.
+4. **D3 — is the probability half saturated? (logit-based gates).** Per recording: max-logit = mean over the 9 windows of
+   the window's maximum logit; energy = mean over the 9 windows of −logsumexp(logits). Unknown scores u1 = −max-logit,
+   u2 = energy (higher = more unknown); thresholds by `order_statistic_threshold` at 0.975 on the run's calibration
+   recordings, exactly as τ_p. Gates, all with the unchanged Mahalanobis term (maha ≤ τ_d): G0 MSP ≥ τ_p; G1 u1 ≤ τ1;
+   G2 u2 ≤ τ2. Verdict as rule B (confident and top class normal → healthy; confident fault → that fault; else unknown).
+   Primary: unknown recall on foldk_withheld at a **matched known-side rejection count** (the logit-term threshold of G1 / G2
+   moved, τ_d fixed, so the gate rejects exactly as many foldk_known recordings as G0; reported if unreachable); also at the
+   calibrated thresholds; withheld called healthy; per withheld class; the mildest setting of each family; saturation = the
+   share of known recordings (cal and foldk_known) with top probability > 0.999. **Reading:** G1 / G2 helps only if matched
+   unknown recall ≥ G0 + 5 points on all three seeds with withheld called healthy not higher on any seed; does not help if
+   the seed-mean difference ≤ 0 or healthy calls rise on any seed; otherwise too thin to tell. R0's tie rule carries forward.
+5. **Decision (last cell):** D2 supports collapse → an auxiliary physics-descriptor head is worth declaring as Stage R8;
+   D2 does not support collapse and D3 does not help → no further training experiment before code freeze, the open-set gap
+   documented; D3 helps → a development finding only (changing the deployed gate is Bhuvesh's decision). D1's reading goes
+   into the write-up beside R6.
+
+## 7-prev7. Previous stage: Stage R6 — autoencoder experiments for healthy versus faulty separation (Q1, development data only)
 
 Exploratory, development data only; seeds 42, 43, 44 throughout. The bundle, decision rules, thresholds, `artifacts/final/`,
 `results/final/`, `metadata.csv` and the app are untouched; no reserved recording is read. Runs after Stage R5 (done).
