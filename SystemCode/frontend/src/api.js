@@ -32,3 +32,6 @@ export const getExplanation = (id, { signal } = {}) => api.get(`/cases/${id}/exp
 export const postExplanation = (id, userFields = {}, { signal } = {}) =>
   api.post(`/cases/${id}/explanation`, { user_fields: userFields }, { signal }).then((r) => r.data);
 export const getTrace = (id, { signal } = {}) => api.get(`/cases/${id}/trace`, { signal }).then((r) => r.data);
+// App-6: the "Explore an unseen fault" page (curated leave-one-class-out examples; live when the weights exist)
+export const getUnseen = () => api.get("/unseen").then((r) => r.data);
+export const runUnseen = (withheld, rec_id, role) => api.get("/unseen/run", { params: { withheld, rec_id, role } }).then((r) => r.data);

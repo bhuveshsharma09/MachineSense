@@ -6,6 +6,18 @@ export function Logo({ size = 22 }) {
   return <img src="/icon-64.png" width={size} height={size} alt="" aria-hidden="true" style={{ display: "block", flex: "none" }} />;
 }
 
+// App-6: the navigation entry to the "Explore an unseen fault" research demonstration page (#/unseen)
+export function UnseenLink({ style, compact }) {
+  return (
+    <a className="un-nav" href="#/unseen" style={style}
+      title="Research demonstration: a model trained without one fault class meets a recording of that class">
+      <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" strokeWidth="1.4" strokeDasharray="3 2" />
+        <path d="M8 5.2v3.4M8 10.6v.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
+      {compact ? "Unseen fault" : "Explore an unseen fault"}
+    </a>
+  );
+}
+
 // A short, readable name for the selected recording, kept beside the Start button (App-3).
 export function shortName(id) {
   if (!id) return "";
@@ -82,6 +94,7 @@ export default function TopBar({ recordings, showcase, value, onPick, onFile, up
       {!running && (value || upload) && (
         <span className="rec-short" title={value || upload?.name}>{shortName(value || upload?.name)}</span>
       )}
+      <UnseenLink compact={!!caseId} />
       <PipelineButton caseId={caseId} />
       <button onClick={onStart} disabled={!canStart} className="start-btn"
         title={blocked ? "re-upload the file to run again" : undefined} aria-label={blocked ? "Run again (re-upload the file to run again)" : undefined}

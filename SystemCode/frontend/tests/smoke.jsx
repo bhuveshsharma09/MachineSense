@@ -429,5 +429,67 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
     textOf(renderToString(<PipelineView trace={fxKnown} caseId={fxKnown.case_id} initialMode="case" initialSize={DESK} />)).includes("← Back to the case"));
 }
 
+// App-6: "Explore an unseen fault", rendered from the REAL committed selection (backend/unseen.json); every displayed number
+// must equal the backend's value for that example, the required copy must be on the page itself, and the steps stay hidden
+// until revealed.
+import unseenFile from "../../backend/unseen.json";
+import { UnseenView, pair, verdictText } from "../src/components/Unseen.jsx";
+import { UnseenLink } from "../src/components/TopBar.jsx";
+{
+  const summary = { ...unseenFile, built: true, live: { available: false, reason: "saved" },
+    runs: Object.fromEntries(Object.entries(unseenFile.runs).map(([c, r]) => [c, { ...r, examples: r.examples.map(({ result, ...e }) => e) }])) };
+  const exOf = (c, cat, kind) => unseenFile.runs[c].examples.find((e) => e.category === cat && (!kind || e.failure_kind === kind));
+  const page = (c, e, extra = {}) => {
+    const ordered = [...unseenFile.runs[c].examples.filter((x) => x.role === "withheld"), ...unseenFile.runs[c].examples.filter((x) => x.role === "familiar")];
+    return renderToString(<UnseenView summary={summary} initialHidden={c} initialExample={ordered.indexOf(e)} initialResult={e.result}
+      initialStep={4} {...extra} />);
+  };
+  const start = renderToString(<UnseenView summary={summary} initialLevel="mechanic" />);
+  const t0 = textOf(start);
+  pcheck("unseen page: title, the simulated-fault statement and the easier-part statement are in the page copy",
+    t0.includes("What happens when a machine fault appears that this model was never taught?") && t0.includes(unseenFile.simulated)
+    && t0.includes(unseenFile.easier_part.replace(/"/g, "\"")));
+  pcheck("unseen page: defaults to imbalance with the required copy, and lists the nine learned classes and the hidden one",
+    t0.includes("This experimental model was trained without imbalance recordings.") && /Imbalance\s*— never seen/.test(t0)
+    && (start.match(/<li>/g) || []).length === 9);
+  pcheck("unseen page: nothing is shown before Run investigation (no verdict, no reveal)", !start.includes('data-v="verdict"') && !t0.includes("Reveal actual condition"));
+  let bad = [];
+  for (const [c, r] of Object.entries(unseenFile.runs)) for (const e of r.examples) for (const level of ["mechanic", "developer"]) {
+    const h = page(c, e, { initialLevel: level }), t = textOf(h), res = e.result;
+    const conf = pair(res.checks.confidence.value, res.checks.confidence.threshold, 100, " %");
+    const fam = pair(res.checks.familiarity.value, res.checks.familiarity.threshold);
+    if (!t.includes(conf[0]) || !t.includes(conf[1]) || !t.includes(fam[0]) || !t.includes(fam[1])) bad.push(`${c}/${e.rec_id}: values`);
+    if (!t.includes(verdictText(res.decision))) bad.push(`${c}/${e.rec_id}: verdict`);
+    const passTxt = [...h.matchAll(/class="un-chip (ok|bad)"/g)].map((m) => m[1]);
+    if (passTxt.join() !== [res.checks.confidence.passed ? "ok" : "bad", res.checks.familiarity.passed ? "ok" : "bad"].join()) bad.push(`${c}/${e.rec_id}: pass/fail`);
+    if (res.decision.decision === "unknown" && !t.includes(unseenFile.further_inspection)) bad.push(`${c}/${e.rec_id}: further-inspection copy`);
+    if (level === "mechanic" && /MSP|Mahalanobis|τ_/.test(t.replace(/Experiment details.*$/, ""))) bad.push(`${c}/${e.rec_id}: technical names in Mechanic view`);
+    if (level === "developer" && !(t.includes("MSP") && t.includes("Mahalanobis"))) bad.push(`${c}/${e.rec_id}: developer names missing`);
+    if (t.includes("Actual condition")) bad.push(`${c}/${e.rec_id}: truth shown before Reveal`);
+  }
+  pcheck("unseen page: every curated example shows the backend's values, pass/fail and verdict; Mechanic has no technical names", !bad.length, bad.slice(0, 5).join("; "));
+  const fail = exOf("imbalance", "honest failure");
+  const rev = textOf(page("imbalance", fail, { initialRevealed: true }));
+  pcheck("unseen page: Reveal actual condition shows the true label, marked hidden during fitting, and names the honest failure",
+    rev.includes("Actual condition (dataset label)") && rev.includes("Hidden from this model during fitting") && rev.includes("honest failure"));
+  const partial = page("imbalance", fail, { initialStep: 1 });
+  pcheck("unseen page: steps are revealed one at a time (at step 2 the confidence card is shown, familiarity and the verdict not yet)",
+    /class="un-card un-check is-shown" aria-hidden="false" data-check="MSP/.test(partial)
+    && /class="un-card un-check" aria-hidden="true" data-check="Mahalanobis/.test(partial)
+    && partial.includes('class="un-card glass-strong un-verdict"'));
+  const ob = textOf(renderToString(<UnseenView summary={summary} initialHidden="overhang_ball" />));
+  pcheck("unseen page: a class without an honest failure says so, with the reason, instead of substituting one",
+    ob.includes("No honest failure among the eligible recordings: every one of the 69 eligible withheld recordings was rejected"));
+  const P = { onPick() {}, onFile() {}, onClearUpload() {}, onStart() {}, onSaveName() {}, onChangeName() {} };
+  const desk = renderToString(<Workspace {...P} {...base} />), phone = renderToString(<Workspace {...P} {...base} initialViewport={MOBILE} />);
+  // for tests/mobile-width.mjs: the page at 390 px, fully revealed (the widest state)
+  const full = page("horizontal_misalignment", exOf("horizontal_misalignment", "honest failure", "called healthy"),
+    { initialRevealed: true, initialLevel: "developer" });
+  writeFileSync(join(here, "mobile", "unseen_390.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>${css}</style></head><body><div id="root">${full}</div></body></html>`);
+  pcheck("navigation: \"Explore an unseen fault\" in the desktop top bar and the phone header",
+    desk.includes('href="#/unseen"') && textOf(desk).includes("Explore an unseen fault") && phone.includes('href="#/unseen"'));
+}
+
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }
 console.log(`all ${Object.keys(screens).length + Object.keys(mobileScreens).length + 1} screens rendered; ${pipelineChecks} pipeline checks passed`);

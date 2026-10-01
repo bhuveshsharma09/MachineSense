@@ -4,7 +4,7 @@ import { CHANNELS, PARTS, cleanText, locations, qualityFlags, recordingTitle, un
 import { PanelContent } from "./Aside.jsx";
 import { FALLBACK, markerFor } from "./Scene.jsx";
 import { changeText } from "./Inspector.jsx";
-import { Logo, PipelineButton, groupRecordings } from "./TopBar.jsx";
+import { Logo, PipelineButton, UnseenLink, groupRecordings } from "./TopBar.jsx";
 import NameModal from "./NameModal.jsx";
 import { human } from "../lib/model.js";
 
@@ -81,6 +81,7 @@ export default function MobileLayout(props) {
       <header className="m-card m-top">
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}><Logo /><b style={{ fontWeight: 500 }}>MachineSense</b>
           <span className="pill-outline mono" style={{ marginLeft: "auto" }}>Research demo</span></div>
+        <UnseenLink style={{ alignSelf: "flex-start" }} />
         <select value={selection?.rec_id || ""} onChange={(e) => onPick(e.target.value)} aria-label="Development recording" className="rec-select">
           <option value="" disabled>Select a development recording…</option>
           {showcase?.length > 0 && (

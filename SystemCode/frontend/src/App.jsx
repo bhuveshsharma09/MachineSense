@@ -5,6 +5,7 @@ import {
 } from "./api.js";
 import { createSession } from "./lib/session.js";
 import Pipeline from "./components/Pipeline.jsx";
+import Unseen from "./components/Unseen.jsx";
 import Scene from "./components/Scene.jsx";
 import Workspace from "./components/Workspace.jsx";
 
@@ -12,7 +13,8 @@ const NAME_KEY = "ms_display_name";
 const readName = () => { try { return localStorage.getItem(NAME_KEY) || ""; } catch { return ""; } };
 
 // Hash routes: #/ ; #/case/<case_id> (reopens a stored case) ; #/diagnose/<rec_id> (selects and runs a recording) ;
-// #/case/<case_id>/pipeline (App-4.2: the pipeline architecture, drawn from that case's trace; no inference).
+// #/case/<case_id>/pipeline (App-4.2: the pipeline architecture, drawn from that case's trace; no inference) ;
+// #/unseen (App-6: "Explore an unseen fault", a leave-one-class-out research demonstration).
 // Optional query for linking to a view: ?sel=<part>&ch=<channel>&view=spectrum|envelope|waveform&tab=activity|report&static=1
 function query() {
   const q = new URLSearchParams(window.location.search);
@@ -31,16 +33,19 @@ function Capture() {
   return <div className="ms-root capture"><Scene state={state} onSelect={() => {}} onHover={() => {}} captureMode /></div>;
 }
 
+const isUnseen = () => /^#\/unseen\/?$/.test(window.location.hash);
 const pipelineCase = () => { const m = /^#\/case\/([^/]+)\/pipeline\/?$/.exec(window.location.hash); return m ? decodeURIComponent(m[1]) : null; };
 
 export default function App() {
   const [pipeline, setPipeline] = useState(pipelineCase);
+  const [unseen, setUnseen] = useState(isUnseen);
   useEffect(() => {
-    const on = () => setPipeline(pipelineCase());
+    const on = () => { setPipeline(pipelineCase()); setUnseen(isUnseen()); };
     window.addEventListener("hashchange", on);
     return () => window.removeEventListener("hashchange", on);
   }, []);
   if (useRef(query()).current.capture) return <Capture />;
+  if (unseen) return <Unseen />;
   return pipeline ? <Pipeline key={pipeline} caseId={pipeline} /> : <Main />;
 }
 
