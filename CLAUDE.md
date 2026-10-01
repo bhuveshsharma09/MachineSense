@@ -539,6 +539,28 @@ only for a variant that passes, and only after Bhuvesh approves (§10). `metadat
    recordings per run at 0.556 s per recording, from R4's timings), not ≈ 10 min; it is declared in a dated addendum after
    Step 0, E1 and E2 are reported. **E4** runs only if a variant helps, with its own criteria and time budget declared first.
 
+10. **Addendum (1 Oct 2026) — E1 confirmed on seeds 43 and 44 (Bhuvesh; not a new stage; the R5 protocol is unchanged).**
+   E1 is the only variant of R1–R7 that cleared its bar, at seed 42 only. **Approved above the §10 hour:** the eight fault
+   specialists per run are trained for seeds 43 and 44 with exactly R4's recipe (`ml.train_ae.train_ae`, `AeConfig` from
+   base.yaml, the run's fit recordings of the class only, its own normalisation, the withheld class excluded everywhere),
+   seed set to 43 / 44 (≈ 72–78 min per seed); R4's time guard is kept per seed (project after the first run; stop that seed
+   above 120 min); one GPU job at a time. The normal specialist is the saved 3C AE-6 of the same run and seed (not
+   retrained; used only by the ungated R4 bank). `scripts/34_train_specialists.py` and `scripts/35_decision_design.py`
+   gain a `--seed` argument (default 42, identical to the seed-42 run; seed-42 files are never overwritten; seeds 43 / 44
+   write seed-suffixed paths). Thresholds for seeds 43 / 44 are calibrated per run on its own calibration recordings with
+   `ml.calibration.thresholds_from_scores` (τ_p, τ_d the 0.975 order statistic; τ_e, τ_b the maximum over the calibration
+   normals; checked to reproduce seed 42's saved thresholds), saved to `results/loco/decision_thresholds_s<seed>.csv`; the
+   CNN-6 / AE-6 scores are the saved 3C.1 recording scores (reproduced exactly by R7). Computed per seed through the same
+   functions (`ml.specialists`: scoring, calibration, `healthy_gates`, `gated_verdict`; no rule redefined): E1 vs M1 (matched
+   and calibrated unknown recall, known-side rejection, withheld called healthy) and R4 vs M0 for context; per withheld
+   class, per outer fold, at the mildest setting of each family; CPU ms per recording. E2 is not rerun; E3 stays deferred.
+   A test shows seed 42's saved R5 numbers are reproduced exactly after the change. **Reading (three seeds together):** E1
+   **helps, confirmed on three seeds** only if on each of seeds 42, 43 and 44 matched unknown recall ≥ M1 + 5 points AND
+   withheld called healthy ≤ M1's; otherwise **seed-dependent** (the failing seed and condition named; the seed-42 result
+   then described as not robust). Mean gain, worst seed and seed spread are reported; seed spread and sampling uncertainty
+   are never merged. Outputs: seed-suffixed R4 per-run files, `results/research/r5_seeds.json`, `r5_per_variant.csv` with a
+   `seed` column, notebook 15 extended with a "Seeds 43 and 44" section. Nothing is selected or deployed.
+
 ## 7-prev4. Previous stage: Stage R4 — condition-specialist autoencoder bank for unfamiliar-fault detection (Q3, development data only)
 
 Research question: can reconstruction by per-condition specialists identify recordings of a fault class the system never
