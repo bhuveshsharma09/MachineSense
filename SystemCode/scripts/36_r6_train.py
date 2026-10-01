@@ -94,7 +94,8 @@ def main() -> int:
                 if device.type == "mps":
                     torch.mps.synchronize()
                 secs = time.perf_counter() - t0
-                for role, ids in (("cal", cal), ("test", ev)):
+                roles = (("cal", cal), ("test", ev)) + ((("fit", fit),) if arm == "F" else ())  # F: fit scores for β (item 7)
+                for role, ids in roles:
                     sel = np.flatnonzero(np.isin(rec_of, ids))
                     e = window_channel_errors(model, cache, sel, VIB, mean, std, "frame", ac, device).mean(axis=1)
                     r = recording_mean(e, rec_of[sel])
