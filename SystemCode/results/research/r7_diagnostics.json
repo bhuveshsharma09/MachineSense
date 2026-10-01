@@ -1,0 +1,298 @@
+{
+ "stage": "R7",
+ "seeds": [
+  42,
+  43,
+  44
+ ],
+ "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+ "config_sha256": "ba2f775e17a664ce76142232e781319e0b0b55216cb73c45779c7c292de5d653",
+ "reproduction": {
+  "all_reproduced": true,
+  "runs": 81,
+  "note": "a first pass cast the embeddings to float64 before the Ledoit-Wolf fit and differed from the saved Mahalanobis by up to 2.7e-4 (relative); Stage 3C fitted on the float32 embeddings, and with that path the saved values reproduce; window logits and embeddings were bit-identical in both passes",
+  "max_rel_maha": 0.0,
+  "max_abs_msp": 0.0
+ },
+ "d1": {
+  "reading": "covered by the gate",
+  "called_healthy_majority": {
+   "42": 0,
+   "43": 0,
+   "44": 0
+  },
+  "called_healthy_any": {
+   "42": 0,
+   "43": 0,
+   "44": 0
+  },
+  "verdict_totals": {
+   "42": {
+    "another fault": 1,
+    "further inspection": 19,
+    "horizontal misalignment": 180
+   },
+   "43": {
+    "another fault": 0,
+    "further inspection": 26,
+    "horizontal misalignment": 174
+   },
+   "44": {
+    "another fault": 0,
+    "further inspection": 10,
+    "horizontal misalignment": 190
+   }
+  },
+  "a0_missed_seed42": [
+   "horizontal-misalignment__0.5mm__13.5168",
+   "horizontal-misalignment__0.5mm__16.384",
+   "horizontal-misalignment__0.5mm__21.504",
+   "horizontal-misalignment__0.5mm__22.528",
+   "horizontal-misalignment__0.5mm__23.552",
+   "horizontal-misalignment__0.5mm__24.3712",
+   "horizontal-misalignment__0.5mm__24.7808",
+   "horizontal-misalignment__0.5mm__25.8048",
+   "horizontal-misalignment__0.5mm__26.8288",
+   "horizontal-misalignment__0.5mm__28.672",
+   "horizontal-misalignment__0.5mm__30.3104",
+   "horizontal-misalignment__0.5mm__32.3584",
+   "horizontal-misalignment__0.5mm__33.1776",
+   "horizontal-misalignment__0.5mm__34.2016"
+  ],
+  "closed_set_top_vm": {
+   "42": 0,
+   "43": 0,
+   "44": 0
+  }
+ },
+ "d2": {
+  "reading": "unclear",
+  "vm_per_seed": {
+   "42": {
+    "r2_known": 0.26609680958513665,
+    "r2_withheld": -59.576644405186926
+   },
+   "43": {
+    "r2_known": 0.29801808336745905,
+    "r2_withheld": -30.95761976797901
+   },
+   "44": {
+    "r2_known": 0.342315412491963,
+    "r2_withheld": -33.97041057428898
+   }
+  },
+  "spearman_r2_auroc": {
+   "42": -0.21550671550671552,
+   "43": -0.3446802055117463,
+   "44": -0.467032967032967
+  },
+  "supplementary_post_hoc_spearman_rmse_auroc": {
+   "42": 0.34249084249084244,
+   "43": 0.5455655688658021,
+   "44": 0.24358974358974358
+  },
+  "per_class": {
+   "horizontal_misalignment": {
+    "r2_known": 0.37668174594065573,
+    "r2_withheld": -168.86365240707576,
+    "maha_auroc": 0.9536385522483175
+   },
+   "imbalance": {
+    "r2_known": 0.25615231395222476,
+    "r2_withheld": -27.507628771740794,
+    "maha_auroc": 0.5862124409287888
+   },
+   "overhang_ball": {
+    "r2_known": -0.11488346539320893,
+    "r2_withheld": -921.2248950500848,
+    "maha_auroc": 0.9633647514248577
+   },
+   "overhang_cage": {
+    "r2_known": 0.3753307150384701,
+    "r2_withheld": -43.922781642533714,
+    "maha_auroc": 0.9644627368276733
+   },
+   "overhang_outer": {
+    "r2_known": 0.32489948965072446,
+    "r2_withheld": -87.90525339530221,
+    "maha_auroc": 0.9770493571671859
+   },
+   "underhang_ball": {
+    "r2_known": 0.3768043174173723,
+    "r2_withheld": -166.85585662560914,
+    "maha_auroc": 0.9922273537144282
+   },
+   "underhang_cage": {
+    "r2_known": 0.35294127474799813,
+    "r2_withheld": -1054.0107613386003,
+    "maha_auroc": 0.9684012471485848
+   },
+   "underhang_outer": {
+    "r2_known": 0.39338741660454457,
+    "r2_withheld": -1276.244473358975,
+    "maha_auroc": 0.9901335232106252
+   },
+   "vertical_misalignment": {
+    "r2_known": 0.30214343514818626,
+    "r2_withheld": -41.501558249151635,
+    "maha_auroc": 0.4687075887075888
+   }
+  }
+ },
+ "d3": {
+  "reading": {
+   "G1": {
+    "delta_per_seed": {
+     "42": 0.014120667522464658,
+     "43": 0.012836970474967901,
+     "44": 0.011553273427471145
+    },
+    "healthy_higher": {
+     "42": false,
+     "43": false,
+     "44": false
+    },
+    "reading": "too thin to tell"
+   },
+   "G2": {
+    "delta_per_seed": {
+     "42": 0.014120667522464658,
+     "43": 0.012836970474967901,
+     "44": 0.014120667522464658
+    },
+    "healthy_higher": {
+     "42": false,
+     "43": false,
+     "44": false
+    },
+    "reading": "too thin to tell"
+   }
+  },
+  "summary": [
+   {
+    "seed": 42,
+    "gate": "G0",
+    "unknown_recall_matched": 0.6123234916559692,
+    "unknown_recall_calibrated": 0.6123234916559692,
+    "withheld_healthy_matched": 19,
+    "withheld_healthy_calibrated": 19
+   },
+   {
+    "seed": 42,
+    "gate": "G1",
+    "unknown_recall_matched": 0.6264441591784339,
+    "unknown_recall_calibrated": 0.62002567394095,
+    "withheld_healthy_matched": 15,
+    "withheld_healthy_calibrated": 17
+   },
+   {
+    "seed": 42,
+    "gate": "G2",
+    "unknown_recall_matched": 0.6264441591784339,
+    "unknown_recall_calibrated": 0.62002567394095,
+    "withheld_healthy_matched": 15,
+    "withheld_healthy_calibrated": 17
+   },
+   {
+    "seed": 43,
+    "gate": "G0",
+    "unknown_recall_matched": 0.6328626444159179,
+    "unknown_recall_calibrated": 0.6328626444159179,
+    "withheld_healthy_matched": 17,
+    "withheld_healthy_calibrated": 17
+   },
+   {
+    "seed": 43,
+    "gate": "G1",
+    "unknown_recall_matched": 0.6456996148908858,
+    "unknown_recall_calibrated": 0.6431322207958922,
+    "withheld_healthy_matched": 17,
+    "withheld_healthy_calibrated": 16
+   },
+   {
+    "seed": 43,
+    "gate": "G2",
+    "unknown_recall_matched": 0.6456996148908858,
+    "unknown_recall_calibrated": 0.6431322207958922,
+    "withheld_healthy_matched": 17,
+    "withheld_healthy_calibrated": 16
+   },
+   {
+    "seed": 44,
+    "gate": "G0",
+    "unknown_recall_matched": 0.6341463414634146,
+    "unknown_recall_calibrated": 0.6341463414634146,
+    "withheld_healthy_matched": 24,
+    "withheld_healthy_calibrated": 24
+   },
+   {
+    "seed": 44,
+    "gate": "G1",
+    "unknown_recall_matched": 0.6456996148908858,
+    "unknown_recall_calibrated": 0.6456996148908858,
+    "withheld_healthy_matched": 24,
+    "withheld_healthy_calibrated": 23
+   },
+   {
+    "seed": 44,
+    "gate": "G2",
+    "unknown_recall_matched": 0.6482670089858793,
+    "unknown_recall_calibrated": 0.6456996148908858,
+    "withheld_healthy_matched": 24,
+    "withheld_healthy_calibrated": 23
+   }
+  ],
+  "saturation_known_above_0999": {
+   "42": 0.6780901486988847,
+   "43": 0.7143355018587361,
+   "44": 0.6802973977695167
+  },
+  "per_class_matched": {
+   "horizontal_misalignment": {
+    "G0": 0.7488584474885844,
+    "G1": 0.7579908675799086,
+    "G2": 0.7579908675799086
+   },
+   "imbalance": {
+    "G0": 0.04861111111111111,
+    "G1": 0.05787037037037037,
+    "G2": 0.05787037037037037
+   },
+   "overhang_ball": {
+    "G0": 0.9033816425120773,
+    "G1": 0.9033816425120773,
+    "G2": 0.9033816425120773
+   },
+   "overhang_cage": {
+    "G0": 0.7777777777777778,
+    "G1": 0.8240740740740741,
+    "G2": 0.8333333333333334
+   },
+   "overhang_outer": {
+    "G0": 0.990990990990991,
+    "G1": 0.9954954954954955,
+    "G2": 0.9954954954954955
+   },
+   "underhang_ball": {
+    "G0": 0.948051948051948,
+    "G1": 0.9523809523809523,
+    "G2": 0.9523809523809523
+   },
+   "underhang_cage": {
+    "G0": 0.9537037037037037,
+    "G1": 0.9537037037037037,
+    "G2": 0.9537037037037037
+   },
+   "underhang_outer": {
+    "G0": 1.0,
+    "G1": 1.0,
+    "G2": 1.0
+   },
+   "vertical_misalignment": {
+    "G0": 0.16,
+    "G1": 0.192,
+    "G2": 0.192
+   }
+  }
+ }
+}
