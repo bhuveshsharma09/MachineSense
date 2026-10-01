@@ -1,0 +1,210 @@
+{
+ "addendum": "Stage R5 \u2014 E1 confirmed on seeds 43 and 44 (1 Oct 2026)",
+ "table": {
+  "E1_s42": {
+   "seed": 42,
+   "variant": "E1",
+   "baseline": "M1",
+   "matched_recall": 0.7329910141206675,
+   "baseline_recall": 0.6020539152759948,
+   "gain": 0.13093709884467264,
+   "gain_ci95_sampling": [
+    0.0975609756097561,
+    0.1643132220795892
+   ],
+   "withheld_healthy": 3,
+   "baseline_healthy": 3,
+   "calibrated_recall": 0.7368421052631579,
+   "calibrated_known_rejection": 0.08843115998141551,
+   "baseline_known_rejection": 0.09880749574105621,
+   "per_fold": {
+    "0": {
+     "variant": 0.8914728682170543,
+     "baseline": 0.6472868217054264
+    },
+    "1": {
+     "variant": 0.6227106227106227,
+     "baseline": 0.608058608058608
+    },
+    "2": {
+     "variant": 0.6895161290322581,
+     "baseline": 0.5483870967741935
+    }
+   },
+   "reading_single_seed": "helps"
+  },
+  "R4_s42": {
+   "seed": 42,
+   "variant": "R4",
+   "baseline": "M0",
+   "matched_recall": 0.582798459563543,
+   "baseline_recall": 0.5815147625160462,
+   "gain": 0.0012836970474968679,
+   "gain_ci95_sampling": [
+    -0.03209242618741977,
+    0.03212451861360701
+   ],
+   "withheld_healthy": 98,
+   "baseline_healthy": 19,
+   "calibrated_recall": 0.6829268292682927,
+   "calibrated_known_rejection": 0.10748025398792009,
+   "baseline_known_rejection": 0.09369676320272573,
+   "per_fold": {
+    "0": {
+     "variant": 0.7596899224806202,
+     "baseline": 0.624031007751938
+    },
+    "1": {
+     "variant": 0.45787545787545786,
+     "baseline": 0.5787545787545788
+    },
+    "2": {
+     "variant": 0.5362903225806451,
+     "baseline": 0.5403225806451613
+    }
+   },
+   "reading_single_seed": "does not help"
+  },
+  "E1_s43": {
+   "seed": 43,
+   "variant": "E1",
+   "baseline": "M1",
+   "matched_recall": 0.7214377406931964,
+   "baseline_recall": 0.6456996148908858,
+   "gain": 0.07573812580231065,
+   "gain_ci95_sampling": [
+    0.04489730423620026,
+    0.10783055198973042
+   ],
+   "withheld_healthy": 1,
+   "baseline_healthy": 1,
+   "calibrated_recall": 0.7124518613607189,
+   "calibrated_known_rejection": 0.08270094471116618,
+   "baseline_known_rejection": 0.1102679262815549,
+   "per_fold": {
+    "0": {
+     "variant": 0.875968992248062,
+     "baseline": 0.6511627906976745
+    },
+    "1": {
+     "variant": 0.6336996336996337,
+     "baseline": 0.652014652014652
+    },
+    "2": {
+     "variant": 0.657258064516129,
+     "baseline": 0.6330645161290323
+    }
+   },
+   "reading_single_seed": "helps"
+  },
+  "R4_s43": {
+   "seed": 43,
+   "variant": "R4",
+   "baseline": "M0",
+   "matched_recall": 0.5840821566110398,
+   "baseline_recall": 0.6238767650834403,
+   "gain": -0.03979460847240046,
+   "gain_ci95_sampling": [
+    -0.07317073170731707,
+    -0.006418485237483954
+   ],
+   "withheld_healthy": 86,
+   "baseline_healthy": 18,
+   "calibrated_recall": 0.62002567394095,
+   "calibrated_known_rejection": 0.10298900418150844,
+   "baseline_known_rejection": 0.10639615920706211,
+   "per_fold": {
+    "0": {
+     "variant": 0.7596899224806202,
+     "baseline": 0.6511627906976745
+    },
+    "1": {
+     "variant": 0.4432234432234432,
+     "baseline": 0.6117216117216118
+    },
+    "2": {
+     "variant": 0.5564516129032258,
+     "baseline": 0.6088709677419355
+    }
+   },
+   "reading_single_seed": "does not help"
+  },
+  "E1_s44": {
+   "seed": 44,
+   "variant": "E1",
+   "baseline": "M1",
+   "matched_recall": 0.7342747111681643,
+   "baseline_recall": 0.6392811296534018,
+   "gain": 0.09499358151476256,
+   "gain_ci95_sampling": [
+    0.06546854942233633,
+    0.12323491655969192
+   ],
+   "withheld_healthy": 2,
+   "baseline_healthy": 2,
+   "calibrated_recall": 0.7471116816431322,
+   "calibrated_known_rejection": 0.085488617004801,
+   "baseline_known_rejection": 0.10577667647514326,
+   "per_fold": {
+    "0": {
+     "variant": 0.8914728682170543,
+     "baseline": 0.6627906976744186
+    },
+    "1": {
+     "variant": 0.6666666666666666,
+     "baseline": 0.6776556776556777
+    },
+    "2": {
+     "variant": 0.6451612903225806,
+     "baseline": 0.5725806451612904
+    }
+   },
+   "reading_single_seed": "helps"
+  },
+  "R4_s44": {
+   "seed": 44,
+   "variant": "R4",
+   "baseline": "M0",
+   "matched_recall": 0.6123234916559692,
+   "baseline_recall": 0.6110397946084724,
+   "gain": 0.0012836970474968679,
+   "gain_ci95_sampling": [
+    -0.03209242618741977,
+    0.03337612323491656
+   ],
+   "withheld_healthy": 84,
+   "baseline_healthy": 24,
+   "calibrated_recall": 0.6854942233632862,
+   "calibrated_known_rejection": 0.10159516803469103,
+   "baseline_known_rejection": 0.10345361623044758,
+   "per_fold": {
+    "0": {
+     "variant": 0.7906976744186046,
+     "baseline": 0.6627906976744186
+    },
+    "1": {
+     "variant": 0.47985347985347987,
+     "baseline": 0.6410256410256411
+    },
+    "2": {
+     "variant": 0.5725806451612904,
+     "baseline": 0.5241935483870968
+    }
+   },
+   "reading_single_seed": "does not help"
+  }
+ },
+ "e1_gain": {
+  "per_seed": {
+   "42": 0.13093709884467264,
+   "43": 0.07573812580231065,
+   "44": 0.09499358151476256
+  },
+  "mean": 0.10055626872058195,
+  "worst": 0.07573812580231065,
+  "seed_sd": 0.028016767710519204,
+  "note": "seed spread (across seeds) and sampling uncertainty (per-seed bootstrap) are reported apart"
+ },
+ "failures": [],
+ "reading": "helps, confirmed on three seeds"
+}
