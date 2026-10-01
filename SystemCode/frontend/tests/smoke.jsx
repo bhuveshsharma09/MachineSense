@@ -456,7 +456,8 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
   let bad = [];
   for (const [c, r] of Object.entries(unseenFile.runs)) for (const e of r.examples) for (const level of ["mechanic", "developer"]) {
     const h = page(c, e, { initialLevel: level }), t = textOf(h), res = e.result;
-    const conf = pair(res.checks.confidence.value, res.checks.confidence.threshold, 100, " %");
+    const conf = pair(res.checks.confidence.value, res.checks.confidence.threshold, 100, " %", 1);
+    if (res.checks.confidence.value < 1 && /^100\.0*\s%/.test(conf[0])) bad.push(`${c}/${e.rec_id}: a probability below 1 shown as 100 %`);
     const fam = pair(res.checks.familiarity.value, res.checks.familiarity.threshold);
     if (!t.includes(conf[0]) || !t.includes(conf[1]) || !t.includes(fam[0]) || !t.includes(fam[1])) bad.push(`${c}/${e.rec_id}: values`);
     if (!t.includes(verdictText(res.decision))) bad.push(`${c}/${e.rec_id}: verdict`);

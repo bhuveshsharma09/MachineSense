@@ -15,11 +15,13 @@ const name = (c) => (c === "normal" ? "healthy (normal)" : human(c));
 // a class name inside a sentence ("trained without imbalance recordings")
 export const low = (c) => { const h = human(c); return h.charAt(0).toLowerCase() + h.slice(1); };
 
-// enough decimals that a value and its threshold read differently whenever they differ (2 to 6 decimals)
-export function pair(v, t, scale = 1, unit = "") {
-  for (let d = 2; d <= 6; d++) {
+// enough decimals that a value and its threshold read differently whenever they differ, and that a value below the
+// maximum never reads as the maximum (a top probability of 0.99999 is not "100.00 %"); 2 to 8 decimals
+export function pair(v, t, scale = 1, unit = "", max = null) {
+  const atMax = (x, s) => max !== null && x < max && Number(s) >= max * scale;
+  for (let d = 2; d <= 8; d++) {
     const a = (v * scale).toFixed(d), b = (t * scale).toFixed(d);
-    if (a !== b || d === 6) return [a + unit, b + unit];
+    if ((a !== b && !atMax(v, a) && !atMax(t, b)) || d === 8) return [a + unit, b + unit];
   }
 }
 
@@ -107,7 +109,7 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
   };
   const shown = (s) => result && step >= STEPS.indexOf(s);
   const c = result?.checks;
-  const conf = c && pair(c.confidence.value, c.confidence.threshold, 100, " %");
+  const conf = c && pair(c.confidence.value, c.confidence.threshold, 100, " %", 1);
   const fam = c && pair(c.familiarity.value, c.familiarity.threshold);
   const d = result?.decision;
   const missing = r.categories_without_an_eligible_recording || [];
