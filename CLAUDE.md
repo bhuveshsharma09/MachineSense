@@ -331,6 +331,29 @@ touched. Entry prose is Bhuvesh's (relabelled in 29de432, corrected in 5737f15) 
    passed for a further-inspection verdict); Bhuvesh changes that entry to `applies_to: [unknown]` and the README's
    `applies_to` line. `ml.guidance` validates class10 labels plus `unknown`; the selection rule is otherwise unchanged.
 
+7. **Addendum (4 Oct 2026, before any code; Bhuvesh's brief "warning-matched steps, the healthy case, and the two
+   remaining placeholders"; his entry change 9fd72ab).** Scope: `ml/guidance.py`, `backend/report.py`, `backend/explain/`
+   (`plain.py`, and by Bhuvesh's decision of 4 Oct also `prompt.py`, `guard.py`, `service.py`), `backend/app.py` (passing
+   items), `frontend/src/lib/mechanic.js` and the Mechanic row of `Aside.jsx`, their tests and docs. No model, threshold,
+   scoring path, `EvidenceRecord` field or explanation SCHEMA key changes; reserved tests sealed.
+   (a) **Warning-matched steps.** A step is a string or a mapping `{text, when_warning}` (non-empty list of substrings;
+   `extra="forbid"`). `select` keeps its entry rule and order, then filters each kept entry's steps: a string step is always
+   kept; a `when_warning` step only if one of its substrings is a case-insensitive substring of a recorded warning (the
+   `excludes` matching); an entry left with no steps is dropped. `select` returns the entries with their steps filtered, so
+   no filtered-out step reaches the report. Coverage of the emitted warnings (`ml.inference._signal_quality`): every one
+   matches a substring except the calibration-speed note ("healthy thresholds were not calibrated at this speed …"), which
+   by design gets no acquisition step.
+   (b) **Healthy case.** For a `healthy` verdict with nothing selected, section 04 is one `Model` item, "No inspection steps
+   are offered for a healthy verdict."; other conditions with nothing selected keep the `Missing` item. No entry for
+   `normal` is invented.
+   (c) **One selection, three displays.** Section 04's items (`backend.report.guidance_items`, the only caller of
+   `select`) are reused unchanged: the Mechanic view renders `report.sections` 04 items (citation and verification note
+   kept); the explanation's `next_step` is set by code from the same items, one step per line (`plain.next_step(items)`),
+   for both the template and the language-model text: the model is no longer asked to write `next_step` (prompt changed,
+   `PROMPT_VERSION` changes), the guard no longer compares it to the placeholder, and `service.explain_case` receives the
+   items from `app._explain`. `GUIDANCE_TEXT` is deleted in `plain.py` and `mechanic.js`; a frontend test fails if
+   "not yet connected" reappears.
+
 ## 7-prev8. Previous stage: Stage R7 — diagnostics on saved models: where the open-set failures come from (no training)
 
 Exploratory, development data only. **No model is trained**: saved checkpoints are run forward and their outputs analysed.
