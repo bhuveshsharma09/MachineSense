@@ -1,0 +1,17 @@
+id: envelope-band-selection
+title: Why a bearing conclusion rests on the demodulation band
+source: "Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520."
+source_url: https://doi.org/10.1016/j.ymssp.2010.07.017
+licence: "paraphrase only; the article is under the publisher's copyright"
+verification: citation_unverified
+applies_to: [underhang_ball, underhang_cage, underhang_outer, overhang_ball, overhang_cage, overhang_outer]
+evidence_required: [f_env_under_radial_bpfo1, f_env_over_radial_bpfo1]
+excludes: []
+steps:
+  - Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all.
+  - If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen from this recording rather than the fixed project band before concluding the bearing is sound.
+  - Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background.
+notes: >
+  The project selects one demodulation band by spectral kurtosis on healthy training recordings and keeps it
+  fixed for every recording, which makes results comparable but means a resonance outside that band is missed.
+  This entry exists to keep that limitation visible to whoever reads a bearing verdict.

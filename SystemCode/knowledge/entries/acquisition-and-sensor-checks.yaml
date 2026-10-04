@@ -1,0 +1,18 @@
+id: acquisition-and-sensor-checks
+title: Resolve a signal-quality warning before trusting any verdict
+source: internal
+source_url: null
+licence: written for this project; freely reproducible
+verification: internal
+applies_to: any
+evidence_required: [quality.warnings]
+excludes: []
+steps:
+  - If an accelerometer channel is reported as clipped, the peak statistics on that channel are a floor, not a measurement. Reduce the sensor range or gain and record again before acting on amplitude.
+  - If the tachometer is reported as glitched, confirm the measured shaft speed against a second source before trusting any order or envelope evidence, because every one of those features is computed relative to that speed.
+  - If microphone bursts are reported, treat all microphone-derived evidence for this recording as unavailable. The bursts are an acquisition artefact, not machine sound.
+  - If a large DC offset is reported on an accelerometer, check the sensor mounting and cabling; a drifting channel is usually a mounting or cable fault rather than a machine fault.
+notes: >
+  Derived from this project's own data audit (results/audit_report.md): 164 files carry microphone bursts,
+  228 carry tachometer glitches, 9 clip at high speed and 44 carry accelerometer offset. Because those flags
+  are class-linked in this dataset, they are recorded for the operator and never used as model inputs.

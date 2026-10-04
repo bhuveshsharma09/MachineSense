@@ -1,0 +1,18 @@
+id: vibration-severity-zones
+title: "STUB: judging severity against evaluation zones"
+source: "ISO 20816-1:2016, Mechanical vibration — Measurement and evaluation of machine vibration — Part 1: General guidelines"
+source_url: https://www.iso.org/standard/63180.html
+licence: "paywalled standard; no text, clause reference or numeric boundary may be reproduced until the document is read"
+verification: needs_paywalled_source
+applies_to: [imbalance, horizontal_misalignment, vertical_misalignment]
+evidence_required: [f_under_radial_rms, f_over_radial_rms]
+excludes: []
+steps: []
+notes: >
+  Not offered. The evaluation-zone scheme classifies a machine's broadband vibration into bands that
+  correspond to newly commissioned, acceptable for continued operation, unsatisfactory, and unacceptable,
+  with boundaries that depend on machine class and mounting. The boundaries and the machine-class definitions
+  are not stated here because the standard has not been read. A further obstacle: this project reports
+  accelerometer amplitudes in volts, while the standard is written for velocity in mm/s, so a calibrated
+  conversion would be required before any zone comparison is meaningful. Fill this in from the NUS library
+  copy, or delete the entry and say in the report that severity banding is out of scope.

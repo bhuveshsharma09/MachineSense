@@ -1,0 +1,15 @@
+id: balance-quality-grades
+title: "STUB: permissible residual imbalance"
+source: "ISO 21940-11:2016, Mechanical vibration — Rotor balancing — Part 11: Procedures and tolerances for rotors with rigid behaviour"
+source_url: https://www.iso.org/standard/54074.html
+licence: "paywalled standard; no text, clause reference or numeric tolerance may be reproduced until the document is read"
+verification: needs_paywalled_source
+applies_to: [imbalance]
+evidence_required: [speed_hz]
+excludes: []
+steps: []
+notes: >
+  Not offered. The standard defines balance quality grades and a permissible residual imbalance that depends
+  on the grade, the rotor mass and the service speed. None of that is reproduced here because the document has
+  not been read. Referenced by the last step of imbalance-1x, which is written without a numeric tolerance for
+  this reason.

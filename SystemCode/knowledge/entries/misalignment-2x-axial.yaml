@@ -1,0 +1,24 @@
+id: misalignment-2x-axial
+title: Distinguish misalignment from imbalance, and check the coupling
+source: internal
+source_url: null
+licence: written for this project; freely reproducible
+verification: internal
+applies_to: [horizontal_misalignment, vertical_misalignment]
+evidence_required:
+  - f_under_radial_ratio_2x_1x
+  - f_under_ratio_axial_radial_1x
+  - f_over_ratio_axial_radial_1x
+  - f_under_axial_o1
+  - f_under_axial_o2
+excludes: []
+steps:
+  - Check the 2× to 1× ratio. A misaligned coupling is loaded twice per revolution, so a raised second order relative to the first is the main separator from imbalance.
+  - Check the axial channels. A pronounced axial component relative to radial at the same order points at misalignment, since imbalance acts in the plane of rotation.
+  - Inspect the coupling itself for wear, cracking or uneven element compression before adjusting anything, since a worn coupling can produce the same signature as a misaligned one.
+  - Check for soft foot at each mounting point before measuring alignment, because a machine that rocks on its base cannot be aligned reliably.
+  - Measure shaft alignment with a dial indicator or laser aligner, recording offset and angularity in both the horizontal and the vertical plane.
+notes: >
+  This system separates horizontal from vertical misalignment less reliably than it separates either from other
+  conditions. On the reserved closed test, 8 of 51 vertical-misalignment recordings were called horizontal.
+  Treat the plane named in the verdict as a hypothesis and measure both planes.

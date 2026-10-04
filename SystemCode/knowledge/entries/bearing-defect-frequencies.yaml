@@ -1,0 +1,26 @@
+id: bearing-defect-frequencies
+title: Confirm a bearing verdict against the envelope defect lines
+source: "Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520."
+source_url: https://doi.org/10.1016/j.ymssp.2010.07.017
+licence: "paraphrase only; the article is under the publisher's copyright"
+verification: citation_unverified
+applies_to: [underhang_ball, underhang_cage, underhang_outer, overhang_ball, overhang_cage, overhang_outer]
+evidence_required:
+  - f_env_under_radial_bpfo1
+  - f_env_under_radial_bpfi1
+  - f_env_under_radial_ftf1
+  - f_env_under_radial_bsf2
+  - speed_hz
+excludes:
+  - microphone bursts reported for this recording
+steps:
+  - Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault.
+  - Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not.
+  - Confirm which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately.
+  - Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect.
+notes: >
+  Defect line positions depend on the bearing geometry (pitch diameter, rolling-element diameter, number of
+  elements, contact angle) and scale with shaft speed, so they are computed per recording from the measured
+  speed rather than fixed. Kurtosis alone is not sufficient support: impulsiveness indicates an impact source,
+  and only the envelope comb identifies which surface. Verify the DOI resolves before citing this entry in a
+  submitted document.

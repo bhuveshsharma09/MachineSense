@@ -1,0 +1,18 @@
+id: further-inspection-needed
+title: What to do when the verdict is further inspection needed
+source: internal
+source_url: null
+licence: written for this project; freely reproducible
+verification: internal
+applies_to: any
+evidence_required: [decision.decision]
+excludes: []
+steps:
+  - Do not act on the classifier's highest-ranked condition. The verdict means the recording did not sit close enough to any condition the system knows, so the ranking among those conditions is not informative.
+  - Record the machine again at a different shaft speed and re-run. A condition that is genuinely unfamiliar tends to stay unfamiliar across speeds; a single rejection near a threshold often does not.
+  - Compare the healthy-baseline scores against the calibration speed range. A recording outside that range is more likely to be rejected for being unusual than for being faulty.
+  - Escalate to manual inspection, treating the result as an instruction to look rather than as the identification of a new fault type.
+notes: >
+  Further inspection needed is an uncertainty verdict, not confirmation of a new fault (project scope).
+  On the reserved partitions this verdict was returned for 32.9 % of known-side instances, so it is common
+  enough that treating every instance as a discovery would be wrong.
