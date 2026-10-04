@@ -276,6 +276,11 @@ function ExplanationBlock({ explanation }) {
   );
 }
 
+function GuidanceList({ items }) {
+  if (!items) return <span className="mv-muted">The inspection steps appear with the report.</span>;
+  return <ul>{items.map((i) => <li key={i.text} title={i.hover}>{i.text}</li>)}</ul>;
+}
+
 function MechanicView({ record, report, activity, explanation, onShowPart }) {
   const kind = M.findingKind(record);
   const st = STYLE[kind];
@@ -295,7 +300,7 @@ function MechanicView({ record, report, activity, explanation, onShowPart }) {
       {warn.length > 0 && <Warnings title="Warnings that affect this result" items={warn} />}
       <Row label="Why it was flagged"><ExplanationBlock explanation={explanation} /></Row>
       <Row label="Supporting checks"><span>{support || "Checking…"}</span></Row>
-      <Row label="What to inspect next"><span>{M.GUIDANCE_TEXT}</span></Row>
+      <Row label="What to inspect next"><GuidanceList items={M.guidanceItems(report)} /></Row>
       <Row label="Limitations"><span>{M.LIMITATION}{record.source === "dataset" ? " " + M.IN_SAMPLE : ""}</span></Row>
       <details className="mv-activity">
         <summary>View investigation activity</summary>

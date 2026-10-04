@@ -13,7 +13,7 @@ from fastapi.responses import JSONResponse
 from backend.engine import (Engine, InputError, ReservedRecordingError, ReservedUploadError, StoredUploadMissing,
                             UploadError, parse_upload)
 from backend.checks import assessment
-from backend.report import build_report, build_sections
+from backend.report import build_report, build_sections, guidance_items
 from backend.settings import showcase_file
 
 
@@ -197,7 +197,8 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         ch = _evidence(eng, case_id, "channels") if eng.case_array(case_id) is not None else None
         provider = OpenAICompatibleProvider(llm_base_url(), llm_model(), llm_timeout_s(), llm_api_key(),
                                             transport=request.app.state.llm_transport)
-        out = explain_case(rec, assessment(rec), ch, user_fields, provider, enabled=llm_enabled(), log_path=explanations_log())
+        out = explain_case(rec, assessment(rec), ch, user_fields, provider, enabled=llm_enabled(), log_path=explanations_log(),
+                           guidance=guidance_items(rec, eng.bundle.feature_dictionary.index))
         eng.store.put_explanation(case_id, out)
         return out
 

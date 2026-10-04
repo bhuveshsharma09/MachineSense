@@ -87,3 +87,37 @@ def test_other_condition_with_nothing_selected_keeps_the_missing_item(reports):
     rec = copy.deepcopy(case)
     rec["signal_quality"]["warnings"] = []
     assert [i["tag"] for i in s4({"sections": build_sections(rec)})] == ["Missing"]  # no feature names → no bearing entry
+
+
+# ---- one selection, three displays (App-5 addendum c)
+def test_template_explanation_next_step_is_section_04_with_further_inspection_first(client, reports):
+    from backend.explain import plain
+    case, rep = reports[UNKNOWN]
+    e = client.post(f"/api/cases/{case['case_id']}/explanation").json()  # the test client reaches no model → template
+    assert e["source"] == "template"
+    lines = e["text"]["next_step"].split("\n")
+    assert e["text"]["next_step"] == plain.next_step(s4(rep))
+    assert "(source: further-inspection-needed)" in lines[0] and all("(source: " in x for x in lines)
+
+
+def test_a_model_written_next_step_is_replaced_by_the_cited_steps(bundle_path, guard_path, tmp_path, reports):
+    import httpx
+    import json
+    from fastapi.testclient import TestClient
+
+    from backend.app import create_app
+    from backend.explain.prompt import SYSTEM
+
+    def model(request):
+        obj = {"finding": "The pattern resembles a bearing fault.", "why_flagged": ["It matches the learned examples.",
+               "The healthy-baseline checks see a difference."], "uncertainty": ["The healthy baseline is small."],
+               "next_step": "Replace the bearing now.", "numbers_used": []}
+        return httpx.Response(200, json={"choices": [{"message": {"role": "assistant", "content": json.dumps(obj)}}]})
+    assert "never write inspection steps" in SYSTEM and "guidance_text" not in SYSTEM
+    with TestClient(create_app(bundle_path, cases_path=tmp_path / "c.db", guard_path=guard_path,
+                               llm_transport=httpx.MockTransport(model))) as c:
+        rec = c.post("/api/diagnose", json={"rec_id": BEARING}).json()
+        e = c.post(f"/api/cases/{rec['case_id']}/explanation").json()
+        items = c.get(f"/api/cases/{rec['case_id']}/report").json()["sections"][3]["items"]
+    assert e["source"] == "llm" and "Replace the bearing" not in e["text"]["next_step"]
+    assert e["text"]["next_step"].split("\n") == [i["text"] for i in items]

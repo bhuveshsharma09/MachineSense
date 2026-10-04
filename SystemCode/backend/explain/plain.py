@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import re
 
-GUIDANCE_TEXT = "Inspection guidance not yet connected."
 IN_SAMPLE = "This recording was used to build the model, so the result is not evidence of accuracy."
 LIMITATION = "Research demonstration; not validated on real machines."
 
@@ -27,6 +26,12 @@ MEASURE_PLAIN = {"rms": "overall vibration level (RMS)", "order_1x": "vibration 
                  "env_bpfi1": "repeated impacts at the inner-race rate (envelope spectrum)",
                  "env_bsf2": "repeated impacts at the ball rate (envelope spectrum)",
                  "env_ftf1": "repeated impacts at the cage rate (envelope spectrum)", "kurtosis": "impulsiveness (excess kurtosis)"}
+
+
+def next_step(items: list[dict]) -> str:
+    """The explanation's next step: section 04's items (backend.report.guidance_items, the one selection) as given, one
+    per line, each with its "(source: <id>)" citation and verification note. Set by code, never written by the model."""
+    return "\n".join(i["text"] for i in items)
 
 
 def parts_for(cls: str | None) -> list[str]:

@@ -53,7 +53,7 @@ def good(record, **over):
            "why_flagged": [f"At {60 * fr:,.0f} rpm the pattern matches the cage-fault examples the model learned from.",
                            "The healthy-baseline checks also see a difference from healthy recordings."],
            "uncertainty": ["The healthy baseline comes from a small number of healthy recordings."],
-           "next_step": plain.GUIDANCE_TEXT, "numbers_used": [round(60 * fr)]}
+           "next_step": "", "numbers_used": [round(60 * fr)]}
     obj.update(over)
     return json.dumps(obj)
 
@@ -66,7 +66,9 @@ def test_valid_answer_is_used_and_badged(app, case, model):
     model.reply = lambda body: good(case)
     e = explain(app, case)
     assert e["source"] == "llm" and e["badge"] == "AI-written explanation of the evidence" and e["fallback_reason"] is None
-    assert e["text"]["next_step"] == plain.GUIDANCE_TEXT and e["prompt_version"] and e["model"] and e["attempts"] == 1
+    assert e["prompt_version"] and e["model"] and e["attempts"] == 1
+    s4 = app.get(f"/api/cases/{case['case_id']}/report").json()["sections"][3]["items"]
+    assert e["text"]["next_step"] == plain.next_step(s4) and "(source: " in e["text"]["next_step"]  # filled by code
     assert model.calls[-1]["temperature"] == 0.2
     assert app.get(f"/api/cases/{case['case_id']}/explanation").json() == e  # persisted with the case
 

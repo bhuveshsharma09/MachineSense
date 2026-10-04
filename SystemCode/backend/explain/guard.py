@@ -47,8 +47,6 @@ def check_schema(obj: dict) -> None:
           and isinstance(obj["next_step"], str) and isinstance(obj["numbers_used"], list))
     if not ok:
         raise ExplanationRejected("schema: wrong types or lengths (finding ≤ 25 words; 2–3 why; 1–3 uncertainty)", retryable=True)
-    if obj["next_step"].strip() != plain.GUIDANCE_TEXT:
-        raise ExplanationRejected("schema: next_step is not the guidance-not-connected text", retryable=True)
 
 
 def _matches(token: str, values: list[float]) -> bool:

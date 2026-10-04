@@ -32,7 +32,7 @@ Rules:
 - "finding": one sentence, at most 25 words.
 - "why_flagged": 2 or 3 short bullet sentences with the main evidence.
 - "uncertainty": 1 to 3 short bullet sentences on what limits the result (use DATA.checks, DATA.warnings, DATA.limitations).
-- "next_step": exactly the text in DATA.guidance_text.
+- "next_step": an empty string. The application fills it with cited inspection steps; never write inspection steps.
 - "numbers_used": every number you wrote, as numbers.
 Answer with one JSON object that matches this schema and nothing else:
 {json.dumps(SCHEMA)}"""
@@ -70,7 +70,6 @@ def compact_view(record: dict, assessment: dict, channels: dict | None, user_fie
         "largest_measured_changes": changes,
         "mechanic_numbers": mech,
         "limitations": [plain.LIMITATION] + ([plain.IN_SAMPLE] if record["source"] == "dataset" else []),
-        "guidance_connected": False, "guidance_text": plain.GUIDANCE_TEXT,
         "user_provided_data": {k: str(v) for k, v in (user_fields or {}).items() if v},
     }
 

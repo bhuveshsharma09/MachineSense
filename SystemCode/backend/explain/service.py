@@ -16,8 +16,9 @@ BADGE_TEMPLATE = "template explanation"
 TEMPERATURE = 0.2
 
 
-def template_explanation(record: dict, assessment: dict, channels: dict | None) -> dict:
-    """The fixed, deterministic explanation (no language model), in the same schema; plain words, no numbers."""
+def template_explanation(record: dict, assessment: dict, channels: dict | None, guidance: list[dict]) -> dict:
+    """The fixed, deterministic explanation (no language model), in the same schema; plain words, no numbers except in
+    `next_step`, which is report section 04's cited steps (`guidance`) as given."""
     d = record["diagnosis"]
     why = []
     if d["decision"] == "known_fault":
@@ -43,7 +44,7 @@ def template_explanation(record: dict, assessment: dict, channels: dict | None) 
         unc.append("One of the checks is close to its limit, so a repeat reading could change the result.")
     unc.append("The healthy baseline comes from a small number of healthy recordings on one test rig.")
     return {"finding": plain.finding(record), "why_flagged": why[:3], "uncertainty": unc[:3],
-            "next_step": plain.GUIDANCE_TEXT, "numbers_used": []}
+            "next_step": plain.next_step(guidance), "numbers_used": []}
 
 
 def _log(path, entry: dict) -> None:
@@ -55,12 +56,14 @@ def _log(path, entry: dict) -> None:
 
 
 def explain_case(record: dict, assessment: dict, channels: dict | None, user_fields: dict | None, provider,
-                 enabled: bool = True, log_path=None) -> dict:
+                 enabled: bool = True, log_path=None, *, guidance: list[dict]) -> dict:
+    """`guidance` = report section 04's items; the next step is filled from them by code for the model's text and the
+    template alike (the model is asked for an empty next_step and never writes inspection steps)."""
     t0 = time.perf_counter()
     base = {"case_id": record["case_id"], "prompt_version": PROMPT_VERSION,
             "provider": getattr(provider, "name", None), "model": getattr(provider, "model", None),
             "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
-    template = template_explanation(record, assessment, channels)
+    template = template_explanation(record, assessment, channels, guidance)
     view = compact_view(record, assessment, channels, user_fields)
     attempts, reason, text = 0, None, None
     if not enabled or provider is None:
@@ -73,7 +76,7 @@ def explain_case(record: dict, assessment: dict, channels: dict | None, user_fie
                 obj = parse(content)
                 check_schema(obj)
                 check_content(obj, allowed_numbers(view), raw_numbers(record, assessment), view["largest_measured_changes"])
-                text, reason = obj, None
+                text, reason = {**obj, "next_step": template["next_step"]}, None
                 break
             except ProviderError as e:
                 reason = f"language model unreachable ({e})"

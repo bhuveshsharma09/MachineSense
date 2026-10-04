@@ -1,7 +1,6 @@
 // Mechanic-level wording (Stage App-3), mirroring backend/explain/plain.py: plain words, no percentages, no raw scores.
 // Everything is derived from the evidence record, the check assessment and the measured channel evidence.
 
-export const GUIDANCE_TEXT = "Inspection guidance not yet connected.";
 export const LIMITATION = "Research demonstration; not validated on real machines.";
 export const IN_SAMPLE = "This recording was used to build the model, so the result is not evidence of accuracy.";
 
@@ -11,6 +10,11 @@ export const FAULT_PLAIN = {
   overhang_ball: "bearing ball fault", overhang_cage: "bearing cage fault", overhang_outer: "bearing outer-race fault",
   normal: "normal operation",
 };
+// "What to inspect next" = section 04 of the server's report (backend.report.guidance_items, the one selection), shown as
+// given with each step's citation and verification note; never re-selected here. null until the report has arrived.
+export function guidanceItems(report) {
+  return report?.sections?.find((s) => s.n === "04")?.items ?? null;
+}
 export const PART_PLAIN = { in_brg: "Inner bearing housing", out_brg: "Outer bearing housing", rotor: "Rotor discs", coupling: "Coupling", shaft: "Shaft" };
 
 // Mechanic-friendly labels with the technical term in brackets

@@ -48,7 +48,7 @@ const screens = {
   // ---- App-3 Mechanic view
   "mechanic · known fault": [mech(knownFault), ["Mechanic", "Developer", "Possible bearing cage fault",
     "Outer bearing housing — according to the dataset label (model prediction)", "Why it was flagged", "template explanation",
-    "Supporting checks", "the secondary model agrees", "What to inspect next", "Inspection guidance not yet connected.",
+    "Supporting checks", "the secondary model agrees", "What to inspect next", "(source: bearing-defect-frequencies; Citation not yet checked against the full text)",
     "Research demonstration; not validated on real machines.", "not evidence of accuracy", "View investigation activity",
     "Reading details"], ["Checks against calibrated thresholds", "CNN-6 · main model", "Investigation agents"]],
   "rig part card": [mech(knownFault, { initialUi: { sel: "out_brg" } }), ["What this part does", "What was observed", "View signal",
@@ -77,7 +77,7 @@ const screens = {
     ["New investigation"], [], () => true],
 };
 const always = ["MachineSense", "Illustrative 3D rig"];
-const never = ["Simulated", "Classifier A", "Classifier B", "Demo state", "remaining life", "urgency", "Stage 3D", "App-2b",
+const never = ["not yet connected", "Simulated", "Classifier A", "Classifier B", "Demo state", "remaining life", "urgency", "Stage 3D", "App-2b",
   "B_with_caution", "1.0000", "100.0 %", "(Recommended)", "Largest change vs healthy reference"];
 
 let failed = 0;
@@ -91,6 +91,13 @@ for (const [name, [props, expect, absent = [], extra]] of Object.entries(screens
   if (extra && !extra()) miss.push("extra check");
   if (miss.length || bad.length) { failed++; console.error(`✗ ${name}: missing ${JSON.stringify(miss)} forbidden ${JSON.stringify(bad)}`); }
   else console.log(`✓ ${name}`);
+}
+// App-5: no guidance placeholder may come back anywhere in the frontend source (the rendered screens are covered by `never`).
+{
+  const walk = (d) => readdirSync(d).flatMap((f) => statSync(`${d}/${f}`).isDirectory() ? walk(`${d}/${f}`) : [`${d}/${f}`]);
+  const hits = walk("src").filter((f) => /not yet connected/i.test(readFileSync(f, "utf8")));
+  if (hits.length) { failed++; console.error(`✗ guidance placeholder reappeared in ${hits.join(", ")}`); }
+  else console.log("✓ no guidance placeholder in the frontend source");
 }
 // App-3: the Mechanic panel (rendered alone) contains no percentage and no raw model score
 import { PanelContent } from "../src/components/Aside.jsx";
@@ -115,7 +122,7 @@ for (const [name, f] of Object.entries({ knownFault, unknown, caution, poor, hea
 }
 
 // Small screens (App-2a.3): the stacked layout at 390 px, and no horizontal scroll (document width ≤ viewport width).
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
