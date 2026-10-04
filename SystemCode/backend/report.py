@@ -4,11 +4,15 @@ the narrow-margin wording come from backend.checks (shared with the UI)."""
 from __future__ import annotations
 
 import re
+from functools import lru_cache
 
 from backend.checks import RULE_LINE, RULE_TOOLTIP, assessment, fmt_score
+from ml.guidance import UNKNOWN, load_entries, select
 
 TAGS = ("Measured", "Model", "Guidance", "Missing")
-GUIDANCE_PLACEHOLDER = "guidance library not yet connected"
+FIRST_FOR_UNKNOWN = "further-inspection-needed"  # the verdict's own instruction before generic acquisition checks
+VERIFICATION_NOTE = {"ai_drafted": "AI-drafted, not yet checked against a published source",
+                     "citation_unverified": "Citation not yet checked against the full text"}
 LOCATION = {"underhang": "inner bearing housing (underhang bearing)", "overhang": "outer bearing housing (overhang bearing)",
             "imbalance": "rotor discs", "horizontal_misalignment": "coupling and shaft",
             "vertical_misalignment": "coupling and shaft"}
@@ -100,12 +104,44 @@ def build_report(r: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+@lru_cache(maxsize=1)
+def _entries():
+    return tuple(load_entries())
+
+
+def guidance_condition(d: dict) -> str:
+    """The arbitrator's verdict as a guidance condition: the fault class, `normal`, or `unknown` (CLAUDE.md §7 App-5)."""
+    return {"known_fault": d["fault_class"], "healthy": "normal"}.get(d["decision"], UNKNOWN)
+
+
+def guidance_items(r: dict, evidence_names=()) -> list[dict]:
+    """Section 04: one Guidance item per step of every entry `ml.guidance.select` offers, cited by entry id; for an unknown
+    verdict further-inspection-needed comes first. Nothing selected → one Missing item naming the condition."""
+    d, warnings = r["diagnosis"], r["signal_quality"]["warnings"]
+    cond = guidance_condition(d)
+    avail = {*evidence_names, "speed_hz", "decision.decision", *(["quality.warnings"] if warnings else [])}
+    sel = select(list(_entries()), condition=cond, available_evidence=avail, warnings=warnings)
+    if cond == UNKNOWN:
+        sel.sort(key=lambda e: e.id != FIRST_FOR_UNKNOWN)  # stable: the rest keep select's order
+    if not sel:
+        return [{"tag": "Missing", "text": f"No curated guidance covers this finding ({_name(cond)}); "
+                                           "no inspection steps are offered."}]
+    out = []
+    for e in sel:
+        note = VERIFICATION_NOTE.get(e.verification)
+        hover = f"{e.title} — {e.source}" + (f" {e.source_url}" if e.source_url else "")
+        out += [{"tag": "Guidance", "text": f"{step} (source: {e.id}{'; ' + note if note else ''})", "cite": e.id,
+                 "hover": hover} for step in e.steps]
+    return out
+
+
 # ----------------------------------------------------------------------------- structured report (Stage App-2a)
-def build_sections(r: dict, channels: dict | None = None) -> list[dict]:
+def build_sections(r: dict, channels: dict | None = None, evidence_names=()) -> list[dict]:
     """The design's four report sections from the evidence record (and, if given, the measured channel evidence). Every
-    statement is tagged Measured (from the signal), Model (from a model score or rule), Guidance (a placeholder until the
-    guidance library exists) or Missing (evidence the system does not have). Items may carry `hover` (raw names).
-    Deterministic; no language model."""
+    statement is tagged Measured (from the signal), Model (from a model score or rule), Guidance (a cited step from the
+    curated library, `cite` = entry id) or Missing (evidence the system does not have). Items may carry `hover` (raw
+    names, or the guidance entry's title and source). `evidence_names` = the feature names the scoring path produces (the
+    app passes the bundle's feature dictionary). Deterministic; no language model."""
     d, q = r["diagnosis"], r["signal_quality"]
     a = assessment(r)
 
@@ -159,7 +195,7 @@ def build_sections(r: dict, channels: dict | None = None) -> list[dict]:
         s3.append(it("Missing", "This recording was used to build the model; the result is not evidence of accuracy."))
     s3 += [it("Missing", "No maintenance history, operating context or repeat recording is available."),
            it("Missing", "The healthy baseline is calibrated on 5 healthy recordings from one folder.")]
-    s4 = [it("Guidance", f"Inspection steps for this finding — {GUIDANCE_PLACEHOLDER}.")]
+    s4 = guidance_items(r, evidence_names)
     return [{"n": "01", "title": "What the readings suggest", "items": s1},
             {"n": "02", "title": "Supporting evidence", "items": s2},
             {"n": "03", "title": "Conflicting or missing evidence", "items": s3},

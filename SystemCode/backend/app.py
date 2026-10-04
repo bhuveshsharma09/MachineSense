@@ -228,7 +228,8 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         rec = _need(eng, case_id)["record"]
         ch = _evidence(eng, case_id, "channels") if eng.case_array(case_id) is not None else None
         return JSONResponse({"case_id": case_id, "format": "markdown", "report": build_report(rec),
-                             "sections": build_sections(rec, ch), "assessment": assessment(rec),
+                             "sections": build_sections(rec, ch, eng.bundle.feature_dictionary.index),
+                             "assessment": assessment(rec),
                              "tags": ["Measured", "Model", "Guidance", "Missing"],
                              "generated_by": "fixed template from the evidence record; no language model"})
 

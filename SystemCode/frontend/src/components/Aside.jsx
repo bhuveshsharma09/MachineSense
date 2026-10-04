@@ -214,7 +214,7 @@ export function Report({ status, report }) {
           ))}
         </div>
       ))}
-      <p style={{ margin: 0, fontSize: 11.5, lineHeight: 1.5, color: "oklch(0.48 0.008 260)" }}>Fixed template built from the evidence record; no language model. Guidance items are placeholders: the guidance library is not yet connected.</p>
+      <p style={{ margin: 0, fontSize: 11.5, lineHeight: 1.5, color: "oklch(0.48 0.008 260)" }}>Fixed template built from the evidence record; no language model. Guidance items are steps from the curated guidance library, each cited by its entry; hover for the source.</p>
     </div>
   );
 }

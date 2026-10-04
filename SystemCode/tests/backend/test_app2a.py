@@ -145,7 +145,7 @@ def test_report_sections_are_tagged(client, case):
     assert [s["n"] for s in rep["sections"]] == ["01", "02", "03", "04"]
     items = [i for s in rep["sections"] for i in s["items"]]
     assert {i["tag"] for i in items} <= {"Measured", "Model", "Guidance", "Missing"}
-    assert all("guidance library not yet connected" in i["text"] for i in items if i["tag"] == "Guidance")
+    assert all(i.get("cite") and f"source: {i['cite']}" in i["text"] for i in items if i["tag"] == "Guidance")
     assert any("not evidence of accuracy" in i["text"] for i in items)
 
 
