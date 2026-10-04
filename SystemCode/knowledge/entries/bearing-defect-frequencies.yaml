@@ -17,7 +17,7 @@ steps:
   - Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault.
   - Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not.
   - Confirm which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately.
-  - Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect.
+  - "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect."
 notes: >
   Defect line positions depend on the bearing geometry (pitch diameter, rolling-element diameter, number of
   elements, contact angle) and scale with shaft speed, so they are computed per recording from the measured

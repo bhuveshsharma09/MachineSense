@@ -15,7 +15,7 @@ excludes: []
 steps:
   - Check that the energy really is concentrated at 1× shaft rate and that the 2× to 1× ratio is low. Imbalance is a once-per-revolution force, so a strong 2× component points at misalignment or looseness instead.
   - Check that the signal is smooth rather than impulsive. A low or negative excess kurtosis is consistent with imbalance; a strongly positive value suggests impacts and therefore a different cause.
-  - Inspect the rotor for added, lost or displaced mass: fouling, debris, a missing balance weight, a damaged blade or vane, or moisture collected on one side.
+  - "Inspect the rotor for added, lost or displaced mass: fouling, debris, a missing balance weight, a damaged blade or vane, or moisture collected on one side."
   - Record again at a second shaft speed. The 1× amplitude from a mass imbalance rises steeply with speed, so a component that does not grow with speed is probably not imbalance.
   - Refer the residual imbalance to the balance-quality grade appropriate for the machine type before deciding whether correction is required.
 notes: >
