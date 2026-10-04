@@ -12,8 +12,7 @@ evidence_required:
   - f_env_under_radial_ftf1
   - f_env_under_radial_bsf2
   - speed_hz
-excludes:
-  - microphone bursts reported for this recording
+excludes: []
 steps:
   - Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault.
   - Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not.
