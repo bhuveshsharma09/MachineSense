@@ -30,7 +30,7 @@ source_url: resolvable link, or null
 licence: what may and may not be reproduced
 verification: see the table below
 drafted_with_ai: true or false
-applies_to: [class10 labels this entry may be offered for, or "any"]
+applies_to: [class10 labels, or "unknown" for the further-inspection verdict; or "any"]
 evidence_required: [feature or field names the steps depend on]
 excludes: [conditions under which this entry must NOT be offered]
 steps: [inspection actions, each one line]
