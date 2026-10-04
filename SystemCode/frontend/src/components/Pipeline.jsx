@@ -50,6 +50,7 @@ const kindWords = (kind, edgeKinds) => `${KIND_WORDS[kind] || kind} (${edgeKinds
 function EmptyState({ message }) {
   return (
     <div className="pl-root">
+      <a href="#/" className="ms-brand pl-empty-home" aria-label="MachineSense home"><Logo /><span>MachineSense</span></a>
       <div className="pl-empty glass" role="status">
         <span className="mono kicker">Pipeline architecture</span>
         <p style={{ margin: "8px 0 4px", fontSize: 16 }}>{message}</p>
@@ -154,7 +155,7 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
   return (
     <div className={"pl-root" + (caseMode ? " is-case" : "") + (narrow ? " is-narrow" : "")}>
       <header className="pl-header glass">
-        <div className="pl-brand"><Logo /><span style={{ fontSize: 17, fontWeight: 500 }}>MachineSense</span></div>
+        <a className="pl-brand ms-brand" href="#/" aria-label="MachineSense home"><Logo /><span style={{ fontSize: 17, fontWeight: 500 }}>MachineSense</span></a>
         <div className="pl-heading">
           <h1><span className={"mono kicker pl-mode-pill" + (caseMode ? " is-case" : "")}>{caseMode ? "This diagnosis" : "General architecture"}</span>
             {caseMode ? "How this diagnosis was made" : "How a diagnosis is made"}</h1>

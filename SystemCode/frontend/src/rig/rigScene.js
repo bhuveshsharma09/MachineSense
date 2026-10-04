@@ -263,7 +263,7 @@ export function createRig(container, opts = {}) {
   const DEF = { target: new THREE.Vector3(0.02, 0.13, 0), theta: 0.58, phi: 1.12, radius: 1.75 };
   const view = { target: DEF.target.clone(), theta: DEF.theta, phi: DEF.phi, radius: DEF.radius };
   const cur = { target: DEF.target.clone(), theta: DEF.theta, phi: DEF.phi + 0.06, radius: DEF.radius * 1.12 };
-  let st = { sel: null, hover: null, fault: [], cand: [], unusual: [], unusable: [], exploded: false, insets: { top: 0, right: 0, bottom: 0, left: 0 } };
+  let st = { sel: null, hover: null, fault: [], cand: [], unusual: [], unusable: [], exploded: false, zoomOut: 1, insets: { top: 0, right: 0, bottom: 0, left: 0 } };
   let W = 1, H = 1, hoverPick = null, zoomK = 1;
   
   function resize() {
@@ -274,7 +274,7 @@ export function createRig(container, opts = {}) {
     camera.updateProjectionMatrix();
     const tf = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
     const fw = Math.max(0.3, (W - ins.left - ins.right) / W), fh = Math.max(0.3, (H - ins.top - ins.bottom) / H);
-    const fit = clamp(Math.max(1.22 / (tf * camera.aspect * fw), 0.6 / (tf * fh)), 1.2, 4);
+    const fit = clamp(Math.max(1.22 / (tf * camera.aspect * fw), 0.6 / (tf * fh)) * st.zoomOut, 1.2, 4.5);
     const was = DEF.radius; DEF.radius = fit; zoomK = fit / 1.75;
     if (!st.sel && Math.abs(view.radius - was) < 0.02) view.radius = fit;
   }
@@ -345,8 +345,8 @@ export function createRig(container, opts = {}) {
       const dx = e.clientX - down.x, dy = e.clientY - down.y;
       if (!dragging && Math.hypot(dx, dy) > 4) dragging = true;
       if (dragging) {
-        view.theta = clamp(view.theta - e.movementX * 0.006, -1.3, 1.6);
-        view.phi = clamp(view.phi - e.movementY * 0.005, 0.55, 1.45);
+        view.theta = clamp(view.theta - e.movementX * 0.004, -0.15, 1.1);
+        view.phi = clamp(view.phi - e.movementY * 0.0035, 0.88, 1.28);
         cv.style.cursor = 'grabbing';
       }
       return;
@@ -359,7 +359,7 @@ export function createRig(container, opts = {}) {
     down = null; dragging = false; cv.style.cursor = hoverPick ? 'pointer' : 'grab';
   };
   const onLeave = () => { if (hoverPick) { hoverPick = null; apply(); if (opts.onHover) opts.onHover(null); } };
-  const onWheel = e => { e.preventDefault(); view.radius = clamp(view.radius * Math.exp(e.deltaY * 0.0011), 0.38, 4.5); };
+  const onWheel = e => { e.preventDefault(); view.radius = clamp(view.radius * Math.exp(e.deltaY * 0.0011), DEF.radius * 0.65, DEF.radius * 1.65); };
   cv.addEventListener('pointerdown', onDown); cv.addEventListener('pointermove', onMove); cv.addEventListener('pointerup', onUp);
   cv.addEventListener('pointerleave', onLeave); cv.addEventListener('wheel', onWheel, { passive: false });
   cv.style.cursor = 'grab';
@@ -444,9 +444,9 @@ export function createRig(container, opts = {}) {
 
   return {
     update(s) {
-      const prevSel = st.sel, prevIns = JSON.stringify(st.insets);
+      const prevSel = st.sel, prevIns = JSON.stringify(st.insets), prevZoom = st.zoomOut;
       st = Object.assign({}, st, s);
-      if (JSON.stringify(st.insets) !== prevIns) resize();
+      if (JSON.stringify(st.insets) !== prevIns || st.zoomOut !== prevZoom) resize();
       if (st.sel !== prevSel) { if (st.sel) focus(st.sel); else resetView(); }
       apply();
     },

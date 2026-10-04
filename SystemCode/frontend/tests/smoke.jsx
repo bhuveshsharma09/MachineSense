@@ -2,6 +2,7 @@
 // recorded real API responses (tests/fixtures, made by tests/make_fixtures.py). No browser and no new dependency.
 import { renderToString } from "react-dom/server";
 import Workspace from "../src/components/Workspace.jsx";
+import InvestigationDialog from "../src/components/InvestigationDialog.jsx";
 import { qualityFlags, unusualSensors } from "../src/lib/model.js";
 import common from "./fixtures/common.json";
 import knownFault from "./fixtures/known_fault.json";
@@ -23,9 +24,9 @@ const done = (f, extra = {}) => ({ ...base, selection: sel(f), status: "done", r
 const mech = (f, extra = {}) => done(f, { initialPanelView: "mechanic", ...extra });
 
 const screens = {
-  "no recording": [base, ["No recording selected", "Select a recording"]],
+  "no recording": [base, ["Understand what your machine is telling you", "Start investigation"]],
   "name prompt": [{ ...base, userName: "", needsName: true }, ["Display name", "stored in this browser only"]],
-  running: [{ ...base, selection: sel(knownFault), status: "running" }, ["Checking recording", "Analysing signals", "Preparing findings", "Investigating…"]],
+  running: [{ ...base, selection: sel(knownFault), status: "running" }, ["Start investigation"]],
   "known fault": [done(knownFault, { initialUi: { sel: "out_brg", evCh: "over_radial", evView: "envelope", signal: true } }),
     ["Known fault", "Overhang bearing · cage fault", "Dataset label: Overhang bearing · cage fault", "above healthy limit — consistent with a fault",
       "Location according to the dataset label (model)", "outer bearing housing", "CNN-6 · main model", "Secondary logistic regression", "> 0.9999", "margin",
@@ -64,18 +65,17 @@ const screens = {
     "Compared with a healthy example (reference ratio)", "Different from a healthy example is not the same as a confirmed fault."]],
   "healthy with calibration-speed warning": [done(healthy), ["Healthy", "healthy thresholds were not calibrated at this speed"]],
   "invalid upload": [{ ...base, upload: { name: "bad.csv", size: 12 }, status: "error", error: { status: err422.status, message: err422.detail } },
-    ["Input not accepted", "got 3", "server response 422"]],
+    ["Start investigation"]],
   "reserved upload refused": [{ ...base, upload: { name: "r.csv", size: 17280033 }, status: "error", error: { status: 403, message: "this appears to be a reserved test recording" } },
-    ["Upload refused", "This appears to be a reserved test recording", "Server response · 403"]],
+    ["Start investigation"]],
   "static fallback": [done(knownFault, { forceStatic: true }), ["Static view · rendered frame of the 3D rig", "rig-fallback.png"]],
   "running names the recording (App-2a.3)": [{ ...base, selection: sel(knownFault), status: "running", runningFor: sel(knownFault).label },
-    [`Diagnosing ${sel(knownFault).label}`, "Investigating…"]],
+    ["Start investigation"]],
   "reopened upload without its stored array (App-2a.3)": [done(knownFault, { selection: null,
     upload: { name: "uploaded recording (case abcdef12)", size: 0, stored: true, canRerun: false, note: "re-upload the file to run again" } }),
-    ["re-upload the file to run again", "Run again"], [], () => true],
+    ["New investigation"], [], () => true],
 };
-const always = ["Limitations", "Available when the investigation assistant is connected", "Illustrative 3D geometry",
-  "Orange glow is a visual highlight, not a measured temperature."];
+const always = ["MachineSense", "Illustrative 3D rig"];
 const never = ["Simulated", "Classifier A", "Classifier B", "Demo state", "remaining life", "urgency", "Stage 3D", "App-2b",
   "B_with_caution", "1.0000", "100.0 %", "(Recommended)", "Largest change vs healthy reference"];
 
@@ -103,13 +103,14 @@ for (const [name, f] of Object.entries({ knownFault, unknown, caution, poor, hea
   else console.log(`✓ mechanic panel ${name}: no percentage, no raw score`);
 }
 
-// The disabled "Run again" of a reopened upload whose array is gone (App-2a.3)
+// A reopened upload without its stored array cannot be run from the new investigation dialog.
 {
-  const html = renderToString(<Workspace {...{ ...done(knownFault, { selection: null,
-    upload: { name: "uploaded recording", size: 0, stored: true, canRerun: false } }), onPick() {}, onFile() {}, onStart() {} }} />);
+  const html = renderToString(<InvestigationDialog open recordings={common.recordings} showcase={common.showcase.showcase}
+    upload={{ name: "uploaded recording", stored: true, canRerun: false, note: "re-upload the file to run again" }}
+    status="idle" onPick={() => {}} onFile={() => {}} onClearUpload={() => {}} onStart={() => {}} onClose={() => {}} />);
   const btn = html.match(/<button[^>]*class="start-btn"[^>]*>/)?.[0] || "";
-  if (!/disabled=""/.test(btn) || !/title="re-upload the file to run again"/.test(btn)) { failed++; console.error("✗ Run again not disabled with the tooltip"); }
-  else console.log("✓ Run again disabled with the tooltip when the stored upload is missing");
+  if (!/disabled=""/.test(btn) || !html.includes("re-upload the file to run again")) { failed++; console.error("✗ unavailable stored upload was not blocked"); }
+  else console.log("✓ unavailable stored upload blocked in the investigation dialog");
 }
 
 // Small screens (App-2a.3): the stacked layout at 390 px, and no horizontal scroll (document width ≤ viewport width).
@@ -131,9 +132,10 @@ for (const [name, props] of Object.entries(mobileScreens)) {
   const p = { onPick() {}, onFile() {}, onClearUpload() {}, onStart() {}, onSaveName() {}, onChangeName() {}, ...props, initialViewport: MOBILE };
   const html = renderToString(<Workspace {...p} />);
   const text = html.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
-  const miss = ["Best viewed on a desktop screen.", "Diagnosis", "Mechanic", "Measured change vs healthy reference", "Rotor test rig",
-    "Limitations", "rig-fallback.png"].filter((s) => !text.includes(s) && !html.includes(s));
-  if (!html.includes('class="ms-mobile"') || html.includes("<canvas")) miss.push("stacked layout without 3D");
+  const expected = props.status === "done" ? ["Diagnosis", "Mechanic", "Measured change vs healthy reference", "Rotor test rig", "Research limitations", "rig-fallback.png"]
+    : ["Understand what your machine is telling you", "Start investigation", "Rotor test rig", "rig-fallback.png"];
+  const miss = expected.filter((s) => !text.includes(s) && !html.includes(s));
+  if (!html.includes('class="ms-mobile ') || html.includes("<canvas")) miss.push("stacked layout without 3D");
   if (miss.length) { failed++; console.error(`✗ ${name}: missing ${JSON.stringify(miss)}`); continue; }
   // Written for tests/mobile-width.mjs, which measures them in headless Chrome at 390 × 844 (device-metrics emulation).
   const out = join(here, "mobile");
@@ -244,8 +246,11 @@ import { fitView, INSET, LEGIBLE } from "../src/components/PipelineCanvas.jsx";
   const back = renderToString(<PipelineView trace={traceFx} caseId={traceFx.case_id} initialSize={DESK} />);
   pcheck("back link to the case in the header (navigation only; the id is not shown as text)",
     back.includes(`href="#/case/${traceFx.case_id}"`) && !textOf(back).includes(traceFx.case_id));
-  const panel = renderToString(<PanelContent record={knownFault.record} status="done" report={knownFault.report} activity={knownFault.activity} view="mechanic" onView={() => {}} />);
-  pcheck("the case view links to the pipeline page", panel.includes(`href="#/case/${knownFault.record.case_id}/pipeline"`) && textOf(panel).includes("How this diagnosis was made"));
+  const panelProps = { record: knownFault.record, status: "done", report: knownFault.report, activity: knownFault.activity, onView: () => {} };
+  const devPanel = renderToString(<PanelContent {...panelProps} view="developer" />);
+  const mechPanel = renderToString(<PanelContent {...panelProps} view="mechanic" />);
+  pcheck("the pipeline button appears only in Developer view", devPanel.includes(`href="#/case/${knownFault.record.case_id}/pipeline"`) &&
+    textOf(devPanel).includes("Pipeline view") && !mechPanel.includes(`href="#/case/${knownFault.record.case_id}/pipeline"`));
 }
 
 // App-4.3: the case-populated page ("This diagnosis"). Every displayed value is checked against the fixture trace.
@@ -415,16 +420,19 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
     !moving.length && /prefers-reduced-motion: reduce\)[^{]*\{[^}]*animation: none !important; transition: none !important/.test(cssText), JSON.stringify(moving));
 }
 
-// the main screen's way to the pipeline page: a button once a diagnosis is on screen (desktop top bar and phone header)
+// The pipeline entry belongs to the Developer diagnosis panel, on both desktop and phone.
 {
   const P = { onPick() {}, onFile() {}, onClearUpload() {}, onStart() {}, onSaveName() {}, onChangeName() {} };
   const href = `href="#/case/${knownFault.record.case_id}/pipeline"`;
   const desk = renderToString(<Workspace {...P} {...done(knownFault)} />);
   const phone = renderToString(<Workspace {...P} {...done(knownFault)} initialViewport={MOBILE} />);
+  const mechDesk = renderToString(<Workspace {...P} {...mech(knownFault)} />);
+  const mechPhone = renderToString(<Workspace {...P} {...mech(knownFault)} initialViewport={MOBILE} />);
   const running = renderToString(<Workspace {...P} {...base} selection={sel(knownFault)} status="running" runningFor="x" />);
-  pcheck("main screen: a \"Pipeline view\" button to this case's pipeline page (desktop and phone), none while running",
+  pcheck("main screen: Pipeline view in Developer panel on desktop and phone, hidden from Mechanic",
     /class="pl-open-btn"[^>]*>/.test(desk) && desk.includes(href) && textOf(desk).includes("Pipeline view") &&
-    phone.includes('class="pl-open-btn"') && phone.includes(href) && !running.includes("pl-open-btn"));
+    phone.includes('class="pl-open-btn"') && phone.includes(href) &&
+    !mechDesk.includes(href) && !mechPhone.includes(href) && !running.includes("pl-open-btn"));
   pcheck("pipeline page: a \"← Back to the case\" button in the header",
     textOf(renderToString(<PipelineView trace={fxKnown} caseId={fxKnown.case_id} initialMode="case" initialSize={DESK} />)).includes("← Back to the case"));
 }

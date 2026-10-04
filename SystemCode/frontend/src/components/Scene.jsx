@@ -26,7 +26,7 @@ export function markerFor(h, { fault, cand, unusual, flags, sel, hover, labelsAl
   }
   const selected = sel === h.id;
   return { id: h.id, fill, border, size: isS ? 10 : 11, ring, pulse, selected, tag, tagColor,
-    showLabel: labelsAll || selected || hover === h.id || !!tag, label: h.full || h.label,
+    showLabel: isS && !!labelsAll, label: h.full || h.label,
     labelBorder: selected ? al(K.violet, 0.55) : labelBorder };
 }
 
@@ -44,14 +44,13 @@ export function Marker({ m, onClick, onEnter, onLeave, style }) {
       {m.showLabel && (
         <div className="ms-label" style={{ borderColor: m.labelBorder }}>
           <span>{m.label}</span>
-          {m.tag && <span className="mono" style={{ fontSize: 9.5, letterSpacing: "0.05em", textTransform: "uppercase", color: m.tagColor }}>{m.tag}</span>}
         </div>
       )}
     </div>
   );
 }
 
-export default function Scene({ state, onSelect, onHover, inspector, forceStatic = false, captureMode = false, insets = INSETS }) {
+export default function Scene({ state, onSelect, onHover, inspector, forceStatic = false, captureMode = false, insets = INSETS, zoomOut = 1 }) {
   const sceneRef = useRef(null), overlayRef = useRef(null), rig = useRef(null);
   const [mode, setMode] = useState(forceStatic ? "static" : "loading");
   const [anchors, setAnchors] = useState(null);
@@ -89,7 +88,7 @@ export default function Scene({ state, onSelect, onHover, inspector, forceStatic
     if (!rig.current || mode !== "3d") return;
     rig.current.update({
       sel: state.sel, hover: state.hover, exploded: state.exploded, fault: state.fault, cand: state.cand,
-      unusual: state.unusual, unusable: Object.keys(state.flags), insets: captureMode ? { top: 0, right: 0, bottom: 0, left: 0 } : insets,
+      unusual: state.unusual, unusable: Object.keys(state.flags), insets: captureMode ? { top: 0, right: 0, bottom: 0, left: 0 } : insets, zoomOut,
     });
   });
 

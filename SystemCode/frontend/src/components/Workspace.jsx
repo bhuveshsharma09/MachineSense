@@ -5,7 +5,8 @@ import Aside, { usePanelView } from "./Aside.jsx";
 import { factsFor } from "./EvidenceStrip.jsx";
 import ReadingDetails from "./ReadingDetails.jsx";
 import Inspector from "./Inspector.jsx";
-import LimitationsBanner from "./LimitationsBanner.jsx";
+import InvestigationDialog from "./InvestigationDialog.jsx";
+import AgentChat from "./AgentChat.jsx";
 import NameModal from "./NameModal.jsx";
 import Scene, { markerFor } from "./Scene.jsx";
 import TopBar from "./TopBar.jsx";
@@ -14,7 +15,7 @@ import MobileLayout from "./MobileLayout.jsx";
 // One set of sizes for the panels (CSS variables) and the 3D rig (insets), from the viewport.
 export function layoutFor(w, h) {
   const compact = h < 820 || w < 1400;
-  const aside = w < 1400 ? 340 : 380, strip = 44, top = 124;  // App-3: the strip is a floating "Reading details" button
+  const aside = Math.round(w * 0.3) - 16, strip = 44, top = 88;
   return { compact, aside, strip, top, insets: { top, right: aside + 32, bottom: strip + 52, left: 16 } };
 }
 
@@ -33,23 +34,24 @@ function useViewport(initial) {
 
 function Legend({ open, onToggle }) {
   const row = (dot, text) => (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12, color: "oklch(0.30 0.006 260)" }}>
+    <div className="legend-item">
       <span style={{ width: 14, height: 14, flex: "none", display: "grid", placeItems: "center" }}>{dot}</span>{text}
     </div>
   );
   return (
-    <div className="glass-soft legend" style={{ position: "absolute", zIndex: 4, display: "flex", flexDirection: "column", gap: 8, padding: open ? "11px 14px" : "6px 12px", borderRadius: 14 }}>
-      <button onClick={onToggle} aria-expanded={open} className="mono kicker" style={{ border: 0, background: "transparent", padding: 0, cursor: "pointer", textAlign: "left", display: "flex", justifyContent: "space-between", gap: 10 }}>
-        <span>Legend</span><span>{open ? "Hide" : "Show"}</span>
-      </button>
+    <div className="legend">
+      <button onClick={onToggle} aria-expanded={open} className="ctl legend-toggle">Legend {open ? "Hide" : "Show"}</button>
       {open && (
-        <>
-          {row(<span style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid " + K.violet }} />, "Selected part")}
-          {row(<span style={{ width: 14, height: 14, borderRadius: "50%", background: `radial-gradient(circle, ${K.orange} 0 35%, ${al(K.orange, 0.25)} 60%, transparent 72%)` }} />, "Location according to the dataset label (model)")}
-          {row(<span style={{ width: 10, height: 10, borderRadius: "50%", background: K.lime, border: "2px solid " + K.ink }} />, "Change beyond typical healthy variation · measured")}
-          {row(<span style={{ width: 14, height: 14, borderRadius: "50%", border: "1.5px dashed " + K.amberT, background: al(K.amber, 0.25) }} />, "Candidate location or signal-quality flag")}
-          <p style={{ margin: "2px 0 0", fontSize: 11, lineHeight: 1.4, color: "oklch(0.48 0.008 260)" }}>Measured change is descriptive, not a calibrated anomaly test: each recording is compared on ~20 channel × metric values, and a healthy recording often exceeds at least one 95th-percentile band by chance, so no change marker is shown on a healthy verdict. Orange glow is a visual highlight, not a measured temperature.</p>
-        </>
+        <div className="glass-soft legend-popover">
+          <span className="mono kicker">Model and sensor highlights</span>
+          <div className="legend-items">
+            {row(<span style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid " + K.violet }} />, "Selected sensor")}
+            {row(<span style={{ width: 14, height: 14, borderRadius: "50%", background: `radial-gradient(circle, ${K.orange} 0 35%, ${al(K.orange, 0.25)} 60%, transparent 72%)` }} />, "Model highlight")}
+            {row(<span style={{ width: 10, height: 10, borderRadius: "50%", background: K.lime, border: "2px solid " + K.ink }} />, "Measured change")}
+            {row(<span style={{ width: 14, height: 14, borderRadius: "50%", border: "1.5px dashed " + K.amberT, background: al(K.amber, 0.25) }} />, "Inspect this area")}
+          </div>
+          <p className="legend-note">Highlights suggest where to inspect; they do not confirm a fault.</p>
+        </div>
       )}
     </div>
   );
@@ -57,18 +59,27 @@ function Legend({ open, onToggle }) {
 
 export default function Workspace(props) {
   const { recordings, showcase, selection, upload, status, error, record, channels, signals, activity, report, limitations,
-    userName, needsName, onSaveName, onChangeName, onPick, onFile, onClearUpload, onStart, forceStatic, initialUi,
+    userName, needsName, onSaveName, onChangeName, onPick, onFile, onClearUpload, onStart, onHome, forceStatic, initialUi,
     runningFor, initialViewport, explanation, onRegenerate, initialPanelView } = props;
   const vp = useViewport(initialViewport);
   const L = layoutFor(vp.w, vp.h);
-  const [ui, setUi] = useState({ sel: null, hover: null, exploded: false, labels: false, evCh: null, evView: "spectrum", tab: "activity", resetTick: 0, legend: null, ...initialUi });
+  const [ui, setUi] = useState({ sel: null, hover: null, exploded: false, labels: true, evCh: null, evView: "spectrum", tab: "activity", resetTick: 0, legend: null, ...initialUi });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [view, setView] = usePanelView(initialPanelView);
   const [drawer, setDrawer] = useState(!!initialUi?.drawer);
-  if (vp.w < MOBILE_MAX) return <MobileLayout {...props} view={view} onView={setView} />;
+  useEffect(() => {
+    if (status === "running" || status === "error") setDialogOpen(true);
+    if (status === "done" && record) setDialogOpen(false);
+  }, [status, record?.case_id]);
+  if (vp.w < MOBILE_MAX) return <MobileLayout {...props} view={view} onView={setView}
+    chatOpen={chatOpen} onOpenChat={() => setChatOpen(true)} onCloseChat={() => setChatOpen(false)} />;
   const set = (p) => setUi((u) => ({ ...u, ...p }));
   const tab = props.tab ?? ui.tab;
   const onTab = props.onTab ?? ((t) => set({ tab: t }));
-  const legendOpen = ui.legend ?? !L.compact;
+  const legendOpen = ui.legend ?? false;
+  const reportPage = !!record && status === "done";
+  const insets = reportPage ? L.insets : { top: L.top, right: 16, bottom: 78, left: Math.min(500, Math.round(vp.w * 0.29)) };
 
   const flags = qualityFlags(record);
   const loc = locations(record);
@@ -92,39 +103,44 @@ export default function Workspace(props) {
     ? { k: `Development recording · used for ${rec.used_for}`, t: rec.rec_id, label: `Dataset label: ${recordingTitle(rec)}`,
         s: `${(fr ?? rec.speed_hz).toFixed(1)} Hz · ${nf(60 * (fr ?? rec.speed_hz))} rpm · 5.00 s · 8 channels` }
     : upload ? { k: "Uploaded file", t: upload.name, s: record ? `${fr.toFixed(1)} Hz measured · 5.00 s · 8 channels` : error ? (error.status === 403 ? "Upload refused" : "File check failed") : "Not checked yet" }
-    : { k: "Rotor fault test rig", t: "Select a recording", s: "Choose a development recording or upload a CSV file." };
+    : { k: "Rotor fault test rig", t: "Understand what your machine is telling you", s: "Investigate a recording, inspect the evidence, and decide what needs attention." };
 
   const vars = { "--aside-w": L.aside + "px", "--strip-h": L.strip + "px", "--top": L.top + "px" };
   return (
-    <div className={"ms-root" + (L.compact ? " compact" : "")} style={vars}>
-      <Scene state={sceneState} insets={L.insets} onSelect={(id) => set({ sel: id, evCh: id && PART[id] && !PART[id].ch.includes(ui.evCh) ? PART[id].ch[0] : ui.evCh })}
+    <div className={"ms-root " + (reportPage ? "report-page" : "home-page") + (L.compact ? " compact" : "")} style={vars}>
+      <Scene state={sceneState} insets={insets} zoomOut={reportPage ? 1 : 1.14} onSelect={(id) => set({ sel: id, evCh: id && PART[id] && !PART[id].ch.includes(ui.evCh) ? PART[id].ch[0] : ui.evCh })}
         onHover={(id) => { if (id !== ui.hover) set({ hover: id }); }} inspector={inspector} forceStatic={forceStatic} />
       <div className="hero" style={{ opacity: part ? 0 : 1 }}>
         <span className="mono hero-k">{hero.k}</span>
         <span className="hero-t">{hero.t}</span>
         {hero.label && <span className="hero-label">{hero.label}</span>}
         <span className="hero-s">{hero.s}</span>
+        <span className="hero-scene-note">Illustrative 3D rig · drag to orbit gently · click a sensor or part</span>
+        {!reportPage && <button type="button" className="start-btn home-cta" onClick={() => setDialogOpen(true)}>Start investigation <span aria-hidden="true">→</span></button>}
       </div>
-      <Legend open={legendOpen} onToggle={() => set({ legend: !legendOpen })} />
-      <TopBar recordings={recordings} showcase={showcase} value={selection?.kind === "dataset" ? selection.rec_id : ""} onPick={onPick}
-        onFile={onFile} upload={upload} onClearUpload={onClearUpload} onStart={onStart} status={status} hasRecord={!!record}
-        caseId={status !== "running" ? record?.case_id : null}
-        userName={userName} onChangeName={onChangeName} runningFor={runningFor} />
-      <LimitationsBanner items={limitations?.map(cleanText)} />
+      <TopBar onHome={onHome} onInvestigate={() => setDialogOpen(true)} status={status}
+        userName={userName} onChangeName={onChangeName} reportPage={reportPage} />
       <div className="controls">
         <button className="ctl" onClick={() => set({ sel: null, resetTick: ui.resetTick + 1 })}>Reset view</button>
         <button className="ctl" aria-pressed={ui.exploded} onClick={() => set({ exploded: !ui.exploded })}
           style={ui.exploded ? { background: K.white, borderColor: al(K.violet, 0.55), color: K.violet } : undefined}>Exploded view</button>
-        <button className="ctl" onClick={() => set({ labels: !ui.labels })}>{ui.labels ? "Labels: all" : "Labels: minimal"}</button>
-        <span className="controls-note">Illustrative 3D geometry, approximated from the reference photo.<br />Drag to orbit · scroll to zoom · click a part</span>
+        <button type="button" className="ctl" aria-pressed={ui.labels} onClick={() => set({ labels: !ui.labels })}>
+          {ui.labels ? "Hide sensor names" : "Show sensor names"}
+        </button>
+        {reportPage && <Legend open={legendOpen} onToggle={() => set({ legend: !legendOpen })} />}
       </div>
-      <ReadingDetails open={drawer} onToggle={() => setDrawer(!drawer)} record={record} channels={channels} signals={signals}
+      {reportPage && <ReadingDetails open={drawer} onToggle={() => setDrawer(!drawer)} record={record} channels={channels} signals={signals}
         flags={flags} selCh={part ? chId : null} upload={upload} facts={factsFor(record, upload, error)}
-        onTile={(c) => set({ sel: c.sensor, evCh: c.id })} />
-      <Aside record={record} status={status} error={error} selection={selection} runningFor={runningFor} activity={activity}
+        onTile={(c) => set({ sel: c.sensor, evCh: c.id })} />}
+      {reportPage && <Aside record={record} status={status} error={error} selection={selection} runningFor={runningFor} activity={activity}
         report={report} explanation={explanation} onRegenerate={onRegenerate} view={view} onView={setView}
-        onShowPart={(id) => set({ sel: id, evCh: PART[id]?.ch[0] })} />
+        limitations={limitations?.map(cleanText)} onShowPart={(id) => set({ sel: id, evCh: PART[id]?.ch[0] })}
+        onOpenChat={() => setChatOpen(true)} />}
+      <InvestigationDialog open={dialogOpen} recordings={recordings} showcase={showcase} selection={selection} upload={upload}
+        onPick={onPick} onFile={onFile} onClearUpload={onClearUpload} onStart={onStart} onClose={() => setDialogOpen(false)}
+        status={status} error={error} runningFor={runningFor} />
       {needsName && <NameModal initial={userName} onSave={onSaveName} />}
+      <AgentChat caseId={record?.case_id} open={chatOpen} onOpen={() => setChatOpen(true)} onClose={() => setChatOpen(false)} />
     </div>
   );
 }

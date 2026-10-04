@@ -8,7 +8,7 @@
 export const GEOM = {
   BH: 72,            // block height: 16px 22px padding, a title line and a subtitle line
   MIN_W: 190, MAX_W: 460, PAD_X: 22,
-  TITLE_FIT: 1.08,   // estimated title width × this ≥ the measured width of every title (Outfit 16px; App-4.2.1)
+  TITLE_FIT: 1.08,   // estimated title width × this ≥ the measured width of every title (Switzer 16px; App-4.2.1)
   GAP_X: 56,         // minimum horizontal space between neighbouring blocks in a row
   OUT_BAND: 18,      // below a row: room for the output-port labels before the first edge track
   IN_BAND: 16,       // above a row: room for the input-port labels after the last edge track
@@ -44,7 +44,7 @@ export const PLACEMENT = {
 
 const title = (b, level) => (level === "developer" ? b.title_developer : b.title_mechanic) || b.id;
 
-// Width of a title in Outfit 16px, by character class (calibrated on the measured titles; see GEOM.TITLE_FIT)
+// Width of a title at 16px, by character class (see GEOM.TITLE_FIT; check against Switzer rendering)
 const charW = (ch) => (/[ilj.,:;'!|()[\] ]/.test(ch) ? 4.4 : /[ftrI\-_]/.test(ch) ? 5.8 : /[mwMW]/.test(ch) ? 12.2
   : /[A-Z]/.test(ch) ? 9.9 : /[0-9]/.test(ch) ? 8.6 : 8.3);
 export const titleWidth = (s) => [...(s || "")].reduce((a, c) => a + charW(c), 0) * GEOM.TITLE_FIT;
@@ -163,7 +163,7 @@ export function layoutPipeline(trace, { warn = (m) => console.warn(m), extraWidt
   });
   // frame captions sit on the frame's top edge, at the first stretch clear of input-port labels and entering lines
   for (const f of frames) {
-    const w = Math.max(titleWidth(f.block.title_mechanic), titleWidth(f.block.title_developer)) * (14 / 16) + 20;  // Outfit 14px
+    const w = Math.max(titleWidth(f.block.title_mechanic), titleWidth(f.block.title_developer)) * (14 / 16) + 20;  // 14px block title
     const busy = Object.values(ports).filter((p) => p.side === "in" && f.members.has(p.node) && nodes[p.node].row === f.r0)
       .map((p) => [p.x - 3, p.x + 7 + (p.short || "").length * 6.4]);
     for (const e of edges) for (let i = 1; i < e.points.length; i++) {

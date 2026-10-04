@@ -102,6 +102,7 @@ function Main() {
       userName={name} needsName={!name || editingName} onChangeName={() => setEditingName(true)}
       onSaveName={(n) => { try { localStorage.setItem(NAME_KEY, n); } catch { /* browser-local only */ } setName(n); setEditingName(false); }}
       onPick={onPick} onFile={onFile} onClearUpload={() => session.current.select(null)} onStart={() => session.current.run()}
+      onHome={() => { session.current.select(null); window.location.hash = "#/"; }}
       forceStatic={init.forceStatic} initialUi={init.ui} />
   );
 }

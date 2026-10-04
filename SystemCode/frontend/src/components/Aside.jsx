@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { K, TAG, al } from "../lib/theme.js";
 import * as M from "../lib/mechanic.js";
+import { PipelineButton } from "./TopBar.jsx";
 import {
-  ASK_DISABLED, IN_SAMPLE_NOTICE, PART_NAME, PIPELINE, PLANNED_AGENTS, SCORES_NOTE, STEP_CODE, cap, fmtScore, human,
+  IN_SAMPLE_NOTICE, PART_NAME, PIPELINE, PLANNED_AGENTS, SCORES_NOTE, STEP_CODE, cap, fmtScore, human,
   locations, shownWarnings, verdict, verdictTitle,
 } from "../lib/model.js";
 
@@ -378,20 +379,18 @@ export function PanelContent(props) {
   return (
     <div className="dx-block panel">
       <div className="panel-head"><span className="mono kicker">Diagnosis</span><ViewSwitch view={view} onView={onView} /></div>
-      {body}
-      {record?.case_id && status !== "running" && !error && (  // App-4.2.1: entry to the pipeline architecture view
-        <a className="pl-entry" href={`#/case/${encodeURIComponent(record.case_id)}/pipeline`}>How this diagnosis was made →</a>
+      {view === "developer" && record?.case_id && status !== "running" && !error && (
+        <PipelineButton caseId={record.case_id} />
       )}
+      {body}
     </div>
   );
 }
 
-export function AskBar() {
+export function AskBar({ onOpenChat }) {
   return (
     <div style={{ flex: "none", padding: "8px 14px 10px", borderTop: "1px solid oklch(0.23 0.006 260 / 0.08)" }}>
-      <button disabled className="ghost-btn" title={ASK_DISABLED} style={{ width: "100%", minHeight: 34, padding: "4px 10px", fontSize: 12, lineHeight: 1.3 }}>
-        <span style={{ color: K.ink2 }}>Ask about this recording</span> · <span>{ASK_DISABLED}</span>
-      </button>
+      <button type="button" className="agent-ask-bar" onClick={onOpenChat}>Ask about this recording <span aria-hidden="true">↗</span></button>
     </div>
   );
 }
@@ -400,7 +399,10 @@ export default function Aside(props) {
   return (
     <aside aria-label="Diagnosis and investigation" className="glass aside" style={{ position: "absolute", right: 16, bottom: 16, zIndex: 5, display: "flex", flexDirection: "column", borderRadius: 20, overflow: "hidden" }}>
       <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}><PanelContent {...props} /></div>
-      <AskBar />
+      {!!props.limitations?.length && <details className="report-limitations"><summary>Research limitations</summary>
+        <ul>{props.limitations.map((x) => <li key={x}>{x}</li>)}</ul>
+      </details>}
+      <AskBar onOpenChat={props.onOpenChat} />
     </aside>
   );
 }
