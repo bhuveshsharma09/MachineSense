@@ -1228,6 +1228,8 @@ measurements, model versions, results, source references, unresolved questions.
 6. API keys live in `.env` and are never committed. The demo identity stores nothing sensitive.
 7. Maintenance references are curated under `knowledge/`, each with its source and licence note, and are
    cited by id. Model memory is never presented as a source.
+   Enforced for the report by `ml.guidance.select` (Stage App-5): section 04 shows only steps from entries it selects,
+   each cited by entry id; nothing selected gives a Missing item, never generated advice.
 8. Data rules still hold: reserved tests stay sealed. D7 development cases are separate from final
    evaluation cases, and a recording and its altered variants stay on the same side.
 9. New dependencies (a language-model SDK, a 3-D library) need a pinned line, a one-line reason and approval

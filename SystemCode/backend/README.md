@@ -54,6 +54,14 @@ From `SystemCode/` with the project venv (`source .venv/bin/activate`):
 - `GET /api/cases`, `GET /api/cases/{id}`, `GET /api/cases/{id}/activity` (the deterministic pipeline steps with their
   measured timings), `GET /api/cases/{id}/report` (fixed template, markdown plus sections tagged Measured / Model /
   Guidance / Missing; no language model).
+- Report section 04 ("What to inspect next", Stage App-5): steps from the curated entries in `knowledge/entries/`,
+  selected by `ml.guidance.select` for the verdict (the fault class, `normal`, or `unknown`) and the available evidence
+  (the bundle's feature dictionary names, `speed_hz`, `decision.decision`, and `quality.warnings` when the record has a
+  warning). One `Guidance` item per step: the text ends "(source: <entry id>)", plus "AI-drafted, not yet checked against
+  a published source" or "Citation not yet checked against the full text" for those verification levels; `cite` holds the
+  id and `hover` the entry title and full source (and URL). For an unknown verdict `further-inspection-needed` comes
+  first. `needs_paywalled_source` stubs are never offered. When no entry covers the finding, section 04 is one `Missing`
+  item naming the condition; no generic advice is generated.
 - `GET /api/cases/{id}/channels`: per accelerometer axis and the microphone, R1 feature values (mean over the 9
   windows: RMS, excess kurtosis (normal ≈ 0), 1× and 2× order amplitudes, envelope lines at BPFO / BPFI / 2×BSF / FTF on
   the radial axes) and the same values for the healthy **training** recording nearest in measured speed (named), with
