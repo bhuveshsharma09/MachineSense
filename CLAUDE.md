@@ -325,6 +325,12 @@ touched. Entry prose is Bhuvesh's (relabelled in 29de432, corrected in 5737f15) 
    excludes, deterministic order, schema failures; bearing citation, unknown first, envelope-absent → Missing, ai_drafted
    note on every imbalance-1x step); golden evidence-record tests unchanged.
 
+6. **Addendum (4 Oct 2026, before the report change; Bhuvesh's decision).** `further-inspection-needed` had `applies_to: any`
+   with `evidence_required: [decision.decision]`, which every record carries, so it would have been offered on healthy and
+   known-fault reports where its steps are wrong. `applies_to` now also accepts the verdict label `unknown` (the condition
+   passed for a further-inspection verdict); Bhuvesh changes that entry to `applies_to: [unknown]` and the README's
+   `applies_to` line. `ml.guidance` validates class10 labels plus `unknown`; the selection rule is otherwise unchanged.
+
 ## 7-prev8. Previous stage: Stage R7 — diagnostics on saved models: where the open-set failures come from (no training)
 
 Exploratory, development data only. **No model is trained**: saved checkpoints are run forward and their outputs analysed.

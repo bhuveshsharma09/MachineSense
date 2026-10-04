@@ -16,6 +16,7 @@ ENTRIES_DIR = SYSTEM_CODE_DIR / "knowledge" / "entries"
 Verification = Literal["internal", "ai_drafted", "open_verified", "citation_unverified", "needs_paywalled_source"]
 ORDER = ("internal", "open_verified", "citation_unverified", "ai_drafted")  # offered entries, most to least established
 NEVER_OFFERED = "needs_paywalled_source"
+UNKNOWN = "unknown"  # the further-inspection verdict, a valid applies_to label besides the class10 labels (App-5 addendum)
 
 
 class Entry(BaseModel):
@@ -38,9 +39,9 @@ class Entry(BaseModel):
     @classmethod
     def _labels(cls, v):
         if v != "any":
-            bad = [x for x in v if x not in CLASS10]
+            bad = [x for x in v if x not in CLASS10 and x != UNKNOWN]
             if bad:
-                raise ValueError(f"applies_to holds labels that are not class10 labels: {bad}")
+                raise ValueError(f"applies_to holds labels that are neither class10 labels nor 'unknown': {bad}")
         return v
 
 

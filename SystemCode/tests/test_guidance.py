@@ -65,6 +65,12 @@ def test_applies_to_any_and_condition():
     assert [x.id for x in select([a, b], condition="unknown", available_evidence={"speed_hz"}, warnings=[])] == ["a"]
 
 
+def test_unknown_is_a_verdict_label():
+    e = base(applies_to=["unknown"])
+    assert select([e], condition="unknown", available_evidence={"speed_hz"}, warnings=[]) == [e]
+    assert select([e], condition="imbalance", available_evidence={"speed_hz"}, warnings=[]) == []
+
+
 def test_order_is_deterministic():
     entries = [base(id=f"{v}-{i}", verification=v) for v in ("ai_drafted", "internal", "citation_unverified", "open_verified")
                for i in (2, 1)]
