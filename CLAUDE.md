@@ -289,7 +289,43 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage R7 — diagnostics on saved models: where the open-set failures come from (no training)
+## 7. Current stage: Stage App-5 — wire the guidance library into the report
+
+Section 04 of the diagnostic report ("What to inspect next") stops being a placeholder and shows inspection steps
+retrieved from `SystemCode/knowledge/entries/*.yaml`, each cited by its entry `id`. Nothing else changes: no model,
+threshold, scoring path or `EvidenceRecord` field; reserved tests sealed; no evaluation re-run; the agent chat panel is not
+touched. Entry prose is Bhuvesh's (relabelled in 29de432, corrected in 5737f15) and is never edited here.
+
+**App-5 protocol (declared before writing code).**
+1. **`ml/guidance.py` (pure).** `load_entries(path)` parses every entry with a Pydantic model mirroring the README schema
+   exactly (`extra="forbid"`; `drafted_with_ai: bool` required; `verification` ∈ {internal, ai_drafted, open_verified,
+   citation_unverified, needs_paywalled_source}; `applies_to` a list of class10 labels or `any`); an `id` different from its
+   file stem, or a duplicate `id`, is an error. `select(entries, *, condition, available_evidence, warnings)`: (1) drop
+   `needs_paywalled_source`; (2) keep if `applies_to` is `any` or contains `condition`; (3) keep only if every
+   `evidence_required` name is in `available_evidence`; (4) drop if any `excludes` string matches a recorded warning —
+   **matching = case-insensitive substring of the warning text** (Bhuvesh, 4 Oct; no entry uses `excludes` today); order:
+   internal, open_verified, citation_unverified, ai_drafted, then `id`. No formatting.
+2. **Available evidence (Bhuvesh, 4 Oct; no schema change).** `EvidenceRecord` does not list the features a recording
+   produced, and every scored recording produces every R1 feature (no required feature is NaN in any of the 17,559 windows of
+   the R1 table), so available = the names in the bundle's packaged, hash-verified `feature_dictionary.csv` ∪ {`speed_hz`,
+   `decision.decision`} (always in the record) ∪ {`quality.warnings`} only when the record carries at least one warning.
+   Condition = the arbitrator's verdict: the fault class for a known fault, `normal` for healthy, `unknown` otherwise (only
+   `any` entries apply).
+3. **`backend/report.py`.** `GUIDANCE_PLACEHOLDER` deleted; section 04 = one `Guidance` item per step of every selected entry,
+   in `select`'s order, except that for an `unknown` verdict `further-inspection-needed` is shown first (the verdict's own
+   instruction before generic acquisition checks). Each item: the step text, the entry id shown visibly in the text
+   ("source: <id>"), `cite` = the id, `hover` = the entry title and its full `source` (and `source_url`). Visible notes in the
+   item text: `ai_drafted` → "AI-drafted, not yet checked against a published source"; `citation_unverified` → "Citation not
+   yet checked against the full text". Nothing selected → one `Missing` item: no curated guidance covers this finding
+   (naming the condition); never generic advice. `build_sections` receives the evidence names from the caller (the app passes
+   the bundle's feature dictionary); the markdown report and `EvidenceRecord` are unchanged.
+4. **Frontend:** only the report caption that calls Guidance items placeholders is corrected; report fixtures re-recorded.
+5. **Tests:** `tests/test_guidance.py` and `tests/backend/test_app5.py` as the brief lists (loading and stems, no
+   gradient-attribution / saliency name in `evidence_required` (§11 rule 11), stubs empty, evidence gate, stub dropped,
+   excludes, deterministic order, schema failures; bearing citation, unknown first, envelope-absent → Missing, ai_drafted
+   note on every imbalance-1x step); golden evidence-record tests unchanged.
+
+## 7-prev8. Previous stage: Stage R7 — diagnostics on saved models: where the open-set failures come from (no training)
 
 Exploratory, development data only. **No model is trained**: saved checkpoints are run forward and their outputs analysed.
 Reserved partitions sealed; F1 already run; nothing here is an independent claim; the bundle, rules and thresholds are
