@@ -7,7 +7,7 @@ import re
 from functools import lru_cache
 
 from backend.checks import RULE_LINE, RULE_TOOLTIP, assessment, fmt_score
-from ml.guidance import UNKNOWN, load_entries, select
+from ml.guidance import UNKNOWN, load_entries, select, step_text
 
 TAGS = ("Measured", "Model", "Guidance", "Missing")
 FIRST_FOR_UNKNOWN = "further-inspection-needed"  # the verdict's own instruction before generic acquisition checks
@@ -130,7 +130,7 @@ def guidance_items(r: dict, evidence_names=()) -> list[dict]:
     for e in sel:
         note = VERIFICATION_NOTE.get(e.verification)
         hover = f"{e.title} — {e.source}" + (f" {e.source_url}" if e.source_url else "")
-        out += [{"tag": "Guidance", "text": f"{step} (source: {e.id}{'; ' + note if note else ''})", "cite": e.id,
+        out += [{"tag": "Guidance", "text": f"{step_text(step)} (source: {e.id}{'; ' + note if note else ''})", "cite": e.id,
                  "hover": hover} for step in e.steps]
     return out
 

@@ -6,7 +6,7 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
-from ml.guidance import ENTRIES_DIR, Entry, load_entries, select
+from ml.guidance import ENTRIES_DIR, Entry, load_entries, select, step_text
 
 GRADIENT = re.compile(r"grad|cam|saliency|attribution|occlusion", re.I)
 
@@ -92,3 +92,51 @@ def test_schema_failures():
         Entry.model_validate({**d, "unexpected": 1})
     with pytest.raises(ValidationError):
         Entry.model_validate({**d, "applies_to": ["not_a_class"]})
+
+
+# ---- warning-matched steps (App-5 addendum)
+CAL = "healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable"
+ACQ = "acquisition-and-sensor-checks"
+
+
+def acquisition_steps(warnings):
+    sel = select(load_entries(), condition="imbalance", available_evidence={"quality.warnings"}, warnings=warnings)
+    return [[step_text(s) for s in e.steps] for e in sel if e.id == ACQ]
+
+
+def test_calibration_speed_note_alone_gets_no_acquisition_entry():
+    assert acquisition_steps([CAL]) == []
+
+
+def test_clipping_gets_exactly_the_clipping_step():
+    (steps,) = acquisition_steps(["possible clipping on over_radial", CAL])
+    assert len(steps) == 1 and steps[0].startswith("If possible clipping is reported")
+
+
+def test_two_warnings_get_exactly_their_two_steps_in_file_order():
+    (steps,) = acquisition_steps(["3 microphone bursts removed", "12 glitched tacho intervals"])
+    assert len(steps) == 2
+    assert steps[0].startswith("If glitched tacho intervals") and steps[1].startswith("If microphone bursts were removed")
+
+
+def test_step_mapping_validation():
+    with pytest.raises(ValidationError):
+        base(steps=[{"text": "t", "when_warning": []}])
+    with pytest.raises(ValidationError):
+        base(steps=[{"text": "t", "when_warning": ["x"], "unexpected": 1}])
+    with pytest.raises(ValidationError):
+        base(steps=[{"when_warning": ["x"]}])
+    e = base(steps=["always", {"text": "only on x", "when_warning": ["X happened"]}])
+    got = select([e], condition="imbalance", available_evidence={"speed_hz"}, warnings=["x happened twice"])
+    assert [step_text(s) for s in got[0].steps] == ["always", "only on x"]
+    assert [step_text(s) for s in select([e], condition="imbalance", available_evidence={"speed_hz"}, warnings=[])[0].steps] == ["always"]
+
+
+def test_entry_with_no_matching_step_is_dropped():
+    e = base(steps=[{"text": "only on x", "when_warning": ["x"]}])
+    assert select([e], condition="imbalance", available_evidence={"speed_hz"}, warnings=["nothing"]) == []
+
+
+def test_every_step_text_is_a_string():
+    for e in load_entries():
+        assert all(isinstance(step_text(s), str) and step_text(s).strip() for s in e.steps), e.id
