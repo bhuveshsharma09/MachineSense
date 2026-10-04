@@ -60,8 +60,13 @@ From `SystemCode/` with the project venv (`source .venv/bin/activate`):
   warning). One `Guidance` item per step: the text ends "(source: <entry id>)", plus "AI-drafted, not yet checked against
   a published source" or "Citation not yet checked against the full text" for those verification levels; `cite` holds the
   id and `hover` the entry title and full source (and URL). For an unknown verdict `further-inspection-needed` comes
-  first. `needs_paywalled_source` stubs are never offered. When no entry covers the finding, section 04 is one `Missing`
-  item naming the condition; no generic advice is generated.
+  first. `needs_paywalled_source` stubs are never offered. A step written as `{text, when_warning}` is shown only when one
+  of its substrings appears (case-insensitive) in a recorded warning, and an entry left with no steps is not offered, so
+  the acquisition entry shows only the steps for the warnings actually recorded (the calibration-speed note has none).
+  When nothing is selected: for a healthy verdict one `Model` item, "No inspection steps are offered for a healthy
+  verdict."; for any other condition one `Missing` item naming the condition. No generic advice is generated.
+  `backend.report.guidance_items` is the only caller of `select`; the Mechanic view shows section 04's items as given,
+  and the explanation's `next_step` is the same items, one per line, filled in by code (below).
 - `GET /api/cases/{id}/channels`: per accelerometer axis and the microphone, R1 feature values (mean over the 9
   windows: RMS, excess kurtosis (normal ≈ 0), 1× and 2× order amplitudes, envelope lines at BPFO / BPFI / 2×BSF / FTF on
   the radial axes) and the same values for the healthy **training** recording nearest in measured speed (named), with
@@ -78,7 +83,9 @@ From `SystemCode/` with the project venv (`source .venv/bin/activate`):
 - `GET /api/cases/{id}/signals`: per channel, a 0.5 s cleaned waveform (min/max per bucket) and the order spectrum
   (`ml.features.order_spectrum`) with physics cursors at the measured speed.
 - `GET /api/cases/{id}/explanation` (404 until generated) and `POST /api/cases/{id}/explanation`: the plain-language
-  explanation (App-3; a local language model behind guards, or the fixed template).
+  explanation (App-3; a local language model behind guards, or the fixed template). Its `next_step` is never written by
+  the model: the prompt asks for an empty string and `explain_case` sets it from report section 04's items
+  (`plain.next_step`), for the model's text and the template alike (App-5 addendum).
 - `GET /api/cases/{id}/trace`: the read-only pipeline trace of a saved case (below).
 
 ## Pipeline trace (schema)

@@ -353,6 +353,10 @@ touched. Entry prose is Bhuvesh's (relabelled in 29de432, corrected in 5737f15) 
    `PROMPT_VERSION` changes), the guard no longer compares it to the placeholder, and `service.explain_case` receives the
    items from `app._explain`. `GUIDANCE_TEXT` is deleted in `plain.py` and `mechanic.js`; a frontend test fails if
    "not yet connected" reappears.
+   **Recorded after implementation:** Bhuvesh approved editing `prompt.py`, `guard.py` and `service.py` for this change
+   only. `PROMPT_VERSION` daa7a46bda2172aa → f154953912c969cc (the `next_step` rule and the removal of
+   `guidance_connected` / `guidance_text` from DATA); explanations stored before this change carry the old version and the
+   placeholder `next_step`. The explanation SCHEMA keys are unchanged.
 
 ## 7-prev8. Previous stage: Stage R7 — diagnostics on saved models: where the open-set failures come from (no training)
 
