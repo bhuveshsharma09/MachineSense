@@ -4,6 +4,7 @@ source: "ISO 21940-11:2016, Mechanical vibration — Rotor balancing — Part 11
 source_url: https://www.iso.org/standard/54074.html
 licence: "paywalled standard; no text, clause reference or numeric tolerance may be reproduced until the document is read"
 verification: needs_paywalled_source
+drafted_with_ai: true
 applies_to: [imbalance]
 evidence_required: [speed_hz]
 excludes: []

@@ -4,6 +4,7 @@ source: "ISO 20816-1:2016, Mechanical vibration — Measurement and evaluation o
 source_url: https://www.iso.org/standard/63180.html
 licence: "paywalled standard; no text, clause reference or numeric boundary may be reproduced until the document is read"
 verification: needs_paywalled_source
+drafted_with_ai: true
 applies_to: [imbalance, horizontal_misalignment, vertical_misalignment]
 evidence_required: [f_under_radial_rms, f_over_radial_rms]
 excludes: []

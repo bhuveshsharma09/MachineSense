@@ -1,9 +1,10 @@
 id: misalignment-2x-axial
 title: Distinguish misalignment from imbalance, and check the coupling
-source: internal
+source: "AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
 source_url: null
 licence: written for this project; freely reproducible
-verification: internal
+verification: ai_drafted
+drafted_with_ai: true
 applies_to: [horizontal_misalignment, vertical_misalignment]
 evidence_required:
   - f_under_radial_ratio_2x_1x

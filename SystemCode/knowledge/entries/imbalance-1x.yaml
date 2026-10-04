@@ -1,9 +1,10 @@
 id: imbalance-1x
 title: Confirm an imbalance verdict and find the added mass
-source: internal, with the balance-quality step deferred to ISO 21940-11
+source: "AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
 source_url: null
 licence: written for this project; freely reproducible
-verification: internal
+verification: ai_drafted
+drafted_with_ai: true
 applies_to: [imbalance]
 evidence_required:
   - f_under_radial_o1

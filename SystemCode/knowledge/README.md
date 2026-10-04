@@ -2,8 +2,16 @@
 
 Source material for section 04 of the diagnostic report ("What to inspect next") and, later, for the
 maintenance-guidance agent (D6, CLAUDE.md §11). Every recommendation the system makes is retrieved from
-an entry here and cited by its `id`. Nothing is generated: model memory is never presented as a source
+an entry here and cited by its `id`. Nothing is generated at run time: model memory is never presented as a source
 (§11 rule 7).
+
+## Provenance
+
+All eight entries were drafted with AI assistance (Claude) from general vibration-analysis knowledge. The author reviews
+each entry before it ships, and each entry records this with `drafted_with_ai: true`. An AI draft is not a source:
+an entry whose content rests on domain knowledge rather than on this project's own protocol is marked
+`ai_drafted` until each step has been checked against a published reference, at which point its `source`
+gets the section or page and its `verification` moves to `open_verified` or `citation_unverified`.
 
 ## Why entries are short paraphrases
 
@@ -21,6 +29,7 @@ source: full citation, or "internal"
 source_url: resolvable link, or null
 licence: what may and may not be reproduced
 verification: see the table below
+drafted_with_ai: true or false
 applies_to: [class10 labels this entry may be offered for, or "any"]
 evidence_required: [feature or field names the steps depend on]
 excludes: [conditions under which this entry must NOT be offered]
@@ -41,6 +50,7 @@ project (CLAUDE.md §1).
 | value | meaning | may ship |
 | --- | --- | --- |
 | `internal` | derived from this project's own audit or protocol; no external source needed | yes |
+| `ai_drafted` | steps drafted with AI assistance from general domain knowledge; not yet checked against a published source | yes, with the note "AI-drafted, not yet checked against a published source" shown |
 | `open_verified` | citation checked against an openly accessible full text | yes |
 | `citation_unverified` | citation believed correct but the full text was not opened; no numeric thresholds are quoted from it | yes, with the note shown |
 | `needs_paywalled_source` | the entry is a stub; it carries no numbers and no clause references until the standard is read | **no** |

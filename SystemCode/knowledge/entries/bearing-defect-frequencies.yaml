@@ -4,6 +4,7 @@ source: "Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnosti
 source_url: https://doi.org/10.1016/j.ymssp.2010.07.017
 licence: "paraphrase only; the article is under the publisher's copyright"
 verification: citation_unverified
+drafted_with_ai: true
 applies_to: [underhang_ball, underhang_cage, underhang_outer, overhang_ball, overhang_cage, overhang_outer]
 evidence_required:
   - f_env_under_radial_bpfo1
