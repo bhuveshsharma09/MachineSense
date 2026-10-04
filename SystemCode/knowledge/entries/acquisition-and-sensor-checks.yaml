@@ -9,11 +9,16 @@ applies_to: any
 evidence_required: [quality.warnings]
 excludes: []
 steps:
-  - If possible clipping is reported on an accelerometer channel, the peak statistics on that channel are a floor, not a measurement. Reduce the sensor range or gain and record again before acting on amplitude.
-  - If glitched tacho intervals are reported, or some windows fall back to the recording speed, confirm the shaft speed against a second source before trusting any order or envelope evidence, because every one of those features is computed relative to that speed.
-  - If the shaft speed varies within the recording, or lies outside the speed range seen in training, treat the verdict as less reliable and record again at a steady speed inside that range.
-  - If microphone bursts were removed, no action is needed for the vibration evidence. The bursts are an acquisition artefact, not machine sound, and were removed before any microphone feature was computed.
-  - If missing (NaN) samples are reported, check the acquisition chain and record again; the recording is incomplete.
+  - text: "If possible clipping is reported on an accelerometer channel, the peak statistics on that channel are a floor, not a measurement. Reduce the sensor range or gain and record again before acting on amplitude."
+    when_warning: ["possible clipping"]
+  - text: "If glitched tacho intervals are reported, or some windows fall back to the recording speed, confirm the shaft speed against a second source before trusting any order or envelope evidence, because every one of those features is computed relative to that speed."
+    when_warning: ["glitched tacho", "no usable tacho", "use the recording speed"]
+  - text: "If the shaft speed varies within the recording, or lies outside the speed range seen in training, treat the verdict as less reliable and record again at a steady speed inside that range."
+    when_warning: ["shaft speed varies", "speed outside the range"]
+  - text: "If microphone bursts were removed, no action is needed for the vibration evidence. The bursts are an acquisition artefact, not machine sound, and were removed before any microphone feature was computed."
+    when_warning: ["microphone bursts removed"]
+  - text: "If missing (NaN) samples are reported, check the acquisition chain and record again; the recording is incomplete."
+    when_warning: ["missing (nan) samples"]
 notes: >
   Derived from this project's own data audit (results/audit_report.md), which gives the counts of each artefact,
   and from the warnings ml.inference emits. Because these flags are class-linked in this dataset, they are

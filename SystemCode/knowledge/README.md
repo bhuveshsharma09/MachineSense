@@ -33,13 +33,17 @@ drafted_with_ai: true or false
 applies_to: [class10 labels, or "unknown" for the further-inspection verdict; or "any"]
 evidence_required: [feature or field names the steps depend on]
 excludes: [conditions under which this entry must NOT be offered]
-steps: [inspection actions, each one line]
+steps: [inspection actions, each one line; or {text, when_warning: [substrings]}]
 notes: caveats a reviewer needs
 ```
 
 `applies_to` narrows candidates by the diagnosed condition. `evidence_required` is the harder gate: if the
 pipeline did not produce every name listed, the entry is not offered at all. That is the mechanism that
 stops the assistant recommending something this system has no evidence for.
+
+A step may be a plain string, or a mapping `{text, when_warning}`. A step with `when_warning` is shown only when
+one of its substrings appears (case-insensitive) in a recorded warning, so a warning-driven entry shows only the
+steps that match what was actually recorded. An entry left with no steps after this filter is not offered.
 
 `steps` are **inspections**, not repairs. "Check coupling alignment with a dial indicator" is in scope;
 "replace the bearing" is not, because confirming that a repair fixes a problem is out of scope for the
