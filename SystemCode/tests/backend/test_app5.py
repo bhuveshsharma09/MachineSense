@@ -62,9 +62,28 @@ def test_missing_envelope_evidence_gives_a_missing_item_not_advice(reports, clie
                                                 "no inspection steps are offered."}]
 
 
-def test_healthy_verdict_gets_no_further_inspection_steps(reports):
-    case, _ = reports[BEARING]
+def healthy_copy(case, warnings):
     rec = copy.deepcopy(case)
     rec["diagnosis"].update(decision="healthy", fault_class=None)
+    rec["signal_quality"]["warnings"] = warnings
+    return rec
+
+
+def test_healthy_verdict_gets_one_model_line_not_a_gap(reports):
+    case, _ = reports[BEARING]
+    for warnings in ([], ["healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable"]):
+        assert s4({"sections": build_sections(healthy_copy(case, warnings))}) == [
+            {"tag": "Model", "text": "No inspection steps are offered for a healthy verdict."}]
+
+
+def test_healthy_verdict_with_a_matching_warning_shows_its_acquisition_step(reports):
+    case, _ = reports[BEARING]
+    items = s4({"sections": build_sections(healthy_copy(case, ["5 glitched tacho intervals"]))})
+    assert [i["cite"] for i in items] == ["acquisition-and-sensor-checks"] and "glitched tacho" in items[0]["text"]
+
+
+def test_other_condition_with_nothing_selected_keeps_the_missing_item(reports):
+    case, _ = reports[BEARING]
+    rec = copy.deepcopy(case)
     rec["signal_quality"]["warnings"] = []
-    assert [i["tag"] for i in s4({"sections": build_sections(rec)})] == ["Missing"]
+    assert [i["tag"] for i in s4({"sections": build_sections(rec)})] == ["Missing"]  # no feature names → no bearing entry

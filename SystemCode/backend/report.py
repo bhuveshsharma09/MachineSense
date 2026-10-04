@@ -11,6 +11,7 @@ from ml.guidance import UNKNOWN, load_entries, select, step_text
 
 TAGS = ("Measured", "Model", "Guidance", "Missing")
 FIRST_FOR_UNKNOWN = "further-inspection-needed"  # the verdict's own instruction before generic acquisition checks
+HEALTHY_NO_STEPS = "No inspection steps are offered for a healthy verdict."
 VERIFICATION_NOTE = {"ai_drafted": "AI-drafted, not yet checked against a published source",
                      "citation_unverified": "Citation not yet checked against the full text"}
 LOCATION = {"underhang": "inner bearing housing (underhang bearing)", "overhang": "outer bearing housing (overhang bearing)",
@@ -116,7 +117,8 @@ def guidance_condition(d: dict) -> str:
 
 def guidance_items(r: dict, evidence_names=()) -> list[dict]:
     """Section 04: one Guidance item per step of every entry `ml.guidance.select` offers, cited by entry id; for an unknown
-    verdict further-inspection-needed comes first. Nothing selected → one Missing item naming the condition."""
+    verdict further-inspection-needed comes first. Nothing selected → for a healthy verdict one Model item saying no steps are
+    offered, otherwise one Missing item naming the condition."""
     d, warnings = r["diagnosis"], r["signal_quality"]["warnings"]
     cond = guidance_condition(d)
     avail = {*evidence_names, "speed_hz", "decision.decision", *(["quality.warnings"] if warnings else [])}
@@ -124,6 +126,8 @@ def guidance_items(r: dict, evidence_names=()) -> list[dict]:
     if cond == UNKNOWN:
         sel.sort(key=lambda e: e.id != FIRST_FOR_UNKNOWN)  # stable: the rest keep select's order
     if not sel:
+        if d["decision"] == "healthy":  # nothing is missing: no steps are offered for a healthy verdict (App-5 addendum b)
+            return [{"tag": "Model", "text": HEALTHY_NO_STEPS}]
         return [{"tag": "Missing", "text": f"No curated guidance covers this finding ({_name(cond)}); "
                                            "no inspection steps are offered."}]
     out = []
