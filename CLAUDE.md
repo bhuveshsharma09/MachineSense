@@ -381,6 +381,16 @@ threshold or scoring path changes. The protocol (item 1) is committed before any
    conflicting evidence. The report states that only 6 cases are uncertain, all in-sample for the bundle (each trained or
    calibrated it), and that this is the pilot's main limitation.
 
+4. **Arm B shows the first parseable answer (5 Oct 2026; Bhuvesh's decision, found in the dry run, before any pilot run;
+   declared before code).** With review off, the frozen loop showed a reply that parsed as JSON but failed the schema (e.g.
+   no `citations` key) as its raw fenced text (3 of 5 B answers on the dry-run case), contrary to item 1 ("the first
+   parseable answer is shown"), judging B on formatting and giving B away in the sheet. Change, in the review-off branch of
+   `backend/agent/loop.py` only: if the reply parses as a JSON object with a non-empty `answer` string, that answer is shown
+   (claims and citations kept only if well-formed, else empty); the raw text only when nothing parses. The review still runs
+   and records its findings (the schema finding included). Arm C, the review, the tools and the prompt are unchanged;
+   `AGENT_PROMPT_VERSION` stays 8fb7865754455d65. A test covers it; the dry run is repeated before the pilot. Bhuvesh also
+   approved the full run (≈ 75 min, over the §10 hour) once the repeated dry run is clean.
+
 ## 7-prev10. Previous stage: Stage App-7 — the investigation assistant: one agent with tools (D6)
 
 The chat panel is connected: one agent answers a mechanic's question about one diagnosed case, using only four read-only
