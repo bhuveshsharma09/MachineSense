@@ -407,7 +407,8 @@ dependency. The D7 pilot is the next stage; this stage builds only its switch.
    (the report's `change_text`); raw channel metric values and their healthy references, which the report does not show,
    follow the UI's rule (`f3`: 0 decimals from 100, 2 from 1, else 4). The review's number matching (guard._matches against
    this turn's values) therefore follows the rounded values: a number more precise than the displayed one fails. The
-   prompt and tool descriptions change, so `AGENT_PROMPT_VERSION` changes (recorded after implementation).
+   prompt and tool descriptions change, so `AGENT_PROMPT_VERSION` changes (recorded after implementation):
+   28b3a39d5ec9b514 → a7e11681ced3af77.
 
 ## 7-prev9. Previous stage: Stage App-5 — wire the guidance library into the report
 

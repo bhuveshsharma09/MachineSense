@@ -72,7 +72,41 @@ def test_replace_the_bearing_fails():
     assert "forbidden" in checks(ans("The fault is confirmed."))
 
 
+# ---- App-7 addendum 11: ranking words need a rank ref of the right value
+EVIDENCE = {"rank_basis": "change beyond the healthy band",
+            "largest_change": {"channel": leaf("over_radial", "evidence.largest_change.channel"),
+                               "change_factor": leaf(3.3, "evidence.largest_change.change_factor"),
+                               "rank": leaf(1, "evidence.largest_change.rank")},
+            "channels": [{"channel": c, "rank": leaf(k + 1, f"evidence.{c}.rank"),
+                          "change_factor": leaf(f, f"evidence.{c}.change_factor")}
+                         for k, (c, f) in enumerate([("over_radial", 3.3), ("under_radial", 1.7), ("under_tangential", 1.8)])]}
+
+
+def rchecks(answer, claims):
+    return [f["check"] for f in review(json.dumps({"answer": answer, "claims": claims, "citations": []}), [EVIDENCE])[1]]
+
+
+def test_the_normal_20_2752_answer_fails_the_ranking_check():
+    """The recorded finding (App-7 item 10): under_tangential called the largest change; over_radial is rank 1."""
+    answer = "The most significant change was observed in the under_tangential channel, with a change factor of 1.8."
+    claim = "The under_tangential channel showed the most significant change, a change factor of 1.8."
+    assert rchecks(answer, [{"text": claim, "refs": ["evidence.under_tangential.change_factor"]}]) == ["ranking", "ranking"]
+    # citing the channel's own rank does not help: it is rank 3, not 1
+    assert set(rchecks(answer, [{"text": claim, "refs": ["evidence.under_tangential.rank"]}])) == {"ranking"}
+
+
+def test_a_rank_1_claim_passes_and_least_needs_the_last_rank():
+    answer = "The over_radial channel is furthest outside its healthy range, the largest change of the channels (factor 3.3)."
+    ok = [{"text": "over_radial has the largest change beyond its healthy band.", "refs": ["evidence.over_radial.rank"]},
+          {"text": "Its change factor is 3.3.", "refs": ["evidence.largest_change.change_factor"]}]
+    assert rchecks(answer, ok) == []
+    assert rchecks("under_tangential shows the least change of the ranked channels.",
+                   [{"text": "under_tangential is ranked lowest.", "refs": ["evidence.under_tangential.rank"]}]) == []
+    assert "ranking" in rchecks("under_radial shows the least change.",
+                                [{"text": "under_radial is ranked lowest.", "refs": ["evidence.under_radial.rank"]}])
+
+
 def test_sensor_anomaly_worded_as_a_fault_location_fails():
     assert checks(ans("The overhang radial sensor shows the largest change, so the fault is located there according to "
-                      "the dataset label.")) == {"location"}
+                      "the dataset label.")) == {"location", "ranking"}  # "largest" with no rank ref, too
     assert checks(ans("The fault is in the inner bearing housing.")) == {"location"}  # no dataset-label wording

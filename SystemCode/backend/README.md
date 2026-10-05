@@ -162,7 +162,10 @@ shown.
   and its location according to the dataset label, each check's score and threshold, caution, two most probable classes;
   from the record and `backend.checks.assessment`), `check_signal` (speed in Hz and rpm, stability, warnings, inside the
   training / calibration speed ranges), `get_evidence` (the report's channel evidence, `Engine.channels`; optional
-  `channel`), `lookup_guidance` (section 04's items from `backend.report.guidance_items`). Every fact is a
+  `channel`; channels ranked by change beyond the healthy band — factor ÷ band, the report's marked order — with `rank`,
+  `rank_basis` and `largest_change`), `lookup_guidance` (section 04's items from `backend.report.guidance_items`).
+  Values are rounded as the report displays them (check scores and thresholds `_num`, probabilities `fmt_score`, Hz 2
+  decimals, rpm 0, change factors and bands 1; raw channel values the UI's `f3`). Every fact is a
   `{"value", "ref"}` leaf; record fields keep their path as ref (`diagnosis.scores.msp`), derived values end in their own
   key (`evidence.over_radial.rms.change_factor`), guidance items are `guidance.<entry id>.<k>`. The model-facing schemas
   take no case id: every call is bound to the case asked about. No tool exposes the CNN gradient map.
@@ -174,7 +177,10 @@ shown.
 - **Evidence review** (`backend/agent/review.py`; reuses the explanation guard): schema; numbers only from this turn's
   tool results (numbers the mechanic typed do not count; 1 and 2 allowed as in the guard); claim refs returned this turn;
   citations returned by `lookup_guidance` and every stated inspection step cited; no `guard.FORBIDDEN` phrase; fault
-  location only "according to the dataset label" and never from sensor or channel evidence. A failure gets one revision
+  location only "according to the dataset label" and never from sensor or channel evidence; ranking words (most,
+  largest, highest, biggest, strongest, first / least, smallest, lowest) in a claim or answer sentence only with a cited
+  rank ref of rank 1 (or `largest_change`) / the last rank. Numbers are matched against the rounded values, so a number
+  quoted more precisely than displayed fails. A failure gets one revision
   with the failed checks and the entry ids `lookup_guidance` returned; a second failure gives the fallback. Rejected text is never shown or stored.
 - **Fallback:** "The assistant could not give an answer supported by the case record. …" plus report sections 01 and
   04. Also returned at once when the model is disabled (`MACHINESENSE_LLM_ENABLED=false`, no network call) or unreachable.
