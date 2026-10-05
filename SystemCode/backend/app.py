@@ -37,17 +37,14 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
 
     @lru_cache(maxsize=32)
     def _evidence(eng: Engine, case_id: str, kind: str) -> dict:
-        from backend.evidence import channel_evidence, signals
+        from backend.evidence import signals
         got = eng.case_array(case_id)
         if got is None:
             raise HTTPException(404, f"no stored signal for case {case_id}")
-        x, fr, rec_id = got
-        cfg = eng.bundle.config
         if kind == "channels":
-            from ml.inference import _metadata
-            d = eng.case(case_id)["diagnosis"]
-            return channel_evidence(x, fr, cfg, _metadata().reset_index(), rec_id, eng.variation, d["decision"], d["caution"])
-        return signals(x, fr, cfg)
+            return eng.channels(case_id)
+        x, fr, _ = got
+        return signals(x, fr, eng.bundle.config)
 
     def _need(eng: Engine, case_id: str) -> dict:
         c = eng.case_entry(case_id)

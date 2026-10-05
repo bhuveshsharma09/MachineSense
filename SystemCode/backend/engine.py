@@ -208,6 +208,19 @@ class Engine:
     def case_entry(self, case_id: str) -> dict | None:
         return self.store.get(case_id)
 
+    def channels(self, case_id: str) -> dict | None:
+        """The measured channel evidence of a case (one builder for the report's channel view and the assistant's
+        get_evidence tool); None when the case or its signal is not available."""
+        from backend.evidence import channel_evidence
+        from ml.inference import _metadata
+        got = self.case_array(case_id)
+        if got is None:
+            return None
+        x, fr, rec_id = got
+        d = self.case(case_id)["diagnosis"]
+        return channel_evidence(x, fr, self.bundle.config, _metadata().reset_index(), rec_id, self.variation,
+                                d["decision"], d["caution"])
+
     def case_array(self, case_id: str) -> tuple[np.ndarray, float, str | None] | None:
         """(raw array, measured speed, rec_id) for the evidence views: dataset recordings from raw_npy (the same loader as
         diagnose), uploads from their stored array with the speed diagnose() measured."""
