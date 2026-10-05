@@ -1,8 +1,10 @@
-# MachineSense backend and app (Stages App-1 to App-6)
+# MachineSense backend and app (Stages App-1 to App-7)
 
 A FastAPI service that serves `ml.inference.diagnose()` from the **approved, hash-verified model bundle** as the evidence
 record in `backend/schemas.py`, plus measured evidence views computed with existing `ml` functions. Research
-demonstration; development results; not validated for real machines. CPU only; no language model and no API key.
+demonstration; development results; not validated for real machines. CPU only; no language model and no API key are
+needed: the optional explanation (App-3) and assistant (App-7) use a local model when one is reachable and otherwise fall
+back to fixed text.
 
 ## Paths and settings
 Every path is an environment variable with a default relative to `SystemCode/` (`backend/settings.py`):
@@ -152,6 +154,39 @@ scoring and its verdicts are unchanged.
   `GET /api/unseen/run?withheld=<class>&rec_id=<id>&role=withheld|familiar` (the result; 403 for a reserved or
   ineligible recording; 404 for a non-curated example when the weights are absent).
 - Screenshots: `design/app6_screenshots/`.
+
+## Assistant (App-7)
+One tool-using agent answers a question about one diagnosed case (CLAUDE.md §11). Code, not the model, decides what is
+shown.
+- **Tools** (`backend/agent/tools.py`; read-only, over the stored case; no model is run): `diagnose` (verdict, fault class
+  and its location according to the dataset label, each check's score and threshold, caution, two most probable classes;
+  from the record and `backend.checks.assessment`), `check_signal` (speed in Hz and rpm, stability, warnings, inside the
+  training / calibration speed ranges), `get_evidence` (the report's channel evidence, `Engine.channels`; optional
+  `channel`), `lookup_guidance` (section 04's items from `backend.report.guidance_items`). Every fact is a
+  `{"value", "ref"}` leaf; record fields keep their path as ref (`diagnosis.scores.msp`), derived values end in their own
+  key (`evidence.over_radial.rms.change_factor`), guidance items are `guidance.<entry id>.<k>`. The model-facing schemas
+  take no case id: every call is bound to the case asked about. No tool exposes the CNN gradient map.
+- **Loop** (`backend/agent/loop.py`): `OpenAICompatibleProvider.chat` (httpx; reasoning fields dropped on receipt), one
+  system prompt (`backend/agent/prompt.py`, `AGENT_PROMPT_VERSION` stored on every answer), no chat memory between
+  questions. Final answer: `{"answer", "claims": [{"text", "refs"}], "citations": [entry ids]}`.
+- **Budget** (per question): `MACHINESENSE_AGENT_MAX_TOOL_CALLS` (6), `MACHINESENSE_AGENT_MAX_REVISIONS` (1),
+  `MACHINESENSE_AGENT_TIMEOUT_S` (60 s wall clock; also each model request's timeout). Exhausted → fallback.
+- **Evidence review** (`backend/agent/review.py`; reuses the explanation guard): schema; numbers only from this turn's
+  tool results (numbers the mechanic typed do not count; 1 and 2 allowed as in the guard); claim refs returned this turn;
+  citations returned by `lookup_guidance` and every stated inspection step cited; no `guard.FORBIDDEN` phrase; fault
+  location only "according to the dataset label" and never from sensor or channel evidence. A failure gets one revision
+  with the failed checks; a second failure gives the fallback. Rejected text is never shown or stored.
+- **Fallback:** "The assistant could not give an answer supported by the case record. …" plus report sections 01 and
+  04. Also returned at once when the model is disabled (`MACHINESENSE_LLM_ENABLED=false`, no network call) or unreachable.
+- **Endpoints:** `POST /api/cases/{id}/ask` `{"question"}` (1–500 characters) → `answer`, `claims`, `citations`
+  (`[{id, title}]`), `actions` (tool, arguments, one-line summary), `review` (`passed | revised | fallback | off`, failed
+  checks), `source` (`agent | fallback`), `reason`, `prompt_version`, `model`, `latency_ms`, `tool_calls_used`; never
+  reasoning. `GET /api/cases/{id}/questions`: every stored question and response of the case (table `questions`).
+- **D7 switch:** `MACHINESENSE_AGENT_REVIEW=false` shows the model's first answer as written (`review.status = "off"`) and
+  stores what the review would have rejected. Pilot only; never offered in the UI.
+- **UI:** the chat panel (`frontend/src/components/AgentChat.jsx`): suggestions, question box, answers with citation chips
+  (entry title on hover), an Actions list and a badge ("Checked against the case record", "Revised once", "Could not
+  answer with evidence"); an unavailable model is one line pointing to the report.
 
 ## Upload guard (a guard, not a guarantee)
 After an upload is parsed, its fingerprint (sha256 of the float32 array; and a signature of the first 1,000 samples

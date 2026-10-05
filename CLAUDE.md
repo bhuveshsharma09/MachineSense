@@ -362,6 +362,15 @@ dependency. The D7 pilot is the next stage; this stage builds only its switch.
    unchanged. **Hand run:** 5 questions on development cases with the local model, review on; per check, how often it fails
    is reported. A check that looks too strict is reported, not loosened.
 8. **Docs:** `backend/README.md` "Assistant"; §11 rules 2 and 3 lines.
+9. **Addendum (5 Oct 2026, after the hand run; no review check changed).** Hand run 1 (5 questions, review on, local
+   model): 3 answered (1 after a revision), 2 fallbacks; failed attempts by check: citations 2, refs 2, forbidden 1. The
+   refs failures were a tool bug: derived values' refs did not match their keys (`inside_training_speed_range` →
+   `…contains_speed`; in run 2 also `change_factor` → `.factor`), and the model wrote refs from the keys. Fixed in two
+   commits: a record field's ref is its path; a derived value's ref ends in its own key. Run 3 (same 5 questions): 5
+   answered, 0 fallbacks (3 passed first time, 2 after one revision); failed first attempts: citations 2 (item refs
+   `guidance.<id>.<k>` cited instead of entry ids), forbidden 1 ("Confirm", copied from the curated bearing entry's step
+   "Confirm which bearing position …" — a conflict between `guard.FORBIDDEN` and entry prose, left for Bhuvesh). Latency
+   10–54 s per question with `google/gemma-4-e4b` on the Mac mini.
 
 ## 7-prev9. Previous stage: Stage App-5 — wire the guidance library into the report
 
@@ -1323,7 +1332,10 @@ fails, the answer falls back to the fixed report.
    replace measurements or model outputs.
 2. The fixed diagnostic report works with no language model and no API key; the assistant degrades to it.
    Graders run on a clean CPU machine.
+   (App-7) With the model disabled or unreachable, the budget exhausted or the review failed twice, `POST /api/cases/{id}/ask`
+   returns the fixed fallback with the report's sections 01 and 04.
 3. Every investigation has a fixed tool-call and revision budget, set in config.
+   (App-7) `MACHINESENSE_AGENT_MAX_TOOL_CALLS` (6), `MACHINESENSE_AGENT_MAX_REVISIONS` (1), `MACHINESENSE_AGENT_TIMEOUT_S` (60).
 4. The UI shows actions taken and evidence found, never private model reasoning.
 5. Location wording: "predicted fault location according to the dataset labels" is kept separate from
    "sensor anomaly evidence". Per-channel reconstruction error is not fault-location evidence.
@@ -1331,7 +1343,8 @@ fails, the answer falls back to the fixed report.
 7. Maintenance references are curated under `knowledge/`, each with its source and licence note, and are
    cited by id. Model memory is never presented as a source.
    Enforced for the report by `ml.guidance.select` (Stage App-5): section 04 shows only steps from entries it selects,
-   each cited by entry id; nothing selected gives a Missing item, never generated advice.
+   each cited by entry id; nothing selected gives a Missing item (a Model line for a healthy verdict), never generated
+   advice.
 8. Data rules still hold: reserved tests stay sealed. D7 development cases are separate from final
    evaluation cases, and a recording and its altered variants stay on the same side.
 9. New dependencies (a language-model SDK, a 3-D library) need a pinned line, a one-line reason and approval
