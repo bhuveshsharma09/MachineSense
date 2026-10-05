@@ -1,0 +1,3748 @@
+{
+ "normal__18.432": {
+  "rec_id": "normal__18.432",
+  "case_id": "25b3ca25b4eb48a384ec3d70f4c25fd1",
+  "stratum": "U_uncertain",
+  "verdict": "healthy",
+  "decision": "healthy",
+  "location": null,
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999502,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 24.84,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.243072,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": true,
+    "status": "within healthy limit"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 0.872143,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": true,
+    "status": "within healthy limit"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "normal",
+    "probability": 0.9995
+   },
+   {
+    "class": "horizontal_misalignment",
+    "probability": 0.0002
+   }
+  ],
+  "speed_hz": 18.08,
+  "warnings": [],
+  "ranked_channels": [
+   {
+    "channel": "under_tangential",
+    "rank": 1,
+    "change_metric": "order_1x",
+    "change_factor": 4.0,
+    "typical_healthy_band": 1.8
+   },
+   {
+    "channel": "over_axial",
+    "rank": 2,
+    "change_metric": "order_2x",
+    "change_factor": 1.9,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "over_radial",
+    "rank": 3,
+    "change_metric": "env_ftf1",
+    "change_factor": 1.5,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "mic",
+    "rank": 4,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "under_axial",
+    "rank": 5,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "under_radial",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 1.0,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 7,
+    "change_metric": "order_2x",
+    "change_factor": 1.7,
+    "typical_healthy_band": 2.2
+   }
+  ],
+  "rank_1_channel": "under_tangential",
+  "section_04": [
+   {
+    "tag": "Model",
+    "text": "No inspection steps are offered for a healthy verdict."
+   }
+  ],
+  "guidance_ids": [],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: healthy."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): normal 0.9995, horizontal misalignment 0.0002, imbalance 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999502 ≥ 0.998895: pass (margin +0.0006074, +54.973 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 24.84 ≤ 30.04: pass (margin -5.202, -17.315 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.243072 ≤ 0.243072: within healthy limit (margin +0, +0.000 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 0.872143 ≤ 0.872143: within healthy limit (margin +0, +0.000 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 18.08 Hz (1085 rpm); speed stable within the recording (0.22 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "3 channels beyond the typical healthy variation vs the healthy training recording normal__20.2752; within what the healthy checks accept (no marker on a healthy verdict: each recording is compared on ~20 channel × metric values; a healthy recording often exceeds at least one 95th-percentile band by chance)."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (normal) leans on: largest |sample| in the window (underhang tangential) (+1.25); RMS of the window (DC removed) (underhang tangential) (+1.04); excess kurtosis (Fisher) of the window (underhang axial) (+0.68).",
+      "hover": "f_under_tangential_peak; f_under_tangential_rms; f_under_axial_kurtosis"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Exactly at the autoencoder error threshold (ties are accepted)."
+     },
+     {
+      "tag": "Model",
+      "text": "Exactly at the speed-aware baseline (B1s) threshold (ties are accepted)."
+     },
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "No inspection steps are offered for a healthy verdict."
+     }
+    ]
+   }
+  }
+ },
+ "normal__27.4432": {
+  "rec_id": "normal__27.4432",
+  "case_id": "7921adb93fce40a29e124211b180b056",
+  "stratum": "U_uncertain",
+  "verdict": "healthy — caution: a healthy-baseline check disagrees; consider a recheck",
+  "decision": "healthy",
+  "location": null,
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999898,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 19.84,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.087107,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": true,
+    "status": "within healthy limit"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 1.1509,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — caution"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "normal",
+    "probability": 0.9999
+   },
+   {
+    "class": "imbalance",
+    "probability": "< 0.0001"
+   }
+  ],
+  "speed_hz": 26.89,
+  "warnings": [],
+  "ranked_channels": [
+   {
+    "channel": "over_radial",
+    "rank": 1,
+    "change_metric": "rms",
+    "change_factor": 2.9,
+    "typical_healthy_band": 2.9
+   },
+   {
+    "channel": "mic",
+    "rank": 2,
+    "change_metric": "rms",
+    "change_factor": 1.2,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "under_radial",
+    "rank": 3,
+    "change_metric": "order_2x",
+    "change_factor": 1.3,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_axial",
+    "rank": 4,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 5,
+    "change_metric": "order_1x",
+    "change_factor": 2.2,
+    "typical_healthy_band": 2.3
+   },
+   {
+    "channel": "under_tangential",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "over_axial",
+    "rank": 7,
+    "change_metric": "order_1x",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.4
+   }
+  ],
+  "rank_1_channel": "over_radial",
+  "section_04": [
+   {
+    "tag": "Model",
+    "text": "No inspection steps are offered for a healthy verdict."
+   }
+  ],
+  "guidance_ids": [],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: healthy — caution: a healthy-baseline check disagrees; consider a recheck."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): normal 0.9999, imbalance < 0.0001, horizontal misalignment < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999898 ≥ 0.998895: pass (margin +0.001003, +90.734 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 19.84 ≤ 30.04: pass (margin -10.21, -33.969 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.087107 ≤ 0.243072: within healthy limit (margin -0.156, -64.164 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 1.1509 > 0.872143: above healthy limit — caution (margin +0.2788, +31.967 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 26.89 Hz (1614 rpm); speed stable within the recording (0.26 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "overhang radial: RMS ↑ ×2.9 vs the healthy training recording normal__26.624, beyond the typical healthy variation (×2.9); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (normal) leans on: amplitude at 2× the window's shaft speed (overhang tangential) (+0.97); amplitude at 1× the window's shaft speed (overhang tangential) (+0.80); amplitude at 3× the window's shaft speed (overhang tangential) (+0.71).",
+      "hover": "f_over_tangential_o2; f_over_tangential_o1; f_over_tangential_o3"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "3 of 4 alternative decision rules agree with the rule in use. classifier first, with an autoencoder override: healthy; classifier first (the rule in use): healthy; strict: healthy also needs the autoencoder check: healthy; strict: healthy also needs the speed-aware check: unknown."
+     },
+     {
+      "tag": "Model",
+      "text": "Caution: b1s disagrees — a healthy-baseline check disagrees; consider a recheck."
+     },
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "No inspection steps are offered for a healthy verdict."
+     }
+    ]
+   }
+  }
+ },
+ "overhang__cage_fault__6g__13.1072": {
+  "rec_id": "overhang__cage_fault__6g__13.1072",
+  "case_id": "b396ef6b2ec64dcdac00108cfcd86f67",
+  "stratum": "U_uncertain",
+  "verdict": "known fault: overhang cage",
+  "decision": "known_fault",
+  "location": "outer bearing housing (overhang bearing), according to the dataset label",
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999179,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 30.04,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.30228,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 1.8512,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "overhang_cage",
+    "probability": 0.9992
+   },
+   {
+    "class": "horizontal_misalignment",
+    "probability": 0.0006
+   }
+  ],
+  "speed_hz": 12.78,
+  "warnings": [
+   "healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable",
+   "shaft speed varies by 1.1 % within the recording"
+  ],
+  "ranked_channels": [
+   {
+    "channel": "under_radial",
+    "rank": 1,
+    "change_metric": "order_1x",
+    "change_factor": 3.4,
+    "typical_healthy_band": 2.0
+   },
+   {
+    "channel": "over_axial",
+    "rank": 2,
+    "change_metric": "order_1x",
+    "change_factor": 1.9,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_axial",
+    "rank": 3,
+    "change_metric": "order_1x",
+    "change_factor": 1.6,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "over_radial",
+    "rank": 4,
+    "change_metric": "env_ftf1",
+    "change_factor": 1.3,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_tangential",
+    "rank": 5,
+    "change_metric": "rms",
+    "change_factor": 1.2,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "mic",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 7,
+    "change_metric": "order_2x",
+    "change_factor": 1.9,
+    "typical_healthy_band": 2.2
+   }
+  ],
+  "rank_1_channel": "under_radial",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "If the shaft speed varies within the recording, or lies outside the speed range seen in training, treat the verdict as less reliable and record again at a steady speed inside that range. (source: acquisition-and-sensor-checks)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   }
+  ],
+  "guidance_ids": [
+   "acquisition-and-sensor-checks",
+   "bearing-defect-frequencies",
+   "envelope-band-selection"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: known fault: overhang cage."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Location according to the dataset label: outer bearing housing (overhang bearing)."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): overhang cage 0.9992, horizontal misalignment 0.0006, overhang ball 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999179 ≥ 0.998895: pass (margin +0.0002839, +25.690 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 30.04 ≤ 30.04: pass (margin +0, +0.000 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.302280 > 0.243072: above healthy limit — consistent with a fault (margin +0.05921, +24.358 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 1.8512 > 0.872143: above healthy limit — consistent with a fault (margin +0.979, +112.255 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 12.78 Hz (767 rpm); speed not stable within the recording (1.11 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang radial: 1× amplitude ↓ ×3.4 vs the healthy training recording normal__13.1072, beyond the typical healthy variation (×2.0); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "overhang axial: 1× amplitude ↑ ×1.9 vs the healthy training recording normal__13.1072, beyond the typical healthy variation (×1.4); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (overhang cage) leans on: RMS of the window (DC removed) (underhang axial) (+2.02); amplitude at 3× the window's shaft speed (underhang axial) (+1.12); RMS of the window (DC removed) (underhang tangential) (+0.98).",
+      "hover": "f_under_axial_rms; f_under_axial_o3; f_under_tangential_rms"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Exactly at the familiarity (Mahalanobis distance) threshold (ties are accepted)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Warning: shaft speed varies by 1.1 % within the recording."
+     },
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "If the shaft speed varies within the recording, or lies outside the speed range seen in training, treat the verdict as less reliable and record again at a steady speed inside that range. (source: acquisition-and-sensor-checks)",
+      "cite": "acquisition-and-sensor-checks",
+      "hover": "Resolve a signal-quality warning before trusting any verdict — internal"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     }
+    ]
+   }
+  }
+ },
+ "overhang__outer_race__20g__18.2272": {
+  "rec_id": "overhang__outer_race__20g__18.2272",
+  "case_id": "34ba5971e3024bdaafa1239917fd5758",
+  "stratum": "U_uncertain",
+  "verdict": "known fault: overhang outer",
+  "decision": "known_fault",
+  "location": "outer bearing housing (overhang bearing), according to the dataset label",
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.998895,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 21.21,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.346726,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 1.8266,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "overhang_outer",
+    "probability": 0.9989
+   },
+   {
+    "class": "vertical_misalignment",
+    "probability": 0.0007
+   }
+  ],
+  "speed_hz": 17.77,
+  "warnings": [
+   "healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable"
+  ],
+  "ranked_channels": [
+   {
+    "channel": "under_tangential",
+    "rank": 1,
+    "change_metric": "order_1x",
+    "change_factor": 106.3,
+    "typical_healthy_band": 1.8
+   },
+   {
+    "channel": "over_axial",
+    "rank": 2,
+    "change_metric": "order_2x",
+    "change_factor": 3.3,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_radial",
+    "rank": 3,
+    "change_metric": "order_1x",
+    "change_factor": 4.2,
+    "typical_healthy_band": 2.0
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 4,
+    "change_metric": "order_1x",
+    "change_factor": 3.2,
+    "typical_healthy_band": 2.3
+   },
+   {
+    "channel": "under_axial",
+    "rank": 5,
+    "change_metric": "rms",
+    "change_factor": 1.2,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "mic",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_radial",
+    "rank": 7,
+    "change_metric": "env_ftf1",
+    "change_factor": 1.2,
+    "typical_healthy_band": 1.4
+   }
+  ],
+  "rank_1_channel": "under_tangential",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   }
+  ],
+  "guidance_ids": [
+   "bearing-defect-frequencies",
+   "envelope-band-selection"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: known fault: overhang outer."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Location according to the dataset label: outer bearing housing (overhang bearing)."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): overhang outer 0.9989, vertical misalignment 0.0007, normal 0.0002. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.998895 ≥ 0.998895: pass (margin +0, +0.000 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 21.21 ≤ 30.04: pass (margin -8.837, -29.415 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.346726 > 0.243072: above healthy limit — consistent with a fault (margin +0.1037, +42.643 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 1.8266 > 0.872143: above healthy limit — consistent with a fault (margin +0.9545, +109.438 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 17.77 Hz (1066 rpm); speed stable within the recording (0.15 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang tangential: 1× amplitude ↑ ×106.3 vs the healthy training recording normal__16.1792, beyond the typical healthy variation (×1.8); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "overhang axial: 2× amplitude ↓ ×3.3 vs the healthy training recording normal__16.1792, beyond the typical healthy variation (×1.4); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (overhang outer) leans on: amplitude at 0.5× the window's shaft speed (overhang axial) (+0.78); amplitude at 7× the window's shaft speed (overhang tangential) (+0.65); amplitude at 7× the window's shaft speed (overhang axial) (+0.61).",
+      "hover": "f_over_axial_o0p5; f_over_tangential_o7; f_over_axial_o7"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Exactly at the classifier confidence (MSP) threshold (ties are accepted)."
+     },
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     }
+    ]
+   }
+  }
+ },
+ "vertical-misalignment__0.63mm__12.4928": {
+  "rec_id": "vertical-misalignment__0.63mm__12.4928",
+  "case_id": "e26d01332f45495b89bdbf807ee5295f",
+  "stratum": "U_uncertain",
+  "verdict": "further inspection needed",
+  "decision": "unknown",
+  "location": null,
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999795,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 34.47,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": false,
+    "status": "fail"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.376925,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — not consistent with healthy"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 2.1419,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — not consistent with healthy"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "vertical_misalignment",
+    "probability": 0.9998
+   },
+   {
+    "class": "horizontal_misalignment",
+    "probability": 0.0002
+   }
+  ],
+  "speed_hz": 12.25,
+  "warnings": [
+   "healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable"
+  ],
+  "ranked_channels": [
+   {
+    "channel": "over_tangential",
+    "rank": 1,
+    "change_metric": "order_1x",
+    "change_factor": 4.4,
+    "typical_healthy_band": 2.3
+   },
+   {
+    "channel": "over_axial",
+    "rank": 2,
+    "change_metric": "order_1x",
+    "change_factor": 2.7,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_tangential",
+    "rank": 3,
+    "change_metric": "rms",
+    "change_factor": 1.5,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "under_axial",
+    "rank": 4,
+    "change_metric": "rms",
+    "change_factor": 1.3,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "mic",
+    "rank": 5,
+    "change_metric": "rms",
+    "change_factor": 1.2,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_radial",
+    "rank": 6,
+    "change_metric": "env_bpfi1",
+    "change_factor": 2.6,
+    "typical_healthy_band": 2.8
+   },
+   {
+    "channel": "under_radial",
+    "rank": 7,
+    "change_metric": "env_bpfi1",
+    "change_factor": 1.5,
+    "typical_healthy_band": 1.6
+   }
+  ],
+  "rank_1_channel": "over_tangential",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "Do not act on the classifier's highest-ranked condition. The verdict means the recording did not sit close enough to any condition the system knows, so the ranking among those conditions is not informative. (source: further-inspection-needed)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Record the machine again at a different shaft speed and re-run. A condition that is genuinely unfamiliar tends to stay unfamiliar across speeds; a single rejection near a threshold often does not. (source: further-inspection-needed)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Compare the healthy-baseline scores against the calibration speed range. A recording outside that range is more likely to be rejected for being unusual than for being faulty. (source: further-inspection-needed)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Escalate to manual inspection, treating the result as an instruction to look rather than as the identification of a new fault type. (source: further-inspection-needed)"
+   }
+  ],
+  "guidance_ids": [
+   "further-inspection-needed"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: further inspection needed."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "The classifier's checks did not pass; candidate locations from the two most probable classes: coupling and shaft (vertical misalignment); coupling and shaft (horizontal misalignment)."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): vertical misalignment 0.9998, horizontal misalignment 0.0002, overhang ball < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999795 ≥ 0.998895: pass (margin +0.0008998, +81.432 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 34.47 > 30.04: fail (margin +4.43, +14.745 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.376925 > 0.243072: above healthy limit — not consistent with healthy (margin +0.1339, +55.067 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 2.1419 > 0.872143: above healthy limit — not consistent with healthy (margin +1.27, +145.586 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 12.25 Hz (735 rpm); speed stable within the recording (0.42 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "overhang tangential: 1× amplitude ↑ ×4.4 vs the healthy training recording normal__13.1072, beyond the typical healthy variation (×2.3); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "overhang axial: 1× amplitude ↑ ×2.7 vs the healthy training recording normal__13.1072, beyond the typical healthy variation (×1.4); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (vertical misalignment) leans on: amplitude at 2× the window's shaft speed (underhang tangential) (+1.05); amplitude at 2× the window's shaft speed (overhang tangential) (+0.96); amplitude at 5× the window's shaft speed (underhang axial) (+0.94).",
+      "hover": "f_under_tangential_o2; f_over_tangential_o2; f_under_axial_o5"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "Do not act on the classifier's highest-ranked condition. The verdict means the recording did not sit close enough to any condition the system knows, so the ranking among those conditions is not informative. (source: further-inspection-needed)",
+      "cite": "further-inspection-needed",
+      "hover": "What to do when the verdict is further inspection needed — internal"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Record the machine again at a different shaft speed and re-run. A condition that is genuinely unfamiliar tends to stay unfamiliar across speeds; a single rejection near a threshold often does not. (source: further-inspection-needed)",
+      "cite": "further-inspection-needed",
+      "hover": "What to do when the verdict is further inspection needed — internal"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Compare the healthy-baseline scores against the calibration speed range. A recording outside that range is more likely to be rejected for being unusual than for being faulty. (source: further-inspection-needed)",
+      "cite": "further-inspection-needed",
+      "hover": "What to do when the verdict is further inspection needed — internal"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Escalate to manual inspection, treating the result as an instruction to look rather than as the identification of a new fault type. (source: further-inspection-needed)",
+      "cite": "further-inspection-needed",
+      "hover": "What to do when the verdict is further inspection needed — internal"
+     }
+    ]
+   }
+  }
+ },
+ "vertical-misalignment__0.63mm__32.768": {
+  "rec_id": "vertical-misalignment__0.63mm__32.768",
+  "case_id": "7fb8ea08c4f94852b70857bdec944617",
+  "stratum": "U_uncertain",
+  "verdict": "further inspection needed",
+  "decision": "unknown",
+  "location": null,
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.987528,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": false,
+    "status": "fail"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 33.97,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": false,
+    "status": "fail"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.372543,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — not consistent with healthy"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 1.5722,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — not consistent with healthy"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "vertical_misalignment",
+    "probability": 0.9875
+   },
+   {
+    "class": "horizontal_misalignment",
+    "probability": 0.0093
+   }
+  ],
+  "speed_hz": 32.08,
+  "warnings": [],
+  "ranked_channels": [
+   {
+    "channel": "over_axial",
+    "rank": 1,
+    "change_metric": "order_2x",
+    "change_factor": 2.4,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_radial",
+    "rank": 2,
+    "change_metric": "env_bpfo1",
+    "change_factor": 2.6,
+    "typical_healthy_band": 1.8
+   },
+   {
+    "channel": "under_tangential",
+    "rank": 3,
+    "change_metric": "rms",
+    "change_factor": 1.9,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "over_radial",
+    "rank": 4,
+    "change_metric": "env_ftf1",
+    "change_factor": 1.3,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "mic",
+    "rank": 5,
+    "change_metric": "rms",
+    "change_factor": 1.0,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "under_axial",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 1.0,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 7,
+    "change_metric": "rms",
+    "change_factor": 1.5,
+    "typical_healthy_band": 2.1
+   }
+  ],
+  "rank_1_channel": "over_axial",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "Do not act on the classifier's highest-ranked condition. The verdict means the recording did not sit close enough to any condition the system knows, so the ranking among those conditions is not informative. (source: further-inspection-needed)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Record the machine again at a different shaft speed and re-run. A condition that is genuinely unfamiliar tends to stay unfamiliar across speeds; a single rejection near a threshold often does not. (source: further-inspection-needed)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Compare the healthy-baseline scores against the calibration speed range. A recording outside that range is more likely to be rejected for being unusual than for being faulty. (source: further-inspection-needed)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Escalate to manual inspection, treating the result as an instruction to look rather than as the identification of a new fault type. (source: further-inspection-needed)"
+   }
+  ],
+  "guidance_ids": [
+   "further-inspection-needed"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: further inspection needed."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "The classifier's checks did not pass; candidate locations from the two most probable classes: coupling and shaft (vertical misalignment); coupling and shaft (horizontal misalignment)."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): vertical misalignment 0.9875, horizontal misalignment 0.0093, imbalance 0.0009. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.987528 < 0.998895: fail (margin -0.01137, -1028.767 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 33.97 > 30.04: fail (margin +3.926, +13.067 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.372543 > 0.243072: above healthy limit — not consistent with healthy (margin +0.1295, +53.265 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 1.5722 > 0.872143: above healthy limit — not consistent with healthy (margin +0.7, +80.266 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 32.08 Hz (1925 rpm); speed stable within the recording (0.07 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "overhang axial: 2× amplitude ↓ ×2.4 vs the healthy training recording normal__32.9728, beyond the typical healthy variation (×1.4); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang radial: envelope line at BPFO ↑ ×2.6 vs the healthy training recording normal__32.9728, beyond the typical healthy variation (×1.8); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (vertical misalignment) leans on: log10 of the power in 500–1000 Hz (microphone) (+1.00); amplitude at 5× the window's shaft speed (underhang axial) (+0.97); 2× order amplitude / 1× order amplitude (overhang axial) (+0.55).",
+      "hover": "f_mic_logband_500_1000; f_under_axial_o5; f_over_axial_ratio_2x_1x"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "Do not act on the classifier's highest-ranked condition. The verdict means the recording did not sit close enough to any condition the system knows, so the ranking among those conditions is not informative. (source: further-inspection-needed)",
+      "cite": "further-inspection-needed",
+      "hover": "What to do when the verdict is further inspection needed — internal"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Record the machine again at a different shaft speed and re-run. A condition that is genuinely unfamiliar tends to stay unfamiliar across speeds; a single rejection near a threshold often does not. (source: further-inspection-needed)",
+      "cite": "further-inspection-needed",
+      "hover": "What to do when the verdict is further inspection needed — internal"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Compare the healthy-baseline scores against the calibration speed range. A recording outside that range is more likely to be rejected for being unusual than for being faulty. (source: further-inspection-needed)",
+      "cite": "further-inspection-needed",
+      "hover": "What to do when the verdict is further inspection needed — internal"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Escalate to manual inspection, treating the result as an instruction to look rather than as the identification of a new fault type. (source: further-inspection-needed)",
+      "cite": "further-inspection-needed",
+      "hover": "What to do when the verdict is further inspection needed — internal"
+     }
+    ]
+   }
+  }
+ },
+ "underhang__outer_race__20g__19.456": {
+  "rec_id": "underhang__outer_race__20g__19.456",
+  "case_id": "d5d20456edf043169eac79bfef0846f7",
+  "stratum": "S3_known_fault_clean",
+  "verdict": "known fault: underhang outer",
+  "decision": "known_fault",
+  "location": "inner bearing housing (underhang bearing), according to the dataset label",
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999897,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 7.726,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.985273,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 3.4851,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "underhang_outer",
+    "probability": 0.9999
+   },
+   {
+    "class": "overhang_ball",
+    "probability": "< 0.0001"
+   }
+  ],
+  "speed_hz": 18.92,
+  "warnings": [],
+  "ranked_channels": [
+   {
+    "channel": "over_axial",
+    "rank": 1,
+    "change_metric": "order_2x",
+    "change_factor": 14.0,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_radial",
+    "rank": 2,
+    "change_metric": "order_1x",
+    "change_factor": 14.0,
+    "typical_healthy_band": 2.0
+   },
+   {
+    "channel": "over_radial",
+    "rank": 3,
+    "change_metric": "rms",
+    "change_factor": 16.3,
+    "typical_healthy_band": 2.9
+   },
+   {
+    "channel": "under_tangential",
+    "rank": 4,
+    "change_metric": "order_1x",
+    "change_factor": 9.9,
+    "typical_healthy_band": 1.8
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 5,
+    "change_metric": "order_1x",
+    "change_factor": 8.2,
+    "typical_healthy_band": 2.3
+   },
+   {
+    "channel": "mic",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 1.3,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "under_axial",
+    "rank": 7,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.2
+   }
+  ],
+  "rank_1_channel": "over_axial",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   }
+  ],
+  "guidance_ids": [
+   "bearing-defect-frequencies",
+   "envelope-band-selection"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: known fault: underhang outer."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Location according to the dataset label: inner bearing housing (underhang bearing)."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): underhang outer 0.9999, overhang ball < 0.0001, imbalance < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999897 ≥ 0.998895: pass (margin +0.001002, +90.678 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 7.7260 ≤ 30.04: pass (margin -22.32, -74.283 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.985273 > 0.243072: above healthy limit — consistent with a fault (margin +0.7422, +305.342 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 3.4851 > 0.872143: above healthy limit — consistent with a fault (margin +2.613, +299.600 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 18.92 Hz (1135 rpm); speed stable within the recording (0.10 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "overhang axial: 2× amplitude ↓ ×14.0 vs the healthy training recording normal__20.2752, beyond the typical healthy variation (×1.4); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang radial: 1× amplitude ↑ ×14.0 vs the healthy training recording normal__20.2752, beyond the typical healthy variation (×2.0); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (underhang outer) leans on: amplitude at 0.5× the window's shaft speed (overhang tangential) (+0.69); amplitude at 2× the window's shaft speed (overhang axial) (+0.69); 1× amplitude, axial / radial (+0.68).",
+      "hover": "f_over_tangential_o0p5; f_over_axial_o2; f_over_ratio_axial_radial_1x"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     }
+    ]
+   }
+  }
+ },
+ "overhang__cage_fault__6g__24.576": {
+  "rec_id": "overhang__cage_fault__6g__24.576",
+  "case_id": "dc33a39c890649a1a811e1abc555bf74",
+  "stratum": "S3_known_fault_clean",
+  "verdict": "known fault: overhang cage",
+  "decision": "known_fault",
+  "location": "outer bearing housing (overhang bearing), according to the dataset label",
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999964,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 8.5416,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.32286,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 1.8631,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "overhang_cage",
+    "probability": "> 0.9999"
+   },
+   {
+    "class": "horizontal_misalignment",
+    "probability": "< 0.0001"
+   }
+  ],
+  "speed_hz": 23.95,
+  "warnings": [],
+  "ranked_channels": [
+   {
+    "channel": "under_radial",
+    "rank": 1,
+    "change_metric": "order_1x",
+    "change_factor": 7.2,
+    "typical_healthy_band": 2.0
+   },
+   {
+    "channel": "over_axial",
+    "rank": 2,
+    "change_metric": "order_2x",
+    "change_factor": 4.5,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_axial",
+    "rank": 3,
+    "change_metric": "order_1x",
+    "change_factor": 1.4,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "under_tangential",
+    "rank": 4,
+    "change_metric": "rms",
+    "change_factor": 1.2,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 5,
+    "change_metric": "order_2x",
+    "change_factor": 2.0,
+    "typical_healthy_band": 2.2
+   },
+   {
+    "channel": "mic",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 1.0,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_radial",
+    "rank": 7,
+    "change_metric": "env_ftf1",
+    "change_factor": 1.0,
+    "typical_healthy_band": 1.4
+   }
+  ],
+  "rank_1_channel": "under_radial",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   }
+  ],
+  "guidance_ids": [
+   "bearing-defect-frequencies",
+   "envelope-band-selection"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: known fault: overhang cage."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Location according to the dataset label: outer bearing housing (overhang bearing)."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): overhang cage > 0.9999, horizontal misalignment < 0.0001, overhang ball < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999964 ≥ 0.998895: pass (margin +0.001069, +96.702 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 8.5416 ≤ 30.04: pass (margin -21.5, -71.568 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.322860 > 0.243072: above healthy limit — consistent with a fault (margin +0.07979, +32.825 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 1.8631 > 0.872143: above healthy limit — consistent with a fault (margin +0.9909, +113.618 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 23.95 Hz (1437 rpm); speed stable within the recording (0.11 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang radial: 1× amplitude ↑ ×7.2 vs the healthy training recording normal__23.552, beyond the typical healthy variation (×2.0); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "overhang axial: 2× amplitude ↓ ×4.5 vs the healthy training recording normal__23.552, beyond the typical healthy variation (×1.4); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (overhang cage) leans on: 2× order amplitude / 1× order amplitude (overhang axial) (+0.95); amplitude at 3× the window's shaft speed (underhang tangential) (+0.93); amplitude at 9× the window's shaft speed (underhang tangential) (+0.66).",
+      "hover": "f_over_axial_ratio_2x_1x; f_under_tangential_o3; f_under_tangential_o9"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     }
+    ]
+   }
+  }
+ },
+ "underhang__ball_fault__6g__36.0448": {
+  "rec_id": "underhang__ball_fault__6g__36.0448",
+  "case_id": "cb9ca5d6942147039111da780df535d6",
+  "stratum": "S3_known_fault_clean",
+  "verdict": "known fault: underhang ball",
+  "decision": "known_fault",
+  "location": "inner bearing housing (underhang bearing), according to the dataset label",
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999873,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 8.3077,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 1.872,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 3.0233,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "underhang_ball",
+    "probability": 0.9999
+   },
+   {
+    "class": "overhang_outer",
+    "probability": "< 0.0001"
+   }
+  ],
+  "speed_hz": 35.27,
+  "warnings": [],
+  "ranked_channels": [
+   {
+    "channel": "under_tangential",
+    "rank": 1,
+    "change_metric": "rms",
+    "change_factor": 6.1,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "under_radial",
+    "rank": 2,
+    "change_metric": "rms",
+    "change_factor": 5.8,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 3,
+    "change_metric": "rms",
+    "change_factor": 7.4,
+    "typical_healthy_band": 2.1
+   },
+   {
+    "channel": "over_axial",
+    "rank": 4,
+    "change_metric": "rms",
+    "change_factor": 4.1,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "under_axial",
+    "rank": 5,
+    "change_metric": "rms",
+    "change_factor": 3.4,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_radial",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 4.8,
+    "typical_healthy_band": 2.9
+   },
+   {
+    "channel": "mic",
+    "rank": 7,
+    "change_metric": "rms",
+    "change_factor": 1.4,
+    "typical_healthy_band": 1.2
+   }
+  ],
+  "rank_1_channel": "under_tangential",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   }
+  ],
+  "guidance_ids": [
+   "bearing-defect-frequencies",
+   "envelope-band-selection"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: known fault: underhang ball."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Location according to the dataset label: inner bearing housing (underhang bearing)."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): underhang ball 0.9999, overhang outer < 0.0001, horizontal misalignment < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999873 ≥ 0.998895: pass (margin +0.0009775, +88.468 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 8.3077 ≤ 30.04: pass (margin -21.73, -72.347 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 1.8720 > 0.243072: above healthy limit — consistent with a fault (margin +1.629, +670.141 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 3.0233 > 0.872143: above healthy limit — consistent with a fault (margin +2.151, +246.656 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 35.27 Hz (2116 rpm); speed stable within the recording (0.05 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang tangential: RMS ↑ ×6.1 vs the healthy training recording normal__35.4304, beyond the typical healthy variation (×1.3); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang radial: RMS ↑ ×5.8 vs the healthy training recording normal__35.4304, beyond the typical healthy variation (×1.3); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (underhang ball) leans on: largest |sample| in the window (overhang tangential) (+1.16); RMS of the window (DC removed) (overhang tangential) (+0.99); largest |sample| in the window (overhang axial) (+0.65).",
+      "hover": "f_over_tangential_peak; f_over_tangential_rms; f_over_axial_peak"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     }
+    ]
+   }
+  }
+ },
+ "horizontal-misalignment__1.5mm__31.744": {
+  "rec_id": "horizontal-misalignment__1.5mm__31.744",
+  "case_id": "ac7810e40c964192bc1e400bcc8d58c3",
+  "stratum": "S3_known_fault_clean",
+  "verdict": "known fault: horizontal misalignment",
+  "decision": "known_fault",
+  "location": "coupling and shaft, according to the dataset label",
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999946,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 9.1677,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.285169,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 1.1334,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "horizontal_misalignment",
+    "probability": "> 0.9999"
+   },
+   {
+    "class": "normal",
+    "probability": "< 0.0001"
+   }
+  ],
+  "speed_hz": 31.05,
+  "warnings": [],
+  "ranked_channels": [
+   {
+    "channel": "under_radial",
+    "rank": 1,
+    "change_metric": "env_bpfi1",
+    "change_factor": 2.5,
+    "typical_healthy_band": 1.6
+   },
+   {
+    "channel": "under_tangential",
+    "rank": 2,
+    "change_metric": "rms",
+    "change_factor": 1.7,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 3,
+    "change_metric": "order_1x",
+    "change_factor": 3.1,
+    "typical_healthy_band": 2.3
+   },
+   {
+    "channel": "mic",
+    "rank": 4,
+    "change_metric": "rms",
+    "change_factor": 1.2,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_axial",
+    "rank": 5,
+    "change_metric": "order_1x",
+    "change_factor": 1.4,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_axial",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_radial",
+    "rank": 7,
+    "change_metric": "env_ftf1",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.4
+   }
+  ],
+  "rank_1_channel": "under_radial",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "Check the 2× to 1× ratio. A misaligned coupling is loaded twice per revolution, so a raised second order relative to the first is the main separator from imbalance. (source: misalignment-2x-axial; AI-drafted, not yet checked against a published source)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check the axial channels. A pronounced axial component relative to radial at the same order points at misalignment, since imbalance acts in the plane of rotation. (source: misalignment-2x-axial; AI-drafted, not yet checked against a published source)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Inspect the coupling itself for wear, cracking or uneven element compression before adjusting anything, since a worn coupling can produce the same signature as a misaligned one. (source: misalignment-2x-axial; AI-drafted, not yet checked against a published source)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check for soft foot at each mounting point before measuring alignment, because a machine that rocks on its base cannot be aligned reliably. (source: misalignment-2x-axial; AI-drafted, not yet checked against a published source)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Measure shaft alignment with a dial indicator or laser aligner, recording offset and angularity in both the horizontal and the vertical plane. (source: misalignment-2x-axial; AI-drafted, not yet checked against a published source)"
+   }
+  ],
+  "guidance_ids": [
+   "misalignment-2x-axial"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: known fault: horizontal misalignment."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Location according to the dataset label: coupling and shaft."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): horizontal misalignment > 0.9999, normal < 0.0001, underhang ball < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999946 ≥ 0.998895: pass (margin +0.001051, +95.109 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 9.1677 ≤ 30.04: pass (margin -20.87, -69.484 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.285169 > 0.243072: above healthy limit — consistent with a fault (margin +0.0421, +17.319 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 1.1334 > 0.872143: above healthy limit — consistent with a fault (margin +0.2613, +29.961 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 31.05 Hz (1863 rpm); speed stable within the recording (0.04 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang radial: envelope line at BPFI ↑ ×2.5 vs the healthy training recording normal__31.744, beyond the typical healthy variation (×1.6); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang tangential: RMS ↑ ×1.7 vs the healthy training recording normal__31.744, beyond the typical healthy variation (×1.3); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (horizontal misalignment) leans on: RMS of the cleaned microphone window (+1.49); log10 of the power in 20–250 Hz (microphone) (+1.46); log10 of the power in 8000–10000 Hz (microphone) (+0.85).",
+      "hover": "f_mic_rms; f_mic_logband_20_250; f_mic_logband_8000_10000"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "Check the 2× to 1× ratio. A misaligned coupling is loaded twice per revolution, so a raised second order relative to the first is the main separator from imbalance. (source: misalignment-2x-axial; AI-drafted, not yet checked against a published source)",
+      "cite": "misalignment-2x-axial",
+      "hover": "Distinguish misalignment from imbalance, and check the coupling — AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check the axial channels. A pronounced axial component relative to radial at the same order points at misalignment, since imbalance acts in the plane of rotation. (source: misalignment-2x-axial; AI-drafted, not yet checked against a published source)",
+      "cite": "misalignment-2x-axial",
+      "hover": "Distinguish misalignment from imbalance, and check the coupling — AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
+     },
+     {
+      "tag": "Guidance",
+      "text": "Inspect the coupling itself for wear, cracking or uneven element compression before adjusting anything, since a worn coupling can produce the same signature as a misaligned one. (source: misalignment-2x-axial; AI-drafted, not yet checked against a published source)",
+      "cite": "misalignment-2x-axial",
+      "hover": "Distinguish misalignment from imbalance, and check the coupling — AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check for soft foot at each mounting point before measuring alignment, because a machine that rocks on its base cannot be aligned reliably. (source: misalignment-2x-axial; AI-drafted, not yet checked against a published source)",
+      "cite": "misalignment-2x-axial",
+      "hover": "Distinguish misalignment from imbalance, and check the coupling — AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
+     },
+     {
+      "tag": "Guidance",
+      "text": "Measure shaft alignment with a dial indicator or laser aligner, recording offset and angularity in both the horizontal and the vertical plane. (source: misalignment-2x-axial; AI-drafted, not yet checked against a published source)",
+      "cite": "misalignment-2x-axial",
+      "hover": "Distinguish misalignment from imbalance, and check the coupling — AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
+     }
+    ]
+   }
+  }
+ },
+ "overhang__cage_fault__6g__20.48": {
+  "rec_id": "overhang__cage_fault__6g__20.48",
+  "case_id": "3d13ce1ac19b45b8aee07272689496b7",
+  "stratum": "S3_known_fault_clean",
+  "verdict": "known fault: overhang cage",
+  "decision": "known_fault",
+  "location": "outer bearing housing (overhang bearing), according to the dataset label",
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999965,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 14.28,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.309767,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 1.6673,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "overhang_cage",
+    "probability": "> 0.9999"
+   },
+   {
+    "class": "horizontal_misalignment",
+    "probability": "< 0.0001"
+   }
+  ],
+  "speed_hz": 20.04,
+  "warnings": [],
+  "ranked_channels": [
+   {
+    "channel": "under_radial",
+    "rank": 1,
+    "change_metric": "order_1x",
+    "change_factor": 5.4,
+    "typical_healthy_band": 2.0
+   },
+   {
+    "channel": "under_tangential",
+    "rank": 2,
+    "change_metric": "order_1x",
+    "change_factor": 3.5,
+    "typical_healthy_band": 1.8
+   },
+   {
+    "channel": "over_axial",
+    "rank": 3,
+    "change_metric": "order_1x",
+    "change_factor": 2.8,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 4,
+    "change_metric": "order_1x",
+    "change_factor": 4.4,
+    "typical_healthy_band": 2.3
+   },
+   {
+    "channel": "under_axial",
+    "rank": 5,
+    "change_metric": "rms",
+    "change_factor": 1.2,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "mic",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_radial",
+    "rank": 7,
+    "change_metric": "env_ftf1",
+    "change_factor": 1.0,
+    "typical_healthy_band": 1.4
+   }
+  ],
+  "rank_1_channel": "under_radial",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   }
+  ],
+  "guidance_ids": [
+   "bearing-defect-frequencies",
+   "envelope-band-selection"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: known fault: overhang cage."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Location according to the dataset label: outer bearing housing (overhang bearing)."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): overhang cage > 0.9999, horizontal misalignment < 0.0001, overhang ball < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999965 ≥ 0.998895: pass (margin +0.00107, +96.851 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 14.28 ≤ 30.04: pass (margin -15.76, -52.463 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.309767 > 0.243072: above healthy limit — consistent with a fault (margin +0.06669, +27.438 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 1.6673 > 0.872143: above healthy limit — consistent with a fault (margin +0.7951, +91.167 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 20.04 Hz (1203 rpm); speed stable within the recording (0.29 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang radial: 1× amplitude ↑ ×5.4 vs the healthy training recording normal__20.2752, beyond the typical healthy variation (×2.0); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang tangential: 1× amplitude ↑ ×3.5 vs the healthy training recording normal__20.2752, beyond the typical healthy variation (×1.8); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (overhang cage) leans on: amplitude at 3× the window's shaft speed (underhang tangential) (+1.15); amplitude at 3× the window's shaft speed (underhang axial) (+0.86); RMS of the window (DC removed) (underhang axial) (+0.81).",
+      "hover": "f_under_tangential_o3; f_under_axial_o3; f_under_axial_rms"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     }
+    ]
+   }
+  }
+ },
+ "normal__14.336": {
+  "rec_id": "normal__14.336",
+  "case_id": "2a7e48361bbc4854960f7939670e81f3",
+  "stratum": "S4_healthy",
+  "verdict": "healthy",
+  "decision": "healthy",
+  "location": null,
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999877,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 13.29,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.058818,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": true,
+    "status": "within healthy limit"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 0.619826,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": true,
+    "status": "within healthy limit"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "normal",
+    "probability": 0.9999
+   },
+   {
+    "class": "horizontal_misalignment",
+    "probability": "< 0.0001"
+   }
+  ],
+  "speed_hz": 14.1,
+  "warnings": [
+   "healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable"
+  ],
+  "ranked_channels": [
+   {
+    "channel": "mic",
+    "rank": 1,
+    "change_metric": "rms",
+    "change_factor": 1.0,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "under_axial",
+    "rank": 2,
+    "change_metric": "rms",
+    "change_factor": 1.0,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "under_tangential",
+    "rank": 3,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "under_radial",
+    "rank": 4,
+    "change_metric": "env_bpfi1",
+    "change_factor": 1.3,
+    "typical_healthy_band": 1.6
+   },
+   {
+    "channel": "over_axial",
+    "rank": 5,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "over_radial",
+    "rank": 6,
+    "change_metric": "env_ftf1",
+    "change_factor": 1.0,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 7,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 2.1
+   }
+  ],
+  "rank_1_channel": "mic",
+  "section_04": [
+   {
+    "tag": "Model",
+    "text": "No inspection steps are offered for a healthy verdict."
+   }
+  ],
+  "guidance_ids": [],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: healthy."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): normal 0.9999, horizontal misalignment < 0.0001, imbalance < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999877 ≥ 0.998895: pass (margin +0.0009822, +88.894 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 13.29 ≤ 30.04: pass (margin -16.75, -55.766 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.058818 ≤ 0.243072: within healthy limit (margin -0.1843, -75.802 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 0.619826 ≤ 0.872143: within healthy limit (margin -0.2523, -28.931 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 14.10 Hz (846 rpm); speed stable within the recording (0.33 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "No channel changes beyond the typical healthy variation vs the healthy training recording normal__15.1552."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (normal) leans on: largest |sample| in the window (underhang tangential) (+1.60); RMS of the window (DC removed) (underhang tangential) (+1.44); excess kurtosis (Fisher) of the window (underhang axial) (+0.73).",
+      "hover": "f_under_tangential_peak; f_under_tangential_rms; f_under_axial_kurtosis"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Measured",
+      "text": "Warning: healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable."
+     },
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "No inspection steps are offered for a healthy verdict."
+     }
+    ]
+   }
+  }
+ },
+ "normal__28.8768": {
+  "rec_id": "normal__28.8768",
+  "case_id": "931c4ecde83c4491ba5b72c412c1f78a",
+  "stratum": "S4_healthy",
+  "verdict": "healthy",
+  "decision": "healthy",
+  "location": null,
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999982,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 14.36,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.086275,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": true,
+    "status": "within healthy limit"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 0.713033,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": true,
+    "status": "within healthy limit"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "normal",
+    "probability": "> 0.9999"
+   },
+   {
+    "class": "imbalance",
+    "probability": "< 0.0001"
+   }
+  ],
+  "speed_hz": 28.23,
+  "warnings": [],
+  "ranked_channels": [
+   {
+    "channel": "mic",
+    "rank": 1,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_radial",
+    "rank": 2,
+    "change_metric": "env_ftf1",
+    "change_factor": 1.2,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "over_axial",
+    "rank": 3,
+    "change_metric": "order_1x",
+    "change_factor": 1.2,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_axial",
+    "rank": 4,
+    "change_metric": "rms",
+    "change_factor": 1.0,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "under_tangential",
+    "rank": 5,
+    "change_metric": "rms",
+    "change_factor": 1.0,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "under_radial",
+    "rank": 6,
+    "change_metric": "order_2x",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 7,
+    "change_metric": "rms",
+    "change_factor": 1.7,
+    "typical_healthy_band": 2.1
+   }
+  ],
+  "rank_1_channel": "mic",
+  "section_04": [
+   {
+    "tag": "Model",
+    "text": "No inspection steps are offered for a healthy verdict."
+   }
+  ],
+  "guidance_ids": [],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: healthy."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): normal > 0.9999, imbalance < 0.0001, overhang outer < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999982 ≥ 0.998895: pass (margin +0.001087, +98.357 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 14.36 ≤ 30.04: pass (margin -15.68, -52.206 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.086275 ≤ 0.243072: within healthy limit (margin -0.1568, -64.506 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 0.713033 ≤ 0.872143: within healthy limit (margin -0.1591, -18.244 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 28.23 Hz (1694 rpm); speed stable within the recording (0.05 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "No channel changes beyond the typical healthy variation vs the healthy training recording normal__29.4912."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (normal) leans on: amplitude at 2× the window's shaft speed (overhang tangential) (+1.07); peak / RMS (overhang radial) (+0.80); excess kurtosis (Fisher) of the window (overhang radial) (+0.76).",
+      "hover": "f_over_tangential_o2; f_over_radial_crest; f_over_radial_kurtosis"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "No inspection steps are offered for a healthy verdict."
+     }
+    ]
+   }
+  }
+ },
+ "underhang__cage_fault__20g__26.8288": {
+  "rec_id": "underhang__cage_fault__20g__26.8288",
+  "case_id": "d5d61bf018fa40788df2b213bfdc8de3",
+  "stratum": "S5_acquisition_warning",
+  "verdict": "known fault: underhang cage",
+  "decision": "known_fault",
+  "location": "inner bearing housing (underhang bearing), according to the dataset label",
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999799,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 14.22,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.49204,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 2.3295,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "underhang_cage",
+    "probability": 0.9998
+   },
+   {
+    "class": "overhang_cage",
+    "probability": "< 0.0001"
+   }
+  ],
+  "speed_hz": 26.26,
+  "warnings": [
+   "52 microphone bursts removed"
+  ],
+  "ranked_channels": [
+   {
+    "channel": "under_tangential",
+    "rank": 1,
+    "change_metric": "order_1x",
+    "change_factor": 6.8,
+    "typical_healthy_band": 1.8
+   },
+   {
+    "channel": "under_radial",
+    "rank": 2,
+    "change_metric": "order_1x",
+    "change_factor": 6.3,
+    "typical_healthy_band": 2.0
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 3,
+    "change_metric": "order_1x",
+    "change_factor": 6.4,
+    "typical_healthy_band": 2.3
+   },
+   {
+    "channel": "over_axial",
+    "rank": 4,
+    "change_metric": "order_1x",
+    "change_factor": 2.9,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_axial",
+    "rank": 5,
+    "change_metric": "rms",
+    "change_factor": 1.5,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "mic",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 1.3,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_radial",
+    "rank": 7,
+    "change_metric": "env_bpfi1",
+    "change_factor": 2.3,
+    "typical_healthy_band": 2.8
+   }
+  ],
+  "rank_1_channel": "under_tangential",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "If microphone bursts were removed, no action is needed for the vibration evidence. The bursts are an acquisition artefact, not machine sound, and were removed before any microphone feature was computed. (source: acquisition-and-sensor-checks)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   }
+  ],
+  "guidance_ids": [
+   "acquisition-and-sensor-checks",
+   "bearing-defect-frequencies",
+   "envelope-band-selection"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: known fault: underhang cage."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Location according to the dataset label: inner bearing housing (underhang bearing)."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): underhang cage 0.9998, overhang cage < 0.0001, overhang ball < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999799 ≥ 0.998895: pass (margin +0.0009041, +81.828 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 14.22 ≤ 30.04: pass (margin -15.82, -52.652 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.492040 > 0.243072: above healthy limit — consistent with a fault (margin +0.249, +102.426 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 2.3295 > 0.872143: above healthy limit — consistent with a fault (margin +1.457, +167.100 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 26.26 Hz (1576 rpm); speed stable within the recording (0.09 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang tangential: 1× amplitude ↑ ×6.8 vs the healthy training recording normal__26.624, beyond the typical healthy variation (×1.8); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang radial: 1× amplitude ↑ ×6.3 vs the healthy training recording normal__26.624, beyond the typical healthy variation (×2.0); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (underhang cage) leans on: excess kurtosis (Fisher) of the window (underhang radial) (+0.92); amplitude at 2× the window's shaft speed (overhang axial) (+0.85); excess kurtosis (Fisher) of the window (overhang radial) (+0.82).",
+      "hover": "f_under_radial_kurtosis; f_over_axial_o2; f_over_radial_kurtosis"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Measured",
+      "text": "Warning: 52 microphone bursts removed."
+     },
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "If microphone bursts were removed, no action is needed for the vibration evidence. The bursts are an acquisition artefact, not machine sound, and were removed before any microphone feature was computed. (source: acquisition-and-sensor-checks)",
+      "cite": "acquisition-and-sensor-checks",
+      "hover": "Resolve a signal-quality warning before trusting any verdict — internal"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     }
+    ]
+   }
+  }
+ },
+ "underhang__cage_fault__20g__28.4672": {
+  "rec_id": "underhang__cage_fault__20g__28.4672",
+  "case_id": "e1be845e6dff4570a7cc7302adf532d1",
+  "stratum": "S5_acquisition_warning",
+  "verdict": "known fault: underhang cage",
+  "decision": "known_fault",
+  "location": "inner bearing housing (underhang bearing), according to the dataset label",
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999938,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 8.7136,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.425486,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 2.2699,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "underhang_cage",
+    "probability": "> 0.9999"
+   },
+   {
+    "class": "overhang_cage",
+    "probability": "< 0.0001"
+   }
+  ],
+  "speed_hz": 27.86,
+  "warnings": [
+   "30 microphone bursts removed"
+  ],
+  "ranked_channels": [
+   {
+    "channel": "under_tangential",
+    "rank": 1,
+    "change_metric": "order_1x",
+    "change_factor": 5.2,
+    "typical_healthy_band": 1.8
+   },
+   {
+    "channel": "over_tangential",
+    "rank": 2,
+    "change_metric": "order_2x",
+    "change_factor": 5.8,
+    "typical_healthy_band": 2.2
+   },
+   {
+    "channel": "under_radial",
+    "rank": 3,
+    "change_metric": "order_1x",
+    "change_factor": 4.5,
+    "typical_healthy_band": 2.0
+   },
+   {
+    "channel": "mic",
+    "rank": 4,
+    "change_metric": "rms",
+    "change_factor": 2.4,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "over_axial",
+    "rank": 5,
+    "change_metric": "order_2x",
+    "change_factor": 2.4,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_axial",
+    "rank": 6,
+    "change_metric": "order_1x",
+    "change_factor": 1.3,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "over_radial",
+    "rank": 7,
+    "change_metric": "env_ftf1",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.4
+   }
+  ],
+  "rank_1_channel": "under_tangential",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "If microphone bursts were removed, no action is needed for the vibration evidence. The bursts are an acquisition artefact, not machine sound, and were removed before any microphone feature was computed. (source: acquisition-and-sensor-checks)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)"
+   }
+  ],
+  "guidance_ids": [
+   "acquisition-and-sensor-checks",
+   "bearing-defect-frequencies",
+   "envelope-band-selection"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: known fault: underhang cage."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Location according to the dataset label: inner bearing housing (underhang bearing)."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): underhang cage > 0.9999, overhang cage < 0.0001, overhang ball < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999938 ≥ 0.998895: pass (margin +0.001043, +94.390 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 8.7136 ≤ 30.04: pass (margin -21.33, -70.996 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.425486 > 0.243072: above healthy limit — consistent with a fault (margin +0.1824, +75.045 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 2.2699 > 0.872143: above healthy limit — consistent with a fault (margin +1.398, +160.271 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 27.86 Hz (1672 rpm); speed stable within the recording (0.06 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "underhang tangential: 1× amplitude ↑ ×5.2 vs the healthy training recording normal__28.8768, beyond the typical healthy variation (×1.8); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "overhang tangential: 2× amplitude ↑ ×5.8 vs the healthy training recording normal__28.8768, beyond the typical healthy variation (×2.2); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (underhang cage) leans on: peak / RMS (underhang axial) (+0.87); excess kurtosis (Fisher) of the window (overhang radial) (+0.76); amplitude at 2× the window's shaft speed (overhang axial) (+0.75).",
+      "hover": "f_under_axial_crest; f_over_radial_kurtosis; f_over_axial_o2"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Measured",
+      "text": "Warning: 30 microphone bursts removed."
+     },
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "If microphone bursts were removed, no action is needed for the vibration evidence. The bursts are an acquisition artefact, not machine sound, and were removed before any microphone feature was computed. (source: acquisition-and-sensor-checks)",
+      "cite": "acquisition-and-sensor-checks",
+      "hover": "Resolve a signal-quality warning before trusting any verdict — internal"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check that the envelope spectrum shows a repeating comb at the defect line named in the verdict, not just a single raised bin. A localised defect produces a series of harmonics; one isolated peak is usually not a bearing fault. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Look for sidebands spaced at shaft rate around the inner-race line. An inner-race defect passes in and out of the load zone once per revolution, which modulates its impacts; an outer-race defect normally does not. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check which bearing position the evidence comes from before inspecting. The two bearings on this rig sit on opposite sides of the rotor and are scored separately. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Inspect the named bearing for the corresponding surface: raceway for outer and inner race, rolling elements for a ball defect, cage for a cage defect. (source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+      "cite": "bearing-defect-frequencies",
+      "hover": "Check a bearing verdict against the envelope defect lines — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Treat the absence of an envelope comb as weak evidence rather than as evidence of absence. A defect whose resonance falls outside the demodulation band this system uses may produce no comb at all. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "If a bearing fault is suspected but the comb is missing, repeat the analysis with a band chosen for this recording rather than the fixed 1–5 kHz project band before concluding the bearing is sound. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     },
+     {
+      "tag": "Guidance",
+      "text": "Do not compare envelope amplitudes between recordings at different speeds as if they were absolute. The values reported here are normalised against their own local background. (source: envelope-band-selection; Citation not yet checked against the full text)",
+      "cite": "envelope-band-selection",
+      "hover": "Why a bearing conclusion rests on the demodulation band — Randall, R. B. and Antoni, J. (2011). Rolling element bearing diagnostics: a tutorial. Mechanical Systems and Signal Processing, 25(2), 485-520. https://doi.org/10.1016/j.ymssp.2010.07.017"
+     }
+    ]
+   }
+  }
+ }
+}

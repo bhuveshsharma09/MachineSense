@@ -1,0 +1,1130 @@
+{
+ "seed": 42,
+ "items": {
+  "i9900257ad1": {
+   "arm": "B",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 5
+  },
+  "ib8e037e5ed": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 1
+  },
+  "ic4444ea7c8": {
+   "arm": "B",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 5
+  },
+  "i08e7c99b26": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 4
+  },
+  "i36508ebad7": {
+   "arm": "A",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 4
+  },
+  "i3d0ed42f1a": {
+   "arm": "B",
+   "rec_id": "normal__14.336",
+   "q": 2
+  },
+  "i0ec6a7ee39": {
+   "arm": "A",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 1
+  },
+  "if1dc5c0eed": {
+   "arm": "B",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 5
+  },
+  "i6b8b8148f6": {
+   "arm": "A",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 1
+  },
+  "ic18a0f4efb": {
+   "arm": "B",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 2
+  },
+  "i7cab4220a7": {
+   "arm": "C",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 3
+  },
+  "ie2ae849217": {
+   "arm": "B",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 3
+  },
+  "if8436d76e2": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 2
+  },
+  "ia7ac619e63": {
+   "arm": "C",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 2
+  },
+  "i5c663f1c97": {
+   "arm": "B",
+   "rec_id": "normal__27.4432",
+   "q": 5
+  },
+  "iba6712303a": {
+   "arm": "C",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 5
+  },
+  "ie766aa9385": {
+   "arm": "C",
+   "rec_id": "normal__14.336",
+   "q": 2
+  },
+  "i473ceddf2d": {
+   "arm": "C",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 2
+  },
+  "i2343cf2fde": {
+   "arm": "B",
+   "rec_id": "normal__18.432",
+   "q": 4
+  },
+  "iaecac5b68c": {
+   "arm": "B",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 3
+  },
+  "i40877409a9": {
+   "arm": "B",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 3
+  },
+  "i7cb7e99aca": {
+   "arm": "C",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 3
+  },
+  "ieb87c5421e": {
+   "arm": "B",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 4
+  },
+  "i113a9bedd4": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 3
+  },
+  "i77ff01cf99": {
+   "arm": "B",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 2
+  },
+  "i3ebaa80dd4": {
+   "arm": "A",
+   "rec_id": "normal__14.336",
+   "q": 3
+  },
+  "i986c12ace8": {
+   "arm": "B",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 4
+  },
+  "i682a935d62": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 4
+  },
+  "i882bcfbe01": {
+   "arm": "A",
+   "rec_id": "normal__14.336",
+   "q": 2
+  },
+  "i0fa18ff6b6": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 2
+  },
+  "ibf434308bc": {
+   "arm": "B",
+   "rec_id": "normal__27.4432",
+   "q": 2
+  },
+  "i79c8dcd19f": {
+   "arm": "C",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 4
+  },
+  "i6650c187fc": {
+   "arm": "A",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 4
+  },
+  "i198ce21ea3": {
+   "arm": "C",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 2
+  },
+  "i456123fdf7": {
+   "arm": "A",
+   "rec_id": "normal__14.336",
+   "q": 5
+  },
+  "i295d65a441": {
+   "arm": "A",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 5
+  },
+  "i5a5ec42e08": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 1
+  },
+  "i8f06cb0fb3": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 3
+  },
+  "ia0d453dd32": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 2
+  },
+  "i696c6fa611": {
+   "arm": "C",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 4
+  },
+  "ic8c8b8d9c6": {
+   "arm": "C",
+   "rec_id": "normal__28.8768",
+   "q": 2
+  },
+  "i2372d8567d": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 5
+  },
+  "i1be9a1fa6f": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 5
+  },
+  "i5f2720797d": {
+   "arm": "B",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 5
+  },
+  "i6d95a76d79": {
+   "arm": "B",
+   "rec_id": "normal__27.4432",
+   "q": 3
+  },
+  "i57a4161293": {
+   "arm": "B",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 1
+  },
+  "iabfec21bbe": {
+   "arm": "C",
+   "rec_id": "normal__18.432",
+   "q": 1
+  },
+  "i5cdc98d2c1": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 4
+  },
+  "i8be465e150": {
+   "arm": "A",
+   "rec_id": "normal__27.4432",
+   "q": 2
+  },
+  "i8d969b6662": {
+   "arm": "C",
+   "rec_id": "normal__27.4432",
+   "q": 3
+  },
+  "ie2654821d0": {
+   "arm": "B",
+   "rec_id": "normal__18.432",
+   "q": 1
+  },
+  "ie29e574f7a": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 3
+  },
+  "ibb15ed6269": {
+   "arm": "B",
+   "rec_id": "normal__14.336",
+   "q": 5
+  },
+  "i5cedd96831": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 3
+  },
+  "i9716419f82": {
+   "arm": "A",
+   "rec_id": "normal__27.4432",
+   "q": 3
+  },
+  "if279ac1b1e": {
+   "arm": "B",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 1
+  },
+  "i6cb2b9437a": {
+   "arm": "A",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 2
+  },
+  "i95e5d7b875": {
+   "arm": "B",
+   "rec_id": "normal__27.4432",
+   "q": 4
+  },
+  "i2a0f02bad0": {
+   "arm": "C",
+   "rec_id": "normal__14.336",
+   "q": 3
+  },
+  "ifc4a15544d": {
+   "arm": "A",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 4
+  },
+  "i103985c3cf": {
+   "arm": "C",
+   "rec_id": "normal__27.4432",
+   "q": 1
+  },
+  "i1f89463e85": {
+   "arm": "A",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 3
+  },
+  "i8affd0f9d5": {
+   "arm": "C",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 4
+  },
+  "if48a14be62": {
+   "arm": "B",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 2
+  },
+  "ice71710434": {
+   "arm": "C",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 5
+  },
+  "i086c031199": {
+   "arm": "A",
+   "rec_id": "normal__27.4432",
+   "q": 4
+  },
+  "i4b8d5288f1": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 1
+  },
+  "i23ff5e9ff0": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 2
+  },
+  "iab35a240ae": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 2
+  },
+  "ic3f50bea63": {
+   "arm": "A",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 5
+  },
+  "i50bf7b539b": {
+   "arm": "C",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 4
+  },
+  "ib5122c9a56": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 1
+  },
+  "i5fa65e688e": {
+   "arm": "C",
+   "rec_id": "normal__18.432",
+   "q": 2
+  },
+  "i17f8102383": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 1
+  },
+  "ida146d3f31": {
+   "arm": "A",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 5
+  },
+  "i7629d4beef": {
+   "arm": "A",
+   "rec_id": "normal__14.336",
+   "q": 4
+  },
+  "i1830beb45f": {
+   "arm": "C",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 1
+  },
+  "i58d8f56413": {
+   "arm": "A",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 4
+  },
+  "ied43e458fc": {
+   "arm": "C",
+   "rec_id": "normal__28.8768",
+   "q": 1
+  },
+  "id74c66e0a8": {
+   "arm": "B",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 2
+  },
+  "id5a2bc372f": {
+   "arm": "A",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 4
+  },
+  "i8df89897b9": {
+   "arm": "B",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 4
+  },
+  "i28a0a04dc4": {
+   "arm": "B",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 2
+  },
+  "i73847fd9b4": {
+   "arm": "C",
+   "rec_id": "normal__18.432",
+   "q": 4
+  },
+  "iae02f06b90": {
+   "arm": "B",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 1
+  },
+  "i03d605e770": {
+   "arm": "C",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 5
+  },
+  "ic53a578a8e": {
+   "arm": "A",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 3
+  },
+  "i271c11f735": {
+   "arm": "B",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 1
+  },
+  "i23392456de": {
+   "arm": "A",
+   "rec_id": "normal__18.432",
+   "q": 4
+  },
+  "i9861b1cd22": {
+   "arm": "B",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 1
+  },
+  "i47571aa876": {
+   "arm": "A",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 3
+  },
+  "ic0ed2662e9": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 2
+  },
+  "i00610461e3": {
+   "arm": "C",
+   "rec_id": "normal__14.336",
+   "q": 4
+  },
+  "i329be578c7": {
+   "arm": "B",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 4
+  },
+  "ibe3f22faf8": {
+   "arm": "B",
+   "rec_id": "normal__18.432",
+   "q": 5
+  },
+  "i9bdf57c59a": {
+   "arm": "B",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 4
+  },
+  "i1c04fc6d82": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 2
+  },
+  "i63fc3d3348": {
+   "arm": "C",
+   "rec_id": "normal__14.336",
+   "q": 5
+  },
+  "i20c40db9b4": {
+   "arm": "B",
+   "rec_id": "normal__28.8768",
+   "q": 4
+  },
+  "i91e0c53cb8": {
+   "arm": "B",
+   "rec_id": "normal__14.336",
+   "q": 3
+  },
+  "i75bacfb3d0": {
+   "arm": "A",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 2
+  },
+  "ia818d0752b": {
+   "arm": "C",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 2
+  },
+  "i3f1efa2197": {
+   "arm": "C",
+   "rec_id": "normal__18.432",
+   "q": 5
+  },
+  "idd3b982ef8": {
+   "arm": "A",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 1
+  },
+  "ifa11b7e948": {
+   "arm": "B",
+   "rec_id": "normal__28.8768",
+   "q": 2
+  },
+  "i313fa7f104": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 3
+  },
+  "i6119db3ad0": {
+   "arm": "A",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 2
+  },
+  "idd36b82481": {
+   "arm": "C",
+   "rec_id": "normal__14.336",
+   "q": 1
+  },
+  "ibdad3c2d6d": {
+   "arm": "A",
+   "rec_id": "normal__27.4432",
+   "q": 1
+  },
+  "i72386ecbe0": {
+   "arm": "A",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 2
+  },
+  "ia29bf00273": {
+   "arm": "A",
+   "rec_id": "normal__14.336",
+   "q": 1
+  },
+  "i68ceb81f9d": {
+   "arm": "C",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 5
+  },
+  "i3cd9441fa5": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 3
+  },
+  "i7fa7cad415": {
+   "arm": "A",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 5
+  },
+  "ic8fed4057d": {
+   "arm": "C",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 1
+  },
+  "i4b1c8eaee9": {
+   "arm": "B",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 2
+  },
+  "i1abc8960a9": {
+   "arm": "A",
+   "rec_id": "normal__18.432",
+   "q": 5
+  },
+  "ib0badcc32a": {
+   "arm": "B",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 3
+  },
+  "ic201a9e71f": {
+   "arm": "A",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 5
+  },
+  "ia0deda4e16": {
+   "arm": "B",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 1
+  },
+  "ic11745d6d8": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 4
+  },
+  "i0f8acd4e10": {
+   "arm": "C",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 3
+  },
+  "i29c333e861": {
+   "arm": "B",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 1
+  },
+  "i1707a0ca6e": {
+   "arm": "A",
+   "rec_id": "normal__27.4432",
+   "q": 5
+  },
+  "ibc944528c0": {
+   "arm": "C",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 2
+  },
+  "ibd06671ad1": {
+   "arm": "A",
+   "rec_id": "normal__18.432",
+   "q": 2
+  },
+  "i91f16287e4": {
+   "arm": "A",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 2
+  },
+  "ib8f42d47cc": {
+   "arm": "B",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 5
+  },
+  "i812dbc2134": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 4
+  },
+  "ia90bbb2599": {
+   "arm": "A",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 2
+  },
+  "i8743dac043": {
+   "arm": "B",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 3
+  },
+  "ib921df306f": {
+   "arm": "C",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 5
+  },
+  "iff382567b8": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 1
+  },
+  "i1ca3b1799d": {
+   "arm": "A",
+   "rec_id": "normal__18.432",
+   "q": 1
+  },
+  "i9a815ef6d1": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 2
+  },
+  "ie93602f8ac": {
+   "arm": "A",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 1
+  },
+  "i0074273ca3": {
+   "arm": "B",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 4
+  },
+  "i3727cd8130": {
+   "arm": "A",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 4
+  },
+  "ib732e70629": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 4
+  },
+  "ic4d7c524a5": {
+   "arm": "A",
+   "rec_id": "normal__28.8768",
+   "q": 5
+  },
+  "i7d52fbe43b": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 1
+  },
+  "icc56dc8907": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 1
+  },
+  "i7b7c52fa17": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 5
+  },
+  "i13ec5b227c": {
+   "arm": "C",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 4
+  },
+  "i7e827050a8": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 3
+  },
+  "iaeefc89849": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 4
+  },
+  "i54dc1110c1": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 5
+  },
+  "i10448aaa9e": {
+   "arm": "A",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 5
+  },
+  "i3193cd59bf": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 5
+  },
+  "i5a6e595ed3": {
+   "arm": "C",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 3
+  },
+  "i5b18c26797": {
+   "arm": "A",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 3
+  },
+  "i439a8dca03": {
+   "arm": "A",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 5
+  },
+  "ie1ef7ddc76": {
+   "arm": "C",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 1
+  },
+  "i1460e7a113": {
+   "arm": "A",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 5
+  },
+  "i6117be3111": {
+   "arm": "A",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 2
+  },
+  "i76474ebc19": {
+   "arm": "C",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 2
+  },
+  "i2a8cbfedb0": {
+   "arm": "B",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 2
+  },
+  "idd778eedb3": {
+   "arm": "C",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 5
+  },
+  "i0ef7fd5646": {
+   "arm": "C",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 1
+  },
+  "i05568cc69b": {
+   "arm": "C",
+   "rec_id": "normal__27.4432",
+   "q": 2
+  },
+  "i24757750a9": {
+   "arm": "B",
+   "rec_id": "normal__18.432",
+   "q": 3
+  },
+  "ia820de435d": {
+   "arm": "B",
+   "rec_id": "normal__28.8768",
+   "q": 5
+  },
+  "ic38026695f": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 3
+  },
+  "i374bf50b52": {
+   "arm": "C",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 5
+  },
+  "ib7e059a0ee": {
+   "arm": "A",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 3
+  },
+  "i6210435a10": {
+   "arm": "B",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 5
+  },
+  "i388e944239": {
+   "arm": "A",
+   "rec_id": "normal__28.8768",
+   "q": 3
+  },
+  "i49747b6dba": {
+   "arm": "C",
+   "rec_id": "normal__28.8768",
+   "q": 3
+  },
+  "idc0c0fd195": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 5
+  },
+  "i1bdc96925e": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 2
+  },
+  "i8930b187ef": {
+   "arm": "C",
+   "rec_id": "overhang__cage_fault__6g__24.576",
+   "q": 4
+  },
+  "iced4e80839": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 5
+  },
+  "i12a5e5a5ab": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 5
+  },
+  "i88c2b6d2c5": {
+   "arm": "B",
+   "rec_id": "normal__28.8768",
+   "q": 3
+  },
+  "i0dbaa4b71a": {
+   "arm": "C",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 1
+  },
+  "i1a562b0f79": {
+   "arm": "A",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 1
+  },
+  "ia60cf35b58": {
+   "arm": "C",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 3
+  },
+  "i0138602ab6": {
+   "arm": "C",
+   "rec_id": "normal__27.4432",
+   "q": 5
+  },
+  "ia5fbf24050": {
+   "arm": "C",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 3
+  },
+  "i3e46685257": {
+   "arm": "A",
+   "rec_id": "normal__18.432",
+   "q": 3
+  },
+  "idecf36d58b": {
+   "arm": "A",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 4
+  },
+  "i2e6c006f61": {
+   "arm": "C",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 1
+  },
+  "i81a39231a7": {
+   "arm": "B",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 3
+  },
+  "ia4ea1fca65": {
+   "arm": "B",
+   "rec_id": "normal__18.432",
+   "q": 2
+  },
+  "i831223b513": {
+   "arm": "C",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 1
+  },
+  "idf3ff350bf": {
+   "arm": "C",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 3
+  },
+  "iecf91e1d4c": {
+   "arm": "A",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 4
+  },
+  "i1db88139b9": {
+   "arm": "B",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 2
+  },
+  "ice0837b8a3": {
+   "arm": "A",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 3
+  },
+  "ib0a3d70628": {
+   "arm": "A",
+   "rec_id": "normal__28.8768",
+   "q": 2
+  },
+  "idbdc815fe7": {
+   "arm": "C",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 1
+  },
+  "i0f1931e9ee": {
+   "arm": "C",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 4
+  },
+  "i93922fe15a": {
+   "arm": "C",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 2
+  },
+  "ib34458a885": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 3
+  },
+  "id23aa2e4f9": {
+   "arm": "A",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 2
+  },
+  "i898fb5d27b": {
+   "arm": "B",
+   "rec_id": "normal__27.4432",
+   "q": 1
+  },
+  "i14f26b4776": {
+   "arm": "B",
+   "rec_id": "normal__14.336",
+   "q": 4
+  },
+  "if66c52c49f": {
+   "arm": "B",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 5
+  },
+  "i0c0ea2622b": {
+   "arm": "C",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 5
+  },
+  "i8a36d8393a": {
+   "arm": "C",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 4
+  },
+  "i286f4cc69a": {
+   "arm": "B",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 3
+  },
+  "ia98e46d534": {
+   "arm": "C",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 2
+  },
+  "i963ae8cc93": {
+   "arm": "C",
+   "rec_id": "normal__27.4432",
+   "q": 4
+  },
+  "i3b37f8a88b": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 1
+  },
+  "ib26c4a37ea": {
+   "arm": "C",
+   "rec_id": "normal__28.8768",
+   "q": 4
+  },
+  "ib6337ea2df": {
+   "arm": "B",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 4
+  },
+  "i53af42e12f": {
+   "arm": "A",
+   "rec_id": "normal__28.8768",
+   "q": 4
+  },
+  "ied36386821": {
+   "arm": "B",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 1
+  },
+  "i0bce9ff57f": {
+   "arm": "A",
+   "rec_id": "underhang__outer_race__20g__19.456",
+   "q": 1
+  },
+  "ic08976e334": {
+   "arm": "B",
+   "rec_id": "vertical-misalignment__0.63mm__32.768",
+   "q": 4
+  },
+  "iecfd5166e6": {
+   "arm": "A",
+   "rec_id": "normal__28.8768",
+   "q": 1
+  },
+  "i3e7900f7f9": {
+   "arm": "C",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 3
+  },
+  "ibbf512c4c3": {
+   "arm": "C",
+   "rec_id": "normal__28.8768",
+   "q": 5
+  },
+  "ie6702753a1": {
+   "arm": "C",
+   "rec_id": "normal__18.432",
+   "q": 3
+  },
+  "i4796da1dac": {
+   "arm": "A",
+   "rec_id": "overhang__outer_race__20g__18.2272",
+   "q": 3
+  },
+  "i7447294739": {
+   "arm": "A",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 3
+  },
+  "i28ce4a2bbd": {
+   "arm": "A",
+   "rec_id": "vertical-misalignment__0.63mm__12.4928",
+   "q": 1
+  },
+  "i3d4eb93eff": {
+   "arm": "B",
+   "rec_id": "normal__14.336",
+   "q": 1
+  },
+  "ib3a65ed389": {
+   "arm": "A",
+   "rec_id": "overhang__cage_fault__6g__13.1072",
+   "q": 5
+  },
+  "i11b45ed1f0": {
+   "arm": "A",
+   "rec_id": "underhang__ball_fault__6g__36.0448",
+   "q": 1
+  },
+  "id07c69dee1": {
+   "arm": "B",
+   "rec_id": "normal__28.8768",
+   "q": 1
+  },
+  "i3027a0c3d7": {
+   "arm": "C",
+   "rec_id": "underhang__cage_fault__20g__26.8288",
+   "q": 4
+  },
+  "ifce0f3eab0": {
+   "arm": "B",
+   "rec_id": "overhang__cage_fault__6g__20.48",
+   "q": 4
+  },
+  "iecc754108f": {
+   "arm": "B",
+   "rec_id": "horizontal-misalignment__1.5mm__31.744",
+   "q": 3
+  },
+  "i664fcca39a": {
+   "arm": "B",
+   "rec_id": "underhang__cage_fault__20g__28.4672",
+   "q": 5
+  }
+ }
+}
