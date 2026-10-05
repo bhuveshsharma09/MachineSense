@@ -375,6 +375,12 @@ threshold or scoring path changes. The protocol (item 1) is committed before any
    are the ML-4.2 boundary recordings that define or sit at a threshold, which is why they carry narrow-margin notes.
    Everything else in item 1 is unchanged.
 
+3. **Pre-registered analysis addition (5 Oct 2026; Bhuvesh, before any case list or run).** Every measure (automatic and
+   blind-scored, per arm with Wilson intervals, and the paired B vs C comparison) is reported for the uncertain stratum U
+   (6 cases × 5 questions) separately, as well as over all 15 cases, because the research question is about uncertain or
+   conflicting evidence. The report states that only 6 cases are uncertain, all in-sample for the bundle (each trained or
+   calibrated it), and that this is the pilot's main limitation.
+
 ## 7-prev10. Previous stage: Stage App-7 — the investigation assistant: one agent with tools (D6)
 
 The chat panel is connected: one agent answers a mechanic's question about one diagnosed case, using only four read-only
