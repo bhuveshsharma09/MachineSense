@@ -377,6 +377,14 @@ dependency. The D7 pilot is the next stage; this stage builds only its switch.
    (or, if none, says to call it before citing); no review check changes. Because the revision text is part of what the
    model is told, it is included in `AGENT_PROMPT_VERSION`: a50bb2eb4a24c3b1 → 28b3a39d5ec9b514. (c)
    `MACHINESENSE_AGENT_TIMEOUT_S` default 60 → 90 s (run 1 had one question at 61 s).
+   **Hand run 4 (after (a)–(c), same 5 questions, once):** 3 passed first time, 2 revised once, 0 fallbacks; failed first
+   attempts: citations 2 (item refs cited instead of entry ids; both fixed by the revision). Before it, the bearing
+   guidance question alone, 4 times: "confirm" no longer appears in any tool output; one fallback came from the model's
+   own wording (invalid JSON, then its own "confirm"), the other three passed (2 first time, 1 revised). **Finding (not
+   fixed):** in run 4 "Which sensor changed most?" (normal__20.2752) was answered "under_tangential, change factor 1.82",
+   but over_radial is furthest beyond its band (3.33 vs 2.62; first of the marked channels). Every number and ref was real,
+   so the review passed it: the review checks provenance, not comparisons ("most", "largest"). Also, raw full-precision
+   values were quoted (1.8222750078995185).
 
 ## 7-prev9. Previous stage: Stage App-5 — wire the guidance library into the report
 
