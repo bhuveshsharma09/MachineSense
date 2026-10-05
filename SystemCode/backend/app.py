@@ -227,11 +227,12 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
 
         from backend.agent.loop import Budget, ask
         from backend.explain.provider import OpenAICompatibleProvider
-        from backend.settings import agent_timeout_s, llm_api_key, llm_base_url, llm_enabled, llm_model
+        from backend.settings import agent_review, agent_timeout_s, llm_api_key, llm_base_url, llm_enabled, llm_model
         eng = engine(request)
         provider = OpenAICompatibleProvider(llm_base_url(), llm_model(), agent_timeout_s(), llm_api_key(),
                                             transport=request.app.state.llm_transport)
-        out = ask(eng, case_id, question, provider, budget=Budget.from_settings(), enabled=llm_enabled())
+        out = ask(eng, case_id, question, provider, budget=Budget.from_settings(), review_on=agent_review(),
+                  enabled=llm_enabled())
         created = datetime.now(timezone.utc).isoformat(timespec="seconds")
         qid = eng.store.put_question(case_id, created, out)
         return {"id": qid, "case_id": case_id, "created_at": created, **out}

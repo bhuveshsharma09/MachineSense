@@ -18,6 +18,7 @@
 | assistant: tool calls per question (App-7) | MACHINESENSE_AGENT_MAX_TOOL_CALLS | 6 |
 | assistant: revisions after a failed evidence review | MACHINESENSE_AGENT_MAX_REVISIONS | 1 |
 | assistant: wall-clock limit per question, seconds (also each model request's timeout) | MACHINESENSE_AGENT_TIMEOUT_S | 60 |
+| assistant: evidence review gates answers (off only for the D7 pilot; never offered in the UI) | MACHINESENSE_AGENT_REVIEW | true |
 """
 from __future__ import annotations
 
@@ -123,3 +124,8 @@ def agent_max_revisions() -> int:
 
 def agent_timeout_s() -> float:
     return float(os.environ.get("MACHINESENSE_AGENT_TIMEOUT_S") or 60)
+
+
+def agent_review() -> bool:
+    """The D7 switch: off = the review still runs and its findings are stored, but the model's answer is shown as is."""
+    return (os.environ.get("MACHINESENSE_AGENT_REVIEW") or "true").strip().lower() not in ("0", "false", "no", "off")
