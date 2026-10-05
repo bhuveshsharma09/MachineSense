@@ -409,6 +409,13 @@ dependency. The D7 pilot is the next stage; this stage builds only its switch.
    this turn's values) therefore follows the rounded values: a number more precise than the displayed one fails. The
    prompt and tool descriptions change, so `AGENT_PROMPT_VERSION` changes (recorded after implementation):
    28b3a39d5ec9b514 → a7e11681ced3af77.
+   **Hand run 5 (after (a)–(c); the 5 questions plus "Which sensor changed most?" on normal__20.2752 a second time = 6
+   runs):** 1 passed first time, 3 revised once, 2 fallbacks; failed attempts by check: refs 4, citations 3, ranking 1. Both
+   sensor-question runs named over_radial (rank 1, basis stated); the normal__20.2752 error did not recur. One of them fell
+   back because the model cited `evidence.largest_change.rank_basis`, a plain string with no ref (the key/ref pattern of
+   items 9–10); one Q1 attempt cited `diagnosis.top_classes.0.probability` (the real ref is the record path
+   `diagnosis.class10_probabilities.<class>`); the further-inspection guidance question fell back on item refs cited as
+   entry ids although the revision listed the accepted ids. Not changed; reported to Bhuvesh.
 
 ## 7-prev9. Previous stage: Stage App-5 — wire the guidance library into the report
 
