@@ -9,7 +9,8 @@ import pandas as pd
 import pytest
 
 from ml.paths import SYSTEM_CODE_DIR
-from ml.pilot import STRATA, InsufficientStratum, mcnemar_exact, paired, per_arm, scored_table, select_cases, wilson
+from ml.pilot import (EXCLUDED, STRATA, UNCERTAIN, InsufficientStratum, mcnemar_exact, paired, per_arm, scored_table,
+                      select_cases, wilson)
 
 D7 = SYSTEM_CODE_DIR / "results" / "d7"
 
@@ -32,19 +33,24 @@ def pool(n_unknown=6, n_disagree=6, n_clean=8, n_healthy=5, n_warn=5):
     add("c", n_clean)
     add("h", n_healthy, decision="healthy", fault_class=None)
     add("w", n_warn, acquisition_warning=True, warnings="3 glitched tacho intervals")
+    rows += [{**rows[0], "rec_id": EXCLUDED[0]}, {**rows[-1], "rec_id": EXCLUDED[1]}]  # hand-run cases: never chosen
     return pd.DataFrame(rows)
 
 
 # ---------------------------------------------------------------------------------------------------------- selection
 def test_selection_is_reproducible_from_its_seed_and_follows_the_strata():
-    v = pool()
+    v = pool(n_unknown=2, n_disagree=4)
     a, b = select_cases(v, 42), select_cases(v.sample(frac=1, random_state=1), 42)  # input order does not matter
     assert a.equals(b) and len(a) == 15 and a.rec_id.is_unique and (a.seed == 42).all()
     assert not select_cases(v, 43).rec_id.tolist() == a.rec_id.tolist()
-    by = v.set_index("rec_id")
+    assert not set(a.rec_id) & set(EXCLUDED)
+    by = v.drop_duplicates("rec_id").set_index("rec_id")
     for name, n, pred in STRATA:
         got = a[a.stratum == name].rec_id
-        assert len(got) == n and all(pred(by.loc[r].rename(r).to_frame().T.reset_index(names="rec_id").iloc[0]) for r in got)
+        assert len(got) == (6 if n is None else n), name
+        assert all(pred(by.loc[r].rename(r).to_frame().T.reset_index(names="rec_id").iloc[0]) for r in got)
+    uncertain = sorted(r for r in v.rec_id if r[0] in "ud" and r not in EXCLUDED)  # taken whole, no draw
+    assert sorted(a[a.stratum == UNCERTAIN].rec_id) == uncertain
 
 
 def test_csv_booleans_are_read_as_booleans(tmp_path):
@@ -56,9 +62,11 @@ def test_csv_booleans_are_read_as_booleans(tmp_path):
 
 def test_a_short_stratum_stops_with_the_counts():
     with pytest.raises(InsufficientStratum) as e:
-        select_cases(pool(n_unknown=3, n_disagree=0), 42)
-    assert e.value.counts["S1_unknown"] == {"needed": 4, "candidates": 3}
-    assert e.value.counts["S2_known_fault_caution_or_disagreeing"]["candidates"] == 0
+        select_cases(pool(n_clean=3), 42)
+    assert e.value.counts["S3_known_fault_clean"] == {"needed": 5, "candidates": 3}
+    with pytest.raises(InsufficientStratum) as e:
+        select_cases(pool(n_unknown=0, n_disagree=0), 42)
+    assert e.value.counts[UNCERTAIN] == {"needed": "all", "candidates": 0}
 
 
 @pytest.mark.skipif(not (D7 / "cases.csv").exists(), reason="the committed case list does not exist yet")
