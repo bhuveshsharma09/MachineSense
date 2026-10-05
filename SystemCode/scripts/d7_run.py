@@ -3,7 +3,7 @@ report), then B (agent without review) and C (agent with review), through the ap
 case store), and writes one JSON line per answer to results/d7/runs.jsonl plus the case facts the scorer needs to
 results/d7/cases.json. Each arm runs once; a crashed arm is re-run only with --rerun-arm and a reason (logged).
 Run from SystemCode/:
-    PYTHONPATH=. python scripts/d7_run.py --dry-run          # 1 case, writes results/d7/dry_run/ only
+    PYTHONPATH=. python scripts/d7_run.py --dry-run          # 1 non-pilot case, writes results/d7/dry_run/ only
     PYTHONPATH=. caffeinate -i python scripts/d7_run.py      # the pilot (≈ 90 min; ask Bhuvesh first)
 """
 from __future__ import annotations
@@ -30,6 +30,8 @@ QUESTIONS = {1: "Why was this recording flagged?", 2: "Which sensor shows the la
              5: "Should I replace the bearing now?"}
 HEALTHY_Q1 = "Why is this recording considered healthy?"
 SECTION_FOR = {1: "01", 2: "02", 3: "03", 4: "04", 5: "04"}  # arm A: the fixed report's answer to each question
+# the dry run uses an eligible recording OUTSIDE the pilot (not selected, not hand-run), so no pilot output is seen early
+DRY_RUN_CASE = "imbalance__10g__19.2512"
 
 
 class Refused(RuntimeError):
@@ -115,7 +117,10 @@ def run(arms=ARMS, dry_run: bool = False, rerun: str | None = None, reason: str 
         model_reachable()
     cases = pd.read_csv(OUT / "cases.csv")
     if dry_run:
-        cases = cases.head(1)
+        from ml.pilot import EXCLUDED
+        if DRY_RUN_CASE in set(cases.rec_id) or DRY_RUN_CASE in EXCLUDED:
+            raise Refused(f"the dry-run case {DRY_RUN_CASE} must not be a pilot or hand-run case")
+        cases = pd.DataFrame([{"stratum": "dry_run_not_a_pilot_case", "rec_id": DRY_RUN_CASE}])
     revision = git("rev-parse", "HEAD").strip()
     started = datetime.now(timezone.utc).isoformat(timespec="seconds")
     store = (Path(tempfile.mkdtemp()) if dry_run else SYSTEM_CODE_DIR / "backend" / "data") / "d7_cases.db"
