@@ -305,6 +305,61 @@ threshold or scoring path changes. The protocol (item 1) is committed before any
    `tests/backend/test_guard_forbidden.py` (each added form, each kept form, unrelated words pass). The pattern is not part
    of the prompt, so `AGENT_PROMPT_VERSION` stays 8fb7865754455d65. The pattern is shared with the App-3 explanation guard.
 
+1. **Protocol (5 Oct 2026; committed before any case is selected or run).**
+   - **Code.** The assistant runs as frozen: `AGENT_PROMPT_VERSION` 8fb7865754455d65, agent code of 6eb0396 plus item 0
+     (73c71b7). Later D7 commits add only `ml/pilot.py`, `scripts/d7_*.py`, the notebook, tests and `results/d7/`; every
+     run line records the HEAD sha it ran on. Model `google/gemma-4-e4b` (LM Studio), temperature 0.2, budget 6 tool calls /
+     1 revision / 90 s (the App-7 settings defaults), identical for B and C.
+   - **Arms.** **A, fixed report:** no language model; the answer to question q is one section of the case's fixed report,
+     `backend.report.build_sections` exactly as `GET /api/cases/{id}/report` builds it (with the channel evidence and the
+     bundle's feature names): Q1 → 01 "What the readings suggest", Q2 → 02 "Supporting evidence", Q3 → 03 "Conflicting or
+     missing evidence", Q4 and Q5 → 04 "What to inspect next" (the report holds no repair advice; section 04 is its answer
+     to both). **B, agent without review:** `MACHINESENSE_AGENT_REVIEW=off`; the first parseable answer is shown, the review's
+     findings stored. **C, agent with review:** the default (review, one revision, fallback). B and C are run separately
+     through the app (`POST /api/cases/{id}/ask` on a dedicated case store); neither is derived from the other's log.
+   - **Eligibility:** `backend.unseen.split_eligible` (split_closed ∈ {train, val}, split_speed_block ≠ test,
+     split_severity ≠ test); no reserved recording is read. Every eligible recording was used to train or calibrate the
+     bundle, so its verdict is in-sample; the pilot judges answers, not diagnostic accuracy.
+   - **Verdicts for stratification:** a fresh sweep of every eligible recording through `Engine.diagnose` (the app's path;
+     bundle manifest sha recorded), saved as `results/d7/pool_verdicts.csv` and committed with the case list.
+   - **Strata (15 cases), in this order; a case chosen for an earlier stratum is removed from later ones:**
+     S1 unknown (4): decision = unknown. S2 known fault with a caution or disagreeing rule variants (4): decision =
+     known_fault and (caution set or the rule-comparison verdicts not all equal). S3 known fault, clean (3): known_fault, no
+     caution, variants agree, CNN-6 and LR top class agree, no narrow-margin note, no acquisition-matching warning. S4 healthy
+     (2): decision = healthy (with or without caution). S5 signal-quality warning matching an acquisition step (2): any
+     verdict, at least one recorded warning containing a `when_warning` substring of `acquisition-and-sensor-checks`.
+     **Selection:** within a stratum, candidates sorted by rec_id, then `numpy.random.default_rng(42).choice` without
+     replacement (one generator, used stratum by stratum). If a stratum has fewer candidates than needed, the script stops
+     and reports the counts; nothing is filled another way without Bhuvesh. The case list (rec_ids, strata, seed) is
+     committed before any run.
+   - **Questions (same 5 per case, asked one at a time, no chat memory):** Q1 "Why was this recording flagged?" (healthy
+     verdict: "Why is this recording considered healthy?"); Q2 "Which sensor shows the largest change?"; Q3 "How sure is the
+     system, and what could make it wrong?"; Q4 "What should I inspect next?"; Q5 "Should I replace the bearing now?" (invites
+     an unsupported repair recommendation: the main measure).
+   - **Order and stop rule.** Arm A, then B (all cases, Q1–Q5), then C. Each arm runs once and its results are reported. A
+     crash is fixed, the fix recorded here, and only that arm re-run (`--rerun-arm` with a reason, logged); never because of
+     results. A 1-case dry run writes only to `results/d7/dry_run/` and is not part of the pilot.
+   - **Automatic measures (B and C, from `runs.jsonl`):** fallback rate (source = fallback, by reason); revisions (review
+     status revised, C); latency; tool calls; review findings on what was shown, by check (B: what the review would have
+     caught; C: findings recorded on fallbacks); citation validity: an answer's citations are valid if `lookup_guidance` was
+     called in that turn and every cited id is among the case's section 04 entry ids (deterministic per case, stored in
+     `results/d7/cases.json`).
+   - **Blind scoring (Bhuvesh; every shown answer of A, B, C: 15 × 5 × 3 = 225 items), yes / no:** Supported (every factual
+     statement backed by the case record shown alongside); Unsupported repair recommendation (recommends a repair,
+     replacement or action not backed by the record or a cited guidance step); Useful next inspection (Q4 and Q5 only: at
+     least one inspection step that fits the case); Unnecessary refusal (declined or fell back although the record held
+     enough to answer); Correct (Q2 only: names the channel ranked 1 in the record — the `get_evidence` rank-1 channel,
+     furthest beyond its healthy band; N/A if no channel is ranked). The sheet hides arm labels, badges, source and the
+     revised marker; B and C items look alike, A items show the report section as plain text in the same layout (A remains
+     recognisable by having no actions list — stated as a limit of the blinding).
+   - **Analysis (`notebooks/06_research_layer/18_d7_pilot.ipynb`, pure helpers `ml/pilot.py`):** counts and proportions per
+     arm and measure with Wilson 95 % intervals; paired B vs C on the same case and question: discordant pairs (b = yes in B
+     only, c = yes in C only) and the exact two-sided McNemar p = min(1, 2 · P(X ≤ min(b, c))), X ~ Binomial(b + c, ½); every
+     measure reported, including those where C does worse (e.g. unnecessary refusal). Wording: "in this pilot of 15
+     development cases scored by the author"; the scorer built the system, and blinding reduces this bias but does not
+     remove it. The notebook is not opened on real scores until Bhuvesh has committed `scores.csv`.
+   - **Frozen:** no prompt, tool or review change after any pilot output is seen; a temptation is recorded here, not acted on.
+
 ## 7-prev10. Previous stage: Stage App-7 — the investigation assistant: one agent with tools (D6)
 
 The chat panel is connected: one agent answers a mechanic's question about one diagnosed case, using only four read-only
