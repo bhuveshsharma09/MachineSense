@@ -122,7 +122,7 @@ def per_arm(table: pd.DataFrame) -> pd.DataFrame:
             k, n = int(v.sum()), int(len(v))
             lo, hi = wilson(k, n)
             rows.append({"arm": arm, "measure": m, "k": k, "n": n, "p": k / n if n else math.nan, "lo": lo, "hi": hi})
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows, columns=["arm", "measure", "k", "n", "p", "lo", "hi"])  # columns even when nothing is scored
 
 
 def paired(table: pd.DataFrame, first: str = "B", second: str = "C") -> pd.DataFrame:
