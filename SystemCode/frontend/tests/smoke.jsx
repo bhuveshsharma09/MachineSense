@@ -99,6 +99,48 @@ for (const [name, [props, expect, absent = [], extra]] of Object.entries(screens
   if (hits.length) { failed++; console.error(`✗ guidance placeholder reappeared in ${hits.join(", ")}`); }
   else console.log("✓ no guidance placeholder in the frontend source");
 }
+// App-7: the assistant. Answers render the answer, citations (title on hover), actions and the review badge, and nothing
+// else: a reasoning field in the payload is never shown.
+import AgentChat, { AnswerView, REVIEW_BADGE, UNAVAILABLE } from "../src/components/AgentChat.jsx";
+{
+  const strip = (h) => h.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  const secret = "PRIVATE-REASONING-TEXT";
+  const agentAnswer = {
+    question: "What should I inspect next?", answer: "The verdict is a known fault; the cited guidance lists envelope checks.",
+    claims: [{ text: "Known fault.", refs: ["diagnosis.decision"] }],
+    citations: [{ id: "bearing-defect-frequencies", title: "Confirm a bearing verdict against the envelope defect lines" }],
+    actions: [{ tool: "diagnose", arguments: {}, summary: "verdict: known fault: overhang cage; 2 of 4 checks passed" },
+              { tool: "lookup_guidance", arguments: {}, summary: "7 inspection step(s) from bearing-defect-frequencies" }],
+    review: { status: "passed", failed: [] }, source: "agent", prompt_version: "x", model: "m", latency_ms: 1, tool_calls_used: 2,
+    reasoning: secret, reasoning_content: secret,
+  };
+  const fallback = { ...agentAnswer, source: "fallback", reason: "evidence review failed", citations: [], actions: [],
+    answer: "The assistant could not give an answer supported by the case record. The fixed report's findings and inspection steps are below.",
+    review: { status: "fallback", failed: [{ check: "numbers", detail: "9.9 is not a value returned by a tool in this turn" }] },
+    report_sections: [{ n: "04", title: "What to inspect next", items: [{ tag: "Guidance", text: "Check the comb. (source: bearing-defect-frequencies)" }] }] };
+  const h1 = renderToString(<AnswerView answer={agentAnswer} />);
+  const t1 = strip(h1);
+  const ok1 = t1.includes(REVIEW_BADGE.passed) && t1.includes("bearing-defect-frequencies") && h1.includes('title="Confirm a bearing verdict') &&
+    t1.includes("Actions (2)") && t1.includes("lookup_guidance") && t1.includes("7 inspection step(s)") && !h1.includes(secret);
+  if (!ok1) { failed++; console.error("✗ assistant answer: badge, citation chip with title, actions, no reasoning"); }
+  else console.log("✓ assistant answer: badge, citation chip with title, actions, no reasoning");
+  const h2 = renderToString(<AnswerView answer={fallback} />);
+  const t2 = strip(h2);
+  const ok2 = t2.includes(REVIEW_BADGE.fallback) && t2.includes("could not give an answer supported") && t2.includes("Check the comb.") &&
+    !t2.includes("9.9") && !h2.includes(secret);
+  if (!ok2) { failed++; console.error("✗ assistant fallback: badge and report items, no rejected detail, no reasoning"); }
+  else console.log("✓ assistant fallback: badge and report items, no rejected detail, no reasoning");
+  const h3 = strip(renderToString(<AnswerView answer={{ ...fallback, reason: "language model disabled" }} />));
+  if (!h3.includes(UNAVAILABLE) || h3.includes(REVIEW_BADGE.fallback)) { failed++; console.error("✗ assistant unavailable line"); }
+  else console.log("✓ assistant unavailable: one line pointing to the report");
+  const chat = strip(renderToString(<AgentChat caseId="c1" open onOpen={() => {}} onClose={() => {}}
+    initialEntries={[{ question: "What should I inspect next?", status: "done", answer: agentAnswer }]} />));
+  const none = strip(renderToString(<AgentChat caseId={null} open onOpen={() => {}} onClose={() => {}} />));
+  const ok4 = chat.includes("What should I inspect next?") && chat.includes(REVIEW_BADGE.passed) && !/not connected|preview|draft only/i.test(chat) &&
+    none.includes("Start an investigation") && !chat.includes(secret);
+  if (!ok4) { failed++; console.error("✗ assistant panel: a working chat for the case; the no-case state kept"); }
+  else console.log("✓ assistant panel: a working chat for the case; the no-case state kept");
+}
 // App-3: the Mechanic panel (rendered alone) contains no percentage and no raw model score
 import { PanelContent } from "../src/components/Aside.jsx";
 for (const [name, f] of Object.entries({ knownFault, unknown, caution, poor, healthy, plainHealthy, disagree, narrow })) {

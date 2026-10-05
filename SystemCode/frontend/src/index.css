@@ -547,3 +547,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .un-split { flex-direction: column; align-items: center; }
   .un-details dl { grid-template-columns: 1fr; }
 }
+/* App-7: assistant answers */
+.agent-turn { display: flex; flex-direction: column; gap: 8px; }
+.agent-question { align-self: flex-end; max-width: 85%; padding: 8px 12px; border-radius: 12px 12px 4px 12px;
+  background: oklch(0.94 0.025 270); color: oklch(0.25 0.01 260); }
+.agent-answer { display: flex; flex-direction: column; gap: 8px; }
+.agent-answer ul, .agent-actions ol { margin: 2px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; font-size: 14px; }
+.agent-badge { align-self: flex-start; padding: 3px 8px; border-radius: 7px; font-size: 12px; font-weight: 500;
+  background: oklch(0.94 0.04 150); color: oklch(0.35 0.08 150); }
+.agent-badge-revised { background: oklch(0.95 0.05 85); color: oklch(0.4 0.08 70); }
+.agent-badge-fallback { background: oklch(0.94 0.02 260); color: oklch(0.38 0.01 260); }
+.agent-cites { display: flex; flex-wrap: wrap; gap: 6px; }
+.agent-cite { padding: 3px 7px; border-radius: 7px; font-size: 11px; border: 1px solid oklch(0.48 0.16 270 / .25); cursor: help; }
+.agent-actions summary { cursor: pointer; font-size: 13px; color: oklch(0.45 0.01 260); }
+.agent-fallback-sec { display: flex; flex-direction: column; gap: 4px; }
+.agent-answer-unavailable { font-size: 15px; color: oklch(0.42 0.01 260); }

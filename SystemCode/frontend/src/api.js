@@ -35,3 +35,6 @@ export const getTrace = (id, { signal } = {}) => api.get(`/cases/${id}/trace`, {
 // App-6: the "Explore an unseen fault" page (curated leave-one-class-out examples; live when the weights exist)
 export const getUnseen = () => api.get("/unseen").then((r) => r.data);
 export const runUnseen = (withheld, rec_id, role) => api.get("/unseen/run", { params: { withheld, rec_id, role } }).then((r) => r.data);
+// App-7: the investigation assistant (one agent with read-only tools; answers checked by code before they are returned)
+export const askQuestion = (id, question, { signal } = {}) => api.post(`/cases/${id}/ask`, { question }, { signal }).then((r) => r.data);
+export const getQuestions = (id, { signal } = {}) => api.get(`/cases/${id}/questions`, { signal }).then((r) => r.data.questions);
