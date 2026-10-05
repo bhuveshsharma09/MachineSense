@@ -9,9 +9,10 @@ import re
 from backend.explain import plain
 from backend.explain.prompt import INTEGER_CONSTANTS
 
-FORBIDDEN = re.compile(r"%|\bper ?cent\b|\bconfirm(?:ed|s|ation)?\b|\broot[- ]cause\b|\breplac(?:e|ed|ing|ement)\b|"
-                       r"\burgent(?:ly)?\b|\bimmediate(?:ly)?\b|\bimminent\b|\bremaining (?:useful )?life\b|"
-                       r"\bguarantee(?:d|s)?\b|\bdefinitely\b|\bcertainly\b", re.IGNORECASE)
+# Every entry covers its whole word family (Stage D7 item 0, Bhuvesh, after App-7 hand run 6): "confirming" was missed.
+FORBIDDEN = re.compile(r"%|\bper ?cent\w*|\bconfirm\w*|\broot[- ]caus\w*|\breplac\w*|"
+                       r"\burgen\w*|\bimmediate\w*|\bimminen\w*|\bremaining (?:useful )?life\w*|"
+                       r"\bguarantee\w*|\bdefinitely\b|\bcertainly\b", re.IGNORECASE)
 NUMBER = re.compile(r"(?<![\w.])\d[\d,]*(?:\.\d+)?")
 UP = re.compile(r"\b(?:higher|increased?|increases|greater|more|above|larger|raised|elevated)\b", re.IGNORECASE)
 DOWN = re.compile(r"\b(?:lower|decreased?|decreases|less|below|smaller|reduced|weaker)\b", re.IGNORECASE)

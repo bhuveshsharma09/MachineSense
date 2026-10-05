@@ -289,7 +289,23 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage App-7 — the investigation assistant: one agent with tools (D6)
+## 7. Current stage: Stage D7 — pilot evaluation of the evidence review (development cases only)
+
+Pilot of the §11 research question on 15 development recordings: the fixed report (A), the agent without review (B)
+and the agent with review (C). The assistant is frozen at `AGENT_PROMPT_VERSION` 8fb7865754455d65 (code at 6eb0396);
+this stage does not change the prompt, the tools or the review, except item 0. No reserved recording is read; no model,
+threshold or scoring path changes. The protocol (item 1) is committed before any pilot case is selected or run.
+
+0. **Guard word list (5 Oct 2026; decided by Bhuvesh after App-7 hand run 6 and before any D7 case).**
+   `backend.explain.guard.FORBIDDEN` blocked confirm / confirmed / confirms / confirmation but not "confirming": a gap in
+   the word list, not tuning (the rule always meant the whole word family). Every entry now covers its family: confirm\w*,
+   per ?cent\w* (adds percentage), root[- ]caus\w* (root causes, root-caused), replac\w* (replaces, replacements,
+   replaceable), urgen\w* (urgency), immediate\w*, imminen\w* (imminently, imminence), remaining (useful) life\w*
+   (lifetime), guarantee\w* (guaranteeing); "definitely" and "certainly" have no other forms and are unchanged. Tests:
+   `tests/backend/test_guard_forbidden.py` (each added form, each kept form, unrelated words pass). The pattern is not part
+   of the prompt, so `AGENT_PROMPT_VERSION` stays 8fb7865754455d65. The pattern is shared with the App-3 explanation guard.
+
+## 7-prev10. Previous stage: Stage App-7 — the investigation assistant: one agent with tools (D6)
 
 The chat panel is connected: one agent answers a mechanic's question about one diagnosed case, using only four read-only
 tools, and code reviews its answer before the mechanic sees it (CLAUDE.md §11, dated edit of 5 Oct). No model, threshold,
