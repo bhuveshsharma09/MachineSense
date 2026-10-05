@@ -7,7 +7,7 @@ from backend.agent.tools import leaf
 RESULTS = [
     {"verdict": leaf("known_fault", "diagnosis.decision"), "fault_class": leaf("underhang_outer", "diagnosis.fault_class"),
      "location": leaf("inner bearing housing (underhang bearing), according to the dataset label",
-                      "diagnosis.location_according_to_dataset_label"),
+                      "diagnosis.location"),
      "checks": [{"name": "familiarity (Mahalanobis distance)", "score": leaf(12.4790, "diagnosis.scores.maha"),
                  "threshold": leaf(30.0426, "diagnosis.thresholds.tau_d"), "passed": leaf(True, "assessment.checks.maha.passed")}]},
     {"shaft_speed_hz": leaf(14.3911, "signal_quality.shaft_speed_hz"), "speed_stable": leaf(True, "signal_quality.speed_stable"),

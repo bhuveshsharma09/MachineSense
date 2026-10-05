@@ -1,6 +1,8 @@
 """The assistant's four read-only tools over a case stored by /api/diagnose. They read the stored record (and, for the
 channel evidence, the same builder the report's channel view uses) and never run a model. Every fact an answer may rest on
 is a leaf {"value": …, "ref": "<path>"} so the review can trace it; section 04 items carry their ref beside the item.
+A ref read from a record field is that field's path; a derived value's ref ends in its own key, so a ref inferred from
+the result's shape is the real one.
 No tool exposes the CNN gradient map (CLAUDE.md §11 rule 11)."""
 from __future__ import annotations
 
@@ -78,7 +80,7 @@ class Tools:
         if d["decision"] == "known_fault":
             out["fault_class"] = leaf(d["fault_class"], "diagnosis.fault_class")
             out["location"] = leaf(f"{location(d['fault_class'])}, according to the dataset label",
-                                   "diagnosis.location_according_to_dataset_label")
+                                   "diagnosis.location")
         if d["caution"]:
             out["caution"] = leaf(d["caution"], "diagnosis.caution")
         out["checks"] = [{"name": c["name"], "role": c["role"], "status": c["status"],
@@ -122,12 +124,13 @@ class Tools:
 
         def metric(ch, k, m):
             p = f"evidence.{ch}.{k}"
-            out = {"value": leaf(m["value"], f"{p}.value"), "healthy_reference": leaf(m["reference"], f"{p}.reference")}
+            out = {"value": leaf(m["value"], f"{p}.value"),
+                   "healthy_reference": leaf(m["reference"], f"{p}.healthy_reference")}
             if m["comparable"]:
-                out |= {"change_factor": leaf(m["factor"], f"{p}.factor"), "direction": m["direction"],
-                        "beyond_typical_healthy_variation": leaf(m["exceeds"], f"{p}.exceeds")}
+                out |= {"change_factor": leaf(m["factor"], f"{p}.change_factor"), "direction": m["direction"],
+                        "beyond_typical_healthy_variation": leaf(m["exceeds"], f"{p}.beyond_typical_healthy_variation")}
                 if m["band"]:
-                    out["typical_healthy_band"] = leaf(m["band"], f"{p}.band")
+                    out["typical_healthy_band"] = leaf(m["band"], f"{p}.typical_healthy_band")
             if m["note"]:
                 out["note"] = m["note"]
             return out
