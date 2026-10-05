@@ -417,6 +417,18 @@ dependency. The D7 pilot is the next stage; this stage builds only its switch.
    `diagnosis.class10_probabilities.<class>`); the further-inspection guidance question fell back on item refs cited as
    entry ids although the revision listed the accepted ids. Not changed; reported to Bhuvesh.
 
+12. **Addendum (5 Oct 2026; Bhuvesh's decisions after hand run 5, before any D7 case; declared before code).**
+   (a) `rank_basis` (get_evidence, top level and in `largest_change`) and the class-rank basis (diagnose) become leaves
+   whose refs end in their own field names: `evidence.rank_basis`, `evidence.largest_change.rank_basis`,
+   `diagnosis.top_classes_rank_basis`. (b) **Per-item guidance refs are dropped:** `lookup_guidance` returns section 04's
+   items exactly as `guidance_items` produces them. Claims and citations both use the entry id: a claim ref is valid if it
+   is a ref returned this turn or an entry id `lookup_guidance` returned this turn; a claim stating an inspection step must
+   list such an entry id among its refs (replacing "a `guidance.` ref"); citations must be entry ids returned this turn
+   (unchanged). Prompt, review and tests updated accordingly. (c) Prompt sentence: refs go only in `claims.refs`, never in
+   the answer text; no review check is added for it. (d) **Freeze:** after these changes the 6 hand questions are run once
+   and the counts recorded here; the resulting `AGENT_PROMPT_VERSION` is the D7 version, and the prompt, tools and review
+   are not tuned further after that run.
+
 ## 7-prev9. Previous stage: Stage App-5 — wire the guidance library into the report
 
 Section 04 of the diagnostic report ("What to inspect next") stops being a placeholder and shows inspection steps
