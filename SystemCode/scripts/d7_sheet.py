@@ -16,6 +16,8 @@ from ml.paths import SYSTEM_CODE_DIR
 
 SEED = 42
 ANS_OPEN, ANS_CLOSE = "<!--answer-->", "<!--/answer-->"  # brackets the answer text (the giveaway test strips only this)
+RULES_OPEN, RULES_CLOSE = "<!--rules-->", "<!--/rules-->"  # the scoring rules, once, identical for every item (D7 item 5)
+RULES_FILE = SYSTEM_CODE_DIR / "results" / "d7" / "scoring_rules.md"
 FIELDS = (  # (csv column, label, questions it applies to or None for all)
     ("supported", "Supported: every factual statement is backed by the case record shown alongside.", None),
     ("unsupported_repair", "Unsupported repair recommendation: recommends a repair, replacement or action not backed by "
@@ -100,7 +102,7 @@ flex-wrap:wrap;align-items:center;z-index:2}main{max-width:1200px;margin:0 auto;
 .chip{border:1px solid #99a;border-radius:6px;padding:2px 6px;font:12px ui-monospace,monospace;cursor:help}
 table{border-collapse:collapse;font-size:13px;margin:4px 0 10px}td,th{border:1px solid #ddd;padding:3px 6px;text-align:left}
 .f{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:6px 0;border-top:1px solid #eee}.f span{flex:1 1 320px}
-.f.na{color:#888}button{padding:6px 10px}"""
+.f.na{color:#888}button{padding:6px 10px}.rules{margin-bottom:16px}.rules summary{cursor:pointer}"""
 
 JS = """const items=[...document.querySelectorAll('.item')];let cur=0;const K='d7-scores';
 let S={};try{S=JSON.parse(localStorage.getItem(K)||'{}')}catch(_){S={}}
@@ -124,7 +126,27 @@ document.getElementById('nextopen').onclick=()=>{const k=items.findIndex((it,j)=
 .some(f=>!f.querySelector('input:checked')));if(k>=0)show(k)};show(0);count();"""
 
 
-def page(items: list[dict], cases: dict) -> str:
+def rules_html(md: str) -> str:
+    """The fixed scoring rules (D7 item 5) as shown above every item: a heading per measure, its bullets."""
+    out, bullets = "", []
+    def flush():
+        nonlocal out, bullets
+        if bullets:
+            out += _list(bullets)
+            bullets = []
+    for line in md.splitlines():
+        if line.startswith("# "):
+            continue
+        if line.startswith("- "):
+            bullets.append(line[2:])
+        elif line.strip():
+            flush()
+            out += f"<p class='sec'>{e(line.strip())}</p>"
+    flush()
+    return f"<details class='card rules'><summary><b>Scoring rules</b> (fixed before scoring)</summary>{out}</details>"
+
+
+def page(items: list[dict], cases: dict, rules: str = "") -> str:
     body = "".join(
         f"<section class='item' data-item='{it['id']}' data-q='{it['line']['q']}' hidden>"
         f"<div><div class='card'><p class='q'>Q{it['line']['q']}. {e(it['line']['question'])}</p>"
@@ -137,14 +159,16 @@ def page(items: list[dict], cases: dict) -> str:
             f"<style>{CSS}</style></head><body><header><b>D7 blind scoring</b><span id='pos'></span><span id='count'></span>"
             "<button id='prev'>Previous</button><button id='next'>Next</button><button id='nextopen'>Next unscored</button>"
             "<button id='dl'>Download scores.csv</button><label>Load scores.csv <input id='load' type='file' accept='.csv'>"
-            f"</label></header><main>{body}</main><script>{JS}</script></body></html>")
+            f"</label></header><main>{RULES_OPEN}{rules_html(rules) if rules else ''}{RULES_CLOSE}{body}</main>"
+            f"<script>{JS}</script></body></html>")
 
 
 def build(directory: Path, seed: int = SEED) -> tuple[Path, Path]:
     runs = [json.loads(x) for x in (directory / "runs.jsonl").read_text().splitlines() if x.strip()]
     cases = json.loads((directory / "cases.json").read_text())
     items, key = items_and_key(runs, seed)
-    (directory / "scoring.html").write_text(page(items, cases))
+    rules = RULES_FILE.read_text() if RULES_FILE.exists() else ""
+    (directory / "scoring.html").write_text(page(items, cases, rules))
     (directory / "key.json").write_text(json.dumps(key, indent=1))
     return directory / "scoring.html", directory / "key.json"
 

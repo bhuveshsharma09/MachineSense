@@ -131,8 +131,11 @@ GIVEAWAY = ("agent", "fallback", "revised", "review", "Checked against the case 
 def test_sheet_gives_no_arm_away_outside_the_answer_text():
     sh = script("d7_sheet")
     items, _ = sh.items_and_key(RUNS)
-    page = sh.page(items, {"r1": FACTS})
+    rules = sh.RULES_FILE.read_text()
+    page = sh.page(items, {"r1": FACTS}, rules)
     outside = re.sub(re.escape(sh.ANS_OPEN) + ".*?" + re.escape(sh.ANS_CLOSE), " ", page, flags=re.S)
+    assert page.count(sh.RULES_OPEN) == 1 and "Unnecessary refusal" in outside  # the rules: once, the same for every item
+    outside = re.sub(re.escape(sh.RULES_OPEN) + ".*?" + re.escape(sh.RULES_CLOSE), " ", outside, flags=re.S)
     assert page.count(sh.ANS_OPEN) == len(RUNS) and "data-answer" in outside
     found = [w for w in GIVEAWAY if w.lower() in outside.lower()]
     assert found == [], found
