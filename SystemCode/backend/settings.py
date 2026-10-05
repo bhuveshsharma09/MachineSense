@@ -15,6 +15,9 @@
 | LLM endpoint / model / timeout / on-off (App-3) | MACHINESENSE_LLM_BASE_URL / _MODEL / _TIMEOUT_S / _ENABLED | http://localhost:1234/v1 / google/gemma-4-e4b / 20 / true |
 | LLM API key (optional; read from SystemCode/.env only) | MACHINESENSE_LLM_API_KEY in .env | none |
 | explanation call log | MACHINESENSE_EXPLANATIONS_LOG | SystemCode/backend/data/explanations.jsonl |
+| assistant: tool calls per question (App-7) | MACHINESENSE_AGENT_MAX_TOOL_CALLS | 6 |
+| assistant: revisions after a failed evidence review | MACHINESENSE_AGENT_MAX_REVISIONS | 1 |
+| assistant: wall-clock limit per question, seconds (also each model request's timeout) | MACHINESENSE_AGENT_TIMEOUT_S | 60 |
 """
 from __future__ import annotations
 
@@ -106,3 +109,17 @@ def llm_api_key(env_file: Path | None = None) -> str | None:
 
 def explanations_log() -> Path:
     return _p("MACHINESENSE_EXPLANATIONS_LOG", BACKEND_DIR / "data" / "explanations.jsonl")
+
+
+# ----------------------------------------------------------------------------------------------- assistant (App-7)
+# The fixed budget of every investigation (CLAUDE.md §11 rule 3); when it runs out the answer falls back to the report.
+def agent_max_tool_calls() -> int:
+    return int(os.environ.get("MACHINESENSE_AGENT_MAX_TOOL_CALLS") or 6)
+
+
+def agent_max_revisions() -> int:
+    return int(os.environ.get("MACHINESENSE_AGENT_MAX_REVISIONS") or 1)
+
+
+def agent_timeout_s() -> float:
+    return float(os.environ.get("MACHINESENSE_AGENT_TIMEOUT_S") or 60)

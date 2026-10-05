@@ -2,6 +2,7 @@
 the existing HTTP client (httpx). Tests inject an httpx transport; no live model in tests."""
 from __future__ import annotations
 
+import json
 import time
 from typing import Protocol
 
@@ -45,3 +46,30 @@ class OpenAICompatibleProvider:
         if not isinstance(content, str) or not content.strip():
             raise ProviderError("empty message")
         return content, (time.perf_counter() - t0) * 1000
+
+    def chat(self, messages: list[dict], tools: list[dict], temperature: float = 0.2) -> dict:
+        """One chat-completions turn offering `tools` (Stage App-7). Returns {"content": str, "tool_calls": [{"id", "name",
+        "arguments" (dict, or None if not valid JSON), "raw_arguments"}]}. Any reasoning field the server adds is dropped
+        here and never reaches the caller (CLAUDE.md §11 rule 4)."""
+        body = {"model": self.model, "messages": messages, "tools": tools, "temperature": temperature, "stream": False}
+        try:
+            r = self.client.post(f"{self.base_url}/chat/completions", json=body)
+            r.raise_for_status()
+            msg = r.json()["choices"][0]["message"]
+        except (httpx.HTTPError, KeyError, IndexError, ValueError) as e:
+            raise ProviderError(f"{type(e).__name__}: {e}") from e
+        calls = []
+        for i, c in enumerate(msg.get("tool_calls") or []):
+            fn = c.get("function") or {}
+            raw = fn.get("arguments") or "{}"
+            try:
+                args = json.loads(raw) if isinstance(raw, str) else raw
+                args = args if isinstance(args, dict) else None
+            except ValueError:
+                args = None
+            calls.append({"id": str(c.get("id") or f"call_{i}"), "name": str(fn.get("name") or ""), "arguments": args,
+                          "raw_arguments": raw if isinstance(raw, str) else json.dumps(raw)})
+        content = msg.get("content") if isinstance(msg.get("content"), str) else ""
+        if not calls and not content.strip():
+            raise ProviderError("empty message")
+        return {"content": content, "tool_calls": calls}
