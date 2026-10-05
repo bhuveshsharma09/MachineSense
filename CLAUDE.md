@@ -1236,12 +1236,13 @@ details → "Investigate this reading" → progress, then: condition and predict
 conflicting evidence; uncertainty and missing information; next inspections with cited references; a chat
 panel for follow-up questions.
 
-**Agents.** Coordinator (chooses the next step, delegates, decides when evidence is enough); signal-quality
-agent (format, sensor quality, model applicability); diagnostic agent (calls the classifiers, anomaly
-detectors and unknown-fault checks; examines disagreement); maintenance-guidance agent (retrieves curated
-references, proposes supported inspection steps); evidence-review agent (checks every conclusion and
-recommendation against model results and retrieved sources). They share one structured case record:
-measurements, model versions, results, source references, unresolved questions.
+**Agent (Bhuvesh's decision, dated edit 5 Oct 2026; replaces the earlier five-agent design).** One tool-using agent
+answers a mechanic's question about one diagnosed case. It may use only four read-only tools over the stored case:
+`diagnose` (verdict, scores and the thresholds they were compared with, caution, top classes), `check_signal` (speed,
+stability, warnings, speed ranges), `get_evidence` (per-channel comparison with a healthy reference) and
+`lookup_guidance` (report section 04's cited steps). Every answer passes an evidence review applied by code (not a
+second model) before the mechanic sees it. Every investigation has a fixed budget; when the budget runs out or the review
+fails, the answer falls back to the fixed report.
 
 **Hard rules (non-negotiable once implementation starts).**
 1. Numbers come only from tested tools in `ml/` (through the backend API). Agents never generate, alter or
@@ -1265,21 +1266,13 @@ measurements, model versions, results, source references, unresolved questions.
 11. Agents must not use the gradient highlights (the CNN attribution map) alone to support a repair recommendation;
     they are exploratory and an occlusion check did not confirm band-level importance.
 
-**D7 research question.** When diagnostic evidence is uncertain or conflicting, does a multi-agent maintenance
-assistant give fewer unsupported repair recommendations than a single-agent assistant, while still
-recommending useful next inspections? The conditions are a fixed report, a single agent, multi-agent without
-the reviewer, and the full system, all with the same model, tools, references and budgets. Measures:
+**D7 research question (dated edit 5 Oct 2026).** When diagnostic evidence is uncertain or conflicting, does an
+evidence review step reduce unsupported claims and unsupported repair recommendations in a tool-using assistant, while
+keeping useful next inspections? The arms are the fixed report, the agent without review, and the agent with review, all
+with the same model, tools, references and budget. Measures:
 unsupported repair recommendations and useful next inspections (refusing everything must not look
 successful), citation correctness, unnecessary refusal, time and cost. Blinded expert review is sought;
 without it, usefulness claims stay limited.
-
-**Proposed targets (not committed; conflicts in the plan's Timeline).**
-
-| Date | Proposed | Conflict |
-| --- | --- | --- |
-| 11 Oct | Upload/dropdown → diagnosis screen; `/api/diagnose` returns the structured evidence record | Extends the walking skeleton |
-| 18 Oct | Minimum multi-agent investigation + chat; curated references; D7 protocol fixed | Checkpoint 2 (ResNet-18, seeds, XAI, manifest v1) |
-| 24 Oct | Integrated app, bounded agent workflow, basic 3-D view, reproducible pilot; code freeze | Inference, golden tests, clean-clone check |
 
 Proposed agent kill rule: if the minimum agent loop is not working on 18 Oct, D6 ships as the fixed report plus
 chat over that report, and D7 becomes a smaller pilot. Stop and ask Bhuvesh about anything listed as open in
