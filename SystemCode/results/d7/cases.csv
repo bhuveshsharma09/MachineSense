@@ -1,0 +1,16 @@
+stratum,rec_id,seed
+U_uncertain,normal__18.432,42
+U_uncertain,normal__27.4432,42
+U_uncertain,overhang__cage_fault__6g__13.1072,42
+U_uncertain,overhang__outer_race__20g__18.2272,42
+U_uncertain,vertical-misalignment__0.63mm__12.4928,42
+U_uncertain,vertical-misalignment__0.63mm__32.768,42
+S3_known_fault_clean,underhang__outer_race__20g__19.456,42
+S3_known_fault_clean,overhang__cage_fault__6g__24.576,42
+S3_known_fault_clean,underhang__ball_fault__6g__36.0448,42
+S3_known_fault_clean,horizontal-misalignment__1.5mm__31.744,42
+S3_known_fault_clean,overhang__cage_fault__6g__20.48,42
+S4_healthy,normal__14.336,42
+S4_healthy,normal__28.8768,42
+S5_acquisition_warning,underhang__cage_fault__20g__26.8288,42
+S5_acquisition_warning,underhang__cage_fault__20g__28.4672,42
