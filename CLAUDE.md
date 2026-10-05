@@ -386,6 +386,29 @@ dependency. The D7 pilot is the next stage; this stage builds only its switch.
    so the review passed it: the review checks provenance, not comparisons ("most", "largest"). Also, raw full-precision
    values were quoted (1.8222750078995185).
 
+11. **Addendum (5 Oct 2026; Bhuvesh's decisions after hand run 4, before any D7 case is fixed; declared before code).** The
+   normal__20.2752 finding of item 10 stays recorded. Three changes, no other review check changed:
+   (a) **Ranking in `get_evidence`.** Channels come ranked by how far their change goes beyond the typical healthy band
+   (change factor ÷ band, the order the report and UI use for marked / exceeding channels; Bhuvesh chose this over the raw
+   change factor, which picks a different top channel in 4 of 8 development cases). Ranks are computed over all channels
+   before any `channel` filter. Each ranked channel carries `rank` (ref `evidence.<channel>.rank`), its change metric,
+   `change_factor` and `typical_healthy_band`; channels without a comparable metric are unranked and listed last. The
+   result names the basis in plain words, `rank_basis: "change beyond the healthy band"`, and `largest_change` (channel,
+   metric, change factor, band, rank 1, each a leaf `evidence.largest_change.<key>`, with the same `rank_basis`). `diagnose`'s
+   two top classes carry `rank` (ref `diagnosis.top_classes.<k>.rank`, `rank_basis: "class probability"`). The prompt asks
+   for wording such as "furthest outside its healthy range", not "changed most in absolute terms".
+   (b) **Review check `ranking`.** A claim, or an answer sentence, using most / largest / highest / biggest / strongest /
+   first must cite (the claim's refs; for an answer sentence, any claim's refs) a rank ref (a ref ending in `.rank`, or an
+   `evidence.largest_change.` ref) whose value is 1; one using least / smallest / lowest must cite the last rank of that
+   ranking in this turn. Otherwise the check fails (same revision and fallback rules).
+   (c) **Display precision.** Tools return values rounded as the report displays them: check scores and thresholds with
+   `backend.checks._num` (6 decimals in [0, 1], never 1 or 0 — "> 0.999999" stays a string; 4 below 10; else 2),
+   class probabilities with `fmt_score` (4), speeds in Hz 2 decimals, rpm 0, speed variation 2, change factors and bands 1
+   (the report's `change_text`); raw channel metric values and their healthy references, which the report does not show,
+   follow the UI's rule (`f3`: 0 decimals from 100, 2 from 1, else 4). The review's number matching (guard._matches against
+   this turn's values) therefore follows the rounded values: a number more precise than the displayed one fails. The
+   prompt and tool descriptions change, so `AGENT_PROMPT_VERSION` changes (recorded after implementation).
+
 ## 7-prev9. Previous stage: Stage App-5 — wire the guidance library into the report
 
 Section 04 of the diagnostic report ("What to inspect next") stops being a placeholder and shows inspection steps
