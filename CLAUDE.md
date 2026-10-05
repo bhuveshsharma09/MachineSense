@@ -289,7 +289,81 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage App-5 — wire the guidance library into the report
+## 7. Current stage: Stage App-7 — the investigation assistant: one agent with tools (D6)
+
+The chat panel is connected: one agent answers a mechanic's question about one diagnosed case, using only four read-only
+tools, and code reviews its answer before the mechanic sees it (CLAUDE.md §11, dated edit of 5 Oct). No model, threshold,
+scoring path, `EvidenceRecord` field, golden evidence record or report fixture changes; reserved tests sealed; no new
+dependency. The D7 pilot is the next stage; this stage builds only its switch.
+
+**App-7 protocol (declared before writing code).**
+0. **Tool calling checked first (5 Oct, by hand):** the configured LM Studio model `google/gemma-4-e4b` returned proper
+   `tool_calls` for one tool in 3 of 3 runs (`finish_reason: tool_calls`) and a plain answer after the tool result. Its
+   messages carry a `reasoning_content` field; it is dropped on receipt and never stored, returned or fed back (§11 rule 4).
+1. **Tools (`backend/agent/tools.py`).** `diagnose`, `check_signal`, `get_evidence`, `lookup_guidance` are plain functions
+   over a case stored by `/api/diagnose`; they read the stored record and never run a model. Every fact a claim may rest on
+   is returned as a leaf `{"value": …, "ref": "<path>"}`: numbers always, and also the verdict, labels, warnings and each
+   guidance item. Refs are record paths (`diagnosis.scores.msp`, `diagnosis.thresholds.tau_p`,
+   `signal_quality.shaft_speed_hz`, `physics.shaft_speed_rpm`), `evidence.<channel>.<metric>.<field>` for channel evidence,
+   and `guidance.<entry id>.<k>` for the k-th section 04 item of an entry. Builders reused, nothing reimplemented:
+   `diagnose` ← the record and `backend.checks.assessment` (scores and their thresholds, pass / fail, caution, the two most
+   probable classes, the location text of `backend.report.location` "according to the dataset label");
+   `check_signal` ← `signal_quality` (+ `physics.shaft_speed_rpm`); inside / outside the training and calibration speed
+   ranges computed from the record's own ranges; `get_evidence` ← the channel evidence the report uses
+   (`backend.evidence.channel_evidence`, moved behind one engine method so the app endpoint and the tool share it), optional
+   `channel`; `lookup_guidance` ← `backend.report.guidance_items` only (the bundle's feature names as the report uses; never
+   `ml.guidance.select`). No tool exposes the CNN gradient map (§11 rule 11). An unknown case id or channel returns
+   `{"error": …}`. **The model-facing tool schemas take no case id**: the loop binds every call to the case being asked
+   about, so the model cannot read another case; `get_evidence` takes an optional `channel` enum.
+2. **Loop (`backend/agent/loop.py`).** `OpenAICompatibleProvider.chat(messages, tools)` over httpx (no SDK) returns the
+   message's content and tool calls (reasoning dropped). One versioned system prompt, `AGENT_PROMPT_VERSION` = sha256 of
+   the prompt, the tool schemas and the answer schema (first 16 hex), stored on every answer. Final answer = the model's
+   content when it makes no tool call, a JSON object `{"answer": str, "claims": [{"text": str, "refs": [str]}],
+   "citations": [entry ids]}`. Each question is answered on its own (no chat memory). **Budget** (settings):
+   `MACHINESENSE_AGENT_MAX_TOOL_CALLS` 6 (tool calls per question, counting calls to unknown tools; a turn that would exceed
+   it ends the loop), `MACHINESENSE_AGENT_MAX_REVISIONS` 1, `MACHINESENSE_AGENT_TIMEOUT_S` 60 (wall clock per question; also
+   the HTTP timeout of each model request); exhausting any → fallback. The loop takes the review as a parameter (wired to
+   `backend.agent.review` in step 3).
+3. **Evidence review (`backend/agent/review.py`, code only; reuses `guard.parse`, `guard.NUMBER`, `guard._matches`,
+   `guard.FORBIDDEN`).** Checks, each reported by name when it fails: (1) `schema` — parses; exactly the three keys;
+   `answer` a non-empty string, `claims` a list of `{text, refs}` with a non-empty `refs` list of strings, `citations` a list
+   of strings; (2) `numbers` — every number in `answer` and in each claim's text matches (guard._matches) a number returned
+   by a tool in this turn: a numeric leaf, or a number inside a returned string (a warning, a guidance step); 1 and 2 are
+   allowed as in the explanation guard ("1×", "2×"); numbers the mechanic typed do not count; (3) `refs` — every claim ref is
+   a ref returned in this turn; (4) `citations` — every cited id is an entry id `lookup_guidance` returned in this turn, and
+   every sentence that states an inspection step (pattern `ml`-free, in `review.INSPECTION`: inspect, examine, look for,
+   record again / re-record / re-run, check the / for / that / whether, measure the, escalate, align, rebalance, tighten,
+   lubricate) is in an answer with at least one citation, or, for a claim, the claim has a `guidance.` ref; (5) `forbidden` —
+   no `guard.FORBIDDEN` match (replace, confirmed, root cause, urgency words, percentages …); (6) `location` — §11 rule 5: a
+   sentence with fault-location wording (`located`, `location`, "the fault is in / at / on") must say "according to the
+   dataset label(s)" and must not rest on sensor or channel evidence (a sensor, channel, axis, accelerometer, microphone or
+   reconstruction-error word in the same sentence). On failure: one revision (the failed checks are sent back as a user
+   message; tool calls in the revision count toward the budget). Still failing → **fallback**: the fixed message "The
+   assistant could not give an answer supported by the case record. The fixed report's findings and inspection steps are
+   below." plus sections 01 and 04 of `backend.report.build_sections` for the case (feature names as the report). The
+   rejected text is never shown and never stored.
+4. **API and storage.** `POST /api/cases/{case_id}/ask` `{"question": str}` (1–500 characters; else 422; unknown case
+   404) → `answer`, `claims`, `citations` (`[{id, title}]`, titles from the entries), `actions` (one per tool call: tool,
+   arguments, a one-line summary built by code), `review` (`{status: passed | revised | fallback | off, failed: [...]}`),
+   `source` (agent | fallback), `reason` (fallback only), `prompt_version`, `model`, `latency_ms`, `tool_calls_used`; never
+   reasoning text. Every question and response is stored in the case store (table `questions`);
+   `GET /api/cases/{case_id}/questions` lists them oldest first. LLM disabled or unreachable → the fallback immediately
+   (`source: "fallback"`, reason "language model disabled" / "language model unreachable (…)"), no network call when
+   disabled. The rest of the app is unchanged.
+5. **D7 switch.** `MACHINESENSE_AGENT_REVIEW` (default on). Off: the review still runs but does not gate — the first final
+   answer is shown as is (no revision), `review.status = "off"` and `review.failed` records what it would have rejected; the
+   budget and the unavailable fallback still apply. Not offered in the UI.
+6. **Frontend (`AgentChat.jsx`).** Working chat for the open case: suggestions, text box, Send; each answer with citation
+   chips (title on hover), an "Actions" list, and a badge — passed "Checked against the case record", revised "Revised
+   once", fallback "Could not answer with evidence" (no badge for `off`). The fallback shows the fixed message and the report
+   items; unavailable → one line pointing to the report. Previous questions of the case are loaded from
+   `GET …/questions`. Launcher, focus handling and Escape unchanged. Reasoning is never rendered.
+7. **Tests** as the brief lists (scripted httpx transport, no live model); golden evidence records and report fixtures
+   unchanged. **Hand run:** 5 questions on development cases with the local model, review on; per check, how often it fails
+   is reported. A check that looks too strict is reported, not loosened.
+8. **Docs:** `backend/README.md` "Assistant"; §11 rules 2 and 3 lines.
+
+## 7-prev9. Previous stage: Stage App-5 — wire the guidance library into the report
 
 Section 04 of the diagnostic report ("What to inspect next") stops being a placeholder and shows inspection steps
 retrieved from `SystemCode/knowledge/entries/*.yaml`, each cited by its entry `id`. Nothing else changes: no model,
