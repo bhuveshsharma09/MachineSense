@@ -20,6 +20,8 @@ class CaseStore:
             if "rerun_of" not in [r[1] for r in c.execute("PRAGMA table_info(cases)")]:
                 c.execute("ALTER TABLE cases ADD COLUMN rerun_of TEXT")  # databases created before App-2a.3
             c.execute("CREATE TABLE IF NOT EXISTS explanations (case_id TEXT PRIMARY KEY, payload TEXT NOT NULL)")  # App-3
+            c.execute("""CREATE TABLE IF NOT EXISTS questions (id INTEGER PRIMARY KEY AUTOINCREMENT, case_id TEXT NOT NULL,
+                created_at TEXT NOT NULL, payload TEXT NOT NULL)""")  # App-7: every assistant question and response
 
     def _conn(self):
         return sqlite3.connect(self.path)
@@ -47,6 +49,20 @@ class CaseStore:
         with self._conn() as c:
             row = c.execute("SELECT payload FROM explanations WHERE case_id = ?", (case_id,)).fetchone()
         return None if row is None else json.loads(row[0])
+
+    def put_question(self, case_id: str, created_at: str, payload: dict) -> int:
+        """One assistant question and its response (App-7); returns its id. Rejected drafts are never stored."""
+        with self._conn() as c:
+            cur = c.execute("INSERT INTO questions (case_id, created_at, payload) VALUES (?, ?, ?)",
+                            (case_id, created_at, json.dumps(payload, ensure_ascii=False)))
+            return int(cur.lastrowid)
+
+    def questions(self, case_id: str) -> list[dict]:
+        """The assistant questions of a case, oldest first."""
+        with self._conn() as c:
+            rows = c.execute("SELECT id, created_at, payload FROM questions WHERE case_id = ? ORDER BY id",
+                             (case_id,)).fetchall()
+        return [{"id": r[0], "case_id": case_id, "created_at": r[1], **json.loads(r[2])} for r in rows]
 
     def recent(self, limit: int = 20) -> list[dict]:
         with self._conn() as c:

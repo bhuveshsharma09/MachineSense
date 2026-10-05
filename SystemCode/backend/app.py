@@ -220,6 +220,43 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         from starlette.concurrency import run_in_threadpool
         return await run_in_threadpool(_explain, request, case_id, uf)
 
+    QUESTION_MAX = 500
+
+    def _ask(request: Request, case_id: str, question: str) -> dict:
+        from datetime import datetime, timezone
+
+        from backend.agent.loop import Budget, ask
+        from backend.explain.provider import OpenAICompatibleProvider
+        from backend.settings import agent_timeout_s, llm_api_key, llm_base_url, llm_enabled, llm_model
+        eng = engine(request)
+        provider = OpenAICompatibleProvider(llm_base_url(), llm_model(), agent_timeout_s(), llm_api_key(),
+                                            transport=request.app.state.llm_transport)
+        out = ask(eng, case_id, question, provider, budget=Budget.from_settings(), enabled=llm_enabled())
+        created = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        qid = eng.store.put_question(case_id, created, out)
+        return {"id": qid, "case_id": case_id, "created_at": created, **out}
+
+    @app.post("/api/cases/{case_id}/ask")
+    async def ask_question(case_id: str, request: Request):
+        """The investigation assistant (App-7): JSON {"question": str}, 1–500 characters. One tool-using agent over this
+        case, its answer checked by code before it is returned; with no model, the fallback to the fixed report."""
+        _need(engine(request), case_id)
+        try:
+            body = await request.json()
+        except ValueError:
+            body = None
+        q = body.get("question") if isinstance(body, dict) else None
+        if not isinstance(q, str) or not q.strip() or len(q) > QUESTION_MAX:
+            raise HTTPException(422, f'send JSON {{"question": ...}} with 1–{QUESTION_MAX} characters')
+        from starlette.concurrency import run_in_threadpool
+        return await run_in_threadpool(_ask, request, case_id, q.strip())
+
+    @app.get("/api/cases/{case_id}/questions")
+    def questions(case_id: str, request: Request):
+        eng = engine(request)
+        _need(eng, case_id)
+        return {"case_id": case_id, "questions": eng.store.questions(case_id)}
+
     @app.get("/api/cases/{case_id}/report")
     def report(case_id: str, request: Request):
         eng = engine(request)
