@@ -1,0 +1,22 @@
+{
+ "S1_unknown": {
+  "needed": 4,
+  "candidates": 3
+ },
+ "S2_known_fault_caution_or_disagreeing": {
+  "needed": 4,
+  "candidates": 0
+ },
+ "S3_known_fault_clean": {
+  "needed": 3,
+  "candidates": 711
+ },
+ "S4_healthy": {
+  "needed": 2,
+  "candidates": 25
+ },
+ "S5_acquisition_warning": {
+  "needed": 2,
+  "candidates": 64
+ }
+}

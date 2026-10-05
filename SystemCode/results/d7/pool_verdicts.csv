@@ -1,0 +1,805 @@
+rec_id,class10,decision,fault_class,caution,variants_disagree,cnn_lr_agree,narrow,acquisition_warning,warnings
+horizontal-misalignment__0.5mm__12.288,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__0.5mm__13.5168,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__0.5mm__14.5408,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__0.5mm__15.36,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__0.5mm__16.384,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__0.5mm__17.408,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__0.5mm__18.8416,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__19.6608,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__20.48,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__21.504,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__22.528,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__23.552,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__24.3712,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__24.7808,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__25.8048,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__26.8288,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__28.672,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__30.3104,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__32.3584,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__33.1776,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__34.2016,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__36.6592,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__38.5024,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__39.1168,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__0.5mm__40.3456,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__1.0mm__12.288,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__1.0mm__13.7216,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__1.0mm__14.336,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__1.0mm__15.9744,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__1.0mm__17.8176,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__1.0mm__18.8416,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__19.6608,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__20.2752,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__21.504,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__22.528,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__23.7568,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__24.1664,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__24.9856,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__26.0096,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__27.0336,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__28.2624,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__30.5152,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__31.1296,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__32.3584,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__33.792,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__34.6112,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__36.0448,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__36.6592,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__37.0688,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__38.912,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.0mm__39.5264,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__1.0mm__40.1408,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__1.5mm__12.288,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | shaft speed varies by 1.1 % within the recording
+horizontal-misalignment__1.5mm__13.9264,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__1.5mm__14.9504,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__1.5mm__15.7696,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+horizontal-misalignment__1.5mm__19.0464,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__22.3232,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__23.552,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__24.3712,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__25.8048,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__26.8288,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__29.696,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__30.5152,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__31.744,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__32.768,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__33.9968,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__34.4064,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__35.2256,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__36.0448,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__37.2736,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__38.7072,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,
+horizontal-misalignment__1.5mm__40.5504,horizontal_misalignment,known_fault,horizontal_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__10g__13.9264,imbalance,unknown,,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__10g__14.5408,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__10g__17.2032,imbalance,known_fault,imbalance,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | shaft speed varies by 1.8 % within the recording
+imbalance__10g__18.2272,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__10g__19.2512,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__20.48,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__21.7088,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__22.1184,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__22.9376,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__24.7808,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__25.6,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__26.0096,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__28.672,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__29.4912,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__30.3104,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__31.744,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__32.768,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__33.5872,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__34.4064,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__36.0448,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__36.864,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__38.5024,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__39.1168,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__10g__40.5504,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__15g__13.312,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__15g__14.5408,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__15g__15.5648,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__15g__16.9984,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__15g__17.8176,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__15g__18.6368,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__19.6608,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__20.8896,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__21.0944,imbalance,known_fault,imbalance,,False,True,False,True,shaft speed varies by 2.6 % within the recording
+imbalance__15g__23.3472,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__24.576,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__25.8048,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__26.624,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__27.8528,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__28.672,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__29.696,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__30.9248,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__33.5872,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__34.816,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__37.0688,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__37.4784,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__15g__39.3216,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__20g__13.312,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__20g__14.336,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__20g__16.1792,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__20g__17.408,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__20g__18.2272,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__20g__19.456,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__20.6848,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__21.504,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__23.552,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__24.7808,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__25.6,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__26.4192,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__27.4432,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__28.4672,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__29.4912,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__30.5152,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__31.5392,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__32.5632,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__33.5872,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__36.0448,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__36.4544,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__37.888,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__38.7072,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__20g__39.936,imbalance,known_fault,imbalance,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | 16 microphone bursts removed
+imbalance__25g__12.288,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__25g__13.7216,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__25g__15.1552,imbalance,known_fault,imbalance,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | shaft speed varies by 4.5 % within the recording | 6 glitched tacho intervals
+imbalance__25g__15.7696,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__25g__16.9984,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__25g__17.6128,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__25g__18.432,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__19.2512,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__20.6848,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__22.1184,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__22.9376,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__25.3952,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__26.0096,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__28.672,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__29.0816,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__30.1056,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__31.3344,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__33.3824,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__35.4304,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__36.2496,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__37.6832,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__38.7072,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__25g__39.5264,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__25g__40.3456,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__30g__13.1072,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__30g__14.9504,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__30g__16.5888,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__30g__17.2032,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__30g__18.2272,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__30g__19.456,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__30g__21.0944,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__30g__21.504,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__30g__22.7328,imbalance,known_fault,imbalance,,False,True,False,True,25 microphone bursts removed
+imbalance__30g__23.3472,imbalance,known_fault,imbalance,,False,True,False,True,36 microphone bursts removed
+imbalance__30g__23.7568,imbalance,known_fault,imbalance,,False,True,False,True,55 microphone bursts removed
+imbalance__30g__25.8048,imbalance,known_fault,imbalance,,False,True,False,True,69 microphone bursts removed
+imbalance__30g__26.2144,imbalance,known_fault,imbalance,,False,True,False,True,82 microphone bursts removed
+imbalance__30g__26.8288,imbalance,known_fault,imbalance,,False,True,False,True,83 microphone bursts removed
+imbalance__30g__28.672,imbalance,known_fault,imbalance,,False,True,False,True,43 microphone bursts removed
+imbalance__30g__29.0816,imbalance,known_fault,imbalance,,False,True,False,True,42 microphone bursts removed
+imbalance__30g__30.1056,imbalance,known_fault,imbalance,,False,True,False,True,38 microphone bursts removed
+imbalance__30g__31.5392,imbalance,known_fault,imbalance,,False,True,False,True,70 microphone bursts removed
+imbalance__30g__32.768,imbalance,known_fault,imbalance,,False,True,False,True,88 microphone bursts removed
+imbalance__30g__33.9968,imbalance,known_fault,imbalance,,False,True,False,True,63 microphone bursts removed
+imbalance__30g__34.816,imbalance,known_fault,imbalance,,False,True,False,True,61 microphone bursts removed
+imbalance__30g__35.2256,imbalance,known_fault,imbalance,,False,True,False,True,56 microphone bursts removed
+imbalance__30g__36.864,imbalance,known_fault,imbalance,,False,True,False,True,57 microphone bursts removed
+imbalance__30g__38.0928,imbalance,known_fault,imbalance,,False,True,False,True,63 microphone bursts removed
+imbalance__30g__38.7072,imbalance,known_fault,imbalance,,False,True,False,True,4 glitched tacho intervals | 65 microphone bursts removed
+imbalance__30g__39.7312,imbalance,known_fault,imbalance,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | 2 glitched tacho intervals | 59 microphone bursts removed
+imbalance__30g__40.7552,imbalance,known_fault,imbalance,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | 67 microphone bursts removed
+imbalance__6g__13.9264,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__6g__14.336,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__6g__15.36,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__6g__16.1792,imbalance,known_fault,imbalance,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | shaft speed varies by 1.6 % within the recording
+imbalance__6g__18.432,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+imbalance__6g__19.6608,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__20.2752,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__21.7088,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__24.576,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__25.3952,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__26.8288,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__27.648,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__29.4912,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__30.5152,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__31.5392,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__32.9728,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__33.9968,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__34.816,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__35.6352,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__36.4544,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__37.6832,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__38.5024,imbalance,known_fault,imbalance,,False,True,False,False,
+imbalance__6g__39.3216,imbalance,known_fault,imbalance,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+normal__13.1072,normal,healthy,,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+normal__14.336,normal,healthy,,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+normal__15.1552,normal,healthy,,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+normal__16.1792,normal,healthy,,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+normal__18.432,normal,healthy,,,False,True,True,False,
+normal__19.6608,normal,healthy,,,False,True,False,False,
+normal__20.2752,normal,healthy,,b1s_disagrees,True,True,True,False,
+normal__21.7088,normal,healthy,,,False,True,False,False,
+normal__22.3232,normal,healthy,,,False,True,False,False,
+normal__23.552,normal,healthy,,,False,True,False,False,
+normal__24.576,normal,healthy,,,False,True,False,False,
+normal__25.6,normal,healthy,,,False,True,False,False,
+normal__26.624,normal,healthy,,,False,True,False,False,
+normal__27.4432,normal,healthy,,b1s_disagrees,True,True,False,False,
+normal__28.8768,normal,healthy,,,False,True,False,False,
+normal__29.4912,normal,healthy,,,False,True,False,False,
+normal__30.72,normal,healthy,,,False,True,False,False,
+normal__31.744,normal,healthy,,,False,True,False,False,
+normal__32.9728,normal,healthy,,,False,True,False,False,
+normal__33.5872,normal,healthy,,,False,True,False,False,
+normal__34.2016,normal,healthy,,,False,True,False,False,
+normal__35.4304,normal,healthy,,,False,True,False,False,
+normal__37.6832,normal,healthy,,,False,True,False,False,
+normal__39.3216,normal,healthy,,,False,True,False,False,
+normal__40.3456,normal,healthy,,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__0g__14.1312,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__0g__15.7696,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__0g__16.5888,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__0g__17.6128,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__0g__18.6368,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__20.6848,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__21.504,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__23.552,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__24.3712,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__25.8048,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__26.4192,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__27.4432,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__28.8768,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__29.2864,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__30.1056,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__31.5392,overhang_ball,known_fault,overhang_ball,,False,True,False,True,2 glitched tacho intervals
+overhang__ball_fault__0g__32.768,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__33.5872,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__34.4064,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__35.6352,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__36.4544,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__37.4784,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__38.2976,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__0g__39.5264,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__0g__40.3456,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__20g__12.288,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__20g__13.5168,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__20g__15.5648,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__20g__16.1792,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__20g__16.9984,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__20g__17.8176,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__20g__19.6608,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__20.2752,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__21.2992,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__22.1184,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__23.7568,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__25.8048,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__26.4192,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__29.2864,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__30.3104,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__32.1536,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__33.3824,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__34.4064,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__35.2256,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__20g__36.0448,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__12.6976,overhang_ball,known_fault,overhang_ball,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | shaft speed varies by 1.1 % within the recording
+overhang__ball_fault__6g__13.9264,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__6g__15.36,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__6g__15.9744,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__6g__16.9984,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__6g__18.432,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__6g__19.2512,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__21.7088,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__22.528,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__24.7808,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__25.6,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__26.4192,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__27.4432,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__28.2624,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__29.2864,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__29.9008,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__32.1536,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__33.792,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__33.9968,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__35.6352,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__36.6592,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__37.4784,overhang_ball,known_fault,overhang_ball,,False,True,False,False,
+overhang__ball_fault__6g__39.7312,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__ball_fault__6g__40.5504,overhang_ball,known_fault,overhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__0g__13.1072,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__0g__14.1312,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__0g__14.9504,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__0g__16.1792,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__0g__17.408,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__0g__18.6368,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__19.8656,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__22.3232,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__23.1424,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__24.1664,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__24.9856,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__27.0336,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__28.0576,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__31.1296,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__31.9488,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__33.5872,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__34.2016,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__35.2256,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__36.4544,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__38.5024,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__0g__40.1408,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__20g__13.7216,overhang_cage,known_fault,overhang_cage,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | shaft speed varies by 1.5 % within the recording
+overhang__cage_fault__20g__14.5408,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__20g__15.36,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__20g__16.384,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__20g__17.408,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__20g__18.432,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__20g__19.456,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__20.6848,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__21.2992,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__22.3232,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__23.552,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__24.7808,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__25.3952,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__26.2144,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__27.4432,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__28.2624,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__29.696,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__30.3104,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__31.5392,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__32.1536,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__33.792,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__34.4064,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__36.2496,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__37.0688,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__38.5024,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__20g__40.5504,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__6g__13.1072,overhang_cage,known_fault,overhang_cage,,False,True,True,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | shaft speed varies by 1.1 % within the recording
+overhang__cage_fault__6g__14.5408,overhang_cage,known_fault,overhang_cage,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | shaft speed varies by 1.3 % within the recording
+overhang__cage_fault__6g__14.9504,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__cage_fault__6g__16.1792,overhang_cage,known_fault,overhang_cage,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | shaft speed varies by 4.0 % within the recording
+overhang__cage_fault__6g__17.408,overhang_cage,known_fault,overhang_cage,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | shaft speed varies by 1.7 % within the recording
+overhang__cage_fault__6g__18.6368,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__19.0464,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__20.48,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__21.504,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__22.3232,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__23.3472,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__24.576,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__26.2144,overhang_cage,known_fault,overhang_cage,,False,True,False,True,shaft speed varies by 2.0 % within the recording
+overhang__cage_fault__6g__26.624,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__28.4672,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__29.2864,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__30.5152,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__30.9248,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__33.3824,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__33.9968,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__35.4304,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__36.6592,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__37.4784,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__38.7072,overhang_cage,known_fault,overhang_cage,,False,True,False,False,
+overhang__cage_fault__6g__40.5504,overhang_cage,known_fault,overhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__0g__13.1072,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__0g__14.336,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__0g__15.36,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__0g__16.7936,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__0g__17.8176,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__0g__18.6368,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__19.6608,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__20.48,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__21.504,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__22.1184,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__23.552,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__25.6,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__26.624,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__27.648,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__28.4672,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__29.696,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__30.1056,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__31.744,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__32.3584,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__33.1776,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__34.4064,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__35.4304,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__36.0448,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__37.2736,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__39.1168,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__0g__40.5504,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__20g__13.5168,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__20g__14.1312,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__20g__16.7936,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__20g__18.2272,overhang_outer,known_fault,overhang_outer,,False,True,True,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__20g__19.456,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__20.2752,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__21.2992,overhang_outer,known_fault,overhang_outer,,False,True,False,True,shaft speed varies by 1.1 % within the recording
+overhang__outer_race__20g__22.9376,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__23.552,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__24.576,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__25.3952,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__26.624,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__27.8528,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__30.5152,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__31.9488,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__35.2256,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__36.864,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__37.4784,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__38.2976,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__20g__39.7312,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__20g__40.5504,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__6g__12.9024,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__6g__13.9264,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__6g__15.5648,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__6g__16.5888,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__6g__17.6128,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__6g__18.2272,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__6g__19.2512,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__20.2752,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__21.2992,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__23.7568,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__24.1664,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__25.8048,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__26.624,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__27.4432,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__28.2624,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__29.4912,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__30.72,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__31.744,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__32.3584,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__33.3824,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__33.9968,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__34.816,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__36.4544,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__37.6832,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__38.2976,overhang_outer,known_fault,overhang_outer,,False,True,False,False,
+overhang__outer_race__6g__39.5264,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+overhang__outer_race__6g__40.5504,overhang_outer,known_fault,overhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__0g__13.1072,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__0g__13.9264,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__0g__15.1552,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__0g__16.1792,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__0g__16.9984,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__0g__18.6368,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__19.456,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__20.0704,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__20.8896,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__22.7328,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__23.552,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__23.9616,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__25.1904,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__26.624,underhang_ball,known_fault,underhang_ball,,False,True,False,True,2 glitched tacho intervals
+underhang__ball_fault__0g__27.0336,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__28.2624,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__29.4912,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__29.9008,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__32.3584,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__33.5872,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__34.816,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__35.84,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__36.6592,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__37.6832,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__38.5024,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__39.3216,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__0g__40.3456,underhang_ball,known_fault,underhang_ball,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | 19 glitched tacho intervals
+underhang__ball_fault__20g__13.1072,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__20g__15.36,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__20g__16.1792,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__20g__17.2032,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__20g__18.432,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__20g__19.6608,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__20.8896,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__21.7088,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__22.7328,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__23.1424,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__23.9616,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__25.1904,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__27.2384,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__28.2624,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__28.4672,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__29.2864,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__29.9008,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__32.1536,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__33.5872,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__34.4064,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__35.0208,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__37.6832,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__20g__38.5024,underhang_ball,known_fault,underhang_ball,,False,True,False,True,17 glitched tacho intervals
+underhang__ball_fault__20g__40.1408,underhang_ball,known_fault,underhang_ball,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | 37 glitched tacho intervals
+underhang__ball_fault__6g__13.1072,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__6g__14.336,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__6g__15.1552,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__6g__17.2032,underhang_ball,known_fault,underhang_ball,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__ball_fault__6g__18.432,underhang_ball,known_fault,underhang_ball,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | 2 glitched tacho intervals
+underhang__ball_fault__6g__19.6608,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__20.2752,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__21.0944,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__22.7328,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__23.552,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__24.3712,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__25.3952,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__26.8288,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__28.2624,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__29.4912,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__30.3104,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__31.1296,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__32.5632,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__33.3824,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__34.6112,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__35.0208,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__36.0448,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__37.2736,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__38.7072,underhang_ball,known_fault,underhang_ball,,False,True,False,False,
+underhang__ball_fault__6g__39.7312,underhang_ball,known_fault,underhang_ball,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | 8 glitched tacho intervals
+underhang__ball_fault__6g__40.3456,underhang_ball,known_fault,underhang_ball,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | 25 glitched tacho intervals
+underhang__cage_fault__0g__13.312,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__0g__14.5408,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__0g__15.5648,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__0g__16.5888,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__0g__17.408,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__0g__18.2272,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__0g__19.456,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__20.6848,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__21.2992,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__22.7328,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__23.9616,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__24.3712,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__25.6,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__26.8288,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__27.4432,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__28.672,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__29.4912,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__30.9248,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__31.9488,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__32.768,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__33.9968,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__34.816,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__36.2496,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__37.4784,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__0g__38.2976,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__20g__13.312,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__20g__14.1312,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__20g__15.5648,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__20g__16.384,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__20g__17.408,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__20g__18.6368,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__20g__19.456,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__20g__20.2752,underhang_cage,known_fault,underhang_cage,,False,True,False,True,50 microphone bursts removed
+underhang__cage_fault__20g__21.2992,underhang_cage,known_fault,underhang_cage,,False,True,False,True,50 microphone bursts removed
+underhang__cage_fault__20g__22.3232,underhang_cage,known_fault,underhang_cage,,False,True,False,True,43 microphone bursts removed
+underhang__cage_fault__20g__23.7568,underhang_cage,known_fault,underhang_cage,,False,True,False,True,49 microphone bursts removed
+underhang__cage_fault__20g__25.3952,underhang_cage,known_fault,underhang_cage,,False,True,False,True,46 microphone bursts removed
+underhang__cage_fault__20g__26.8288,underhang_cage,known_fault,underhang_cage,,False,True,False,True,52 microphone bursts removed
+underhang__cage_fault__20g__27.648,underhang_cage,known_fault,underhang_cage,,False,True,False,True,43 microphone bursts removed
+underhang__cage_fault__20g__28.4672,underhang_cage,known_fault,underhang_cage,,False,True,False,True,30 microphone bursts removed
+underhang__cage_fault__20g__29.9008,underhang_cage,known_fault,underhang_cage,,False,True,False,True,4 microphone bursts removed
+underhang__cage_fault__20g__30.5152,underhang_cage,known_fault,underhang_cage,,False,True,False,True,49 microphone bursts removed
+underhang__cage_fault__20g__31.9488,underhang_cage,known_fault,underhang_cage,,False,True,False,True,69 microphone bursts removed
+underhang__cage_fault__20g__32.5632,underhang_cage,known_fault,underhang_cage,,False,True,False,True,74 microphone bursts removed
+underhang__cage_fault__20g__33.9968,underhang_cage,known_fault,underhang_cage,,False,True,False,True,79 microphone bursts removed
+underhang__cage_fault__20g__36.4544,underhang_cage,known_fault,underhang_cage,,False,True,False,True,72 microphone bursts removed
+underhang__cage_fault__20g__37.0688,underhang_cage,known_fault,underhang_cage,,False,True,False,True,83 microphone bursts removed | possible clipping on mic
+underhang__cage_fault__20g__38.2976,underhang_cage,known_fault,underhang_cage,,False,True,False,True,88 microphone bursts removed
+underhang__cage_fault__20g__39.7312,underhang_cage,known_fault,underhang_cage,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | 64 microphone bursts removed
+underhang__cage_fault__20g__40.3456,underhang_cage,known_fault,underhang_cage,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | 78 microphone bursts removed
+underhang__cage_fault__6g__12.9024,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__6g__14.336,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__6g__15.5648,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__6g__16.1792,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__6g__17.408,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__cage_fault__6g__19.456,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__20.2752,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__21.7088,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__23.7568,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__25.8048,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__27.4432,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__28.4672,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__29.696,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__30.72,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__31.5392,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__32.768,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__33.5872,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__35.0208,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__36.0448,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__37.4784,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__38.5024,underhang_cage,known_fault,underhang_cage,,False,True,False,False,
+underhang__cage_fault__6g__40.3456,underhang_cage,known_fault,underhang_cage,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__0g__13.5168,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__0g__14.7456,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__0g__15.5648,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__0g__16.384,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__0g__17.6128,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__0g__19.6608,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__21.504,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__22.528,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__24.576,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__25.6,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__26.624,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__26.8288,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__28.672,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__29.4912,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__30.72,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__31.3344,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__32.768,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__33.792,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__36.6592,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__37.2736,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__38.7072,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__0g__39.5264,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__0g__40.7552,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__20g__12.9024,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__20g__13.9264,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__20g__16.384,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__20g__16.9984,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__20g__18.2272,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__20g__19.456,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__20.2752,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__21.0944,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__22.3232,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__23.1424,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__25.8048,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__26.624,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__28.0576,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__28.4672,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__29.4912,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__30.72,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__32.3584,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__33.1776,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__34.2016,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__35.0208,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__36.6592,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__37.888,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__39.1168,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__20g__40.3456,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__6g__13.5168,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__6g__15.7696,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__6g__16.7936,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__6g__17.6128,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__6g__18.432,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__6g__19.8656,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__20.0704,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__21.0944,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__23.3472,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__24.1664,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__25.3952,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__26.8288,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__27.8528,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__29.0816,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__29.4912,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__30.5152,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__31.3344,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__31.9488,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__33.3824,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__34.4064,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__35.6352,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__37.0688,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__38.2976,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__38.912,underhang_outer,known_fault,underhang_outer,,False,True,False,False,
+underhang__outer_race__6g__40.5504,underhang_outer,known_fault,underhang_outer,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+underhang__outer_race__6g__40.96,underhang_outer,known_fault,underhang_outer,,False,True,False,True,speed outside the range the model was trained on; results less reliable | healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.51mm__13.1072,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.51mm__14.9504,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.51mm__16.9984,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.51mm__18.0224,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.51mm__18.8416,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__19.456,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__20.48,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__21.504,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__22.528,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__23.1424,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__24.9856,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__26.624,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__27.2384,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__28.4672,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__29.2864,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__30.5152,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__31.5392,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__32.3584,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__33.3824,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__34.2016,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__35.2256,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__36.0448,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__37.6832,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__38.7072,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.51mm__40.3456,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.63mm__12.4928,vertical_misalignment,unknown,,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.63mm__13.312,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.63mm__14.1312,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.63mm__15.36,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.63mm__16.7936,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.63mm__18.0224,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.63mm__20.0704,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__20.48,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__21.9136,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__22.528,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__23.3472,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__24.576,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__25.6,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__26.8288,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__29.0816,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__30.5152,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__31.1296,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__32.768,vertical_misalignment,unknown,,,False,True,False,False,
+vertical-misalignment__0.63mm__33.5872,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__34.2016,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__36.6592,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__37.2736,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__38.7072,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__0.63mm__39.7312,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__0.63mm__40.3456,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.27mm__12.0832,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.27mm__14.9504,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.27mm__15.36,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.27mm__17.2032,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.27mm__17.408,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.27mm__18.6368,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__19.6608,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__20.2752,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__21.2992,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__23.3472,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__24.7808,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,True,shaft speed varies by 2.0 % within the recording
+vertical-misalignment__1.27mm__26.0096,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__26.2144,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__27.0336,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__28.672,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__29.2864,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__31.1296,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__33.9968,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__35.4304,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__36.0448,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__37.2736,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__38.2976,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__39.3216,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.27mm__40.7552,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.40mm__12.0832,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.40mm__13.312,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.40mm__14.7456,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.40mm__16.384,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.40mm__17.2032,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.40mm__18.2272,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.40mm__19.6608,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__20.2752,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__22.7328,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__23.552,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,True,shaft speed varies by 1.0 % within the recording
+vertical-misalignment__1.40mm__24.576,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__25.3952,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__25.8048,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__27.4432,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__28.0576,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__29.0816,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__30.1056,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__30.9248,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__32.1536,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__34.6112,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__36.0448,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__36.864,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__37.888,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__38.7072,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.40mm__39.5264,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.40mm__40.7552,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,True,speed outside the range the model was trained on; results less reliable | healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.78mm__12.4928,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,True,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable | shaft speed varies by 1.1 % within the recording
+vertical-misalignment__1.78mm__15.1552,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.78mm__15.9744,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.78mm__16.7936,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.78mm__17.408,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.78mm__18.432,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__19.2512,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__20.48,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__21.7088,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__22.528,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__24.7808,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__25.8048,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__26.624,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__28.4672,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__29.4912,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__30.5152,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__31.3344,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__32.768,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__33.1776,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__34.816,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__36.2496,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__36.6592,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__37.2736,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,
+vertical-misalignment__1.78mm__39.7312,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
+vertical-misalignment__1.78mm__40.5504,vertical_misalignment,known_fault,vertical_misalignment,,False,True,False,False,healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable
