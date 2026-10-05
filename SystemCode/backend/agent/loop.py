@@ -43,9 +43,12 @@ def fallback_sections(engine, record: dict) -> list[dict]:
     return [s for s in build_sections(record, None, engine.bundle.feature_dictionary.index) if s["n"] in ("01", "04")]
 
 
-def ask(engine, case_id: str, question: str, provider, review: Review, budget: Budget = Budget(), review_on: bool = True,
-        enabled: bool = True) -> dict:
+def ask(engine, case_id: str, question: str, provider, review: Review | None = None, budget: Budget = Budget(),
+        review_on: bool = True, enabled: bool = True) -> dict:
+    """Answer one question about a stored case. `review` defaults to the evidence review of backend.agent.review."""
     t0 = time.perf_counter()
+    if review is None:
+        from backend.agent.review import review
     record = engine.case(case_id)
     tools = Tools(engine)
     actions, results = [], []
