@@ -1,0 +1,16 @@
+item_id,q,supported,unsupported_repair,useful_next_inspection,unnecessary_refusal,correct
+ibd06671ad1,2,no,yes,,no,yes
+ib732e70629,4,yes,yes,no,yes,
+ib3a65ed389,5,yes,yes,yes,no,
+i3b37f8a88b,1,no,yes,,yes,
+i9a815ef6d1,2,yes,no,,yes,yes
+i8f06cb0fb3,3,yes,yes,,no,
+ibdad3c2d6d,1,yes,yes,,yes,
+i3e46685257,3,yes,no,,no,
+i1ca3b1799d,1,yes,yes,,no,
+i1abc8960a9,5,yes,yes,yes,no,
+i1707a0ca6e,5,yes,yes,yes,yes,
+i9716419f82,3,no,no,,no,
+i23392456de,4,no,no,no,no,
+i8be465e150,2,yes,yes,,yes,yes
+i086c031199,4,no,no,no,no,

@@ -1,0 +1,80 @@
+{
+ "seed": 42,
+ "items": {
+  "ibd06671ad1": {
+   "arm": "A",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 2
+  },
+  "ib732e70629": {
+   "arm": "C",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 4
+  },
+  "ib3a65ed389": {
+   "arm": "C",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 5
+  },
+  "i3b37f8a88b": {
+   "arm": "C",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 1
+  },
+  "i9a815ef6d1": {
+   "arm": "C",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 2
+  },
+  "i8f06cb0fb3": {
+   "arm": "C",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 3
+  },
+  "ibdad3c2d6d": {
+   "arm": "B",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 1
+  },
+  "i3e46685257": {
+   "arm": "A",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 3
+  },
+  "i1ca3b1799d": {
+   "arm": "A",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 1
+  },
+  "i1abc8960a9": {
+   "arm": "A",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 5
+  },
+  "i1707a0ca6e": {
+   "arm": "B",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 5
+  },
+  "i9716419f82": {
+   "arm": "B",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 3
+  },
+  "i23392456de": {
+   "arm": "A",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 4
+  },
+  "i8be465e150": {
+   "arm": "B",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 2
+  },
+  "i086c031199": {
+   "arm": "B",
+   "rec_id": "imbalance__10g__19.2512",
+   "q": 4
+  }
+ }
+}

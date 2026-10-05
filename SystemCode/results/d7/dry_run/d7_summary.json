@@ -1,0 +1,307 @@
+{
+ "input": "results/d7/dry_run",
+ "prompt_versions": [
+  "8fb7865754455d65"
+ ],
+ "code_revisions": [
+  "c2f476e8a37548f85cbe9f8712104415681b44ef"
+ ],
+ "cases": 1,
+ "answers": 15,
+ "scored_items": 15,
+ "automatic": {
+  "B": {
+   "answers": 5,
+   "fallbacks": 0,
+   "fallback_rate": 0.0,
+   "fallback_rate_wilson": [
+    0.0,
+    0.43448246478317476
+   ],
+   "fallback_reasons": {},
+   "revised": 0,
+   "latency_s": {
+    "median": 17.5723,
+    "q1": 17.2472,
+    "q3": 18.514200000000002,
+    "max": 21.8603
+   },
+   "tool_calls_mean": 1.0,
+   "shown_with_review_findings": 3,
+   "answers_with_finding_by_check": {
+    "schema": 2,
+    "forbidden": 1
+   },
+   "citations": {
+    "answers_citing": 1,
+    "valid": 1
+   }
+  },
+  "C": {
+   "answers": 5,
+   "fallbacks": 1,
+   "fallback_rate": 0.2,
+   "fallback_rate_wilson": [
+    0.03622410863243014,
+    0.6244653702374747
+   ],
+   "fallback_reasons": {
+    "evidence review failed": 1
+   },
+   "revised": 1,
+   "latency_s": {
+    "median": 22.9585,
+    "q1": 16.2986,
+    "q3": 26.7461,
+    "max": 89.06989999999999
+   },
+   "tool_calls_mean": 1.4,
+   "shown_with_review_findings": 0,
+   "answers_with_finding_by_check": {
+    "refs": 1
+   },
+   "citations": {
+    "answers_citing": 1,
+    "valid": 1
+   }
+  }
+ },
+ "per_arm": [
+  {
+   "arm": "A",
+   "measure": "supported",
+   "k": 3,
+   "n": 5,
+   "p": 0.6,
+   "lo": 0.2307242812760128,
+   "hi": 0.882379225767352
+  },
+  {
+   "arm": "A",
+   "measure": "unsupported_repair",
+   "k": 3,
+   "n": 5,
+   "p": 0.6,
+   "lo": 0.2307242812760128,
+   "hi": 0.882379225767352
+  },
+  {
+   "arm": "A",
+   "measure": "useful_next_inspection",
+   "k": 1,
+   "n": 2,
+   "p": 0.5,
+   "lo": 0.09453120573423074,
+   "hi": 0.9054687942657693
+  },
+  {
+   "arm": "A",
+   "measure": "unnecessary_refusal",
+   "k": 0,
+   "n": 5,
+   "p": 0.0,
+   "lo": 0.0,
+   "hi": 0.43448246478317476
+  },
+  {
+   "arm": "A",
+   "measure": "correct",
+   "k": 1,
+   "n": 1,
+   "p": 1.0,
+   "lo": 0.20654931437723745,
+   "hi": 1.0
+  },
+  {
+   "arm": "B",
+   "measure": "supported",
+   "k": 3,
+   "n": 5,
+   "p": 0.6,
+   "lo": 0.2307242812760128,
+   "hi": 0.882379225767352
+  },
+  {
+   "arm": "B",
+   "measure": "unsupported_repair",
+   "k": 3,
+   "n": 5,
+   "p": 0.6,
+   "lo": 0.2307242812760128,
+   "hi": 0.882379225767352
+  },
+  {
+   "arm": "B",
+   "measure": "useful_next_inspection",
+   "k": 1,
+   "n": 2,
+   "p": 0.5,
+   "lo": 0.09453120573423074,
+   "hi": 0.9054687942657693
+  },
+  {
+   "arm": "B",
+   "measure": "unnecessary_refusal",
+   "k": 3,
+   "n": 5,
+   "p": 0.6,
+   "lo": 0.2307242812760128,
+   "hi": 0.882379225767352
+  },
+  {
+   "arm": "B",
+   "measure": "correct",
+   "k": 1,
+   "n": 1,
+   "p": 1.0,
+   "lo": 0.20654931437723745,
+   "hi": 1.0
+  },
+  {
+   "arm": "C",
+   "measure": "supported",
+   "k": 4,
+   "n": 5,
+   "p": 0.8,
+   "lo": 0.37553462976252533,
+   "hi": 0.9637758913675698
+  },
+  {
+   "arm": "C",
+   "measure": "unsupported_repair",
+   "k": 4,
+   "n": 5,
+   "p": 0.8,
+   "lo": 0.37553462976252533,
+   "hi": 0.9637758913675698
+  },
+  {
+   "arm": "C",
+   "measure": "useful_next_inspection",
+   "k": 1,
+   "n": 2,
+   "p": 0.5,
+   "lo": 0.09453120573423074,
+   "hi": 0.9054687942657693
+  },
+  {
+   "arm": "C",
+   "measure": "unnecessary_refusal",
+   "k": 3,
+   "n": 5,
+   "p": 0.6,
+   "lo": 0.2307242812760128,
+   "hi": 0.882379225767352
+  },
+  {
+   "arm": "C",
+   "measure": "correct",
+   "k": 1,
+   "n": 1,
+   "p": 1.0,
+   "lo": 0.20654931437723745,
+   "hi": 1.0
+  }
+ ],
+ "paired_B_vs_C": [
+  {
+   "measure": "supported",
+   "pairs": 5,
+   "yes_B_only": 1,
+   "yes_C_only": 2,
+   "both_yes": 2,
+   "both_no": 0,
+   "mcnemar_p": 1.0
+  },
+  {
+   "measure": "unsupported_repair",
+   "pairs": 5,
+   "yes_B_only": 1,
+   "yes_C_only": 2,
+   "both_yes": 2,
+   "both_no": 0,
+   "mcnemar_p": 1.0
+  },
+  {
+   "measure": "useful_next_inspection",
+   "pairs": 2,
+   "yes_B_only": 0,
+   "yes_C_only": 0,
+   "both_yes": 1,
+   "both_no": 1,
+   "mcnemar_p": 1.0
+  },
+  {
+   "measure": "unnecessary_refusal",
+   "pairs": 5,
+   "yes_B_only": 1,
+   "yes_C_only": 1,
+   "both_yes": 2,
+   "both_no": 1,
+   "mcnemar_p": 1.0
+  },
+  {
+   "measure": "correct",
+   "pairs": 1,
+   "yes_B_only": 0,
+   "yes_C_only": 0,
+   "both_yes": 1,
+   "both_no": 0,
+   "mcnemar_p": 1.0
+  }
+ ],
+ "uncertain_stratum": {
+  "cases": [],
+  "automatic": {},
+  "per_arm": [],
+  "paired_B_vs_C": [
+   {
+    "measure": "supported",
+    "pairs": 0,
+    "yes_B_only": 0,
+    "yes_C_only": 0,
+    "both_yes": 0,
+    "both_no": 0,
+    "mcnemar_p": 1.0
+   },
+   {
+    "measure": "unsupported_repair",
+    "pairs": 0,
+    "yes_B_only": 0,
+    "yes_C_only": 0,
+    "both_yes": 0,
+    "both_no": 0,
+    "mcnemar_p": 1.0
+   },
+   {
+    "measure": "useful_next_inspection",
+    "pairs": 0,
+    "yes_B_only": 0,
+    "yes_C_only": 0,
+    "both_yes": 0,
+    "both_no": 0,
+    "mcnemar_p": 1.0
+   },
+   {
+    "measure": "unnecessary_refusal",
+    "pairs": 0,
+    "yes_B_only": 0,
+    "yes_C_only": 0,
+    "both_yes": 0,
+    "both_no": 0,
+    "mcnemar_p": 1.0
+   },
+   {
+    "measure": "correct",
+    "pairs": 0,
+    "yes_B_only": 0,
+    "yes_C_only": 0,
+    "both_yes": 0,
+    "both_no": 0,
+    "mcnemar_p": 1.0
+   }
+  ]
+ },
+ "main_limitation": "only 6 cases carry uncertain or conflicting evidence, all in-sample for the bundle",
+ "wording": "in this pilot of 15 development cases scored by the author; the scorer built the system, and blinding reduces this bias but does not remove it"
+}

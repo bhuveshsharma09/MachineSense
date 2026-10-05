@@ -1,0 +1,250 @@
+{
+ "imbalance__10g__19.2512": {
+  "rec_id": "imbalance__10g__19.2512",
+  "case_id": "4eb48f47b69049f9b407874f8f9c35aa",
+  "stratum": "dry_run_not_a_pilot_case",
+  "verdict": "known fault: imbalance",
+  "decision": "known_fault",
+  "location": "rotor discs, according to the dataset label",
+  "checks": [
+   {
+    "name": "classifier confidence (MSP)",
+    "score": 0.999918,
+    "required": "≥",
+    "threshold": 0.998895,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "familiarity (Mahalanobis distance)",
+    "score": 6.3834,
+    "required": "≤",
+    "threshold": 30.04,
+    "passed": true,
+    "status": "pass"
+   },
+   {
+    "name": "autoencoder error",
+    "score": 0.5608,
+    "required": "≤",
+    "threshold": 0.243072,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   },
+   {
+    "name": "speed-aware baseline (B1s)",
+    "score": 1.8581,
+    "required": "≤",
+    "threshold": 0.872143,
+    "passed": false,
+    "status": "above healthy limit — consistent with a fault"
+   }
+  ],
+  "top_classes": [
+   {
+    "class": "imbalance",
+    "probability": "> 0.9999"
+   },
+   {
+    "class": "normal",
+    "probability": "< 0.0001"
+   }
+  ],
+  "speed_hz": 18.79,
+  "warnings": [],
+  "ranked_channels": [
+   {
+    "channel": "over_tangential",
+    "rank": 1,
+    "change_metric": "order_1x",
+    "change_factor": 11.7,
+    "typical_healthy_band": 2.3
+   },
+   {
+    "channel": "over_axial",
+    "rank": 2,
+    "change_metric": "rms",
+    "change_factor": 5.5,
+    "typical_healthy_band": 1.3
+   },
+   {
+    "channel": "under_tangential",
+    "rank": 3,
+    "change_metric": "order_1x",
+    "change_factor": 3.8,
+    "typical_healthy_band": 1.8
+   },
+   {
+    "channel": "under_radial",
+    "rank": 4,
+    "change_metric": "order_1x",
+    "change_factor": 3.6,
+    "typical_healthy_band": 2.0
+   },
+   {
+    "channel": "over_radial",
+    "rank": 5,
+    "change_metric": "env_ftf1",
+    "change_factor": 1.4,
+    "typical_healthy_band": 1.4
+   },
+   {
+    "channel": "under_axial",
+    "rank": 6,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.2
+   },
+   {
+    "channel": "mic",
+    "rank": 7,
+    "change_metric": "rms",
+    "change_factor": 1.1,
+    "typical_healthy_band": 1.2
+   }
+  ],
+  "rank_1_channel": "over_tangential",
+  "section_04": [
+   {
+    "tag": "Guidance",
+    "text": "Check that the energy really is concentrated at 1× shaft rate and that the 2× to 1× ratio is low. Imbalance is a once-per-revolution force, so a strong 2× component points at misalignment or looseness instead. (source: imbalance-1x; AI-drafted, not yet checked against a published source)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Check that the signal is smooth rather than impulsive. A low or negative excess kurtosis is consistent with imbalance; a strongly positive value suggests impacts and therefore a different cause. (source: imbalance-1x; AI-drafted, not yet checked against a published source)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Inspect the rotor for added, lost or displaced mass: fouling, debris, a missing balance weight, a damaged blade or vane, or moisture collected on one side. (source: imbalance-1x; AI-drafted, not yet checked against a published source)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Record again at a second shaft speed. The 1× amplitude from a mass imbalance rises steeply with speed, so a component that does not grow with speed is probably not imbalance. (source: imbalance-1x; AI-drafted, not yet checked against a published source)"
+   },
+   {
+    "tag": "Guidance",
+    "text": "Refer the residual imbalance to the balance-quality grade appropriate for the machine type before deciding whether correction is required. (source: imbalance-1x; AI-drafted, not yet checked against a published source)"
+   }
+  ],
+  "guidance_ids": [
+   "imbalance-1x"
+  ],
+  "report_sections": {
+   "01": {
+    "n": "01",
+    "title": "What the readings suggest",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Verdict: known fault: imbalance."
+     },
+     {
+      "tag": "Model",
+      "text": "Decision rule: provisional research setting. The decision rule is a provisional setting, not a final rule selection; the final choice will be made later under stated assumptions about fault frequency and costs."
+     },
+     {
+      "tag": "Model",
+      "text": "Location according to the dataset label: rotor discs."
+     },
+     {
+      "tag": "Model",
+      "text": "Most probable classes (CNN-6 scores): imbalance > 0.9999, normal < 0.0001, underhang ball < 0.0001. Model scores are not the probability that the diagnosis is correct."
+     }
+    ]
+   },
+   "02": {
+    "n": "02",
+    "title": "Supporting evidence",
+    "items": [
+     {
+      "tag": "Model",
+      "text": "Classifier confidence (MSP) 0.999918 ≥ 0.998895: pass (margin +0.001023, +92.551 % on the 1 − MSP scale)."
+     },
+     {
+      "tag": "Model",
+      "text": "Familiarity (Mahalanobis distance) 6.3834 ≤ 30.04: pass (margin -23.66, -78.752 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Autoencoder error 0.560800 > 0.243072: above healthy limit — consistent with a fault (margin +0.3177, +130.714 %)."
+     },
+     {
+      "tag": "Model",
+      "text": "Speed-aware baseline (B1s) 1.8581 > 0.872143: above healthy limit — consistent with a fault (margin +0.986, +113.054 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "Measured shaft speed 18.79 Hz (1128 rpm); speed stable within the recording (0.22 %)."
+     },
+     {
+      "tag": "Measured",
+      "text": "overhang tangential: 1× amplitude ↑ ×11.7 vs the healthy training recording normal__20.2752, beyond the typical healthy variation (×2.3); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Measured",
+      "text": "overhang axial: RMS ↓ ×5.5 vs the healthy training recording normal__20.2752, beyond the typical healthy variation (×1.3); descriptive, not a calibrated anomaly test."
+     },
+     {
+      "tag": "Model",
+      "text": "Secondary logistic regression (imbalance) leans on: amplitude at 4× the window's shaft speed (overhang axial) (+0.88); excess kurtosis (Fisher) of the window (underhang axial) (+0.56); amplitude at 4× the window's shaft speed (overhang radial) (+0.46).",
+      "hover": "f_over_axial_o4; f_under_axial_kurtosis; f_over_radial_o4"
+     }
+    ]
+   },
+   "03": {
+    "n": "03",
+    "title": "Conflicting or missing evidence",
+    "items": [
+     {
+      "tag": "Missing",
+      "text": "This recording was used to build the model; the result is not evidence of accuracy."
+     },
+     {
+      "tag": "Missing",
+      "text": "No maintenance history, operating context or repeat recording is available."
+     },
+     {
+      "tag": "Missing",
+      "text": "The healthy baseline is calibrated on 5 healthy recordings from one folder."
+     }
+    ]
+   },
+   "04": {
+    "n": "04",
+    "title": "What to inspect next",
+    "items": [
+     {
+      "tag": "Guidance",
+      "text": "Check that the energy really is concentrated at 1× shaft rate and that the 2× to 1× ratio is low. Imbalance is a once-per-revolution force, so a strong 2× component points at misalignment or looseness instead. (source: imbalance-1x; AI-drafted, not yet checked against a published source)",
+      "cite": "imbalance-1x",
+      "hover": "Check an imbalance verdict and look for added mass — AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
+     },
+     {
+      "tag": "Guidance",
+      "text": "Check that the signal is smooth rather than impulsive. A low or negative excess kurtosis is consistent with imbalance; a strongly positive value suggests impacts and therefore a different cause. (source: imbalance-1x; AI-drafted, not yet checked against a published source)",
+      "cite": "imbalance-1x",
+      "hover": "Check an imbalance verdict and look for added mass — AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
+     },
+     {
+      "tag": "Guidance",
+      "text": "Inspect the rotor for added, lost or displaced mass: fouling, debris, a missing balance weight, a damaged blade or vane, or moisture collected on one side. (source: imbalance-1x; AI-drafted, not yet checked against a published source)",
+      "cite": "imbalance-1x",
+      "hover": "Check an imbalance verdict and look for added mass — AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
+     },
+     {
+      "tag": "Guidance",
+      "text": "Record again at a second shaft speed. The 1× amplitude from a mass imbalance rises steeply with speed, so a component that does not grow with speed is probably not imbalance. (source: imbalance-1x; AI-drafted, not yet checked against a published source)",
+      "cite": "imbalance-1x",
+      "hover": "Check an imbalance verdict and look for added mass — AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
+     },
+     {
+      "tag": "Guidance",
+      "text": "Refer the residual imbalance to the balance-quality grade appropriate for the machine type before deciding whether correction is required. (source: imbalance-1x; AI-drafted, not yet checked against a published source)",
+      "cite": "imbalance-1x",
+      "hover": "Check an imbalance verdict and look for added mass — AI-drafted from general vibration-analysis knowledge; to be checked against Randall, R. B. (2011). Vibration-based Condition Monitoring. Wiley."
+     }
+    ]
+   }
+  }
+ }
+}
