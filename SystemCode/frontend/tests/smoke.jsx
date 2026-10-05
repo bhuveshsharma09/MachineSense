@@ -108,7 +108,7 @@ import AgentChat, { AnswerView, REVIEW_BADGE, UNAVAILABLE } from "../src/compone
   const agentAnswer = {
     question: "What should I inspect next?", answer: "The verdict is a known fault; the cited guidance lists envelope checks.",
     claims: [{ text: "Known fault.", refs: ["diagnosis.decision"] }],
-    citations: [{ id: "bearing-defect-frequencies", title: "Confirm a bearing verdict against the envelope defect lines" }],
+    citations: [{ id: "bearing-defect-frequencies", title: "Check a bearing verdict against the envelope defect lines" }],
     actions: [{ tool: "diagnose", arguments: {}, summary: "verdict: known fault: overhang cage; 2 of 4 checks passed" },
               { tool: "lookup_guidance", arguments: {}, summary: "7 inspection step(s) from bearing-defect-frequencies" }],
     review: { status: "passed", failed: [] }, source: "agent", prompt_version: "x", model: "m", latency_ms: 1, tool_calls_used: 2,
@@ -120,7 +120,7 @@ import AgentChat, { AnswerView, REVIEW_BADGE, UNAVAILABLE } from "../src/compone
     report_sections: [{ n: "04", title: "What to inspect next", items: [{ tag: "Guidance", text: "Check the comb. (source: bearing-defect-frequencies)" }] }] };
   const h1 = renderToString(<AnswerView answer={agentAnswer} />);
   const t1 = strip(h1);
-  const ok1 = t1.includes(REVIEW_BADGE.passed) && t1.includes("bearing-defect-frequencies") && h1.includes('title="Confirm a bearing verdict') &&
+  const ok1 = t1.includes(REVIEW_BADGE.passed) && t1.includes("bearing-defect-frequencies") && h1.includes('title="Check a bearing verdict') &&
     t1.includes("Actions (2)") && t1.includes("lookup_guidance") && t1.includes("7 inspection step(s)") && !h1.includes(secret);
   if (!ok1) { failed++; console.error("✗ assistant answer: badge, citation chip with title, actions, no reasoning"); }
   else console.log("✓ assistant answer: badge, citation chip with title, actions, no reasoning");

@@ -70,7 +70,7 @@ def test_two_tools_then_a_checked_answer(app, case, model):
     assert out["source"] == "agent" and out["review"] == {"status": "passed", "failed": []}
     assert [a["tool"] for a in out["actions"]] == ["diagnose", "lookup_guidance"] and out["tool_calls_used"] == 2
     assert out["citations"] == [{"id": "bearing-defect-frequencies",
-                                 "title": "Confirm a bearing verdict against the envelope defect lines"}]
+                                 "title": "Check a bearing verdict against the envelope defect lines"}]
     assert out["answer"] == CLEAN["answer"] and out["prompt_version"] and out["model"]
     assert len(calls) == 3 and calls[0]["tools"] and calls[1]["messages"][-1]["role"] == "tool"
     assert all("reasoning_content" not in m for c in calls for m in c["messages"])  # never fed back
@@ -91,6 +91,12 @@ def test_a_bad_answer_is_revised_once_into_a_passing_one(app, case, model):
     assert out["source"] == "agent" and out["review"]["status"] == "revised" and out["answer"] == CLEAN["answer"]
     feedback = calls[-1]["messages"][-1]
     assert feedback["role"] == "user" and "numbers" in feedback["content"] and "forbidden" in feedback["content"]
+    assert "Accepted entry ids" in feedback["content"] and "bearing-defect-frequencies" in feedback["content"]
+
+
+def test_revision_without_lookup_guidance_says_to_call_it(app, case, model):
+    _, calls = ask(app, case, model, [tool("diagnose"), final(INVENTED), final(CLEAN)])
+    assert "call lookup_guidance before citing" in calls[-1]["messages"][-1]["content"]
 
 
 def test_two_bad_answers_fall_back_without_the_rejected_text(app, case, model):

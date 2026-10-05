@@ -36,10 +36,16 @@ When you have the facts, reply with only one JSON object and no other text:
 Every claim lists the "ref" strings of the tool values it rests on. "citations" lists the entry ids of the inspection
 steps you mention (the "cite" of lookup_guidance items), or is empty."""
 
-AGENT_PROMPT_VERSION = hashlib.sha256((SYSTEM + json.dumps(SCHEMAS, sort_keys=True)
-                                       + json.dumps(ANSWER_SCHEMA, sort_keys=True)).encode()).hexdigest()[:16]
+# the revision message lists the entry ids lookup_guidance returned in this turn (App-7 addendum 10, Bhuvesh, 5 Oct)
+REVISION = ("The evidence review rejected your answer:\n{failed}\n{ids}\nReply again with one corrected JSON object that "
+            "follows the rules. You may call tools if you need facts.")
+IDS_ACCEPTED = "Accepted entry ids for \"citations\" (the \"cite\" values lookup_guidance returned): {ids}."
+IDS_NONE = "No entry ids were returned in this turn; call lookup_guidance before citing any inspection step."
+
+AGENT_PROMPT_VERSION = hashlib.sha256((SYSTEM + json.dumps(SCHEMAS, sort_keys=True) + json.dumps(ANSWER_SCHEMA, sort_keys=True)
+                                       + REVISION + IDS_ACCEPTED + IDS_NONE).encode()).hexdigest()[:16]
 
 
-def revision_message(failed: list[dict]) -> str:
-    return ("The evidence review rejected your answer:\n" + "\n".join(f"- {f['check']}: {f['detail']}" for f in failed)
-            + "\nReply again with one corrected JSON object that follows the rules. You may call tools if you need facts.")
+def revision_message(failed: list[dict], accepted_ids=()) -> str:
+    ids = IDS_ACCEPTED.format(ids=", ".join(accepted_ids)) if accepted_ids else IDS_NONE
+    return REVISION.format(failed="\n".join(f"- {f['check']}: {f['detail']}" for f in failed), ids=ids)

@@ -25,7 +25,7 @@ Review = Callable[[str, list], "tuple[dict | None, list[dict]]"]  # (final conte
 class Budget:
     max_tool_calls: int = 6
     max_revisions: int = 1
-    timeout_s: float = 60.0
+    timeout_s: float = 90.0
 
     @classmethod
     def from_settings(cls) -> "Budget":
@@ -99,4 +99,7 @@ def ask(engine, case_id: str, question: str, provider, review: Review | None = N
         if revisions >= budget.max_revisions:
             return done("fallback", status=REVIEW_FALLBACK, failed=failed, reason="evidence review failed")
         revisions += 1
-        messages += [{"role": "assistant", "content": msg["content"]}, {"role": "user", "content": revision_message(failed)}]
+        accepted = list(dict.fromkeys(i["cite"] for r in results for i in (r.get("items") or [])
+                                      if isinstance(i, dict) and i.get("cite")))
+        messages += [{"role": "assistant", "content": msg["content"]},
+                     {"role": "user", "content": revision_message(failed, accepted)}]

@@ -371,6 +371,12 @@ dependency. The D7 pilot is the next stage; this stage builds only its switch.
    `guidance.<id>.<k>` cited instead of entry ids), forbidden 1 ("Confirm", copied from the curated bearing entry's step
    "Confirm which bearing position …" — a conflict between `guard.FORBIDDEN` and entry prose, left for Bhuvesh). Latency
    10–54 s per question with `google/gemma-4-e4b` on the Mac mini.
+10. **Addendum (5 Oct 2026; Bhuvesh's decisions after the hand run, before any D7 case is fixed).** (a) The forbidden
+   pattern is not loosened; Bhuvesh reworded the entries instead ("Confirm" → "Check" in the bearing and acquisition steps
+   and two titles, d033414). (b) The revision message now also lists the entry ids `lookup_guidance` returned in this turn
+   (or, if none, says to call it before citing); no review check changes. Because the revision text is part of what the
+   model is told, it is included in `AGENT_PROMPT_VERSION`: a50bb2eb4a24c3b1 → 28b3a39d5ec9b514. (c)
+   `MACHINESENSE_AGENT_TIMEOUT_S` default 60 → 90 s (run 1 had one question at 61 s).
 
 ## 7-prev9. Previous stage: Stage App-5 — wire the guidance library into the report
 
@@ -1335,7 +1341,7 @@ fails, the answer falls back to the fixed report.
    (App-7) With the model disabled or unreachable, the budget exhausted or the review failed twice, `POST /api/cases/{id}/ask`
    returns the fixed fallback with the report's sections 01 and 04.
 3. Every investigation has a fixed tool-call and revision budget, set in config.
-   (App-7) `MACHINESENSE_AGENT_MAX_TOOL_CALLS` (6), `MACHINESENSE_AGENT_MAX_REVISIONS` (1), `MACHINESENSE_AGENT_TIMEOUT_S` (60).
+   (App-7) `MACHINESENSE_AGENT_MAX_TOOL_CALLS` (6), `MACHINESENSE_AGENT_MAX_REVISIONS` (1), `MACHINESENSE_AGENT_TIMEOUT_S` (90; was 60 until App-7 addendum 10).
 4. The UI shows actions taken and evidence found, never private model reasoning.
 5. Location wording: "predicted fault location according to the dataset labels" is kept separate from
    "sensor anomaly evidence". Per-channel reconstruction error is not fault-location evidence.

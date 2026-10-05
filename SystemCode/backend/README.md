@@ -170,12 +170,12 @@ shown.
   system prompt (`backend/agent/prompt.py`, `AGENT_PROMPT_VERSION` stored on every answer), no chat memory between
   questions. Final answer: `{"answer", "claims": [{"text", "refs"}], "citations": [entry ids]}`.
 - **Budget** (per question): `MACHINESENSE_AGENT_MAX_TOOL_CALLS` (6), `MACHINESENSE_AGENT_MAX_REVISIONS` (1),
-  `MACHINESENSE_AGENT_TIMEOUT_S` (60 s wall clock; also each model request's timeout). Exhausted → fallback.
+  `MACHINESENSE_AGENT_TIMEOUT_S` (90 s wall clock; also each model request's timeout). Exhausted → fallback.
 - **Evidence review** (`backend/agent/review.py`; reuses the explanation guard): schema; numbers only from this turn's
   tool results (numbers the mechanic typed do not count; 1 and 2 allowed as in the guard); claim refs returned this turn;
   citations returned by `lookup_guidance` and every stated inspection step cited; no `guard.FORBIDDEN` phrase; fault
   location only "according to the dataset label" and never from sensor or channel evidence. A failure gets one revision
-  with the failed checks; a second failure gives the fallback. Rejected text is never shown or stored.
+  with the failed checks and the entry ids `lookup_guidance` returned; a second failure gives the fallback. Rejected text is never shown or stored.
 - **Fallback:** "The assistant could not give an answer supported by the case record. …" plus report sections 01 and
   04. Also returned at once when the model is disabled (`MACHINESENSE_LLM_ENABLED=false`, no network call) or unreachable.
 - **Endpoints:** `POST /api/cases/{id}/ask` `{"question"}` (1–500 characters) → `answer`, `claims`, `citations`
