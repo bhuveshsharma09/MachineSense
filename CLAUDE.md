@@ -360,6 +360,21 @@ threshold or scoring path changes. The protocol (item 1) is committed before any
      remove it. The notebook is not opened on real scores until Bhuvesh has committed `scores.csv`.
    - **Frozen:** no prompt, tool or review change after any pilot output is seen; a temptation is recorded here, not acted on.
 
+2. **Amendment to item 1's strata (5 Oct 2026; Bhuvesh's decisions after the selection stopped, before any case list or
+   run).** The sweep (`results/d7/pool_verdicts.csv`, 03473c8) found S1 unknown 3 of 4 and S2 0 of 4: no known fault in the
+   eligible pool has a caution, disagreeing variants or a CNN-6 / LR disagreement (every eligible recording trained or
+   calibrated the bundle). (a) **Excluded everywhere:** the three recordings used in the App-7 hand runs that shaped addenda
+   9–12 — imbalance__10g__13.9264, normal__20.2752, underhang__outer_race__0g__14.7456 — so no pilot case shaped the frozen
+   assistant. (b) **Strata, in this order:** U uncertain or conflicting, **taken whole** (no draw): every remaining eligible
+   recording that is unknown, carries a caution, has disagreeing rule variants or a narrow-margin note (6 in the sweep:
+   vertical-misalignment__0.63mm__12.4928, vertical-misalignment__0.63mm__32.768, normal__18.432, normal__27.4432,
+   overhang__cage_fault__6g__13.1072, overhang__outer_race__20g__18.2272); S3 known fault, clean (5; definition unchanged);
+   S4 healthy (2; any healthy verdict not already in U); S5 signal-quality warning matching an acquisition step (2). Total
+   15. S3–S5 drawn as in item 1 (candidates sorted by rec_id, one `default_rng(42)` used stratum by stratum, earlier picks
+   removed); a short stratum still stops. Note: three U cases (normal__18.432, the overhang cage 6 g and outer 20 g cases)
+   are the ML-4.2 boundary recordings that define or sit at a threshold, which is why they carry narrow-margin notes.
+   Everything else in item 1 is unchanged.
+
 ## 7-prev10. Previous stage: Stage App-7 — the investigation assistant: one agent with tools (D6)
 
 The chat panel is connected: one agent answers a mechanic's question about one diagnosed case, using only four read-only
