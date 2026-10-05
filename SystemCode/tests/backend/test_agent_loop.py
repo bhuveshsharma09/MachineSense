@@ -118,6 +118,18 @@ def test_review_off_shows_the_answer_and_stores_what_it_would_reject(app, case, 
     assert stored["review"] == out["review"]
 
 
+def test_review_off_shows_a_parseable_answer_that_fails_the_schema(app, case, model, monkeypatch):
+    """D7 item 4: a reply that parses but leaves out a key is shown by its answer text, not as raw JSON; the schema
+    finding is still recorded."""
+    monkeypatch.setenv("MACHINESENSE_AGENT_REVIEW", "false")
+    no_cites = {"answer": CLEAN["answer"], "claims": CLEAN["claims"]}
+    out, _ = ask(app, case, model, [tool("diagnose"), {"content": "```json\n" + json.dumps(no_cites) + "\n```", "tool_calls": []}])
+    assert out["answer"] == CLEAN["answer"] and out["claims"] == CLEAN["claims"] and out["citations"] == []
+    assert "```" not in out["answer"] and [f["check"] for f in out["review"]["failed"]] == ["schema"]
+    out, _ = ask(app, case, model, [tool("diagnose"), {"content": "The bearing looks worn.", "tool_calls": []}])
+    assert out["answer"] == "The bearing looks worn." and out["review"]["status"] == "off"  # nothing parses: raw text
+
+
 def test_llm_disabled_falls_back_with_no_network_call(app, case, model, monkeypatch):
     monkeypatch.setenv("MACHINESENSE_LLM_ENABLED", "false")
     out, calls = ask(app, case, model, [tool("diagnose")])

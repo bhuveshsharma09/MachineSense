@@ -10,6 +10,7 @@ from typing import Callable
 
 from backend.agent.prompt import AGENT_PROMPT_VERSION, SYSTEM, revision_message
 from backend.agent.tools import SCHEMAS, Tools, summary
+from backend.explain.guard import ExplanationRejected, parse
 from backend.explain.provider import ProviderError
 from backend.report import _entries, build_sections
 
@@ -36,6 +37,25 @@ class Budget:
 def citations_with_titles(ids) -> list[dict]:
     titles = {e.id: e.title for e in _entries()}
     return [{"id": i, "title": titles.get(i)} for i in ids]
+
+
+def parsed_answer(content: str) -> dict:
+    """Review off (D7 arm B, item 4): the first parseable answer as the mechanic would see it. A JSON object with a non-empty
+    "answer" string shows that answer (claims and citations only if well-formed); the raw text only if nothing parses."""
+    try:
+        o = parse(content)
+    except ExplanationRejected:
+        o = None
+    if not (isinstance(o, dict) and isinstance(o.get("answer"), str) and o["answer"].strip()):
+        return {"answer": content, "claims": [], "citations": []}
+    claims = o.get("claims")
+    ok_claims = isinstance(claims, list) and all(
+        isinstance(c, dict) and isinstance(c.get("text"), str) and isinstance(c.get("refs"), list)
+        and all(isinstance(r, str) for r in c["refs"]) for c in claims)
+    cites = o.get("citations")
+    ok_cites = isinstance(cites, list) and all(isinstance(c, str) for c in cites)
+    return {"answer": o["answer"], "claims": [{"text": c["text"], "refs": c["refs"]} for c in claims] if ok_claims else [],
+            "citations": cites if ok_cites else []}
 
 
 def fallback_sections(engine, record: dict) -> list[dict]:
@@ -92,7 +112,7 @@ def ask(engine, case_id: str, question: str, provider, review: Review | None = N
             continue
         obj, failed = review(msg["content"], results)
         if not review_on:  # D7 arm "agent without review": shown as written; what the review would reject is recorded
-            shown = obj or {"answer": msg["content"], "claims": [], "citations": []}
+            shown = obj or parsed_answer(msg["content"])
             return done("agent", shown, status=REVIEW_OFF, failed=failed)
         if not failed:
             return done("agent", obj, status=REVIEW_REVISED if revisions else REVIEW_PASSED)
