@@ -96,12 +96,12 @@ class Tools:
             return {"error": f"no case {case_id}"}
         q, fr = r["signal_quality"], float(r["signal_quality"]["shaft_speed_hz"])
 
-        def rng(key):
+        def rng(key, inside):  # the inside flag's ref is its own key, so a ref read off the result is the right one
             lo, hi = q[key]
             return ([leaf(lo, f"signal_quality.{key}.0"), leaf(hi, f"signal_quality.{key}.1")],
-                    leaf(bool(lo <= fr <= hi), f"signal_quality.{key}.contains_speed"))
-        train, in_train = rng("train_speed_range_hz")
-        cal, in_cal = rng("calibration_normal_speed_range_hz")
+                    leaf(bool(lo <= fr <= hi), f"signal_quality.{inside}"))
+        train, in_train = rng("train_speed_range_hz", "inside_training_speed_range")
+        cal, in_cal = rng("calibration_normal_speed_range_hz", "inside_calibration_speed_range")
         return {"shaft_speed_hz": leaf(fr, "signal_quality.shaft_speed_hz"),
                 "shaft_speed_rpm": leaf(r["physics"]["shaft_speed_rpm"], "physics.shaft_speed_rpm"),
                 "speed_stable": leaf(q["speed_stable"], "signal_quality.speed_stable"),
