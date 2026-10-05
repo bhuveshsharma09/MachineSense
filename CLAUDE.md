@@ -428,6 +428,13 @@ dependency. The D7 pilot is the next stage; this stage builds only its switch.
    the answer text; no review check is added for it. (d) **Freeze:** after these changes the 6 hand questions are run once
    and the counts recorded here; the resulting `AGENT_PROMPT_VERSION` is the D7 version, and the prompt, tools and review
    are not tuned further after that run.
+   **Hand run 6 (after (a)–(c); the same 6 questions, once) and freeze.** 3 passed first time, 3 revised once, 0 fallbacks;
+   failed first attempts: schema 2 (the `citations` key left out), ranking 1 ("highest-ranked condition", the model
+   repeating the curated `further-inspection-needed` step 1). Both normal__20.2752 sensor answers named over_radial (rank 1,
+   factor 3.3). Observed, not changed: one passing answer paraphrased a step as "confirming which bearing position …";
+   `guard.FORBIDDEN` matches confirm / confirmed / confirms / confirmation but not "confirming". Latency 13–58 s per
+   question. **Frozen D7 version: `AGENT_PROMPT_VERSION` 8fb7865754455d65** (code at 6eb0396); prompt, tools and review are
+   not tuned further.
 
 ## 7-prev9. Previous stage: Stage App-5 — wire the guidance library into the report
 
