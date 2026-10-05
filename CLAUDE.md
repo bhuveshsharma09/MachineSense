@@ -391,6 +391,16 @@ threshold or scoring path changes. The protocol (item 1) is committed before any
    `AGENT_PROMPT_VERSION` stays 8fb7865754455d65. A test covers it; the dry run is repeated before the pilot. Bhuvesh also
    approved the full run (≈ 75 min, over the §10 hour) once the repeated dry run is clean.
 
+5. **Scoring rules (5 Oct 2026; Bhuvesh, fixed before any item was scored).** Verbatim in
+   `SystemCode/results/d7/scoring_rules.md` and shown once in the scoring sheet's header (the same text for every item, so
+   it reveals no arm; the giveaway test exempts exactly that block). In short: Supported = every statement about this case
+   appears in the facts shown (general statements about how the system works do not count against it; a fallback or "can't
+   answer from the evidence" is supported); Unsupported repair = tells the mechanic to replace, repair, tighten, rebalance or
+   realign, or says a repair is needed, without a cited guidance step saying so; Useful next inspection (Q4, Q5) = at least
+   one concrete step fitting this case's verdict and warnings (a fallback with no step = no); Unnecessary refusal = declined or
+   fell back although the facts could answer; Correct (Q2) = names the rank-1 channel (alongside others only if clearly
+   marked the largest). Items are scored in the order shown; an earlier score is changed only for a plain misclick.
+
 ## 7-prev10. Previous stage: Stage App-7 — the investigation assistant: one agent with tools (D6)
 
 The chat panel is connected: one agent answers a mechanic's question about one diagnosed case, using only four read-only
