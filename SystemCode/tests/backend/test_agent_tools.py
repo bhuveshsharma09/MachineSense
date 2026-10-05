@@ -53,7 +53,8 @@ def test_diagnose_reads_the_stored_record(setup):
     top = sorted(d["class10_probabilities"].items(), key=lambda kv: -kv[1])[:2]
     assert [(t["class"], t["rank"]["value"], t["probability"]["value"]) for t in out["top_classes"]] == \
         [(c, k + 1, probability(p)) for k, (c, p) in enumerate(top)]
-    assert out["top_classes"][0]["rank"]["ref"] == "diagnosis.top_classes.0.rank" and out["top_classes_rank_basis"]
+    assert out["top_classes"][0]["rank"]["ref"] == "diagnosis.top_classes.0.rank"
+    assert out["top_classes_rank_basis"] == {"value": "class probability", "ref": "diagnosis.top_classes_rank_basis"}
 
 
 def test_check_signal_reads_the_signal_quality_block(setup):
@@ -94,7 +95,8 @@ def test_get_evidence_ranks_by_change_beyond_the_healthy_band(setup):
     assert [c["channel"] for c in ranked] == sorted(beyond, key=lambda k: -beyond[k])
     top = out["largest_change"]
     assert top["channel"]["value"] == ranked[0]["channel"] and top["rank"] == {"value": 1, "ref": "evidence.largest_change.rank"}
-    assert out["rank_basis"] == top["rank_basis"] == EVIDENCE_RANK_BASIS == "change beyond the healthy band"
+    assert out["rank_basis"] == {"value": EVIDENCE_RANK_BASIS, "ref": "evidence.rank_basis"}
+    assert top["rank_basis"] == {"value": "change beyond the healthy band", "ref": "evidence.largest_change.rank_basis"}
     assert ranked[0]["rank"]["ref"] == f"evidence.{ranked[0]['channel']}.rank"
 
 
@@ -110,10 +112,9 @@ def test_lookup_guidance_is_section_04_exactly(setup):
     tools, case, client = setup
     out = tools.lookup_guidance(case["case_id"])
     expected = guidance_items(case, client.app.state.engine.bundle.feature_dictionary.index)
-    assert [{k: v for k, v in i.items() if k != "ref"} for i in out["items"]] == expected
+    assert out["items"] == expected  # exactly section 04; items are referred to by entry id (addendum 12)
     s4 = client.get(f"/api/cases/{case['case_id']}/report").json()["sections"][3]["items"]
     assert expected == s4
-    assert len({i["ref"] for i in out["items"]}) == len(out["items"])
 
 
 def test_unknown_case_channel_tool_or_argument_gives_an_error_dict(setup):

@@ -14,7 +14,7 @@ RESULTS = [
      "warnings": [leaf("6 glitched tacho intervals", "signal_quality.warnings.0")]},
     {"items": [{"tag": "Guidance", "text": "Check that the envelope spectrum shows a repeating comb at the defect line. "
                 "(source: bearing-defect-frequencies; Citation not yet checked against the full text)",
-                "cite": "bearing-defect-frequencies", "hover": "t", "ref": "guidance.bearing-defect-frequencies.0"}]},
+                "cite": "bearing-defect-frequencies", "hover": "t"}]},
 ]
 
 
@@ -33,7 +33,7 @@ CLEAN = ans("The recording was called a known fault, underhang outer race, locat
             "14.39 Hz. Next, check that the envelope spectrum shows a repeating comb at the defect line.",
             [{"text": "Familiarity distance 12.48 against a threshold of 30.04.",
               "refs": ["diagnosis.scores.maha", "diagnosis.thresholds.tau_d"]},
-             {"text": "Check the envelope spectrum for a repeating comb.", "refs": ["guidance.bearing-defect-frequencies.0"]}],
+             {"text": "Check the envelope spectrum for a repeating comb.", "refs": ["bearing-defect-frequencies"]}],
             ["bearing-defect-frequencies"])
 
 
@@ -55,6 +55,17 @@ def test_an_invented_number_fails():
 
 def test_a_ref_that_does_not_exist_fails():
     assert checks(ans("The verdict is a known fault.", [{"text": "Known fault.", "refs": ["diagnosis.scores.msp"]}])) == {"refs"}
+
+
+def test_claims_refer_to_inspection_steps_by_entry_id():
+    """Addendum 12: no per-item guidance refs; an entry id returned by lookup_guidance is a valid claim ref, an old-style
+    item ref or an entry id that was not returned is not."""
+    step = "Check the envelope spectrum for a repeating comb."
+    cite = ["bearing-defect-frequencies"]
+    assert checks(ans("The verdict is a known fault.", [{"text": step, "refs": cite}], cite)) == set()
+    assert checks(ans("The verdict is a known fault.", [{"text": step, "refs": ["guidance.bearing-defect-frequencies.0"]}],
+                      cite)) == {"refs", "citations"}
+    assert checks(ans("The verdict is a known fault.", [{"text": step, "refs": ["imbalance-1x"]}], cite)) == {"refs", "citations"}
 
 
 def test_a_citation_not_returned_fails():

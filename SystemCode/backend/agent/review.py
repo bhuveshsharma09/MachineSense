@@ -107,9 +107,9 @@ def review(content: str, results: list[dict]) -> tuple[dict | None, list[dict]]:
             plain_int = "." not in tok and tok.replace(",", "").isdigit() and int(tok.replace(",", "")) in INTEGER_CONSTANTS
             if not (plain_int or _matches(tok, allowed)):
                 failed.append(_f("numbers", f"{tok} is not a value returned by a tool in this turn"))
-    for k, c in enumerate(claims):  # (3) refs exist
+    for k, c in enumerate(claims):  # (3) refs exist: a returned ref, or an entry id lookup_guidance returned (addendum 12)
         for ref in c["refs"]:
-            if ref not in refs:
+            if ref not in refs and ref not in cited:
                 failed.append(_f("refs", f"claim {k + 1}: ref {ref!r} was not returned by a tool in this turn"))
     for cid in obj["citations"]:  # (4) citations returned by lookup_guidance; inspection steps cited
         if cid not in cited:
@@ -117,8 +117,8 @@ def review(content: str, results: list[dict]) -> tuple[dict | None, list[dict]]:
     if not obj["citations"] and any(INSPECTION.search(s) for s in sentences(obj["answer"])):
         failed.append(_f("citations", "the answer states an inspection step without citing a guidance entry"))
     for k, c in enumerate(claims):
-        if INSPECTION.search(c["text"]) and not any(r.startswith("guidance.") for r in c["refs"]):
-            failed.append(_f("citations", f"claim {k + 1} states an inspection step without a guidance ref"))
+        if INSPECTION.search(c["text"]) and not any(r in cited for r in c["refs"]):
+            failed.append(_f("citations", f"claim {k + 1} states an inspection step without the entry id among its refs"))
     for t in texts:  # (5) forbidden phrases
         m = FORBIDDEN.search(t)
         if m:

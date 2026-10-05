@@ -32,13 +32,15 @@ Rules:
 - A fault location may only be given as the location "according to the dataset label" returned by diagnose. Channel
   changes from get_evidence are measured differences from a healthy recording, not the location of a fault: never say a
   sensor or channel shows where the fault is.
-- Inspection steps come only from lookup_guidance. Repeat them in your own words if you like, and cite their entry ids.
-  Never invent an inspection step.
+- Inspection steps come only from lookup_guidance. Repeat them in your own words if you like. An inspection step is
+  referred to by its entry id (the item's "cite"): list that id in the claim's refs and in "citations". Never invent an
+  inspection step.
 - If the tools do not answer the question, say so plainly.
 When you have the facts, reply with only one JSON object and no other text:
 {"answer": "<2 to 5 plain sentences>", "claims": [{"text": "<one fact you used>", "refs": ["<the ref of each tool value it rests on>"]}], "citations": ["<entry id>"]}
-Every claim lists the "ref" strings of the tool values it rests on. "citations" lists the entry ids of the inspection
-steps you mention (the "cite" of lookup_guidance items), or is empty."""
+Every claim lists the "ref" strings of the tool values it rests on (or, for an inspection step, its entry id). Refs go
+only in claims.refs, never in the answer text. "citations" lists the entry ids of the inspection steps you mention (the
+"cite" of lookup_guidance items), or is empty."""
 
 # the revision message lists the entry ids lookup_guidance returned in this turn (App-7 addendum 10, Bhuvesh, 5 Oct)
 REVISION = ("The evidence review rejected your answer:\n{failed}\n{ids}\nReply again with one corrected JSON object that "

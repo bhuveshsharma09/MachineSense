@@ -167,7 +167,8 @@ shown.
   Values are rounded as the report displays them (check scores and thresholds `_num`, probabilities `fmt_score`, Hz 2
   decimals, rpm 0, change factors and bands 1; raw channel values the UI's `f3`). Every fact is a
   `{"value", "ref"}` leaf; record fields keep their path as ref (`diagnosis.scores.msp`), derived values end in their own
-  key (`evidence.over_radial.rms.change_factor`), guidance items are `guidance.<entry id>.<k>`. The model-facing schemas
+  key (`evidence.over_radial.rms.change_factor`), guidance items are returned exactly as section 04 and referred to by their entry id (in a claim's refs and in
+  `citations`); refs appear only in `claims.refs`, never in the answer text. The model-facing schemas
   take no case id: every call is bound to the case asked about. No tool exposes the CNN gradient map.
 - **Loop** (`backend/agent/loop.py`): `OpenAICompatibleProvider.chat` (httpx; reasoning fields dropped on receipt), one
   system prompt (`backend/agent/prompt.py`, `AGENT_PROMPT_VERSION` stored on every answer), no chat memory between

@@ -1,6 +1,7 @@
 """The assistant's four read-only tools over a case stored by /api/diagnose. They read the stored record (and, for the
 channel evidence, the same builder the report's channel view uses) and never run a model. Every fact an answer may rest on
-is a leaf {"value": …, "ref": "<path>"} so the review can trace it; section 04 items carry their ref beside the item.
+is a leaf {"value": …, "ref": "<path>"} so the review can trace it; section 04 items are returned exactly as the report
+has them and are referred to by their entry id (App-7 addendum 12).
 A ref read from a record field is that field's path; a derived value's ref ends in its own key, so a ref inferred from
 the result's shape is the real one.
 Values are rounded as the report displays them (App-7 addendum 11), so the review's number matching follows what a
@@ -126,7 +127,7 @@ class Tools:
                           "required": c["required"], "passed": leaf(c["passed"], f"assessment.checks.{c['key']}.passed")}
                          for c in assessment(r)["checks"]]
         top = sorted(d["class10_probabilities"].items(), key=lambda kv: -kv[1])[:2]
-        out["top_classes_rank_basis"] = CLASS_RANK_BASIS
+        out["top_classes_rank_basis"] = leaf(CLASS_RANK_BASIS, "diagnosis.top_classes_rank_basis")
         out["top_classes"] = [{"class": c, "rank": leaf(k + 1, f"diagnosis.top_classes.{k}.rank"),
                                "probability": leaf(probability(p), f"diagnosis.class10_probabilities.{c}")}
                               for k, (c, p) in enumerate(top)]
@@ -190,14 +191,15 @@ class Tools:
                 out["rank"] = "not ranked: no metric comparable with the healthy band"
             out["metrics"] = {k: metric(ch, k, m) for k, m in row["metrics"].items()}
             return out
-        out = {"note": CHANGE_LABEL, "rank_basis": EVIDENCE_RANK_BASIS,
+        out = {"note": CHANGE_LABEL, "rank_basis": leaf(EVIDENCE_RANK_BASIS, "evidence.rank_basis"),
                "healthy_reference_recording": leaf(ev["reference"]["rec_id"], "evidence.reference.rec_id"),
                "healthy_reference_speed_hz": leaf(fixed(ev["reference"]["speed_hz"], 2), "evidence.reference.speed_hz"),
                "marked_channels": [leaf(c, f"evidence.marked.{i}") for i, c in enumerate(ev["marked"])]}
         if ranked:
             top = ranked[0]
             p = "evidence.largest_change"
-            out["largest_change"] = {"rank_basis": EVIDENCE_RANK_BASIS, "channel": leaf(top["channel"], f"{p}.channel"),
+            out["largest_change"] = {"rank_basis": leaf(EVIDENCE_RANK_BASIS, f"{p}.rank_basis"),
+                                     "channel": leaf(top["channel"], f"{p}.channel"),
                                      "metric": leaf(top["change_metric"], f"{p}.metric"),
                                      "change_factor": leaf(fixed(top["change_factor"], 1), f"{p}.change_factor"),
                                      "typical_healthy_band": leaf(fixed(top["band"], 1), f"{p}.typical_healthy_band"),
@@ -209,13 +211,7 @@ class Tools:
         r = self._record(case_id)
         if r is None:
             return {"error": f"no case {case_id}"}
-        items, seen = guidance_items(r, self.engine.bundle.feature_dictionary.index), {}
-        out = []
-        for it in items:
-            key = it.get("cite") or it["tag"].lower()
-            k = seen[key] = seen.get(key, -1) + 1
-            out.append({**it, "ref": f"guidance.{key}.{k}"})
-        return {"items": out}
+        return {"items": guidance_items(r, self.engine.bundle.feature_dictionary.index)}
 
     def call(self, name: str, case_id: str, args: dict | None) -> dict:
         """One model-requested call, bound to `case_id`; unknown tools and bad arguments come back as an error dict."""
