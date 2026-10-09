@@ -7,7 +7,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ml.openset import knn_kth_cosine, loco_run_ids, mahalanobis_min, recording_mean, recording_msp
+from ml.openset import (knn_kth_cosine, loco_run_ids, mahalanobis_min, recording_mean, recording_msp,
+                        relative_mahalanobis_min)
 from ml.paths import SYSTEM_CODE_DIR
 
 
@@ -157,3 +158,45 @@ def test_mahalanobis_parameters_reproduce_mahalanobis_min():
     d_min, _ = mahalanobis_min(fit, lab, q)
     params = fit_mahalanobis(fit, lab)
     assert np.array_equal(mahalanobis_distances(params, q).min(axis=1), d_min)
+
+
+# ---- Stage R8: Relative Mahalanobis distance
+def _r8_data(seed=1):
+    rng = np.random.default_rng(seed)
+    fit = np.vstack([rng.normal([0, 0, 0], [1.0, 0.3, 0.5], size=(300, 3)),
+                     rng.normal([6, 1, 0], [1.0, 0.3, 0.5], size=(300, 3)),
+                     rng.normal([2, 5, 1], [1.0, 0.3, 0.5], size=(300, 3))])
+    lab = np.repeat(["a", "b", "c"], 300)
+    emb = rng.normal([3, 2, 0], [3.0, 3.0, 1.0], size=(50, 3))
+    return fit, lab, emb
+
+
+def test_rmd_equals_min_class_term_minus_background_term_by_hand():
+    from sklearn.covariance import LedoitWolf
+    fit, lab, emb = _r8_data()
+    rmd, info = relative_mahalanobis_min(fit, lab, emb)
+    mu = {c: fit[lab == c].mean(axis=0) for c in "abc"}
+    resid = fit - np.stack([mu[c] for c in lab])
+    prec = np.linalg.inv(LedoitWolf().fit(resid).covariance_)
+    md_k = np.stack([[(z - mu[c]) @ prec @ (z - mu[c]) for c in "abc"] for z in emb])
+    bg = LedoitWolf().fit(fit)
+    p0 = np.linalg.inv(bg.covariance_)
+    md_0 = np.array([(z - fit.mean(axis=0)) @ p0 @ (z - fit.mean(axis=0)) for z in emb])
+    assert np.allclose(rmd, md_k.min(axis=1) - md_0, atol=1e-9)
+    assert info["classes"] == ["a", "b", "c"] and 0 <= info["shrinkage_class"] <= 1 and 0 <= info["shrinkage_background"] <= 1
+
+
+def test_rmd_is_invariant_to_a_constant_shift():
+    fit, lab, emb = _r8_data()
+    c = np.array([100.0, -50.0, 7.5])
+    assert np.allclose(relative_mahalanobis_min(fit, lab, emb)[0], relative_mahalanobis_min(fit + c, lab, emb + c)[0],
+                       atol=1e-9)
+
+
+def test_rmd_class_term_matches_mahalanobis_min_squared():
+    from sklearn.covariance import LedoitWolf
+    fit, lab, emb = _r8_data()
+    rmd, _ = relative_mahalanobis_min(fit, lab, emb)
+    bg = LedoitWolf().fit(fit)
+    md_0 = np.einsum("ij,jk,ik->i", emb - bg.location_, bg.precision_, emb - bg.location_)
+    assert np.allclose(rmd + md_0, mahalanobis_min(fit, lab, emb)[0] ** 2, atol=1e-9)

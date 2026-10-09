@@ -92,6 +92,20 @@ def mahalanobis_min(fit_emb: np.ndarray, fit_labels, emb: np.ndarray) -> tuple[n
     return np.sqrt(np.maximum(d2.min(axis=1), 0.0)), {"classes": params["classes"], "shrinkage": params["shrinkage"]}
 
 
+def relative_mahalanobis_min(fit_emb: np.ndarray, fit_labels, emb: np.ndarray) -> tuple[np.ndarray, dict]:
+    """Per window of `emb`: Relative Mahalanobis distance (Ren et al. 2021), higher = more unfamiliar (Stage R8).
+    RMD = min_k MD_k − MD_0 in SQUARED distances: MD_k with the class centroids and the one shared within-class Ledoit–Wolf
+    precision of fit_mahalanobis (the class term of today's check); MD_0 to one background Gaussian (mean and Ledoit–Wolf
+    covariance of ALL fit windows, labels ignored). No free parameter."""
+    params = fit_mahalanobis(fit_emb, fit_labels)
+    md_k = np.stack([np.einsum("ij,jk,ik->i", emb - m, params["precision"], emb - m) for m in params["centroids"]], axis=1)
+    bg = LedoitWolf().fit(fit_emb)
+    d0 = emb - bg.location_
+    md_0 = np.einsum("ij,jk,ik->i", d0, bg.precision_, d0)
+    return md_k.min(axis=1) - md_0, {"classes": params["classes"], "shrinkage_class": params["shrinkage"],
+                                     "shrinkage_background": float(bg.shrinkage_)}
+
+
 def mahalanobis_min_per_class(fit_emb: np.ndarray, fit_labels, emb: np.ndarray) -> tuple[np.ndarray, dict]:
     """Per window of `emb`: the minimum Mahalanobis distance over the known classes, each class with its OWN
     Ledoit–Wolf covariance fitted on its fit windows (Stage ML-5; mahalanobis_min uses one shared covariance)."""
