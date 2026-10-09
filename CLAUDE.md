@@ -362,6 +362,21 @@ in `ml/openset.py` (tested in `tests/test_openset.py`); outputs `results/researc
    mismatch; a forward pass (none planned; over an hour → ask); any need to read reserved data; any wish to add a
    parameter, an arm or a different aggregation.
 
+8. **Result (9 Oct 2026; each arm run once, notebook 19, 98 s in all, no forward pass).** Reproduction exact: arm M equals
+   the saved 3C / 3C.1 recording Mahalanobis and arm K the saved kNN on all 81 runs (max difference 0). Macro AUROC
+   (M / K / R) per seed: 42 0.877 / 0.845 / 0.875; 43 0.877 / 0.846 / 0.880; 44 0.868 / 0.846 / 0.870 (mean 0.874 / 0.846 /
+   0.875); macro OSCR mean 0.865 / 0.840 / 0.867. **Matched known-side rejection count** (reached in all 81 runs), unknown recall
+   M → R: 42 61.2 % → 61.8 % (+0.5), 43 63.3 % → 62.9 % (−0.4), 44 63.4 % → 64.1 % (+0.6) of 779 withheld recordings per seed;
+   withheld called healthy M → R 19 → 16, 17 → 19, 24 → 20; known called wrong fault equal (7, 4, 7). **Reading: "does not
+   help"** (gain below +5 points on every seed; healthy calls rise on seed 43). Calibrated τ_s (secondary): R's unknown recall
+   is 0.5–2.2 points below M's on every seed and it calls 8 more withheld recordings healthy on seed 42. No class moves by
+   ≥ 5 points (seed mean); withheld imbalance (recall ≈ 5 %, AUROC ≈ 0.59) and vertical misalignment (16–17 %, AUROC 0.47–0.49)
+   stay the weak classes under every arm. **Provenance note:** the run recorded git sha 9eb4e4c-dirty: `ml/rmd_eval.py`, its
+   tests and the notebook were not yet committed (committed unchanged in 4e9b93f; only the notebook's plain-words markdown
+   was added after the run), and unrelated uncommitted frontend edits were present; the scores are deterministic, and no
+   rerun was made (stop rule). Outputs: `results/research/r8_relative_mahalanobis.json`, `r8_per_run.csv`; figures
+   `results/figures/r8_toy.png`, `r8_auroc_per_class.png`, `r8_recall_per_class.png`.
+
 ## 7-prev11. Paused stage: Stage D7 — pilot evaluation of the evidence review (development cases only; waiting for `results/d7/scores.csv`)
 
 Pilot of the §11 research question on 15 development recordings: the fixed report (A), the agent without review (B)
