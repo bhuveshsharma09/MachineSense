@@ -289,7 +289,80 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage D7 — pilot evaluation of the evidence review (development cases only)
+## 7. Current stage: Stage R8 — Relative Mahalanobis distance for unfamiliar-fault detection (Q3, development data only)
+
+Question: **does Relative Mahalanobis distance (RMD; Ren et al., 2021, "A Simple Fix to Mahalanobis Distance for Improving
+Near-OOD Detection") detect unfamiliar faults better than the current shared-covariance Mahalanobis, with everything else
+unchanged?** Our unfamiliar faults are near-OOD (they look like other faults); RMD subtracts the distance to one
+background Gaussian fitted on all known data, keeping only what is specific to a class. Exploratory, development data
+only; **no training**; reserved tests sealed (not read); the bundle, rules, thresholds, `artifacts/`, `results/final/`,
+`metadata.csv` and the app unchanged. Deliverable: `notebooks/06_research_layer/19_relative_mahalanobis.ipynb`; pure code
+in `ml/openset.py` (tested in `tests/test_openset.py`); outputs `results/research/r8_relative_mahalanobis.json`,
+`results/research/r8_per_run.csv`. D7 is paused, waiting for Bhuvesh's `results/d7/scores.csv` (section 7-prev11).
+
+**Stage R8 protocol (declared 9 Oct 2026, before any code or computation; changes only as dated addenda with a reason).**
+1. **Method.** All definitions use the **squared** Mahalanobis distance, as in the paper, and the **window** embeddings of
+   each saved LOCO model. *Class term (unchanged from today):* class centroids μ_k and one shared Ledoit–Wolf precision from
+   the within-class residuals of the FIT windows, as in `fit_mahalanobis`; MD_k(z) = (z − μ_k)ᵀ Σ⁻¹ (z − μ_k). *Background
+   term (new):* one mean μ_0 and one Ledoit–Wolf covariance Σ_0 fitted on ALL fit windows together, ignoring the class
+   labels; MD_0(z) = (z − μ_0)ᵀ Σ_0⁻¹ (z − μ_0). *Window score:* RMD(z) = min_k [MD_k(z) − MD_0(z)] = min_k MD_k(z) − MD_0(z);
+   higher = more unfamiliar. *Recording score:* the mean of the 9 window scores (`recording_mean`, as today). **No free
+   parameter; none is added.** Code: `ml.openset.relative_mahalanobis_min(fit_emb, fit_labels, emb)` → (per-window score,
+   {classes, class-term shrinkage, background-term shrinkage}), next to `mahalanobis_min`. Tests: a synthetic case equal to
+   min_k MD_k − MD_0 computed by hand; adding a constant vector to all embeddings leaves the score unchanged; the class term
+   equals `mahalanobis_min` squared within 1e-9.
+2. **Data.** The 81 saved LOCO runs (9 withheld classes × 3 outer folds × seeds 42, 43, 44); roles from the saved assignment
+   (`results/q1q3/q3_fit_cal_eval_assignment.csv`, `ml.openset.loco_run_ids`): fit, cal, eval, foldk_known, foldk_withheld.
+   Development pool only. **Embeddings:** the window embeddings of every role are already saved for all 81 runs by Stage
+   3C / 3C.1 (`results/scores/cnn6_w-<c>_s<seed>_loco_fold<k>_embeddings.npz`, float32, gitignored), and R7 showed they equal
+   fresh forward passes; **no forward pass is run and `scripts/38_r8_embeddings.py` is not needed.** Scores are computed as
+   3C did: fit = windows with role fit (labels class10), scored windows = every other role, on the float32 embeddings as
+   saved. **Reproduction check first (in the notebook):** arm M recomputed from the saved embeddings must equal the saved
+   recording `maha` of every run within |Δ maha| ≤ 1e-4 × maha, and arm K the saved `knn`; any mismatch stops the stage.
+3. **Arms (same runs, same recordings).** M (reference, current): shared-covariance Mahalanobis (`mahalanobis_min`),
+   recording mean. K (reference, already reported, not tuned): kNN, cosine, k = 10 (`knn_kth_cosine`), recording mean.
+   R (new): Relative Mahalanobis as in item 1, recording mean.
+4. **Evaluation (development data only; each seed separately, then the mean over seeds).**
+   (1) *Threshold-free:* per LOCO run, AUROC and OSCR with the foldk_withheld recordings as positives and the foldk_known
+   recordings (fold k known classes, normals included) as negatives, weight 1 per recording, OSCR correctness = the CNN-6 top
+   class equals the true class — exactly `ml.loco_eval.run_metrics`' convention (`weighted_auroc`, `weighted_oscr`). Reported:
+   the macro over the 9 withheld classes per seed (mean over the 3 folds within a class, then over classes,
+   `ml.loco_eval.macro`) and the per-class values.
+   (2) *In the decision rule (the primary result):* the familiarity score replaces the shared Mahalanobis term in the
+   confidence gate, everything else unchanged: conf = (msp ≥ τ_p) & (score ≤ τ_s); τ_p unchanged (the run's 0.975 order
+   statistic of the calibration MSP, `ml.loco_eval.decide`); decisions = rule B (classifier-first, no AE override:
+   `three_way(..., "classifier_first_no_override")`, the decisions of the default B_with_caution; caution does not change a
+   decision); class prediction unchanged. **τ_s at a matched known-side rejection count:** per run, the threshold at which the
+   gate (τ_p fixed) rejects exactly as many foldk_known recordings as arm M's gate rejects at τ_d
+   (`ml.diagnostics.matched_u_threshold`, with MSP as the fixed term; ties within 1e-12 accepted, R0's rule); a count that
+   cannot be reached is reported. Measured, pooled over the 27 runs of a seed (and per withheld class): **unknown recall** =
+   share of foldk_withheld recordings decided "unknown"; **withheld called healthy** = count (must not rise); **known called
+   wrong fault** = count of foldk_known fault recordings decided as another fault. **Secondary:** τ_s set as τ_d is today,
+   the 0.975 order statistic of the score over the run's calibration recordings (ties accepted). Arm M's decisions must
+   reproduce `ml.loco_eval.decide`'s rule B exactly (checked).
+   (3) *Acceptance bar (as R4 / R5):* R **helps** only if, against M at the matched known-side rejection count, unknown recall
+   is at least +5 percentage points higher AND no more withheld recordings are called healthy, both on **all three seeds**.
+   Readings, in this order and no others: **"helps, confirmed"** when the bar is met; otherwise **"worse"** when the mean
+   change in unknown recall over the seeds is negative; otherwise **"does not help"** (the gain is below +5 points on some
+   seed, or healthy calls rise).
+   (4) *Per-class view:* unknown recall by withheld class for M and R (per seed and the seed mean), with classes where R is
+   better or worse by ≥ 5 points marked; imbalance and the two misalignments discussed.
+5. **Notebook** `19_relative_mahalanobis.ipynb`: title and question; background (Mahalanobis, why kNN lost, what RMD changes,
+   one 2-D toy matplotlib figure on synthetic points with a fixed seed showing the background Gaussian and two class
+   Gaussians); this declaration quoted; load (runs; fit, cal, evaluation counts per run); reproduction check (assert);
+   scores M, K, R with one sanity table; threshold-free tables and a per-class bar chart; decision-rule tables (matched,
+   then calibrated); per-class recall table and chart; the reading applied mechanically, stated in 3–5 plain sentences
+   including where R is worse; limitations (development data only; in-sample calibration; the same LOCO partition as earlier
+   stages; one method, no tuning). Every code cell starts with a 1–2 line comment and has the §6 blue note above it; logic
+   lives in `ml/`; runs top to bottom on a clean kernel; committed with outputs stripped.
+6. **Outputs:** `r8_relative_mahalanobis.json` (provenance: git sha, split hash, config sha; per seed, run and class: AUROC,
+   OSCR, matched and calibrated rule outcomes; the reading) and `r8_per_run.csv` (per run).
+7. **Stop rule.** Each arm runs once. No arm added, no aggregation changed, nothing tuned after results are seen; an idea is
+   recorded here for Bhuvesh, not run. Only a crash fix allows a rerun, recorded here. Stop and ask about: a reproduction
+   mismatch; a forward pass (none planned; over an hour → ask); any need to read reserved data; any wish to add a
+   parameter, an arm or a different aggregation.
+
+## 7-prev11. Paused stage: Stage D7 — pilot evaluation of the evidence review (development cases only; waiting for `results/d7/scores.csv`)
 
 Pilot of the §11 research question on 15 development recordings: the fixed report (A), the agent without review (B)
 and the agent with review (C). The assistant is frozen at `AGENT_PROMPT_VERSION` 8fb7865754455d65 (code at 6eb0396);
