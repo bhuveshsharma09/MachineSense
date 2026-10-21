@@ -1,0 +1,6668 @@
+{
+ "stage": "R9",
+ "provenance": {
+  "git_sha": "f95926d76055ad7341b3323e2b7acccd49d1937f",
+  "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+  "config_sha256": "ba2f775e17a664ce76142232e781319e0b0b55216cb73c45779c7c292de5d653",
+  "run_seconds": 9.5
+ },
+ "arms": {
+  "G": "global thresholds (current)",
+  "P": "per-class thresholds",
+  "S": "shrunk per-class (50/50 with global)"
+ },
+ "reproduction": {
+  "42": {
+   "rows": 11548,
+   "mismatch_B": 0,
+   "mismatch_A_vs_3C": 0
+  },
+  "43": {
+   "rows": 11548,
+   "mismatch_B": 0
+  },
+  "44": {
+   "rows": 11548,
+   "mismatch_B": 0
+  }
+ },
+ "calibration_counts": [
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 18
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 10
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 14
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 17
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 10
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 14
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 17
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 10
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 10
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 18
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 10
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 14
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 17
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 10
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 14
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 17
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 10
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 10
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 18
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 10
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 14
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 17
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 10
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 14
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 0,
+   "class10": "vertical_misalignment",
+   "n_cal": 17
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 3
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 1,
+   "class10": "vertical_misalignment",
+   "n_cal": 13
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 10
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "outer_fold": 2,
+   "class10": "vertical_misalignment",
+   "n_cal": 12
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "horizontal_misalignment",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "imbalance",
+   "n_cal": 15
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "overhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 0,
+   "class10": "underhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "imbalance",
+   "n_cal": 16
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_ball",
+   "n_cal": 7
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "overhang_outer",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 1,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "horizontal_misalignment",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "imbalance",
+   "n_cal": 17
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "normal",
+   "n_cal": 2
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_ball",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "overhang_outer",
+   "n_cal": 10
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_ball",
+   "n_cal": 9
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_cage",
+   "n_cal": 8
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "outer_fold": 2,
+   "class10": "underhang_outer",
+   "n_cal": 9
+  }
+ ],
+ "calibration_summary_seed42": [
+  {
+   "class10": "horizontal_misalignment",
+   "min": 7,
+   "median": 8.0,
+   "max": 10
+  },
+  {
+   "class10": "imbalance",
+   "min": 15,
+   "median": 16.0,
+   "max": 17
+  },
+  {
+   "class10": "normal",
+   "min": 2,
+   "median": 3.0,
+   "max": 3
+  },
+  {
+   "class10": "overhang_ball",
+   "min": 7,
+   "median": 8.0,
+   "max": 9
+  },
+  {
+   "class10": "overhang_cage",
+   "min": 7,
+   "median": 8.0,
+   "max": 9
+  },
+  {
+   "class10": "overhang_outer",
+   "min": 7,
+   "median": 8.0,
+   "max": 10
+  },
+  {
+   "class10": "underhang_ball",
+   "min": 8,
+   "median": 8.5,
+   "max": 10
+  },
+  {
+   "class10": "underhang_cage",
+   "min": 7,
+   "median": 8.0,
+   "max": 9
+  },
+  {
+   "class10": "underhang_outer",
+   "min": 7,
+   "median": 8.0,
+   "max": 9
+  },
+  {
+   "class10": "vertical_misalignment",
+   "min": 12,
+   "median": 13.0,
+   "max": 18
+  }
+ ],
+ "matched": [
+  {
+   "seed": 42,
+   "arm": "G",
+   "unknown_recall": 0.6123234916559692,
+   "withheld_unknown": 477,
+   "withheld_n": 779,
+   "withheld_healthy": 19,
+   "known_wrong_fault": 7,
+   "known_rejected": 875,
+   "known_n": 6457
+  },
+  {
+   "seed": 42,
+   "arm": "P",
+   "unknown_recall": 0.766367137355584,
+   "withheld_unknown": 597,
+   "withheld_n": 779,
+   "withheld_healthy": 37,
+   "known_wrong_fault": 2,
+   "known_rejected": 2353,
+   "known_n": 6457
+  },
+  {
+   "seed": 42,
+   "arm": "S",
+   "unknown_recall": 0.6392811296534018,
+   "withheld_unknown": 498,
+   "withheld_n": 779,
+   "withheld_healthy": 27,
+   "known_wrong_fault": 3,
+   "known_rejected": 970,
+   "known_n": 6457
+  },
+  {
+   "seed": 43,
+   "arm": "G",
+   "unknown_recall": 0.6328626444159179,
+   "withheld_unknown": 493,
+   "withheld_n": 779,
+   "withheld_healthy": 17,
+   "known_wrong_fault": 4,
+   "known_rejected": 930,
+   "known_n": 6457
+  },
+  {
+   "seed": 43,
+   "arm": "P",
+   "unknown_recall": 0.7804878048780488,
+   "withheld_unknown": 608,
+   "withheld_n": 779,
+   "withheld_healthy": 12,
+   "known_wrong_fault": 1,
+   "known_rejected": 2398,
+   "known_n": 6457
+  },
+  {
+   "seed": 43,
+   "arm": "S",
+   "unknown_recall": 0.6534017971758665,
+   "withheld_unknown": 509,
+   "withheld_n": 779,
+   "withheld_healthy": 22,
+   "known_wrong_fault": 3,
+   "known_rejected": 1022,
+   "known_n": 6457
+  },
+  {
+   "seed": 44,
+   "arm": "G",
+   "unknown_recall": 0.6341463414634146,
+   "withheld_unknown": 494,
+   "withheld_n": 779,
+   "withheld_healthy": 24,
+   "known_wrong_fault": 7,
+   "known_rejected": 927,
+   "known_n": 6457
+  },
+  {
+   "seed": 44,
+   "arm": "P",
+   "unknown_recall": 0.766367137355584,
+   "withheld_unknown": 597,
+   "withheld_n": 779,
+   "withheld_healthy": 17,
+   "known_wrong_fault": 1,
+   "known_rejected": 2320,
+   "known_n": 6457
+  },
+  {
+   "seed": 44,
+   "arm": "S",
+   "unknown_recall": 0.6482670089858793,
+   "withheld_unknown": 505,
+   "withheld_n": 779,
+   "withheld_healthy": 21,
+   "known_wrong_fault": 4,
+   "known_rejected": 1072,
+   "known_n": 6457
+  }
+ ],
+ "matched_q": [
+  {
+   "seed": 42,
+   "arm": "P",
+   "q_median": 1.0,
+   "q_min": 1.0,
+   "q_max": 1.0,
+   "count_diff_total": 1478,
+   "runs_not_exact": 27
+  },
+  {
+   "seed": 42,
+   "arm": "S",
+   "q_median": 1.0,
+   "q_min": 0.9877948760541256,
+   "q_max": 1.0,
+   "count_diff_total": 95,
+   "runs_not_exact": 13
+  },
+  {
+   "seed": 43,
+   "arm": "P",
+   "q_median": 1.0,
+   "q_min": 1.0,
+   "q_max": 1.0,
+   "count_diff_total": 1468,
+   "runs_not_exact": 27
+  },
+  {
+   "seed": 43,
+   "arm": "S",
+   "q_median": 1.0,
+   "q_min": 0.9876019957385979,
+   "q_max": 1.0,
+   "count_diff_total": 92,
+   "runs_not_exact": 14
+  },
+  {
+   "seed": 44,
+   "arm": "P",
+   "q_median": 1.0,
+   "q_min": 1.0,
+   "q_max": 1.0,
+   "count_diff_total": 1393,
+   "runs_not_exact": 27
+  },
+  {
+   "seed": 44,
+   "arm": "S",
+   "q_median": 1.0,
+   "q_min": 0.9873423802158283,
+   "q_max": 1.0,
+   "count_diff_total": 145,
+   "runs_not_exact": 16
+  }
+ ],
+ "secondary": [
+  {
+   "seed": 42,
+   "arm": "G",
+   "unknown_recall": 0.6123234916559692,
+   "withheld_unknown": 477,
+   "withheld_n": 779,
+   "withheld_healthy": 19,
+   "known_wrong_fault": 7,
+   "known_rejected": 875,
+   "known_n": 6457,
+   "known_rejection_rate": 0.13551184760724794
+  },
+  {
+   "seed": 42,
+   "arm": "P",
+   "unknown_recall": 0.8125802310654685,
+   "withheld_unknown": 633,
+   "withheld_n": 779,
+   "withheld_healthy": 12,
+   "known_wrong_fault": 2,
+   "known_rejected": 2511,
+   "known_n": 6457,
+   "known_rejection_rate": 0.3888802849620567
+  },
+  {
+   "seed": 42,
+   "arm": "S",
+   "unknown_recall": 0.7329910141206675,
+   "withheld_unknown": 571,
+   "withheld_n": 779,
+   "withheld_healthy": 10,
+   "known_wrong_fault": 0,
+   "known_rejected": 1454,
+   "known_n": 6457,
+   "known_rejection_rate": 0.22518197305250115
+  },
+  {
+   "seed": 43,
+   "arm": "G",
+   "unknown_recall": 0.6328626444159179,
+   "withheld_unknown": 493,
+   "withheld_n": 779,
+   "withheld_healthy": 17,
+   "known_wrong_fault": 4,
+   "known_rejected": 930,
+   "known_n": 6457,
+   "known_rejection_rate": 0.1440297351711321
+  },
+  {
+   "seed": 43,
+   "arm": "P",
+   "unknown_recall": 0.7958921694480102,
+   "withheld_unknown": 620,
+   "withheld_n": 779,
+   "withheld_healthy": 7,
+   "known_wrong_fault": 1,
+   "known_rejected": 2546,
+   "known_n": 6457,
+   "known_rejection_rate": 0.3943007588663466
+  },
+  {
+   "seed": 43,
+   "arm": "S",
+   "unknown_recall": 0.7317073170731707,
+   "withheld_unknown": 570,
+   "withheld_n": 779,
+   "withheld_healthy": 8,
+   "known_wrong_fault": 1,
+   "known_rejected": 1528,
+   "known_n": 6457,
+   "known_rejection_rate": 0.23664240359299984
+  },
+  {
+   "seed": 44,
+   "arm": "G",
+   "unknown_recall": 0.6341463414634146,
+   "withheld_unknown": 494,
+   "withheld_n": 779,
+   "withheld_healthy": 24,
+   "known_wrong_fault": 7,
+   "known_rejected": 927,
+   "known_n": 6457,
+   "known_rejection_rate": 0.14356512312219297
+  },
+  {
+   "seed": 44,
+   "arm": "P",
+   "unknown_recall": 0.7984595635430038,
+   "withheld_unknown": 622,
+   "withheld_n": 779,
+   "withheld_healthy": 0,
+   "known_wrong_fault": 1,
+   "known_rejected": 2464,
+   "known_n": 6457,
+   "known_rejection_rate": 0.38160136286201024
+  },
+  {
+   "seed": 44,
+   "arm": "S",
+   "unknown_recall": 0.7278562259306803,
+   "withheld_unknown": 567,
+   "withheld_n": 779,
+   "withheld_healthy": 1,
+   "known_wrong_fault": 4,
+   "known_rejected": 1480,
+   "known_n": 6457,
+   "known_rejection_rate": 0.22920861080997368
+  }
+ ],
+ "recall_per_class_matched": [
+  {
+   "seed": 42,
+   "withheld": "horizontal_misalignment",
+   "G": 0.7945205479452054,
+   "P": 0.6027397260273972,
+   "S": 0.7123287671232876
+  },
+  {
+   "seed": 42,
+   "withheld": "imbalance",
+   "G": 0.034722222222222224,
+   "P": 0.4027777777777778,
+   "S": 0.11805555555555555
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_ball",
+   "G": 0.8405797101449275,
+   "P": 1.0,
+   "S": 0.9420289855072463
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_cage",
+   "G": 0.9166666666666666,
+   "P": 0.9305555555555556,
+   "S": 0.9166666666666666
+  },
+  {
+   "seed": 42,
+   "withheld": "overhang_outer",
+   "G": 0.972972972972973,
+   "P": 0.972972972972973,
+   "S": 0.9594594594594594
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_ball",
+   "G": 0.8571428571428571,
+   "P": 1.0,
+   "S": 1.0
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_cage",
+   "G": 0.9305555555555556,
+   "P": 0.9583333333333334,
+   "S": 0.9444444444444444
+  },
+  {
+   "seed": 42,
+   "withheld": "underhang_outer",
+   "G": 1.0,
+   "P": 1.0,
+   "S": 1.0
+  },
+  {
+   "seed": 42,
+   "withheld": "vertical_misalignment",
+   "G": 0.096,
+   "P": 0.544,
+   "S": 0.072
+  },
+  {
+   "seed": 43,
+   "withheld": "horizontal_misalignment",
+   "G": 0.7808219178082192,
+   "P": 0.8493150684931506,
+   "S": 0.7123287671232876
+  },
+  {
+   "seed": 43,
+   "withheld": "imbalance",
+   "G": 0.041666666666666664,
+   "P": 0.4305555555555556,
+   "S": 0.1527777777777778
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_ball",
+   "G": 0.8695652173913043,
+   "P": 1.0,
+   "S": 0.9420289855072463
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_cage",
+   "G": 0.7638888888888888,
+   "P": 0.9444444444444444,
+   "S": 0.8194444444444444
+  },
+  {
+   "seed": 43,
+   "withheld": "overhang_outer",
+   "G": 1.0,
+   "P": 1.0,
+   "S": 1.0
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_ball",
+   "G": 1.0,
+   "P": 1.0,
+   "S": 1.0
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_cage",
+   "G": 0.9305555555555556,
+   "P": 1.0,
+   "S": 1.0
+  },
+  {
+   "seed": 43,
+   "withheld": "underhang_outer",
+   "G": 1.0,
+   "P": 1.0,
+   "S": 1.0
+  },
+  {
+   "seed": 43,
+   "withheld": "vertical_misalignment",
+   "G": 0.192,
+   "P": 0.408,
+   "S": 0.12
+  },
+  {
+   "seed": 44,
+   "withheld": "horizontal_misalignment",
+   "G": 0.6712328767123288,
+   "P": 0.7671232876712328,
+   "S": 0.7123287671232876
+  },
+  {
+   "seed": 44,
+   "withheld": "imbalance",
+   "G": 0.06944444444444445,
+   "P": 0.3263888888888889,
+   "S": 0.11805555555555555
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_ball",
+   "G": 1.0,
+   "P": 1.0,
+   "S": 1.0
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_cage",
+   "G": 0.6527777777777778,
+   "P": 0.8472222222222222,
+   "S": 0.625
+  },
+  {
+   "seed": 44,
+   "withheld": "overhang_outer",
+   "G": 1.0,
+   "P": 1.0,
+   "S": 1.0
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_ball",
+   "G": 0.987012987012987,
+   "P": 1.0,
+   "S": 1.0
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_cage",
+   "G": 1.0,
+   "P": 1.0,
+   "S": 1.0
+  },
+  {
+   "seed": 44,
+   "withheld": "underhang_outer",
+   "G": 1.0,
+   "P": 1.0,
+   "S": 1.0
+  },
+  {
+   "seed": 44,
+   "withheld": "vertical_misalignment",
+   "G": 0.192,
+   "P": 0.544,
+   "S": 0.208
+  }
+ ],
+ "recall_per_class_seed_mean": [
+  {
+   "withheld": "horizontal_misalignment",
+   "G": 0.7488584474885845,
+   "P": 0.7397260273972602,
+   "S": 0.7123287671232875,
+   "P_minus_G": -0.009132420091324311,
+   "P_mark": "",
+   "S_minus_G": -0.036529680365297024,
+   "S_mark": ""
+  },
+  {
+   "withheld": "imbalance",
+   "G": 0.04861111111111111,
+   "P": 0.3865740740740741,
+   "S": 0.12962962962962962,
+   "P_minus_G": 0.337962962962963,
+   "P_mark": "better \u2265 5",
+   "S_minus_G": 0.08101851851851852,
+   "S_mark": "better \u2265 5"
+  },
+  {
+   "withheld": "overhang_ball",
+   "G": 0.9033816425120773,
+   "P": 1.0,
+   "S": 0.9613526570048309,
+   "P_minus_G": 0.09661835748792269,
+   "P_mark": "better \u2265 5",
+   "S_minus_G": 0.05797101449275355,
+   "S_mark": "better \u2265 5"
+  },
+  {
+   "withheld": "overhang_cage",
+   "G": 0.7777777777777777,
+   "P": 0.9074074074074074,
+   "S": 0.7870370370370371,
+   "P_minus_G": 0.12962962962962976,
+   "P_mark": "better \u2265 5",
+   "S_minus_G": 0.009259259259259411,
+   "S_mark": ""
+  },
+  {
+   "withheld": "overhang_outer",
+   "G": 0.990990990990991,
+   "P": 0.990990990990991,
+   "S": 0.9864864864864865,
+   "P_minus_G": 0.0,
+   "P_mark": "",
+   "S_minus_G": -0.0045045045045044585,
+   "S_mark": ""
+  },
+  {
+   "withheld": "underhang_ball",
+   "G": 0.948051948051948,
+   "P": 1.0,
+   "S": 1.0,
+   "P_minus_G": 0.051948051948051965,
+   "P_mark": "better \u2265 5",
+   "S_minus_G": 0.051948051948051965,
+   "S_mark": "better \u2265 5"
+  },
+  {
+   "withheld": "underhang_cage",
+   "G": 0.9537037037037037,
+   "P": 0.9861111111111112,
+   "S": 0.9814814814814815,
+   "P_minus_G": 0.03240740740740744,
+   "P_mark": "",
+   "S_minus_G": 0.02777777777777779,
+   "S_mark": ""
+  },
+  {
+   "withheld": "underhang_outer",
+   "G": 1.0,
+   "P": 1.0,
+   "S": 1.0,
+   "P_minus_G": 0.0,
+   "P_mark": "",
+   "S_minus_G": 0.0,
+   "S_mark": ""
+  },
+  {
+   "withheld": "vertical_misalignment",
+   "G": 0.16,
+   "P": 0.49866666666666665,
+   "S": 0.13333333333333333,
+   "P_minus_G": 0.33866666666666667,
+   "P_mark": "better \u2265 5",
+   "S_minus_G": -0.026666666666666672,
+   "S_mark": ""
+  }
+ ],
+ "diagnostics": {
+  "fallback_class_runs": [
+   {
+    "class10": "horizontal_misalignment",
+    "42": 0,
+    "43": 0,
+    "44": 0
+   },
+   {
+    "class10": "imbalance",
+    "42": 0,
+    "43": 0,
+    "44": 0
+   },
+   {
+    "class10": "normal",
+    "42": 10,
+    "43": 10,
+    "44": 10
+   },
+   {
+    "class10": "overhang_ball",
+    "42": 0,
+    "43": 0,
+    "44": 0
+   },
+   {
+    "class10": "overhang_cage",
+    "42": 0,
+    "43": 0,
+    "44": 0
+   },
+   {
+    "class10": "overhang_outer",
+    "42": 0,
+    "43": 0,
+    "44": 0
+   },
+   {
+    "class10": "underhang_ball",
+    "42": 0,
+    "43": 0,
+    "44": 0
+   },
+   {
+    "class10": "underhang_cage",
+    "42": 0,
+    "43": 0,
+    "44": 0
+   },
+   {
+    "class10": "underhang_outer",
+    "42": 0,
+    "43": 0,
+    "44": 0
+   },
+   {
+    "class10": "vertical_misalignment",
+    "42": 0,
+    "43": 0,
+    "44": 0
+   }
+  ],
+  "tau_d_spread": [
+   {
+    "seed": 42,
+    "withheld": "horizontal_misalignment",
+    "outer_fold": 0,
+    "tau_d_min": 11.563403569327459,
+    "tau_d_max": 34.75016037093267,
+    "tau_d_ratio_max_min": 3.0051844305693276,
+    "tau_d_global": 37.06685294045344,
+    "n_classes": 8
+   },
+   {
+    "seed": 42,
+    "withheld": "horizontal_misalignment",
+    "outer_fold": 1,
+    "tau_d_min": 11.198737939198812,
+    "tau_d_max": 30.305805685785078,
+    "tau_d_ratio_max_min": 2.7061804508975977,
+    "tau_d_global": 27.34878550635444,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "horizontal_misalignment",
+    "outer_fold": 2,
+    "tau_d_min": 9.746089806821612,
+    "tau_d_max": 45.38439766565955,
+    "tau_d_ratio_max_min": 4.656677556356345,
+    "tau_d_global": 30.65765964190165,
+    "n_classes": 8
+   },
+   {
+    "seed": 42,
+    "withheld": "imbalance",
+    "outer_fold": 0,
+    "tau_d_min": 12.825960127512614,
+    "tau_d_max": 34.280316819085016,
+    "tau_d_ratio_max_min": 2.672729096167331,
+    "tau_d_global": 33.47006649971008,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "imbalance",
+    "outer_fold": 1,
+    "tau_d_min": 8.766473603248595,
+    "tau_d_max": 36.04101364877489,
+    "tau_d_ratio_max_min": 4.111232780695212,
+    "tau_d_global": 22.291432009802925,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "imbalance",
+    "outer_fold": 2,
+    "tau_d_min": 8.61111260784997,
+    "tau_d_max": 55.17652102576361,
+    "tau_d_ratio_max_min": 6.40759487635363,
+    "tau_d_global": 25.178821484247845,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "overhang_ball",
+    "outer_fold": 0,
+    "tau_d_min": 12.165085501141018,
+    "tau_d_max": 41.06071454683939,
+    "tau_d_ratio_max_min": 3.375291899344902,
+    "tau_d_global": 26.400708749559193,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "overhang_ball",
+    "outer_fold": 1,
+    "tau_d_min": 8.542838117811415,
+    "tau_d_max": 37.907861402299666,
+    "tau_d_ratio_max_min": 4.437384962646496,
+    "tau_d_global": 32.7842951986525,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "overhang_ball",
+    "outer_fold": 2,
+    "tau_d_min": 10.234217347039117,
+    "tau_d_max": 22.988424897193912,
+    "tau_d_ratio_max_min": 2.2462318433998028,
+    "tau_d_global": 23.566457155015737,
+    "n_classes": 8
+   },
+   {
+    "seed": 42,
+    "withheld": "overhang_cage",
+    "outer_fold": 0,
+    "tau_d_min": 10.13665226035648,
+    "tau_d_max": 76.95227976904974,
+    "tau_d_ratio_max_min": 7.591488569653619,
+    "tau_d_global": 53.12803423139784,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "overhang_cage",
+    "outer_fold": 1,
+    "tau_d_min": 9.29538191954295,
+    "tau_d_max": 27.407325744628906,
+    "tau_d_ratio_max_min": 2.948488397986827,
+    "tau_d_global": 27.688302882512403,
+    "n_classes": 8
+   },
+   {
+    "seed": 42,
+    "withheld": "overhang_cage",
+    "outer_fold": 2,
+    "tau_d_min": 9.92424623966217,
+    "tau_d_max": 69.75268281300862,
+    "tau_d_ratio_max_min": 7.028511901915794,
+    "tau_d_global": 51.04823949601916,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "overhang_outer",
+    "outer_fold": 0,
+    "tau_d_min": 12.876497671339248,
+    "tau_d_max": 34.97066517935859,
+    "tau_d_ratio_max_min": 2.7158522505072913,
+    "tau_d_global": 29.8880964650048,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "overhang_outer",
+    "outer_fold": 1,
+    "tau_d_min": 10.171470318900212,
+    "tau_d_max": 52.80350092781916,
+    "tau_d_ratio_max_min": 5.191334121056406,
+    "tau_d_global": 28.72339651319716,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "overhang_outer",
+    "outer_fold": 2,
+    "tau_d_min": 11.80008593665229,
+    "tau_d_max": 58.67701676156784,
+    "tau_d_ratio_max_min": 4.972592324883919,
+    "tau_d_global": 38.95067909028795,
+    "n_classes": 8
+   },
+   {
+    "seed": 42,
+    "withheld": "underhang_ball",
+    "outer_fold": 0,
+    "tau_d_min": 12.305358160866632,
+    "tau_d_max": 50.98873192469278,
+    "tau_d_ratio_max_min": 4.143620304108384,
+    "tau_d_global": 41.95711016654972,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "underhang_ball",
+    "outer_fold": 1,
+    "tau_d_min": 10.645010651482476,
+    "tau_d_max": 30.46138228310479,
+    "tau_d_ratio_max_min": 2.8615642840021573,
+    "tau_d_global": 28.33650817871094,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "underhang_ball",
+    "outer_fold": 2,
+    "tau_d_min": 8.544628302256266,
+    "tau_d_max": 62.84452141655816,
+    "tau_d_ratio_max_min": 7.354857249900928,
+    "tau_d_global": 52.29991022745768,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "underhang_cage",
+    "outer_fold": 0,
+    "tau_d_min": 10.50499685075548,
+    "tau_d_max": 36.453690719604495,
+    "tau_d_ratio_max_min": 3.4701286671002554,
+    "tau_d_global": 23.77098877165052,
+    "n_classes": 8
+   },
+   {
+    "seed": 42,
+    "withheld": "underhang_cage",
+    "outer_fold": 1,
+    "tau_d_min": 8.366667858759563,
+    "tau_d_max": 41.339664925469286,
+    "tau_d_ratio_max_min": 4.9409951038259905,
+    "tau_d_global": 42.26674313015408,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "underhang_cage",
+    "outer_fold": 2,
+    "tau_d_min": 9.78769315348731,
+    "tau_d_max": 62.685035578409824,
+    "tau_d_ratio_max_min": 6.404474945771612,
+    "tau_d_global": 28.94812520345052,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "underhang_outer",
+    "outer_fold": 0,
+    "tau_d_min": 9.779260287019941,
+    "tau_d_max": 32.95896798504724,
+    "tau_d_ratio_max_min": 3.370292539282734,
+    "tau_d_global": 32.39129037857056,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "underhang_outer",
+    "outer_fold": 1,
+    "tau_d_min": 14.551991838879056,
+    "tau_d_max": 40.25922701888614,
+    "tau_d_ratio_max_min": 2.766578449509859,
+    "tau_d_global": 23.139503781000766,
+    "n_classes": 9
+   },
+   {
+    "seed": 42,
+    "withheld": "underhang_outer",
+    "outer_fold": 2,
+    "tau_d_min": 11.492915447552999,
+    "tau_d_max": 42.258052203390335,
+    "tau_d_ratio_max_min": 3.676878368785673,
+    "tau_d_global": 28.88150521384346,
+    "n_classes": 8
+   },
+   {
+    "seed": 42,
+    "withheld": "vertical_misalignment",
+    "outer_fold": 0,
+    "tau_d_min": 9.287696647644044,
+    "tau_d_max": 30.032696342468263,
+    "tau_d_ratio_max_min": 3.233600049812833,
+    "tau_d_global": 24.880311144722782,
+    "n_classes": 8
+   },
+   {
+    "seed": 42,
+    "withheld": "vertical_misalignment",
+    "outer_fold": 1,
+    "tau_d_min": 8.17283942964342,
+    "tau_d_max": 50.85358699162801,
+    "tau_d_ratio_max_min": 6.222266744551319,
+    "tau_d_global": 47.5128550847371,
+    "n_classes": 8
+   },
+   {
+    "seed": 42,
+    "withheld": "vertical_misalignment",
+    "outer_fold": 2,
+    "tau_d_min": 8.08878651327557,
+    "tau_d_max": 37.284930801391596,
+    "tau_d_ratio_max_min": 4.6094591247028704,
+    "tau_d_global": 22.809751113255782,
+    "n_classes": 8
+   },
+   {
+    "seed": 43,
+    "withheld": "horizontal_misalignment",
+    "outer_fold": 0,
+    "tau_d_min": 12.017677789264255,
+    "tau_d_max": 28.927267739507894,
+    "tau_d_ratio_max_min": 2.407059687134354,
+    "tau_d_global": 27.61120269563464,
+    "n_classes": 8
+   },
+   {
+    "seed": 43,
+    "withheld": "horizontal_misalignment",
+    "outer_fold": 1,
+    "tau_d_min": 8.645601142777338,
+    "tau_d_max": 42.45674185752869,
+    "tau_d_ratio_max_min": 4.910791182287848,
+    "tau_d_global": 22.978349600897868,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "horizontal_misalignment",
+    "outer_fold": 2,
+    "tau_d_min": 10.117716071340773,
+    "tau_d_max": 36.88803708553314,
+    "tau_d_ratio_max_min": 3.6458857735711137,
+    "tau_d_global": 39.335225452317054,
+    "n_classes": 8
+   },
+   {
+    "seed": 43,
+    "withheld": "imbalance",
+    "outer_fold": 0,
+    "tau_d_min": 10.764353124300639,
+    "tau_d_max": 38.56406661139594,
+    "tau_d_ratio_max_min": 3.582571675796956,
+    "tau_d_global": 31.454878695805863,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "imbalance",
+    "outer_fold": 1,
+    "tau_d_min": 7.640453357166714,
+    "tau_d_max": 42.68728321128422,
+    "tau_d_ratio_max_min": 5.587009201652114,
+    "tau_d_global": 20.234405861960518,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "imbalance",
+    "outer_fold": 2,
+    "tau_d_min": 8.024047674073113,
+    "tau_d_max": 35.76026351716783,
+    "tau_d_ratio_max_min": 4.456636471978418,
+    "tau_d_global": 25.942341592576767,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "overhang_ball",
+    "outer_fold": 0,
+    "tau_d_min": 11.198455418480767,
+    "tau_d_max": 39.45658743116591,
+    "tau_d_ratio_max_min": 3.5233955002446904,
+    "tau_d_global": 30.908907704883166,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "overhang_ball",
+    "outer_fold": 1,
+    "tau_d_min": 10.531612057156032,
+    "tau_d_max": 41.01253882514106,
+    "tau_d_ratio_max_min": 3.8942318234437634,
+    "tau_d_global": 38.40574134190878,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "overhang_ball",
+    "outer_fold": 2,
+    "tau_d_min": 9.719083129035102,
+    "tau_d_max": 23.952682489818997,
+    "tau_d_ratio_max_min": 2.4645002179538915,
+    "tau_d_global": 24.268080774943037,
+    "n_classes": 8
+   },
+   {
+    "seed": 43,
+    "withheld": "overhang_cage",
+    "outer_fold": 0,
+    "tau_d_min": 9.534606080585057,
+    "tau_d_max": 82.89713045756021,
+    "tau_d_ratio_max_min": 8.694342457037672,
+    "tau_d_global": 43.71437157524958,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "overhang_cage",
+    "outer_fold": 1,
+    "tau_d_min": 11.233510490258535,
+    "tau_d_max": 23.846593915091614,
+    "tau_d_ratio_max_min": 2.1228087102220523,
+    "tau_d_global": 23.897593243916823,
+    "n_classes": 8
+   },
+   {
+    "seed": 43,
+    "withheld": "overhang_cage",
+    "outer_fold": 2,
+    "tau_d_min": 11.274585427178277,
+    "tau_d_max": 68.55989371405707,
+    "tau_d_ratio_max_min": 6.080923698426023,
+    "tau_d_global": 54.22523142496749,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "overhang_outer",
+    "outer_fold": 0,
+    "tau_d_min": 14.886537981033323,
+    "tau_d_max": 28.25412915547689,
+    "tau_d_ratio_max_min": 1.897965073644052,
+    "tau_d_global": 24.975570016437093,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "overhang_outer",
+    "outer_fold": 1,
+    "tau_d_min": 9.748699990908303,
+    "tau_d_max": 54.680102862252134,
+    "tau_d_ratio_max_min": 5.608963545215991,
+    "tau_d_global": 23.948025385538738,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "overhang_outer",
+    "outer_fold": 2,
+    "tau_d_min": 10.122752545939552,
+    "tau_d_max": 43.62363901138305,
+    "tau_d_ratio_max_min": 4.309464131757464,
+    "tau_d_global": 30.153412395053405,
+    "n_classes": 8
+   },
+   {
+    "seed": 43,
+    "withheld": "underhang_ball",
+    "outer_fold": 0,
+    "tau_d_min": 11.430251534779867,
+    "tau_d_max": 56.090464867485885,
+    "tau_d_ratio_max_min": 4.907194272743196,
+    "tau_d_global": 31.98845833672421,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "underhang_ball",
+    "outer_fold": 1,
+    "tau_d_min": 14.857256846957736,
+    "tau_d_max": 31.64819721645779,
+    "tau_d_ratio_max_min": 2.1301507769880326,
+    "tau_d_global": 23.345704083972525,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "underhang_ball",
+    "outer_fold": 2,
+    "tau_d_min": 9.463342540793949,
+    "tau_d_max": 75.98837778303358,
+    "tau_d_ratio_max_min": 8.029760885804135,
+    "tau_d_global": 42.58994844224718,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "underhang_cage",
+    "outer_fold": 0,
+    "tau_d_min": 10.576365158292983,
+    "tau_d_max": 32.339707962671916,
+    "tau_d_ratio_max_min": 3.0577336805844095,
+    "tau_d_global": 29.677362945344665,
+    "n_classes": 8
+   },
+   {
+    "seed": 43,
+    "withheld": "underhang_cage",
+    "outer_fold": 1,
+    "tau_d_min": 8.67640744447708,
+    "tau_d_max": 43.07377403577168,
+    "tau_d_ratio_max_min": 4.964471102978233,
+    "tau_d_global": 37.689292907714844,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "underhang_cage",
+    "outer_fold": 2,
+    "tau_d_min": 11.607200000021193,
+    "tau_d_max": 67.52105711830987,
+    "tau_d_ratio_max_min": 5.817170128729288,
+    "tau_d_global": 33.573738945855034,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "underhang_outer",
+    "outer_fold": 0,
+    "tau_d_min": 8.48091082043118,
+    "tau_d_max": 40.82431698905097,
+    "tau_d_ratio_max_min": 4.813671297038283,
+    "tau_d_global": 31.74563123914932,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "underhang_outer",
+    "outer_fold": 1,
+    "tau_d_min": 10.607576738463507,
+    "tau_d_max": 34.1057421790229,
+    "tau_d_ratio_max_min": 3.215224647430933,
+    "tau_d_global": 28.97474375300937,
+    "n_classes": 9
+   },
+   {
+    "seed": 43,
+    "withheld": "underhang_outer",
+    "outer_fold": 2,
+    "tau_d_min": 10.872410718599955,
+    "tau_d_max": 27.51071786880493,
+    "tau_d_ratio_max_min": 2.530323640344181,
+    "tau_d_global": 25.154410531785757,
+    "n_classes": 8
+   },
+   {
+    "seed": 43,
+    "withheld": "vertical_misalignment",
+    "outer_fold": 0,
+    "tau_d_min": 12.231016974978978,
+    "tau_d_max": 34.496406179004246,
+    "tau_d_ratio_max_min": 2.820403752980936,
+    "tau_d_global": 32.625371866755984,
+    "n_classes": 8
+   },
+   {
+    "seed": 43,
+    "withheld": "vertical_misalignment",
+    "outer_fold": 1,
+    "tau_d_min": 8.066364341311985,
+    "tau_d_max": 50.12099020216201,
+    "tau_d_ratio_max_min": 6.213578767508274,
+    "tau_d_global": 48.482345390319814,
+    "n_classes": 8
+   },
+   {
+    "seed": 43,
+    "withheld": "vertical_misalignment",
+    "outer_fold": 2,
+    "tau_d_min": 7.575573232438829,
+    "tau_d_max": 37.697317886352536,
+    "tau_d_ratio_max_min": 4.976167047654097,
+    "tau_d_global": 27.551366647084553,
+    "n_classes": 8
+   },
+   {
+    "seed": 44,
+    "withheld": "horizontal_misalignment",
+    "outer_fold": 0,
+    "tau_d_min": 12.71764119995965,
+    "tau_d_max": 31.934862966007657,
+    "tau_d_ratio_max_min": 2.511068087540399,
+    "tau_d_global": 35.19434647030301,
+    "n_classes": 8
+   },
+   {
+    "seed": 44,
+    "withheld": "horizontal_misalignment",
+    "outer_fold": 1,
+    "tau_d_min": 11.878111210134294,
+    "tau_d_max": 38.05739106072319,
+    "tau_d_ratio_max_min": 3.2039934958895633,
+    "tau_d_global": 35.8358862876892,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "horizontal_misalignment",
+    "outer_fold": 2,
+    "tau_d_min": 15.456880837016637,
+    "tau_d_max": 59.93474061754014,
+    "tau_d_ratio_max_min": 3.8775443279608193,
+    "tau_d_global": 32.95648685031466,
+    "n_classes": 8
+   },
+   {
+    "seed": 44,
+    "withheld": "imbalance",
+    "outer_fold": 0,
+    "tau_d_min": 10.802101914087933,
+    "tau_d_max": 43.57157122294108,
+    "tau_d_ratio_max_min": 4.033619713040822,
+    "tau_d_global": 39.90192457305059,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "imbalance",
+    "outer_fold": 1,
+    "tau_d_min": 8.848410161336263,
+    "tau_d_max": 31.06683871481154,
+    "tau_d_ratio_max_min": 3.511007983169703,
+    "tau_d_global": 21.338727315266926,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "imbalance",
+    "outer_fold": 2,
+    "tau_d_min": 9.925990300708348,
+    "tau_d_max": 50.824855984581845,
+    "tau_d_ratio_max_min": 5.120381387130192,
+    "tau_d_global": 38.45914528104994,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "overhang_ball",
+    "outer_fold": 0,
+    "tau_d_min": 13.197729301452636,
+    "tau_d_max": 37.70302483770582,
+    "tau_d_ratio_max_min": 2.856781191409643,
+    "tau_d_global": 38.202438831329374,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "overhang_ball",
+    "outer_fold": 1,
+    "tau_d_min": 10.614991950988768,
+    "tau_d_max": 38.317212655809186,
+    "tau_d_ratio_max_min": 3.609726020775739,
+    "tau_d_global": 33.87491703033447,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "overhang_ball",
+    "outer_fold": 2,
+    "tau_d_min": 10.073512162102592,
+    "tau_d_max": 24.252043035295273,
+    "tau_d_ratio_max_min": 2.4075062048898417,
+    "tau_d_global": 23.630212752024335,
+    "n_classes": 8
+   },
+   {
+    "seed": 44,
+    "withheld": "overhang_cage",
+    "outer_fold": 0,
+    "tau_d_min": 10.18067377143436,
+    "tau_d_max": 69.58410312864514,
+    "tau_d_ratio_max_min": 6.83492121355357,
+    "tau_d_global": 56.31156190236411,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "overhang_cage",
+    "outer_fold": 1,
+    "tau_d_min": 10.208176411522759,
+    "tau_d_max": 31.02751471731397,
+    "tau_d_ratio_max_min": 3.039476735755743,
+    "tau_d_global": 21.71967985894943,
+    "n_classes": 8
+   },
+   {
+    "seed": 44,
+    "withheld": "overhang_cage",
+    "outer_fold": 2,
+    "tau_d_min": 9.495579981803894,
+    "tau_d_max": 52.33297421137492,
+    "tau_d_ratio_max_min": 5.511298342140141,
+    "tau_d_global": 50.30666618347172,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "overhang_outer",
+    "outer_fold": 0,
+    "tau_d_min": 12.987353155348035,
+    "tau_d_max": 32.54521352979872,
+    "tau_d_ratio_max_min": 2.5059158044375653,
+    "tau_d_global": 32.56163376702203,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "overhang_outer",
+    "outer_fold": 1,
+    "tau_d_min": 9.990379450056288,
+    "tau_d_max": 42.064670991897586,
+    "tau_d_ratio_max_min": 4.210517848915196,
+    "tau_d_global": 31.231458452012802,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "overhang_outer",
+    "outer_fold": 2,
+    "tau_d_min": 10.255080845620899,
+    "tau_d_max": 42.57442492643991,
+    "tau_d_ratio_max_min": 4.151544543368465,
+    "tau_d_global": 32.997530926598444,
+    "n_classes": 8
+   },
+   {
+    "seed": 44,
+    "withheld": "underhang_ball",
+    "outer_fold": 0,
+    "tau_d_min": 10.92847319179111,
+    "tau_d_max": 39.578337012396915,
+    "tau_d_ratio_max_min": 3.621579731936028,
+    "tau_d_global": 30.615343401167163,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "underhang_ball",
+    "outer_fold": 1,
+    "tau_d_min": 13.806131680806477,
+    "tau_d_max": 34.54796642197503,
+    "tau_d_ratio_max_min": 2.502363965570763,
+    "tau_d_global": 26.998092963960435,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "underhang_ball",
+    "outer_fold": 2,
+    "tau_d_min": 11.36885792149438,
+    "tau_d_max": 62.250551838345,
+    "tau_d_ratio_max_min": 5.47553257048378,
+    "tau_d_global": 57.89146423339844,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "underhang_cage",
+    "outer_fold": 0,
+    "tau_d_min": 11.199868059158327,
+    "tau_d_max": 30.12173100312551,
+    "tau_d_ratio_max_min": 2.6894719512784304,
+    "tau_d_global": 25.744161807166154,
+    "n_classes": 8
+   },
+   {
+    "seed": 44,
+    "withheld": "underhang_cage",
+    "outer_fold": 1,
+    "tau_d_min": 8.83741585943434,
+    "tau_d_max": 33.694648022121854,
+    "tau_d_ratio_max_min": 3.8127263170660113,
+    "tau_d_global": 31.11625141567654,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "underhang_cage",
+    "outer_fold": 2,
+    "tau_d_min": 9.04360806941986,
+    "tau_d_max": 59.491361162397595,
+    "tau_d_ratio_max_min": 6.57827724352211,
+    "tau_d_global": 29.25967025756836,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "underhang_outer",
+    "outer_fold": 0,
+    "tau_d_min": 11.294204849667018,
+    "tau_d_max": 35.952311256196765,
+    "tau_d_ratio_max_min": 3.1832529810415764,
+    "tau_d_global": 36.134262159135616,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "underhang_outer",
+    "outer_fold": 1,
+    "tau_d_min": 14.297281053331163,
+    "tau_d_max": 26.8222286383311,
+    "tau_d_ratio_max_min": 1.8760370267801174,
+    "tau_d_global": 22.519738356272377,
+    "n_classes": 9
+   },
+   {
+    "seed": 44,
+    "withheld": "underhang_outer",
+    "outer_fold": 2,
+    "tau_d_min": 14.104080653190612,
+    "tau_d_max": 32.06419910854763,
+    "tau_d_ratio_max_min": 2.27339873452114,
+    "tau_d_global": 33.191932158999975,
+    "n_classes": 8
+   },
+   {
+    "seed": 44,
+    "withheld": "vertical_misalignment",
+    "outer_fold": 0,
+    "tau_d_min": 10.685445629225837,
+    "tau_d_max": 32.0981227795283,
+    "tau_d_ratio_max_min": 3.003910542742036,
+    "tau_d_global": 32.77259963618383,
+    "n_classes": 8
+   },
+   {
+    "seed": 44,
+    "withheld": "vertical_misalignment",
+    "outer_fold": 1,
+    "tau_d_min": 7.946039974689484,
+    "tau_d_max": 60.711573240492086,
+    "tau_d_ratio_max_min": 7.640481728493265,
+    "tau_d_global": 45.91510543823241,
+    "n_classes": 8
+   },
+   {
+    "seed": 44,
+    "withheld": "vertical_misalignment",
+    "outer_fold": 2,
+    "tau_d_min": 11.160748497645061,
+    "tau_d_max": 32.5676496081882,
+    "tau_d_ratio_max_min": 2.918052459927758,
+    "tau_d_global": 27.55788004663255,
+    "n_classes": 8
+   }
+  ]
+ },
+ "readings": {
+  "P": {
+   "arm": "P",
+   "reading": "does not help",
+   "mean_recall_gain": 0.14462986735130504,
+   "per_seed": {
+    "42": {
+     "recall_gain": 0.15404364569961482,
+     "healthy_change": 18,
+     "bar_met": false
+    },
+    "43": {
+     "recall_gain": 0.14762516046213092,
+     "healthy_change": -5,
+     "bar_met": true
+    },
+    "44": {
+     "recall_gain": 0.1322207958921694,
+     "healthy_change": -7,
+     "bar_met": true
+    }
+   }
+  },
+  "S": {
+   "arm": "S",
+   "reading": "does not help",
+   "mean_recall_gain": 0.020539152759948626,
+   "per_seed": {
+    "42": {
+     "recall_gain": 0.02695763799743256,
+     "healthy_change": 8,
+     "bar_met": false
+    },
+    "43": {
+     "recall_gain": 0.020539152759948665,
+     "healthy_change": 5,
+     "bar_met": false
+    },
+    "44": {
+     "recall_gain": 0.014120667522464658,
+     "healthy_change": -3,
+     "bar_met": false
+    }
+   }
+  }
+ }
+}

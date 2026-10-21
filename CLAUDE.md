@@ -372,6 +372,23 @@ scope.
    target, bisection (60 steps) locates it; if the count jumps over the target, the closer side is taken (tie → fewer
    rejections); if even q = 1.0 rejects more than the target, or q = 0.5 fewer, that end is used and the difference recorded.
 
+15. **Result (21 Oct 2026; each arm run once, notebook 20, 13 s, on the clean tree f95926d; Bhuvesh's six uncommitted
+   frontend files were set aside with `git stash` for the run and restored identical to a saved patch).** Reproduction
+   exact: `decide`'s rule B equals the saved variant-B decisions on all 11,548 rows of every seed, and rule A the saved 3C
+   decisions (seed 42). Calibration recordings per class per run: imbalance 15–17, vertical misalignment 12–18, other faults
+   7–10, normal 2–3 (median 3); fallbacks: 10 class-runs per seed, all normal (2 calibration normals). Per-class τ_d(0.975)
+   within a run spans a median factor 3.7 (1.9–8.7). **Surprise: the matched budget was unreachable for P in all 81 runs** —
+   even at q = 1.0 P rejects 2,353 / 2,398 / 2,320 foldk_known recordings against G's 875 / 930 / 927 (2.5–2.7 ×); S missed
+   it in 43 of 81 runs (by up to 22; 970 / 1,022 / 1,072). At the reached counts, unknown recall G / P / S: 42 61.2 / 76.6 /
+   63.9 %, 43 63.3 / 78.1 / 65.3 %, 44 63.4 / 76.6 / 64.8 %; withheld called healthy 19 / 37 / 27, 17 / 12 / 22, 24 / 17 / 21;
+   known wrong fault 7 / 2 / 3, 4 / 1 / 3, 7 / 1 / 4. **Readings (declared, mechanical): P "does not help"** (bar met on 43
+   and 44, not 42: healthy +18), **S "does not help"** (gain +1.4 to +2.7). P's recall gain is not a matched comparison: it
+   comes with far more known rejections. Secondary, q = 0.975: P recall 79.6–81.3 %, known rejection 38–39 %, healthy 12 / 7 /
+   0; S 72.8–73.3 %, 22–24 %, 10 / 8 / 1; G 61–63 %, 14 %. Per class at the reached counts P raises imbalance (5 → 39 %) and
+   vertical misalignment (16 → 50 %) recall, under the larger rejection budget. Not changed (stop rule); recorded for
+   Bhuvesh: a matched comparison of per-class thresholds needs a looser per-class form than these quantiles of 7–10
+   recordings can give (e.g. a different quantile rule or a larger shrink weight) — a new declared experiment, not run.
+
 ## 7-prev12. Previous stage: Stage R8 — Relative Mahalanobis distance for unfamiliar-fault detection (Q3, development data only)
 
 Question: **does Relative Mahalanobis distance (RMD; Ren et al., 2021, "A Simple Fix to Mahalanobis Distance for Improving
