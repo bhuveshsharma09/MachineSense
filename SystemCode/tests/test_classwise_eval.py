@@ -58,3 +58,22 @@ def test_a_recording_uses_its_predicted_class_threshold_not_its_true_class():
     table = thresholds(CAL, 0.75, "P", ["a", "b"])  # τ_d^a = 3.25, τ_d^b = 32.5; τ_p^a = 0.9375, τ_p^b = 0.675
     rec = pd.DataFrame({"pred": ["b", "a"], "class10": ["a", "b"], "msp": [0.70, 0.70], "maha": [20.0, 20.0]})
     assert gate(rec, table).tolist() == [True, False]  # same scores: passes b's thresholds, fails a's
+
+
+def test_evaluate_run_end_to_end_on_a_synthetic_run():
+    from ml.classwise_eval import evaluate_run
+    from ml.loco_eval import decide
+    rng = np.random.default_rng(3)
+    roles = ["cal"] * 60 + ["foldk_known"] * 80 + ["foldk_withheld"] * 20 + ["eval"] * 20
+    true = list(rng.choice(["normal", "a", "b"], 60, p=[0.1, 0.45, 0.45])) + list(rng.choice(["normal", "a", "b"], 80)) \
+        + ["w"] * 20 + list(rng.choice(["a", "b"], 20))
+    pred = [t if t != "w" else rng.choice(["a", "b", "normal"]) for t in true]
+    rec = pd.DataFrame({"role": roles, "class10": true, "pred": pred, "msp": rng.uniform(0.6, 1.0, 180),
+                        "maha": rng.uniform(0.0, 40.0, 180), "ae": rng.uniform(0, 1, 180), "withheld": "w",
+                        "outer_fold": 0, "rec_id": [f"r{i}" for i in range(180)]})
+    d = decide(rec)
+    rows = {r["arm"]: r for r in evaluate_run(d, d.decision_B.to_numpy())}
+    assert set(rows) == {"G", "P", "S"} and rows["G"]["matched_known_unknown"] == rows["G"]["target"]
+    for a in ("P", "S"):
+        assert abs(rows[a]["matched_known_unknown"] - rows["G"]["target"]) == abs(rows[a]["diff"])
+        assert rows[a]["matched_withheld_n"] == 20 and "secondary_known_unknown" in rows[a]
