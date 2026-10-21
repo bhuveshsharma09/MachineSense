@@ -364,6 +364,14 @@ scope.
    allows a rerun, recorded here. Stop and ask about: a reproduction mismatch; a class with almost no calibration
    recordings in most runs; any need to read reserved data or to train; any wish to change a declared choice.
 
+14. **Addendum (21 Oct 2026, before any code; a gap in item 7, not a change of method).** Several q values can reach the
+   same known-side count with different withheld outcomes; item 7 fixed only ties in |count − target|. Rule: among q values
+   reaching the chosen count, the **largest** q is used (the most permissive thresholds at that count, as R8's
+   `matched_threshold`, which takes the most permissive threshold for an exact count), so the choice cannot favour the new
+   arms. Search mechanics: the grid (step 0.0005 on [0.5, 1.0]) brackets the boundary between count ≥ target and count <
+   target, bisection (60 steps) locates it; if the count jumps over the target, the closer side is taken (tie → fewer
+   rejections); if even q = 1.0 rejects more than the target, or q = 0.5 fewer, that end is used and the difference recorded.
+
 ## 7-prev12. Previous stage: Stage R8 — Relative Mahalanobis distance for unfamiliar-fault detection (Q3, development data only)
 
 Question: **does Relative Mahalanobis distance (RMD; Ren et al., 2021, "A Simple Fix to Mahalanobis Distance for Improving
