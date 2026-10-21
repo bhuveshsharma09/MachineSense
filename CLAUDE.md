@@ -289,7 +289,82 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage R8 — Relative Mahalanobis distance for unfamiliar-fault detection (Q3, development data only)
+## 7. Current stage: Stage R9 — per-class reject thresholds for unfamiliar-fault detection (Q3, development data only)
+
+Question: **with the same total number of known recordings rejected, do per-class (class-conditional, Mondrian)
+thresholds catch more unfamiliar faults than today's one shared τ_p and τ_d per LOCO run?** Known classes differ in spread
+(imbalance 6–35 g and the misalignments over many speeds are wide; bearing faults are tight), so a shared threshold may
+reject too many known recordings of wide classes and pass unknowns that land just outside tight ones. Exploratory,
+development data only; **no training, no forward pass** (saved scores only); reserved tests sealed (not read); the bundle,
+rules, thresholds, the frozen assistant, the D7 files, `artifacts/`, `results/final/`, `metadata.csv` and the app
+unchanged. Deliverable: `notebooks/06_research_layer/20_classwise_thresholds.ipynb` (a new notebook, not notebook 19);
+pure code `ml/classwise_eval.py`, tested in `tests/test_classwise_eval.py`; outputs
+`results/research/r9_classwise_thresholds.json`, `results/research/r9_per_run.csv`, figures under
+`results/research/figures/`. Known limits, stated before any result: (1) few calibration recordings per class (per run:
+imbalance 15–17, vertical misalignment 12–18, the other fault classes 7–10, normal 2–3); a high quantile of a few values is
+unstable; (2) R8 found withheld vertical misalignment (AUROC < 0.5) and imbalance (≈ 0.59) inside known clusters under
+every distance, so no threshold can separate them; (3) Q3 gate only: the healthy check (Q1) has one class and is out of
+scope.
+
+**Stage R9 protocol (declared 21 Oct 2026, before any code or computation; changes only as dated addenda with a reason).**
+1. **Scores and data.** The saved recording-level MSP and shared-covariance Mahalanobis (`maha`) of the 81 LOCO runs (9
+   withheld classes × 3 outer folds × seeds 42, 43, 44), read with `ml.loco_eval.recordings`; roles as saved (cal, eval,
+   foldk_known, foldk_withheld). Calibration set = the run's `cal` recordings, as today.
+2. **Class that picks the threshold:** at evaluation the **predicted** class `pred` (the only class known at inference); at
+   calibration the **true** class `class10` (standard class-conditional calibration).
+3. **Thresholds at quantile level q.** Per class c: τ_p^c(q) = the (1 − q) quantile of MSP over the run's calibration
+   recordings of class c; τ_d^c(q) = the q quantile of `maha` over them; `numpy.quantile(..., method="linear")`, so every
+   per-class threshold is finite. **Global (reference form):** the same quantiles over all of the run's calibration
+   recordings. **Shrunk:** τ^c_shrunk(q) = 0.5 · τ^c(q) + 0.5 · τ_global(q), for τ_p and τ_d; the weight 0.5 is fixed, not
+   tuned. **Rare classes:** a class with fewer than 3 calibration recordings in a run (a predicted class with none included)
+   uses the global(q) thresholds for that run (P and S alike); how often this happens is reported.
+4. **Gate and rule.** For a recording with predicted class c: conf = (msp ≥ τ_p^c) & (maha ≤ τ_d^c), ties within 1e-12
+   accepted (R0's rule); decisions by rule B (`ml.rmd_eval.rule_b`: the decisions of B_with_caution — classifier-first, no AE
+   override; caution does not change a decision); class prediction, healthy and caution behaviour unchanged.
+5. **Arms.** G (reference, current): the global thresholds exactly as today (`ml.loco_eval.decide`: the 0.975 order
+   statistic of the calibration recordings; rule B = its `decision_B`). P (new): per-class thresholds. S (new): shrunk
+   per-class thresholds.
+6. **Reproduction check first (in the notebook):** G recomputed with `ml.loco_eval.decide` must equal the saved variant-B
+   decisions of every recording of every run, for each seed. Saved variant-B decisions exist in the Stage 3D files
+   `results/scores/e3_b1s_veto_s<seed>_loco_decisions.parquet` (`decision_B`; the Stage 3C file
+   `cnn6ae6_s42_loco_decisions.parquet` predates variant B and holds only variant A, `decision_classifier_first`, which is
+   also checked against `decide`'s `decision_A` for seed 42). Any mismatch stops the stage.
+7. **Primary: matched rejection budget.** Known side = **foldk_known only** (the unseen outer fold's known recordings,
+   normals included), exactly as R8's matched comparison (Bhuvesh, 21 Oct; the brief's "eval and foldk_known" conflicted
+   with "as in R8"); `eval` outcomes are reported descriptively. Per run, target = the number of foldk_known recordings G
+   decides "unknown". For P and S, one level q per arm per run (the same for every class), searched in [0.5, 1.0] on a grid
+   of step 0.0005, then refined by bisection between the two grid points that bracket the target (the rejection count is
+   non-increasing in q); the q whose count is closest to the target is chosen, ties broken toward fewer rejections; the count
+   reached and its difference from the target are recorded (expected 0 or ±1). At that q: **unknown recall** = share of
+   foldk_withheld recordings decided "unknown" (pooled over the 27 runs of a seed, and per withheld class); **withheld called
+   healthy** (count; must not rise); **known called wrong fault** (count, foldk_known fault recordings decided as another
+   fault).
+8. **Secondary (practical):** P and S at q = 0.975, no matching: the same metrics plus the known-side rejection rate.
+9. **Diagnostics (descriptive only):** calibration recordings per class per run (min, median, max); class-runs that fell
+   back to the global thresholds; the spread of τ_d^c(0.975) across classes within a run.
+10. **Acceptance bar (as R4, R5, R8), applied to P and S separately against G at the matched count:** an arm **helps** only
+   if unknown recall is at least +5 percentage points higher AND no more withheld recordings are called healthy, both on
+   **all three seeds**. Readings, in this order and no others: **"helps, confirmed"** when the bar is met; otherwise
+   **"worse"** when the mean change in unknown recall over the seeds is negative; otherwise **"does not help"**. Both
+   readings stand; the better arm is not chosen after the results.
+11. **Notebook 20:** title and question; background (shared vs per-class thresholds; a matplotlib figure of the real
+   calibration `maha` of one run as one strip per class, with the global τ_d and each τ_d^c; the three limits); this
+   declaration quoted; load (counts per role, calibration counts per class); reproduction check (assert); thresholds of one
+   run (table); matched-budget table per seed (G, P, S: recall, withheld healthy, wrong fault, q, count reached); per-class
+   recall (table and chart); secondary q = 0.975; diagnostics; the reading applied mechanically plus 3–5 plain sentences
+   including where P or S do worse; limitations (development data only; few calibration recordings per class; the same LOCO
+   partition; the R8 overlap finding; the fixed shrink weight). Every code cell starts with a 1–2 line comment and has the
+   §6 blue note; logic lives in `ml/classwise_eval.py`; deterministic; **executed only on a clean committed tree** (the
+   recorded git sha must not be "dirty"; the module and tests are committed first); committed with outputs stripped.
+12. **Outputs:** `r9_classwise_thresholds.json` (provenance: a clean git sha, split hash, config sha; calibration counts;
+   per seed and run: q, counts reached and outcomes for G, P, S; the secondary results; the diagnostics; both readings) and
+   `r9_per_run.csv`.
+13. **Stop rule.** Each arm runs once. The shrink weight, the fallback minimum, the quantile method and the class assignment
+   are not changed after results are seen; no arm is added; an idea is recorded here for Bhuvesh, not run. Only a crash fix
+   allows a rerun, recorded here. Stop and ask about: a reproduction mismatch; a class with almost no calibration
+   recordings in most runs; any need to read reserved data or to train; any wish to change a declared choice.
+
+## 7-prev12. Previous stage: Stage R8 — Relative Mahalanobis distance for unfamiliar-fault detection (Q3, development data only)
 
 Question: **does Relative Mahalanobis distance (RMD; Ren et al., 2021, "A Simple Fix to Mahalanobis Distance for Improving
 Near-OOD Detection") detect unfamiliar faults better than the current shared-covariance Mahalanobis, with everything else
