@@ -224,29 +224,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .mobile-intro p { max-width: 50ch; color: oklch(0.42 0.008 260); }
 .mobile-intro .start-btn, .mobile-new { background: oklch(0.23 0.006 260); color: white; }
 
-/* The robot is the entry point for the planned investigation chat. */
-.agent-launcher { position: fixed; z-index: 24; right: 16px; bottom: 12px; width: 120px; height: 120px; padding: 0;
-  display: grid; place-items: center; border: 0; background: transparent; cursor: pointer;
-  filter: drop-shadow(0 8px 10px oklch(0.24 0.04 220 / .24)); }
-@keyframes robot-float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-7px) rotate(2deg); } }
-@keyframes robot-hop { 0%, 100% { transform: translateY(0) rotate(0); } 35% { transform: translateY(-12px) rotate(-7deg); } 70% { transform: translateY(-3px) rotate(5deg); } }
-.robot-render { display: block; object-fit: contain; user-select: none; pointer-events: none; }
-.robot-walker { position: relative; display: block; width: 116px; height: 116px; transform-origin: 50% 70%;
-  animation: robot-float 3.2s ease-in-out infinite; }
-.robot-walker-piece { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
-  user-select: none; pointer-events: none; }
-.robot-walker-body { clip-path: inset(0 0 28% 0); }
-.robot-walker-left { clip-path: polygon(0 72%, 38% 72%, 38% 100%, 0 100%); transform-origin: 24% 72%;
-  animation: robot-left-step 2.4s ease-in-out infinite; }
-.robot-walker-middle { clip-path: polygon(51% 72%, 70% 72%, 70% 100%, 51% 100%); transform-origin: 60% 72%;
-  animation: robot-middle-step 2.4s ease-in-out infinite; }
-.robot-walker-right { clip-path: polygon(72% 72%, 100% 72%, 100% 100%, 72% 100%); transform-origin: 85% 72%;
-  animation: robot-right-step 2.4s ease-in-out infinite; }
-@keyframes robot-left-step { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(3deg) translateY(-2px); } 75% { transform: rotate(-2deg); } }
-@keyframes robot-middle-step { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-@keyframes robot-right-step { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(-2deg); } 75% { transform: rotate(3deg) translateY(-2px); } }
-.agent-launcher:hover .robot-walker, .agent-launcher:focus-visible .robot-walker { animation: robot-hop .65s ease-in-out 1; }
-.agent-launcher-tip { position: absolute; right: 114px; top: 48px; padding: 6px 10px; border-radius: 9px;
+/* The assistant's gear is the entry point for the investigation chat. */
+.agent-launcher { position: fixed; z-index: 24; right: 16px; bottom: 12px; width: 96px; height: 96px; padding: 0;
+  display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; cursor: pointer;
+  filter: drop-shadow(0 6px 9px oklch(0.24 0.04 220 / .26)); }
+.agent-launcher:focus-visible { outline: 2px solid oklch(0.54 0.21 277); outline-offset: 2px; }
+.assistant-gear { display: block; flex: none; }
+.assistant-gear-body { transform-origin: 50px 50px; transform-box: view-box; }
+.assistant-gear.spin .assistant-gear-body { animation: gear-turn 14s linear infinite; }
+.agent-launcher:hover .assistant-gear-body, .agent-launcher:focus-visible .assistant-gear-body { animation: gear-turn 1.4s ease-in-out 1; }
+@keyframes gear-turn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .assistant-gear-body { animation: none !important; } }
+.agent-launcher-tip { position: absolute; right: 92px; top: 36px; padding: 6px 10px; border-radius: 9px;
   background: oklch(0.23 0.006 260); color: white; font-size: 12px; font-weight: 500; white-space: nowrap;
   opacity: 0; pointer-events: none; transform: translateX(5px); transition: opacity .2s ease, transform .2s ease; }
 .agent-launcher:hover .agent-launcher-tip, .agent-launcher:focus-visible .agent-launcher-tip { opacity: 1; transform: none; }
@@ -562,3 +551,59 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .agent-actions summary { cursor: pointer; font-size: 13px; color: oklch(0.45 0.01 260); }
 .agent-fallback-sec { display: flex; flex-direction: column; gap: 4px; }
 .agent-answer-unavailable { font-size: 15px; color: oklch(0.42 0.01 260); }
+
+/* Report: give the mechanic a clear verdict/evidence hierarchy and one control row. */
+.report-page .controls { bottom: 16px; right: calc(var(--aside-w) + 190px); flex-wrap: nowrap; }
+.report-page .controls .ctl { white-space: nowrap; }
+.report-page .reading-btn { bottom: 16px; }
+.report-page .mv { gap: 4px; }
+.report-page .mv-finding { margin: 4px 0 10px; font-weight: 600; }
+.report-page .mv-row { padding: 12px 0; border-top: 1px solid oklch(0.23 0.006 260 / 0.1); }
+.report-page .mv-heading { margin: 0 0 6px; font-family: "Switzer", system-ui, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.25; color: oklch(0.23 0.006 260); }
+.report-page .mv-subheading { margin: 12px 0 2px; font-family: "Switzer", system-ui, sans-serif; font-size: 15px; font-weight: 600; line-height: 1.3; color: oklch(0.23 0.006 260); }
+.report-page .mv-location { display: block; font-size: 18px; font-weight: 600; line-height: 1.35; color: oklch(0.23 0.006 260); }
+.report-page .mv-more { margin-top: 8px; font-size: 13px; }
+.report-page .mv-more summary { cursor: pointer; font-weight: 600; color: oklch(0.36 0.04 260); }
+.report-page .mv-expl .badge-ai { padding: 5px 10px; border: 1px solid oklch(0.58 0.12 155 / 0.24); border-radius: 999px; background: oklch(0.92 0.05 155); color: oklch(0.35 0.09 155); font-size: 10px; font-weight: 600; letter-spacing: 0.04em; }
+.agent-footer { flex: none; min-height: 84px; box-sizing: border-box; padding: 18px 96px 16px 18px; border-top: 1px solid oklch(0.23 0.006 260 / 0.08); display: flex; flex-direction: column; justify-content: center; gap: 2px; background: oklch(0.97 0.01 155 / 0.7); }
+.agent-footer strong { font-size: 15px; font-weight: 600; }
+.agent-footer span { font-size: 12px; color: oklch(0.46 0.008 260); }
+.report-page .agent-launcher { right: 30px; bottom: 24px; width: 64px; height: 64px; }
+.report-page .agent-launcher .assistant-gear { width: 60px; height: 60px; }
+.report-page .agent-launcher-tip { right: 66px; top: 18px; }
+@media (min-width: 1024px) and (max-width: 1250px) {
+  .report-page .controls { gap: 4px; right: calc(var(--aside-w) + 170px); }
+  .report-page .controls .ctl { padding-inline: 8px; font-size: 11px; }
+  .report-page .reading-btn { padding-inline: 10px; font-size: 11px; }
+}
+
+/* Unseen-fault demo: setup first, verdict next, supporting checks after it. */
+.un-title { max-width: 1040px; margin: 22px auto 18px; }
+.un-title h1 { font-size: clamp(34px, 3.2vw, 48px); }
+.un-title .un-intro { max-width: 760px; margin: 8px auto 10px; color: oklch(0.32 0.008 260); }
+.un-context { display: inline-block; max-width: 800px; text-align: left; font-size: 13px; }
+.un-context summary, .un-learned-details summary, .un-rule summary { cursor: pointer; color: oklch(0.39 0.01 260); font-weight: 500; }
+.un-context p { font-size: 13px; line-height: 1.45; }
+.un-grid { grid-template-columns: 320px minmax(0, 1fr); gap: 20px; }
+.un-left { grid-column: 1; position: sticky; top: 16px; }
+.un-result-column { grid-column: 2; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.un-right { display: contents; }
+.un-verdict { order: 0; border-color: oklch(0.55 0.11 155 / 0.35); background: oklch(0.975 0.025 155); }
+.un-centre { order: 1; }
+.un-details { order: 2; }
+.un-step-title { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: 20px; font-weight: 600; line-height: 1.2; }
+.un-step-title span { display: grid; place-items: center; width: 27px; height: 27px; flex: none; border-radius: 9px; background: oklch(0.23 0.006 260); color: white; font-family: "Fragment Mono", monospace; font-size: 13px; }
+.un-learned-details { margin-top: 12px; border-top: 1px solid oklch(0.23 0.006 260 / 0.1); padding-top: 10px; }
+.un-learned-details .kicker { display: block; margin-top: 12px; }
+.un-placeholder { min-height: 170px; display: flex; flex-direction: column; justify-content: center; }
+.un-placeholder h2 { margin: 0 0 7px; font-size: 25px; font-weight: 600; }
+.un-placeholder p { margin: 0; max-width: 66ch; color: oklch(0.42 0.008 260); }
+.un-verdict-reason { margin: 2px 0 8px; color: oklch(0.38 0.008 260); }
+.un-check h3 { font-weight: 600; }
+.un-rule { padding: 12px 18px; border: 1px solid oklch(0.23 0.006 260 / 0.1); border-radius: 14px; background: oklch(0.99 0.002 85 / 0.5); }
+.un-rule .un-diagram { margin-top: 10px; box-shadow: none; }
+@media (max-width: 1100px) {
+  .un-grid { grid-template-columns: 1fr; }
+  .un-left { position: static; grid-column: 1; }
+  .un-result-column { grid-column: 1; }
+}

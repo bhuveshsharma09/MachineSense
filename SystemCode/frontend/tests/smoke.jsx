@@ -76,7 +76,7 @@ const screens = {
     upload: { name: "uploaded recording (case abcdef12)", size: 0, stored: true, canRerun: false, note: "re-upload the file to run again" } }),
     ["New investigation"], [], () => true],
 };
-const always = ["MachineSense", "Illustrative 3D rig"];
+const always = ["MachineSense"];
 const never = ["not yet connected", "Simulated", "Classifier A", "Classifier B", "Demo state", "remaining life", "urgency", "Stage 3D", "App-2b",
   "B_with_caution", "1.0000", "100.0 %", "(Recommended)", "Largest change vs healthy reference"];
 

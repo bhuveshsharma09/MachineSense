@@ -258,7 +258,7 @@ function Progress({ label }) {
 }
 
 function Row({ label, children }) {
-  return <div className="mv-row"><span className="mono kicker">{label}</span><div>{children}</div></div>;
+  return <section className="mv-row"><h3 className="mv-heading">{label}</h3><div>{children}</div></section>;
 }
 
 function ExplanationBlock({ explanation }) {
@@ -270,7 +270,7 @@ function ExplanationBlock({ explanation }) {
       <span className={"badge " + (e.source === "llm" ? "badge-ai" : "")}>{e.badge}</span>
       {e.source === "llm" && <p style={{ margin: 0 }}>{t.finding}</p>}
       <ul>{t.why_flagged.map((x) => <li key={x}>{x}</li>)}</ul>
-      <span className="mono kicker">Uncertainty</span>
+      <h4 className="mv-subheading">Uncertainty</h4>
       <ul>{t.uncertainty.map((x) => <li key={x}>{x}</li>)}</ul>
     </div>
   );
@@ -278,7 +278,8 @@ function ExplanationBlock({ explanation }) {
 
 function GuidanceList({ items }) {
   if (!items) return <span className="mv-muted">The inspection steps appear with the report.</span>;
-  return <ul>{items.map((i) => <li key={i.text} title={i.hover}>{i.text}</li>)}</ul>;
+  const show = (xs) => <ul>{xs.map((i) => <li key={i.text} title={i.hover}>{i.text}</li>)}</ul>;
+  return <>{show(items.slice(0, 2))}{items.length > 2 && <details className="mv-more"><summary>Show {items.length - 2} more inspection steps</summary>{show(items.slice(2))}</details>}</>;
 }
 
 function MechanicView({ record, report, activity, explanation, onShowPart }) {
@@ -293,7 +294,7 @@ function MechanicView({ record, report, activity, explanation, onShowPart }) {
         <span>{M.finding(record)}</span></div>
       {loc.text && (
         <Row label="Suggested location">
-          <span>{loc.text}</span>
+          <strong className="mv-location">{loc.text}</strong>
           {loc.parts.length > 0 && <div className="mv-parts">{loc.parts.map((p) => <button key={p} className="chip" onClick={() => onShowPart?.(p)}>Show {M.PART_PLAIN[p].toLowerCase()} on the rig</button>)}</div>}
         </Row>
       )}
@@ -392,14 +393,6 @@ export function PanelContent(props) {
   );
 }
 
-export function AskBar({ onOpenChat }) {
-  return (
-    <div style={{ flex: "none", padding: "8px 14px 10px", borderTop: "1px solid oklch(0.23 0.006 260 / 0.08)" }}>
-      <button type="button" className="agent-ask-bar" onClick={onOpenChat}>Ask about this recording <span aria-hidden="true">↗</span></button>
-    </div>
-  );
-}
-
 export default function Aside(props) {
   return (
     <aside aria-label="Diagnosis and investigation" className="glass aside" style={{ position: "absolute", right: 16, bottom: 16, zIndex: 5, display: "flex", flexDirection: "column", borderRadius: 20, overflow: "hidden" }}>
@@ -407,7 +400,7 @@ export default function Aside(props) {
       {!!props.limitations?.length && <details className="report-limitations"><summary>Research limitations</summary>
         <ul>{props.limitations.map((x) => <li key={x}>{x}</li>)}</ul>
       </details>}
-      <AskBar onOpenChat={props.onOpenChat} />
+      <div className="agent-footer" aria-hidden="true"><strong>Investigation assistant</strong><span>Ask about this recording</span></div>
     </aside>
   );
 }

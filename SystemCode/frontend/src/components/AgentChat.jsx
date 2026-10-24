@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { askQuestion, getQuestions } from "../api.js";
 
 const SUGGESTIONS = [
@@ -7,18 +7,38 @@ const SUGGESTIONS = [
   "What should I inspect next?",
 ];
 
-export function RobotIcon({ size = 90 }) {
-  return <img className="robot-render" src="/assets/robot-camera-3d.png" alt="" width={size} height={size} draggable="false" />;
-}
+// A silver gear with a "?" in its hub: the assistant's icon. Colours are the rig's own materials (rig/rigScene.js:
+// polished steel #eef0f2, brushed aluminium #d6d9dd, motor paint #a7b1bb, black anodised #3a3d43).
+const GEAR_PATH = (() => {
+  const teeth = 10, R = 47, r = 38, c = 50, step = (2 * Math.PI) / teeth;
+  const pt = (rad, a) => `${(c + rad * Math.cos(a)).toFixed(2)} ${(c + rad * Math.sin(a)).toFixed(2)}`;
+  let d = "";
+  for (let i = 0; i < teeth; i++) {
+    const a = i * step - Math.PI / 2;
+    d += `${i ? "L" : "M"}${pt(r, a - step * 0.3)} L${pt(R, a - step * 0.17)} L${pt(R, a + step * 0.17)} L${pt(r, a + step * 0.3)} `;
+    d += `A${r} ${r} 0 0 1 ${pt(r, a + step * 0.7)} `;
+  }
+  return d + "Z";
+})();
 
-function RobotWalker() {
+export function AssistantIcon({ size = 44, spin = false }) {
+  const id = useId().replace(/:/g, "");
   return (
-    <span className="robot-walker" aria-hidden="true">
-      <img className="robot-walker-piece robot-walker-body" src="/assets/robot-camera-3d.png" alt="" draggable="false" />
-      <img className="robot-walker-piece robot-walker-left" src="/assets/robot-camera-3d.png" alt="" draggable="false" />
-      <img className="robot-walker-piece robot-walker-middle" src="/assets/robot-camera-3d.png" alt="" draggable="false" />
-      <img className="robot-walker-piece robot-walker-right" src="/assets/robot-camera-3d.png" alt="" draggable="false" />
-    </span>
+    <svg className={"assistant-gear" + (spin ? " spin" : "")} width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
+      <defs>
+        <linearGradient id={`${id}-metal`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#eef0f2" /><stop offset="0.45" stopColor="#d6d9dd" /><stop offset="1" stopColor="#a7b1bb" />
+        </linearGradient>
+        <linearGradient id={`${id}-hub`} x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stopColor="#c4c8cd" /><stop offset="1" stopColor="#f6f7f8" />
+        </linearGradient>
+      </defs>
+      <g className="assistant-gear-body">
+        <path d={GEAR_PATH} fill={`url(#${id}-metal)`} stroke="#8d969f" strokeWidth="1.2" strokeLinejoin="round" />
+        <circle cx="50" cy="50" r="29" fill="none" stroke="#a7b1bb" strokeWidth="1.2" opacity="0.8" />
+      </g>
+      <circle cx="50" cy="50" r="24" fill={`url(#${id}-hub)`} stroke="#8d969f" strokeWidth="1.2" />
+    </svg>
   );
 }
 
@@ -99,14 +119,14 @@ export default function AgentChat({ caseId, open, onOpen, onClose, initialEntrie
     <>
       {!open && <button ref={triggerRef} type="button" className="agent-launcher" onClick={onOpen}
         aria-label="Open MachineSense assistant" aria-expanded={false} aria-controls="agent-chat-panel" title="Open MachineSense assistant">
-        <RobotWalker />
+        <AssistantIcon size={76} spin />
         <span className="agent-launcher-tip">Ask MachineSense</span>
       </button>}
       {open && <>
         <div className="agent-chat-shade" onClick={close} aria-hidden="true" />
         <section id="agent-chat-panel" className="agent-chat-panel" role="dialog" aria-modal="true" aria-label="MachineSense assistant">
           <header className="agent-chat-head">
-            <RobotIcon size={44} />
+            <AssistantIcon size={40} />
             <div><strong>MachineSense assistant</strong><span>Answers checked against this case</span></div>
             <button type="button" onClick={close} className="agent-chat-close" aria-label="Close assistant">×</button>
           </header>

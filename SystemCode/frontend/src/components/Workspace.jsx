@@ -115,7 +115,7 @@ export default function Workspace(props) {
         <span className="hero-t">{hero.t}</span>
         {hero.label && <span className="hero-label">{hero.label}</span>}
         <span className="hero-s">{hero.s}</span>
-        <span className="hero-scene-note">Illustrative 3D rig · drag to orbit gently · click a sensor or part</span>
+        {!reportPage && <span className="hero-scene-note">Illustrative 3D rig · drag to orbit gently · click a sensor or part</span>}
         {!reportPage && <button type="button" className="start-btn home-cta" onClick={() => setDialogOpen(true)}>Start investigation <span aria-hidden="true">→</span></button>}
       </div>
       <TopBar onHome={onHome} onInvestigate={() => setDialogOpen(true)} status={status}

@@ -131,27 +131,34 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
 
       <div className="un-title">
         <h1>What happens when a machine fault appears that this model was never taught?</h1>
-        <p className="un-simulated" data-copy="simulated">{summary.simulated}</p>
-        <p className="un-easier" data-copy="easier">{summary.easier_part}</p>
+        <p className="un-intro">Hide one fault from training, choose a recording, and see whether the model accepts a familiar label or asks for further inspection.</p>
+        <details className="un-context"><summary>About this research demonstration</summary>
+          <p className="un-simulated" data-copy="simulated">{summary.simulated}</p>
+          <p className="un-easier" data-copy="easier">{summary.easier_part}</p>
+        </details>
       </div>
 
       <div className="un-grid">
         <aside className="un-left">
           <section className="un-card glass-soft">
+            <h2 className="un-step-title"><span>1</span> Hide a fault</h2>
             <label className="kicker" htmlFor="un-hidden">Fault to hide</label>
             <select id="un-hidden" className="rec-select un-select" value={hidden}
               onChange={(e) => { setHidden(e.target.value); setEx(0); reset(); }}>
               {classes.map((k) => <option key={k} value={k}>{cap(human(k))}</option>)}
             </select>
             <p className="un-copy" data-copy="trained-without">This experimental model was trained without {low(hidden)} recordings.</p>
-            <div className="kicker">What this model learned</div>
-            <ul className="un-learned">
-              {(r.classes_learned || []).map((k) => <li key={k}>{name(k)}</li>)}
-              <li className="un-not-learned">{human(hidden)} — never seen</li>
-            </ul>
+            <details className="un-learned-details"><summary>See the conditions it learned</summary>
+              <div className="kicker">What this model learned</div>
+              <ul className="un-learned">
+                {(r.classes_learned || []).map((k) => <li key={k}>{name(k)}</li>)}
+                <li className="un-not-learned">{human(hidden)} — never seen</li>
+              </ul>
+            </details>
           </section>
           <section className="un-card glass-soft">
-            <div className="kicker">Choose an example</div>
+            <h2 className="un-step-title"><span>2</span> Choose a recording</h2>
+            <p className="un-copy">Start with a recording of the hidden fault. Try the familiar example afterward to compare.</p>
             <div role="radiogroup" aria-label="Example recording" className="un-examples">
               {ordered.map((e, i) => (
                 <button key={e.rec_id + e.role} role="radio" aria-checked={ex === i} className={"un-ex" + (ex === i ? " on" : "")}
@@ -160,7 +167,7 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
                 </button>
               ))}
             </div>
-            <button className="un-run" disabled={!chosen || busy} onClick={() => go(chosen)}>{busy ? "Running…" : "Run investigation"}</button>
+            <button className="un-run" disabled={!chosen || busy} onClick={() => go(chosen)}>{busy ? "Running…" : "3. Run investigation →"}</button>
             {familiarEx[0] && chosen?.role === "withheld" && (
               <button className="un-compare" disabled={busy} onClick={() => { const i = ordered.indexOf(familiarEx[0]); setEx(i); go(familiarEx[0]); }}>
                 Compare with a familiar recording
@@ -172,8 +179,9 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
           </section>
         </aside>
 
+        <div className="un-result-column">
         <main className="un-centre" aria-live="polite">
-          {!result && !error && <p className="un-placeholder">Choose an example and press <b>Run investigation</b>. The steps appear one at a time.</p>}
+          {!result && !error && <div className="un-placeholder"><h2>What you will see</h2><p>Choose a recording on the left and press <b>Run investigation</b>. We will show the model’s proposed label, its two checks, and the final verdict.</p></div>}
           {error && <p className="un-error" role="alert">{error}</p>}
           {result && (
             <>
@@ -197,7 +205,7 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
               </p>
             </>
           )}
-          <RuleDiagram />
+          <details className="un-rule"><summary>How this decision works</summary><RuleDiagram /></details>
         </main>
 
         <aside className="un-right">
@@ -205,6 +213,7 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
             <section className={"un-card glass-strong un-verdict" + (shown("verdict") ? " is-shown" : "")}>
               <div className="kicker">Verdict</div>
               <h2 data-v="verdict" className={d.decision === "unknown" ? "is-unknown" : ""}>{verdictText(d)}</h2>
+              <p className="un-verdict-reason">{d.decision === "unknown" ? "At least one check did not support the proposed familiar label." : "The decision rule accepted a learned condition."}</p>
               {d.decision === "unknown" && <p className="un-copy" data-copy="further">{summary.further_inspection}</p>}
               {d.caution && <p className="un-small">A healthy-baseline check disagrees ({d.caution.replace("_", " ")}). {summary.gates_note}</p>}
               {level === "developer" && (
@@ -244,6 +253,7 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
             </dl>
           </details>
         </aside>
+        </div>
       </div>
     </div>
   );
