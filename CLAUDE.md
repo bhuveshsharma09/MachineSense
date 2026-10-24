@@ -328,6 +328,17 @@ presentation only.
    list (`never`) holds on the new pages, the Mechanic view shows no score; the pipeline's existing checks are kept or
    replaced one for one with the reason in the commit. The backend suite runs unchanged.
 
+8. **Result (24 Oct 2026; commits ccbf2b2, ff17c7c, a4517e8).** Dashboard and assistant page built on the existing API
+   responses; the report page's side panel became a summary card linking both (the phone layout keeps its panel and gains
+   both links). Pipeline redrawn left to right in the six stages with a decision panel from the trace's own check results;
+   same trace, values, drawers, previews and step list. Two pipeline tests replaced one for one (1280 × 800: height
+   fitted with horizontal pan instead of width fitted; block titles fit in two lines instead of one); added checks: the
+   dashboard (8 fixtures × 2 views), the assistant page, the report-page links and the decision rows' relation signs.
+   `npm test`: 32 screens, 79 pipeline checks, 390 px width (now including the dashboard), race and request checks pass;
+   backend suite 553 passed, 2 skipped (the reserved-signal tests). Observed, not changed: the trace's edge labels are
+   long (up to ~70 characters), so on the canvas a label is clipped with an ellipsis before its target port (full text in
+   the line's tooltip and the drawer). No backend, model, rule or API change.
+
 ## 7-prev13. Previous stage: Stage R9 — per-class reject thresholds for unfamiliar-fault detection (Q3, development data only)
 
 Question: **with the same total number of known recordings rejected, do per-class (class-conditional, Mondrian)
