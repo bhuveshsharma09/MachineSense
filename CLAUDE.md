@@ -289,7 +289,46 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage R9 — per-class reject thresholds for unfamiliar-fault detection (Q3, development data only)
+## 7. Current stage: Stage App-8 — redesign: diagnosis dashboard, assistant page, pipeline (frontend only)
+
+The report page's right-hand panel becomes a button that opens a full **diagnosis dashboard**; the assistant gets its own
+page; the pipeline page is redrawn left to right. Source: the designer's files (`MachineSense Dashboard.dc.html`,
+`MachineSense Assistant.dc.html`, `MachineSense Pipeline.dc.html`, brief `SystemCode/design/dashboard_brief.md`), layout
+"A · Rig stage" (Bhuvesh, 24 Oct). **Built after the 24 Oct code-freeze date by Bhuvesh's decision (24 Oct)**; it changes
+presentation only.
+
+**App-8 protocol (declared 24 Oct 2026, before any code).**
+1. **Scope.** `SystemCode/frontend/` only. No backend, model, threshold, scoring path, decision rule, `EvidenceRecord`
+   field, report builder, explanation prompt, agent prompt / tools / review (`AGENT_PROMPT_VERSION` stays
+   8fb7865754455d65) or API change; reserved tests sealed; no new dependency.
+2. **Routes.** `#/case/<id>/dashboard` (new), `#/case/<id>/assistant` (new), `#/case/<id>/pipeline` (same route, new
+   layout). The report page keeps the 3-D rig and the reading drawer; its right-hand panel is replaced by an "Open the
+   dashboard" button; the assistant launcher opens the assistant page.
+3. **Data rule.** Every value shown comes from the existing API responses of that case (`/cases/{id}`, `/report`,
+   `/channels`, `/signals`, `/activity`, `/explanation`, `/trace`, `/questions`, `/ask`, `/cases`). The designs' sample
+   numbers and ids (B1s 6.82, MSP 0.9981, GL-BRG-…, a five-case trend) are never used. A card whose data the API does not
+   provide is left out or says so: the spectrum has **no healthy-reference line** (no reference spectrum is served); the
+   "difference from healthy" gauge is B1s against τ_b (Developer: values; Mechanic: words only, "like healthy" /
+   "different from healthy", no number), with the caption that it is not a severity measure; the earlier-cases chart uses
+   the B1s of the most recent stored cases (`/cases` then each record) and says they are separate dataset recordings, not
+   repeated readings of one machine; inspection steps are report section 04's items with their source id and verification
+   note parsed from the item text, never written by the frontend.
+4. **Decision shown as the rule decides.** Under the default rule (B_with_caution) the verdict depends on the confidence
+   (MSP ≥ τ_p) and familiarity (Mahalanobis ≤ τ_d) checks and the top class; the AE-6 and B1s checks only add a caution to a
+   healthy verdict and never gate it. The pipeline's decision panel and the dashboard's check grid show that, from
+   `report.assessment` (the backend's own check statuses); the design's "known fault requires AE ∨ B1s" wording is not used.
+5. **Wording kept.** Location "according to the dataset label (model prediction)"; sensor changes are "measured change",
+   never location; "Model scores are not the probability that the diagnosis is correct."; the in-sample notice for dataset
+   recordings; "Research demonstration; not validated on real machines."; no model reasoning; scores never shown as 1.0000
+   (`fmtScore`); the Mechanic view shows no score, threshold or percentage; the CNN attribution is labelled exploratory.
+6. **Views.** Mechanic / Developer as today (`usePanelView`, the same stored choice). Below 1024 px the dashboard stacks
+   into one column without the 3-D rig; the pipeline keeps its phone step list.
+7. **Tests.** `npm test` (smoke render from the fixtures, mobile width, race, pipeline requests) passes; new smoke checks:
+   dashboard and assistant render from each fixture in both views, no design sample value appears, the forbidden-wording
+   list (`never`) holds on the new pages, the Mechanic view shows no score; the pipeline's existing checks are kept or
+   replaced one for one with the reason in the commit. The backend suite runs unchanged.
+
+## 7-prev13. Previous stage: Stage R9 — per-class reject thresholds for unfamiliar-fault detection (Q3, development data only)
 
 Question: **with the same total number of known recordings rejected, do per-class (class-conditional, Mondrian)
 thresholds catch more unfamiliar faults than today's one shared τ_p and τ_d per LOCO run?** Known classes differ in spread
