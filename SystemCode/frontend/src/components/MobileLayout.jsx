@@ -8,6 +8,7 @@ import { Logo, UnseenLink } from "./TopBar.jsx";
 import InvestigationDialog from "./InvestigationDialog.jsx";
 import NameModal from "./NameModal.jsx";
 import AgentChat from "./AgentChat.jsx";
+import { CaseLinks } from "./CaseCard.jsx";
 
 // Below 1024 px (App-2a.3): a stacked, readable layout with no horizontal scroll and no 3D — top bar, diagnosis card
 // (with warnings), report, the evidence strip as a list and a static rig image with markers.
@@ -81,6 +82,7 @@ export default function MobileLayout(props) {
         <p>Investigate a recording, inspect the evidence, and decide what needs attention.</p>
         <button type="button" className="start-btn" onClick={() => setDialogOpen(true)}>Start investigation →</button>
       </section>}
+      {reportPage && <CaseLinks caseId={record.case_id} />}
       {reportPage && <section className="m-card m-panel">
         <PanelContent record={record} status={status} error={error} selection={selection} report={report} activity={props.activity}
           runningFor={runningFor} explanation={props.explanation} onRegenerate={props.onRegenerate} view={props.view} onView={props.onView} />

@@ -84,7 +84,9 @@ let failed = 0;
 for (const [name, [props, expect, absent = [], extra]] of Object.entries(screens)) {
   const p = { onPick: base.noop, onFile: base.noop, onClearUpload: base.noop, onStart: base.noop, onSaveName: base.noop, onChangeName: base.noop, ...props };
   let html;
-  try { html = renderToString(<Workspace {...p} />); } catch (e) { console.error(`✗ ${name}: render threw ${e.stack}`); failed++; continue; }
+  // App-8: the diagnosis panel lives on the phone layout (desktop: a summary card linking the dashboard), so a report screen
+  // is checked on both widths together.
+  try { html = renderToString(<Workspace {...p} />) + (p.record && p.status === "done" ? renderToString(<Workspace {...p} initialViewport={{ w: 390, h: 844 }} />) : ""); } catch (e) { console.error(`✗ ${name}: render threw ${e.stack}`); failed++; continue; }
   const text = html.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/\s+/g, " ");
   const miss = [...expect, ...always].filter((s) => !text.includes(s) && !html.includes(s));
   const bad = [...never, ...absent].filter((s) => text.toLowerCase().includes(s.toLowerCase()));
@@ -470,7 +472,7 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
     !moving.length && /prefers-reduced-motion: reduce\)[^{]*\{[^}]*animation: none !important; transition: none !important/.test(cssText), JSON.stringify(moving));
 }
 
-// The pipeline entry belongs to the Developer diagnosis panel, on both desktop and phone.
+// The pipeline entry: on the desktop report page in the summary card (App-8, both views); on the phone in the Developer panel.
 {
   const P = { onPick() {}, onFile() {}, onClearUpload() {}, onStart() {}, onSaveName() {}, onChangeName() {} };
   const href = `href="#/case/${knownFault.record.case_id}/pipeline"`;
@@ -479,10 +481,13 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
   const mechDesk = renderToString(<Workspace {...P} {...mech(knownFault)} />);
   const mechPhone = renderToString(<Workspace {...P} {...mech(knownFault)} initialViewport={MOBILE} />);
   const running = renderToString(<Workspace {...P} {...base} selection={sel(knownFault)} status="running" runningFor="x" />);
-  pcheck("main screen: Pipeline view in Developer panel on desktop and phone, hidden from Mechanic",
-    /class="pl-open-btn"[^>]*>/.test(desk) && desk.includes(href) && textOf(desk).includes("Pipeline view") &&
+  pcheck("main screen: Pipeline view in the desktop summary card and the phone Developer panel, hidden from the phone Mechanic panel",
+    /class="pl-open-btn"[^>]*>/.test(desk) && desk.includes(href) && textOf(desk).includes("Pipeline view") && mechDesk.includes(href) &&
     phone.includes('class="pl-open-btn"') && phone.includes(href) &&
-    !mechDesk.includes(href) && !mechPhone.includes(href) && !running.includes("pl-open-btn"));
+    !mechPhone.includes(href) && !running.includes("pl-open-btn"));
+  const dash = `href="#/case/${knownFault.record.case_id}/dashboard"`, asst = `href="#/case/${knownFault.record.case_id}/assistant"`;
+  pcheck("App-8: the report page links the dashboard and the assistant page on desktop and phone (no side panel on desktop)",
+    [desk, mechDesk, phone, mechPhone].every((h) => h.includes(dash) && h.includes(asst)) && !desk.includes("Checks against calibrated thresholds"));
   pcheck("pipeline page: a \"← Back to the case\" button in the header",
     textOf(renderToString(<PipelineView trace={fxKnown} caseId={fxKnown.case_id} initialMode="case" initialSize={DESK} />)).includes("← Back to the case"));
 }
@@ -548,6 +553,71 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
 <style>${css}</style></head><body><div id="root">${full}</div></body></html>`);
   pcheck("navigation: \"Explore an unseen fault\" in the desktop top bar and the phone header",
     desk.includes('href="#/unseen"') && textOf(desk).includes("Explore an unseen fault") && phone.includes('href="#/unseen"'));
+}
+
+// App-8: the dashboard and the assistant page, from the same recorded responses. Every fixture in both views renders; the
+// honesty lines are on the page; the designer's sample values never appear; the Mechanic view shows no score or threshold.
+import { DashboardView } from "../src/components/Dashboard.jsx";
+import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
+import { guidanceSteps } from "../src/lib/dashboard.js";
+import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN } from "../src/lib/model.js";
+{
+  const SAMPLE = ["6.82", "0.9981", "0.9412", "GL-BRG", "c_8f3a21", "36.454", "Sam Okafor", "xp-prompt v3", "7e2d9a1", "look_up_guidance"];
+  const fx = { knownFault, unknown, caution, poor, healthy, disagree, narrow, plainHealthy };
+  const dash = (f, view, extra = {}) => renderToString(<DashboardView caseId={f.record.case_id} record={f.record} report={f.report} channels={f.channels}
+    signals={f.signals} activity={f.activity} explanation={{ status: "ready", data: f.explanation }} recent={[unknown.record, f.record]}
+    initialView={view} initialWidth={1440} {...extra} />);
+  const bad = [];
+  for (const [n, f] of Object.entries(fx)) for (const view of ["mechanic", "developer"]) {
+    let h; try { h = dash(f, view); } catch (e) { bad.push(`${n}/${view}: threw ${e.message}`); continue; }
+    const t = textOf(h);
+    const need = ["Research demonstration; not validated on real machines.", SN, "Sensor channels vs a healthy recording", "What to inspect next",
+      "No healthy-reference spectrum is stored with the case.", "Earlier cases are separate dataset recordings", "This is not a measure of damage severity.",
+      ...(f.record.source === "dataset" ? [INS] : []), ...(f.record.diagnosis.decision === "known_fault" ? ["According to the dataset label (model prediction)"] : [])];
+    const miss = need.filter((x) => !t.includes(x));
+    const forb = [...never, ...SAMPLE].filter((x) => t.toLowerCase().includes(x.toLowerCase()));
+    if (view === "mechanic") {
+      const d = f.record.diagnosis;
+      forb.push(...["τ_", "MSP", "Mahalanobis", fmtC(d.scores.b1s), fmtC(d.thresholds.tau_b), "Traceability", "Decision checks"].filter((x) => t.includes(x)));
+    } else {
+      miss.push(...["Decision checks", "only add a caution to a healthy verdict", "Traceability", "CNN attribution · exploratory", "Not evidence of location"].filter((x) => !t.includes(x)));
+    }
+    if (miss.length || forb.length) bad.push(`${n}/${view}: missing ${JSON.stringify(miss)} forbidden ${JSON.stringify(forb)}`);
+  }
+  pcheck(`App-8 dashboard: ${Object.keys(fx).length} fixtures × 2 views render with the required lines, no sample values, no scores in Mechanic`, !bad.length, bad.join("\n"));
+  const steps = guidanceSteps(knownFault.report.sections.find((s) => s.n === "04").items);
+  const tk = textOf(dash(knownFault, "mechanic"));
+  pcheck("App-8 dashboard: inspection steps are section 04's items with their source chip and note, text unchanged",
+    steps.length > 0 && steps.every((x) => x.src && knownFault.report.sections.find((s) => s.n === "04").items.some((it) => it.text.startsWith(x.text)))
+    && tk.includes("source: bearing-defect-frequencies") && tk.includes("Citation not yet checked against the full text"));
+  const hp = textOf(dash(plainHealthy, "mechanic"));
+  pcheck("App-8 dashboard: a healthy verdict offers no inspection step and no suggested location",
+    hp.includes("No inspection steps are offered for a healthy verdict.") && !hp.includes("Suggested location"));
+  pcheck("App-8 dashboard: links back to the report page, to the assistant page and to the pipeline",
+    ["dashboard", "assistant", "pipeline"].every((p) => p === "dashboard" ? dash(knownFault, "mechanic").includes(`href="#/case/${knownFault.record.case_id}"`)
+      : dash(knownFault, "mechanic").includes(`href="#/case/${knownFault.record.case_id}/${p}"`)));
+  const narrowHtml = dash(knownFault, "developer", { initialWidth: 390 });
+  pcheck("App-8 dashboard: below 1024 px one column without the 3-D rig", narrowHtml.includes("is-narrow") && !narrowHtml.includes("Rotor test rig · illustrative"));
+  writeFileSync(join(here, "mobile", "dashboard_390.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>${css}</style></head><body><div id="root">${narrowHtml}</div></body></html>`);
+
+  const secret = "PRIVATE-REASONING-TEXT";
+  const ans = { question: "What should I inspect next?", answer: "First paragraph.\n\nSecond paragraph.", claims: [],
+    citations: [{ id: "bearing-defect-frequencies", title: "Check a bearing verdict against the envelope defect lines" }],
+    actions: [{ tool: "lookup_guidance", arguments: {}, summary: "7 inspection step(s) from bearing-defect-frequencies" }],
+    review: { status: "revised", failed: [] }, source: "agent", reasoning: secret, reasoning_content: secret };
+  const off = { ...ans, source: "fallback", reason: "language model unreachable (timeout)", review: { status: "fallback", failed: [] } };
+  const av = (entries) => renderToString(<AssistantView caseId={knownFault.record.case_id} record={knownFault.record} report={knownFault.report}
+    channels={knownFault.channels} initialEntries={entries} />);
+  const a0 = textOf(av([])), a1h = av([{ question: ans.question, status: "done", answer: ans }]), a1 = textOf(a1h), a2 = textOf(av([{ question: "q", status: "done", answer: off }]));
+  pcheck("App-8 assistant page: suggestions, the four real tool names, context from the case, honesty lines",
+    a0.includes("Ask about this recording") && a0.includes("Why was this recording flagged?") && TOOLS.every((x) => a0.includes(x))
+    && a0.includes("according to the dataset label") && a0.includes(SN) && a0.includes("Research demonstration; not validated on real machines.")
+    && a0.includes("inspection step") && !SAMPLE.some((x) => a0.includes(x)));
+  pcheck("App-8 assistant page: an answer shows its paragraphs, review badge, actions count and citation (title on hover), never reasoning",
+    a1.includes("First paragraph.") && a1.includes("Second paragraph.") && a1.includes(REVIEW_BADGE.revised) && a1.includes("Actions · 1")
+    && a1h.includes('title="Check a bearing verdict') && !a1h.includes(secret));
+  pcheck("App-8 assistant page: an unavailable model gives the one-line pointer to the report, no badge", a2.includes(UNAVAILABLE) && !a2.includes(REVIEW_BADGE.fallback));
 }
 
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }

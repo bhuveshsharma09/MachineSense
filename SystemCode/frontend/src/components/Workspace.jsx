@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { K, al } from "../lib/theme.js";
 import { PART, cleanText, locations, nf, qualityFlags, recordingTitle, unusualSensors } from "../lib/model.js";
-import Aside, { usePanelView } from "./Aside.jsx";
+import { usePanelView } from "./Aside.jsx";
+import CaseCard, { AssistantLink } from "./CaseCard.jsx";
 import { factsFor } from "./EvidenceStrip.jsx";
 import ReadingDetails from "./ReadingDetails.jsx";
 import Inspector from "./Inspector.jsx";
@@ -132,15 +133,13 @@ export default function Workspace(props) {
       {reportPage && <ReadingDetails open={drawer} onToggle={() => setDrawer(!drawer)} record={record} channels={channels} signals={signals}
         flags={flags} selCh={part ? chId : null} upload={upload} facts={factsFor(record, upload, error)}
         onTile={(c) => set({ sel: c.sensor, evCh: c.id })} />}
-      {reportPage && <Aside record={record} status={status} error={error} selection={selection} runningFor={runningFor} activity={activity}
-        report={report} explanation={explanation} onRegenerate={onRegenerate} view={view} onView={setView}
-        limitations={limitations?.map(cleanText)} onShowPart={(id) => set({ sel: id, evCh: PART[id]?.ch[0] })}
-        onOpenChat={() => setChatOpen(true)} />}
+      {reportPage && <CaseCard record={record} report={report} onShowPart={(id) => set({ sel: id, evCh: PART[id]?.ch[0] })} />}
       <InvestigationDialog open={dialogOpen} recordings={recordings} showcase={showcase} selection={selection} upload={upload}
         onPick={onPick} onFile={onFile} onClearUpload={onClearUpload} onStart={onStart} onClose={() => setDialogOpen(false)}
         status={status} error={error} runningFor={runningFor} />
       {needsName && <NameModal initial={userName} onSave={onSaveName} />}
-      <AgentChat caseId={record?.case_id} open={chatOpen} onOpen={() => setChatOpen(true)} onClose={() => setChatOpen(false)} />
+      {reportPage ? <AssistantLink caseId={record.case_id} />
+        : <AgentChat caseId={record?.case_id} open={chatOpen} onOpen={() => setChatOpen(true)} onClose={() => setChatOpen(false)} />}
     </div>
   );
 }

@@ -3,6 +3,9 @@ import * as THREE from 'three';
 
 const COL = { orange: 0xff6428, amber: 0xf2ae2e, lime: 0xc6e03a, violet: 0x5a5cf5 };
 const PICK = new Set(['motor', 'coupling', 'in_brg', 'rotor', 'shaft', 'out_brg', 's_in', 's_out', 's_tach', 's_mic']);
+// Part view (App-8, from the designer's rig-scene.js): `isolate` shows one part alone, framed by ISO_VIEW
+const ISO_SHOW = { rotor: ['rotor', 'shaft'], s_in: ['in_brg'], s_out: ['out_brg'] };
+const ISO_VIEW = { motor: { t: [-0.34, 0.17, 0], r: 0.7 }, coupling: { t: [-0.215, 0.2, 0], r: 0.17 }, shaft: { t: [0.085, 0.2, 0], r: 1.25 }, in_brg: { t: [-0.1, 0.17, 0], r: 0.52 }, out_brg: { t: [0.3, 0.17, 0], r: 0.52 }, rotor: { t: [0.1, 0.2, 0], r: 0.58 }, s_tach: { t: [-0.165, 0.13, 0.07], r: 0.46 }, s_mic: { t: [0.1, 0.11, 0.17], r: 0.42 } };
 const FOCUS = { motor: 0.9, coupling: 0.55, in_brg: 0.6, rotor: 0.78, shaft: 0.8, out_brg: 0.6, s_in: 0.5, s_out: 0.5, s_tach: 0.5, s_mic: 0.55 };
 
 function radialTex(stops, size = 256) {
@@ -43,6 +46,7 @@ const cylZ = (r, len, seg = 24) => new THREE.CylinderGeometry(r, r, len, seg).ro
 
 export function createRig(container, opts = {}) {
   const reduce = !!opts.reducedMotion;
+  const freeSpin = !!opts.autorotate;  // part view: turns slowly on its own, drag rotates all the way round
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
   if (!renderer.getContext()) throw new Error('WebGL unavailable');
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -263,7 +267,7 @@ export function createRig(container, opts = {}) {
   const DEF = { target: new THREE.Vector3(0.02, 0.13, 0), theta: 0.58, phi: 1.12, radius: 1.75 };
   const view = { target: DEF.target.clone(), theta: DEF.theta, phi: DEF.phi, radius: DEF.radius };
   const cur = { target: DEF.target.clone(), theta: DEF.theta, phi: DEF.phi + 0.06, radius: DEF.radius * 1.12 };
-  let st = { sel: null, hover: null, fault: [], cand: [], unusual: [], unusable: [], exploded: false, zoomOut: 1, insets: { top: 0, right: 0, bottom: 0, left: 0 } };
+  let st = { sel: null, hover: null, fault: [], cand: [], unusual: [], unusable: [], exploded: false, zoomOut: 1, isolate: opts.isolate || null, insets: { top: 0, right: 0, bottom: 0, left: 0 } };
   let W = 1, H = 1, hoverPick = null, zoomK = 1;
   
   function resize() {
@@ -275,10 +279,22 @@ export function createRig(container, opts = {}) {
     const tf = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
     const fw = Math.max(0.3, (W - ins.left - ins.right) / W), fh = Math.max(0.3, (H - ins.top - ins.bottom) / H);
     const fit = clamp(Math.max(1.22 / (tf * camera.aspect * fw), 0.6 / (tf * fh)) * st.zoomOut, 1.2, 4.5);
+    if (st.isolate) {
+      const v = ISO_VIEW[st.isolate] || ISO_VIEW.out_brg;
+      DEF.target.set(...v.t); DEF.radius = v.r * Math.max(1, 1.3 / camera.aspect);
+      view.target.copy(DEF.target); view.radius = DEF.radius; return;
+    }
     const was = DEF.radius; DEF.radius = fit; zoomK = fit / 1.75;
     if (!st.sel && Math.abs(view.radius - was) < 0.02) view.radius = fit;
   }
+  function applyIso() {
+    const show = st.isolate ? (ISO_SHOW[st.isolate] || [st.isolate]).map(k => G[k]) : null;
+    root.children.forEach(c => { c.visible = !show || show.includes(c); });
+    ground.visible = blob.visible = !show;
+  }
   const ro = new ResizeObserver(resize); ro.observe(container); resize();
+  applyIso();
+  if (st.isolate) { cur.target.copy(DEF.target); cur.radius = DEF.radius * 1.1; }
 
   const wp = new THREE.Vector3();
   function focus(id) {
@@ -345,17 +361,18 @@ export function createRig(container, opts = {}) {
       const dx = e.clientX - down.x, dy = e.clientY - down.y;
       if (!dragging && Math.hypot(dx, dy) > 4) dragging = true;
       if (dragging) {
-        view.theta = clamp(view.theta - e.movementX * 0.004, -0.15, 1.1);
+        view.theta = freeSpin ? view.theta - e.movementX * 0.006 : clamp(view.theta - e.movementX * 0.004, -0.15, 1.1);
         view.phi = clamp(view.phi - e.movementY * 0.0035, 0.88, 1.28);
         cv.style.cursor = 'grabbing';
       }
       return;
     }
+    if (opts.noPick) return;
     const id = pickAt(e.clientX, e.clientY);
     if (id !== hoverPick) { hoverPick = id; cv.style.cursor = id ? 'pointer' : 'grab'; apply(); if (opts.onHover) opts.onHover(id); }
   };
   const onUp = e => {
-    if (down && !dragging && opts.onPick) opts.onPick(pickAt(e.clientX, e.clientY));
+    if (down && !dragging && opts.onPick && !opts.noPick) opts.onPick(pickAt(e.clientX, e.clientY));
     down = null; dragging = false; cv.style.cursor = hoverPick ? 'pointer' : 'grab';
   };
   const onLeave = () => { if (hoverPick) { hoverPick = null; apply(); if (opts.onHover) opts.onHover(null); } };
@@ -370,6 +387,7 @@ export function createRig(container, opts = {}) {
   function tickFrame() {
     const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000); last = now;
     const k = reduce ? 1 : 1 - Math.exp(-dt * 5.5);
+    if (freeSpin && !down && !reduce) view.theta += dt * 0.32;
     cur.theta += (view.theta - cur.theta) * k; cur.phi += (view.phi - cur.phi) * k; cur.radius += (view.radius - cur.radius) * k; cur.target.lerp(view.target, k);
     cam.set(Math.sin(cur.phi) * Math.sin(cur.theta), Math.cos(cur.phi), Math.sin(cur.phi) * Math.cos(cur.theta)).multiplyScalar(cur.radius).add(cur.target);
     camera.position.copy(cam); camera.lookAt(cur.target);
@@ -444,8 +462,9 @@ export function createRig(container, opts = {}) {
 
   return {
     update(s) {
-      const prevSel = st.sel, prevIns = JSON.stringify(st.insets), prevZoom = st.zoomOut;
+      const prevSel = st.sel, prevIns = JSON.stringify(st.insets), prevZoom = st.zoomOut, prevIso = st.isolate;
       st = Object.assign({}, st, s);
+      if (st.isolate !== prevIso) { applyIso(); resize(); }
       if (JSON.stringify(st.insets) !== prevIns || st.zoomOut !== prevZoom) resize();
       if (st.sel !== prevSel) { if (st.sel) focus(st.sel); else resetView(); }
       apply();

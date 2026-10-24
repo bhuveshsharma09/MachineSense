@@ -22,6 +22,7 @@ export const diagnoseUpload = (file, { signal, requestId, uploadId } = {}) => {
 };
 export const rerunCase = (caseId, { signal, requestId } = {}) =>
   api.post(`/cases/${caseId}/rerun`, null, { signal, headers: { "X-Request-Id": requestId } }).then(echoed);
+export const getRecent = (limit = 20, { signal } = {}) => api.get("/cases", { params: { limit }, signal }).then((r) => r.data.cases);
 export const getCase = (id, { signal } = {}) => api.get(`/cases/${id}`, { signal }).then((r) => r.data);
 export const getCaseMeta = (id, { signal } = {}) => api.get(`/cases/${id}/meta`, { signal }).then((r) => r.data);
 export const getActivity = (id, { signal } = {}) => api.get(`/cases/${id}/activity`, { signal }).then((r) => r.data);

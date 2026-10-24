@@ -4,6 +4,8 @@ import {
   getReport, getShowcase, getSignals, postExplanation, rerunCase,
 } from "./api.js";
 import { createSession } from "./lib/session.js";
+import Assistant from "./components/Assistant.jsx";
+import Dashboard from "./components/Dashboard.jsx";
 import Pipeline from "./components/Pipeline.jsx";
 import Unseen from "./components/Unseen.jsx";
 import Scene from "./components/Scene.jsx";
@@ -14,6 +16,7 @@ const readName = () => { try { return localStorage.getItem(NAME_KEY) || ""; } ca
 
 // Hash routes: #/ ; #/case/<case_id> (reopens a stored case) ; #/diagnose/<rec_id> (selects and runs a recording) ;
 // #/case/<case_id>/pipeline (App-4.2: the pipeline architecture, drawn from that case's trace; no inference) ;
+// #/case/<case_id>/dashboard and #/case/<case_id>/assistant (App-8: the diagnosis dashboard and the assistant page) ;
 // #/unseen (App-6: "Explore an unseen fault", a leave-one-class-out research demonstration).
 // Optional query for linking to a view: ?sel=<part>&ch=<channel>&view=spectrum|envelope|waveform&tab=activity|report&static=1
 function query() {
@@ -34,19 +37,22 @@ function Capture() {
 }
 
 const isUnseen = () => /^#\/unseen\/?$/.test(window.location.hash);
-const pipelineCase = () => { const m = /^#\/case\/([^/]+)\/pipeline\/?$/.exec(window.location.hash); return m ? decodeURIComponent(m[1]) : null; };
+const casePage = () => { const m = /^#\/case\/([^/]+)\/(pipeline|dashboard|assistant)\/?$/.exec(window.location.hash); return m ? { id: decodeURIComponent(m[1]), page: m[2] } : null; };
 
 export default function App() {
-  const [pipeline, setPipeline] = useState(pipelineCase);
+  const [page, setPage] = useState(casePage);
   const [unseen, setUnseen] = useState(isUnseen);
   useEffect(() => {
-    const on = () => { setPipeline(pipelineCase()); setUnseen(isUnseen()); };
+    const on = () => { setPage(casePage()); setUnseen(isUnseen()); window.scrollTo?.(0, 0); };
     window.addEventListener("hashchange", on);
     return () => window.removeEventListener("hashchange", on);
   }, []);
   if (useRef(query()).current.capture) return <Capture />;
   if (unseen) return <Unseen />;
-  return pipeline ? <Pipeline key={pipeline} caseId={pipeline} /> : <Main />;
+  if (page?.page === "pipeline") return <Pipeline key={page.id} caseId={page.id} />;
+  if (page?.page === "dashboard") return <Dashboard key={page.id} caseId={page.id} />;
+  if (page?.page === "assistant") return <Assistant key={page.id} caseId={page.id} />;
+  return <Main />;
 }
 
 let uploadCounter = 0;
