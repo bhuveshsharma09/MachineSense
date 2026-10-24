@@ -9,7 +9,7 @@ import { Svg, W, H, bandPath, linePath, rangeMax } from "./Charts.jsx";
 // Nothing is fetched until the user asks in the drawer; a preview is evidence about the signal, not about fault
 // location (no predicted fault is drawn; the default channel does not depend on the verdict).
 export const PREVIEW_BLOCKS = { preparation: "waveform", order_spectrogram: "spectrum", evidence_record: "envelope" };
-export const THUMB_EXTRA = 110;               // extra block width for the thumbnail slot (layout extraWidth)
+export const THUMB_EXTRA = 58;                // extra block height for the thumbnail slot under the text (layout extraHeight)
 export const DEFAULT_CHANNEL = "under_radial";
 const MAXO = 8, ENV_MAXO = 12;
 const COMPUTED = "Computed now for this view · not part of the saved diagnosis";

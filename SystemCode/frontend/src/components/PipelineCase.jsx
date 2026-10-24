@@ -147,3 +147,58 @@ export function CaseHeading({ trace }) {
     </p>
   );
 }
+
+// App-8: the decision panel on the canvas (the designer's "Decision" column). One row per check of the rule, each beside
+// its input port, then the verdict. Under the rule in use the confidence and familiarity checks decide the verdict
+// (with the top class); the two healthy-baseline checks only add a caution to a healthy verdict, and the rows say so.
+const DEC_KEYS = ["msp", "maha", "ae", "b1s"];
+const DEC_ROW = {
+  msp: { name: "Confidence", pass: "The classifier is confident in its best match", fail: "The classifier is not confident enough", arch: "Passes when the best-match score is at least τ_p" },
+  maha: { name: "Familiarity", pass: "Looks like recordings the model has seen", fail: "Unlike the recordings the model has seen", arch: "Passes when the distance is at most τ_d" },
+  ae: { name: "Healthy pattern", pass: "Looks like the healthy recordings", fail: "Differs from the healthy recordings", arch: "Above τ_e: differs from healthy; adds a caution only" },
+  b1s: { name: "Healthy at this speed", pass: "Looks like healthy recordings at this speed", fail: "Differs from healthy recordings at this speed", arch: "Above τ_b: differs from healthy; adds a caution only" },
+};
+export function DecisionPanel({ trace, block, level, geom }) {
+  const dev = level === "developer";
+  const P = trace ? blockPaths(trace).decision : null;
+  const checks = trace ? at(trace, `${P}.output.checks`) || [] : [];
+  const idx = (k) => checks.findIndex((c) => c.check.startsWith(k));
+  const d = trace ? valueOf(at(trace, `${P}.output.decision`)) : null;
+  const tone = (k, ok) => (k === "ae" || k === "b1s" ? (ok ? "is-ok" : "is-info") : ok ? "is-ok" : "is-warn");
+  return (
+    <div className="pl-dec">
+      <div className="pl-dec-head" style={{ height: geom.HEAD }}>
+        <div className="pl-title" style={{ textAlign: "left" }}>{block.title_mechanic && !dev ? block.title_mechanic : block.title_developer}</div>
+        <div className="pl-dec-intro">{!trace ? "Combines the checks with a fixed rule. The second opinion is not used."
+          : dev ? "MSP ≥ τ_p and distance ≤ τ_d: the top class; otherwise further inspection. The healthy-baseline checks add a caution only."
+          : "The verdict needs a confident, familiar match. The healthy checks can only add a caution."}</div>
+      </div>
+      {DEC_KEYS.map((k, r) => {
+        const i = idx(k), c = i >= 0 ? `${P}.output.checks.${i}` : null, ok = c ? valueOf(at(trace, `${c}.passed`)) : null;
+        const base = k === "ae" || k === "b1s";
+        return (
+          <div key={k} className="pl-dec-row" data-check={k} style={{ top: geom.HEAD + r * (geom.ROW + geom.ROW_GAP), height: geom.ROW }}>
+            <div className="pl-dec-row-text">
+              <b>{DEC_ROW[k].name}</b>
+              <span>{!c ? DEC_ROW[k].arch : dev ? <><V trace={trace} p={`${c}.value`} f="check" /> {k === "msp" ? (ok ? "≥" : "<") : ok ? "≤" : ">"} <V trace={trace} p={`${c}.threshold`} f="check" />{base ? " · caution only" : ""}</>
+                : ok ? DEC_ROW[k].pass : DEC_ROW[k].fail}</span>
+            </div>
+            {c && <span className={"pl-dec-vote " + tone(k, ok)}>{base ? (ok ? "✓ Healthy" : "Differs") : ok ? "✓ Passes" : "✗ Fails"}</span>}
+          </div>
+        );
+      })}
+      <div className={"pl-dec-verdict" + (trace ? " is-" + (d === "known_fault" ? "fault" : d === "unknown" ? "further" : "healthy") : "")}
+        style={{ bottom: 42, height: geom.VERDICT }}>
+        <div className="pl-dec-vhead"><span className="mono kicker">{trace ? "Verdict" : "Possible outcomes"}</span>
+          {trace && <span className="pl-dec-pips">{DEC_KEYS.map((k) => { const i = idx(k); const ok = i >= 0 && valueOf(at(trace, `${P}.output.checks.${i}.passed`));
+            return <i key={k} className={ok ? "is-ok" : k === "ae" || k === "b1s" ? "is-info" : "is-warn"} />; })}</span>}</div>
+        {trace ? <div className="pl-dec-vtitle"><Verdict trace={trace} p={`${P}.output.display_label`} /></div>
+          : <div className="pl-dec-vtitle" style={{ fontSize: 13.5 }}>Healthy · Healthy (caution) · Known fault · Further inspection needed</div>}
+        <div className="pl-dec-vsub">{!trace ? "A recording the checks do not support gets further inspection, not a guess."
+          : d === "known_fault" ? "Model prediction, according to the dataset label." : d === "unknown" ? "Further inspection needed: the checks did not support a known condition."
+          : "No fault detected by the checks in use."}</div>
+      </div>
+      <span className="pl-dec-rule" title="The decision rule is a provisional setting for this research demonstration.">Decision rule: provisional research setting</span>
+    </div>
+  );
+}

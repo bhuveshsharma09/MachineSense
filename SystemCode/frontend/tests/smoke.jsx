@@ -277,7 +277,7 @@ const DESK = { w: 1440, h: 900 };
 }
 
 // App-4.2.1: legibility of the rebalanced layout, labels on demand, and the way in and out of the page.
-import { countCrossings, edgeThroughBlock, GEOM, layoutPipeline, titleWidth } from "../src/lib/pipelineLayout.js";
+import { countCrossings, edgeThroughBlock, layoutPipeline, titleFits } from "../src/lib/pipelineLayout.js";
 import { fitView, INSET, LEGIBLE } from "../src/components/PipelineCanvas.jsx";
 {
   const L = layoutPipeline(traceFx);
@@ -286,9 +286,12 @@ import { fitView, INSET, LEGIBLE } from "../src/components/PipelineCanvas.jsx";
   const f1440 = fitView(L.bounds, { w: 1440, h: 900 }), f1280 = fitView(L.bounds, { w: 1280, h: 800 });
   const whole1440 = Math.min((1440 - 2 * INSET.side) / L.bounds.w, (900 - INSET.top - INSET.bottom) / L.bounds.h);
   pcheck(`fit to screen at 1440×900 shows the whole graph at scale ${f1440.scale.toFixed(3)} ≥ ${LEGIBLE}`, f1440.scale >= LEGIBLE && Math.abs(f1440.scale - whole1440) < 1e-9);
-  pcheck(`fit to screen at 1280×800 keeps a legible scale (${f1280.scale.toFixed(3)}; width fitted, vertical pan)`, f1280.scale >= LEGIBLE && f1280.scale * L.bounds.w <= 1280 - 2 * INSET.side + 1e-6);
-  const short = Object.values(L.nodes).filter((n) => n.w < titleWidth(n.block.title_developer) + 2 * GEOM.PAD_X);
-  pcheck("no block is narrower than its Developer title", short.length === 0, JSON.stringify(short.map((n) => n.id)));
+  // App-8 (left to right): when the whole graph is not legible, the height is fitted and the page pans horizontally
+  pcheck(`fit to screen at 1280×800 keeps a legible scale (${f1280.scale.toFixed(3)}; whole graph, or height fitted with horizontal pan)`,
+    f1280.scale >= LEGIBLE && (f1280.scale * L.bounds.h <= 800 - INSET.top - INSET.bottom + 1e-6));
+  // App-8: block titles wrap to at most two lines (columns have fixed widths), replacing the one-line width check
+  const short = Object.values(L.nodes).filter((n) => !titleFits(n));
+  pcheck("every Developer title fits its block in at most two lines", short.length === 0, JSON.stringify(short.map((n) => n.id)));
   const none = renderToString(<PipelineView trace={traceFx} initialLevel="developer" initialSize={DESK} />);
   const sel = renderToString(<PipelineView trace={traceFx} initialLevel="developer" initialSelected="decision" initialSize={DESK} />);
   const labelled = (h) => [...h.matchAll(/<g data-edge="([^"]+)"[^>]*>(?:(?!<\/g>)[\s\S])*?class="pl-edge-label"/g)].map((m) => m[1].replace(/&gt;/g, ">"));
@@ -307,6 +310,7 @@ import { fitView, INSET, LEGIBLE } from "../src/components/PipelineCanvas.jsx";
 
 // App-4.3: the case-populated page ("This diagnosis"). Every displayed value is checked against the fixture trace.
 import { walkPage } from "./pipeline_walk.js";
+import { at, blockPaths } from "../src/lib/pipelineCase.js";
 import fxHealthy from "./fixtures/trace_healthy.json";
 import fxCaution from "./fixtures/trace_caution.json";
 import fxKnown from "./fixtures/trace_known_fault.json";
@@ -371,6 +375,17 @@ import fxNoExpl from "./fixtures/trace_no_explanation.json";
   const decPage = textOf(page(fxKnown, "developer", "decision"));
   pcheck("rule comparison is marked as a comparison of alternative rules, not the verdict", decPage.includes("comparison only, not the verdict"));
   const drawnCase = [...page(fxKnown, "developer").matchAll(/data-edge="([^"]+)"/g)].map((m) => m[1].replace(/&gt;/g, ">"));
+  // App-8: the decision panel's relation signs follow each check's outcome (a value above τ_e reads ">", never "≤")
+  {
+    const h = page(fxKnown, "developer"), dP = blockPaths(fxKnown).decision;
+    const rows = h.split('data-check="').slice(1).map((seg) => [seg.slice(0, seg.indexOf('"')), textOf(seg.split(/pl-dec-row"|pl-dec-verdict/)[0]).replace(/&gt;/g, ">").replace(/&lt;/g, "<")]);
+    const ok = rows.length === 4 && rows.every(([k, t]) => {
+      const c = at(fxKnown, `${dP}.output.checks`).find((x) => x.check.startsWith(k));
+      const sign = k === "msp" ? (c.passed.value ? "≥" : "<") : c.passed.value ? "≤" : ">";
+      return t.includes(` ${sign} `);
+    });
+    pcheck("decision panel: each check row states the relation its outcome implies", ok, JSON.stringify(rows));
+  }
   pcheck("case mode: lr still has no edge to decision", drawnCase.length === fxKnown.edges.length && !drawnCase.some((d) => /^lr\./.test(d) && /->decision\./.test(d)));
   pcheck("case mode: a not-recorded value shows the trace's reason", textOf(page(fxKnown, "developer")).includes("not recorded: the number of R1 feature columns"));
   const other = { ...fxKnown, bundle_matches_record: { ...fxKnown.bundle_matches_record, value: false },
@@ -419,7 +434,7 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
   const walked = walkPage(stripPreviews(pv(fxKnown, "decision")), fxKnown);
   pcheck(`value walker still passes with previews loaded (preview sections excluded; ${walked.checked} values)`, walked.errors.length === 0 && walked.checked > 50, JSON.stringify(walked.errors.slice(0, 3)));
   pcheck("previews carry no predicted fault", comp.concat(saved).every((x) => !/known fault|prediction|overhang cage/i.test(textOf(x))));
-  const Lc = layoutFor(fxKnown, { extraWidth: Object.fromEntries(Object.keys(PREVIEW_BLOCKS).map((k) => [k, THUMB_EXTRA])) });
+  const Lc = layoutFor(fxKnown, { extraHeight: Object.fromEntries(Object.keys(PREVIEW_BLOCKS).map((k) => [k, THUMB_EXTRA])) });
   const fc = fitView(Lc.bounds, { w: 1440, h: 900 });
   pcheck(`case mode with thumbnail slots: fit at 1440×900 is ${fc.scale.toFixed(3)} (whole graph) and no edge passes through a block`,
     fc.scale >= LEGIBLE && edgeThroughBlock(Lc).length === 0);

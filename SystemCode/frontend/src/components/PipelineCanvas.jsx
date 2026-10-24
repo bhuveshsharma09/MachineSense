@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { K, PIPE, PIPE_CASING, PIPE_KIND, PIPE_TEXT } from "../lib/theme.js";
-import { CaseLine } from "./PipelineCase.jsx";
+import { CaseLine, DecisionPanel } from "./PipelineCase.jsx";
+import { DEC } from "../lib/pipelineLayout.js";
 import { STATUS_WORD } from "../lib/pipelineCase.js";
 import { PREVIEW_BLOCKS, Thumb } from "./PipelinePreview.jsx";
 
@@ -22,10 +23,10 @@ export const edgeCasing = (kind, edgeKinds) => PIPE_CASING[edgeKinds?.[kind]] ||
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 // top: the header's height when it grows (App-4.5: the different-bundle notice adds a line), so fit never hides a block
 const usable = (size, top = INSET.top) => ({ w: Math.max(1, size.w - 2 * INSET.side), h: Math.max(1, size.h - top - INSET.bottom) });
-const topAligned = (bounds, size, scale, top = INSET.top) => ({ cx: bounds.x + bounds.w / 2, cy: bounds.y + (size.h / 2 - top) / scale, scale });
 
-// Fit to screen with a legibility floor: the whole graph when that is legible (scale ≥ LEGIBLE); otherwise the width at
-// a legible scale, top-aligned and pannable vertically; on a screen too narrow even for that, LEGIBLE and pan both ways.
+// Fit to screen with a legibility floor: the whole graph when that is legible (scale ≥ LEGIBLE); otherwise (App-8, the
+// graph reads left to right) the height at a legible scale, left-aligned and pannable horizontally; on a screen too short
+// even for that, LEGIBLE and pan both ways.
 export function fitView(bounds, size, top = INSET.top) {
   const u = usable(size, top);
   const whole = Math.min(u.w / bounds.w, u.h / bounds.h);
@@ -33,7 +34,8 @@ export function fitView(bounds, size, top = INSET.top) {
     const scale = clamp(whole, ZOOM.min, 1.2);
     return { cx: bounds.x + bounds.w / 2, cy: bounds.y + bounds.h / 2 - (top - INSET.bottom) / 2 / scale, scale };
   }
-  return topAligned(bounds, size, clamp(Math.max(u.w / bounds.w, LEGIBLE), LEGIBLE, 1.2), top);
+  const scale = clamp(Math.max(u.h / bounds.h, LEGIBLE), LEGIBLE, 1.2);
+  return { cx: bounds.x + (size.w / 2 - INSET.side) / scale, cy: bounds.y + bounds.h / 2 - (top - INSET.bottom) / 2 / scale, scale };
 }
 
 
@@ -137,14 +139,16 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
   const blockEl = (n) => {
     const b = n.block, sel = selected === b.id;
     const act = () => onSelect(b.id);
+    const dec = b.id === "decision" && layout.direction === "lr";
     return (
       <foreignObject key={b.id} x={n.x - 4} y={n.y - 4} width={n.w + 8} height={n.h + 8} style={{ overflow: "visible" }}>
         <div className={"pl-block" + (sel ? " glass-soft is-sel" : "")} role="button" tabIndex={0} aria-label={nameOf(b)} aria-pressed={sel}
-          title={titleOf(b)} data-block={b.id} style={{ width: n.w, height: n.h }}
+          title={titleOf(b)} data-block={b.id} style={{ width: n.w, height: n.h }} data-kind={dec ? "decision" : undefined}
           onClick={act} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } }}
           onFocus={() => reveal(n)} onMouseEnter={() => setHover(b.id)} onMouseLeave={() => setHover(null)}>
-          {mode === "case" && trace && preview && PREVIEW_BLOCKS[b.id] ? (
-            <div className="pl-bl-row">
+          {dec ? <DecisionPanel trace={mode === "case" ? trace : null} block={b} level={level} geom={DEC} />
+          : mode === "case" && trace && preview && PREVIEW_BLOCKS[b.id] ? (
+            <div className="pl-bl-col">
               <div className="pl-bl-text"><div className="pl-title">{titleOf(b)}</div><CaseLine trace={trace} id={b.id} level={level} /></div>
               <Thumb kind={PREVIEW_BLOCKS[b.id]} st={preview} />
             </div>
@@ -165,7 +169,9 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
           strokeWidth={c ? 1.5 : 1.25}>
           <title>{p.label}</title>
         </circle>
-        {view.scale >= PORT_LABEL_MIN_SCALE && <text x={p.x + 5} y={below ? p.y + 13 : p.y - 5} className="pl-port-label">{p.short}</text>}
+        {view.scale >= PORT_LABEL_MIN_SCALE && (p.lx !== undefined
+          ? <text x={p.lx} y={p.ly} textAnchor={p.anchor} className="pl-port-label">{p.short}</text>
+          : <text x={p.x + 5} y={below ? p.y + 13 : p.y - 5} className="pl-port-label">{p.short}</text>)}
       </g>
     );
   };
@@ -175,6 +181,12 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
       <svg className="pl-canvas" viewBox={vb.join(" ")} width="100%" height="100%" preserveAspectRatio="xMidYMid meet"
         role="group" aria-label="Pipeline architecture diagram"
         onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}>
+        {(layout.stages || []).map((s) => (
+          <foreignObject key={s.n} x={s.x} y={0} width={s.w} height={60} style={{ overflow: "visible" }}>
+            <div className="pl-stage" data-stage={s.n}><span className="pl-stage-n">{s.n}</span>
+              <div><div className="pl-stage-t">{s.title}</div><div className="pl-stage-d">{mode === "case" ? s.desc : s.arch}</div></div></div>
+          </foreignObject>
+        ))}
         {layout.frames.map((f) => (
           <g key={f.id} data-frame={f.id}>
             <rect x={f.x} y={f.y} width={f.w} height={f.h} rx={22} fill="oklch(0.985 0.002 260 / 0.45)" stroke="oklch(0.23 0.006 260 / 0.09)" />
@@ -195,7 +207,7 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
                 <circle cx={s[0]} cy={s[1]} r={4.5} fill={c} />
                 <circle cx={z[0]} cy={z[1]} r={4.5} fill={c} />
                 {e.label && labelAt[e.id] && view.scale >= LABEL_MIN_SCALE && (
-                  <text x={labelAt[e.id].x} y={labelAt[e.id].y} textAnchor={labelAt[e.id].anchor} className="pl-edge-label" fill={edgeTextColour(e.kind, edgeKinds)}>{e.label}</text>
+                  <EdgeLabel at={labelAt[e.id]} id={e.id} text={e.label} fill={edgeTextColour(e.kind, edgeKinds)} />
                 )}
               </g>
             );
@@ -225,6 +237,18 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
 });
 
 export default PipelineCanvas;
+
+// an edge label; one too long for its space is clipped (the full text stays in the DOM, the tooltip and the drawer) and
+// followed by an ellipsis
+function EdgeLabel({ at, id, text, fill }) {
+  if (!at.clipW) return <text x={at.x} y={at.y} textAnchor={at.anchor} className="pl-edge-label" fill={fill}>{text}</text>;
+  const cid = "lc-" + id.replace(/[^a-z0-9]/gi, "-");
+  return <>
+    <clipPath id={cid}><rect x={at.x - 3} y={at.y - 12} width={at.clipW + 3} height={16} /></clipPath>
+    <text x={at.x} y={at.y} className="pl-edge-label" fill={fill} clipPath={`url(#${cid})`}>{text}</text>
+    <text x={at.x + at.clipW} y={at.y} className="pl-edge-label" fill={fill}>…</text>
+  </>;
+}
 
 // The overview (App-4.2.1): every group frame and block as an outline, the edges faintly, and the visible area; a click
 // centres the canvas there.

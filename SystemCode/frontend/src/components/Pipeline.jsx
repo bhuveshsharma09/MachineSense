@@ -100,9 +100,9 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
   const narrow = vw < NARROW;
   const layout = useMemo(() => {
     if (problem) return null;
-    // case mode: the three preview blocks get a thumbnail slot beside their text (width only; heights unchanged)
-    const extraWidth = caseMode ? Object.fromEntries(Object.keys(PREVIEW_BLOCKS).map((k) => [k, THUMB_EXTRA])) : {};
-    try { return layoutPipeline(trace, { ...(warn ? { warn } : {}), extraWidth }); } catch (e) { if (e instanceof LayoutError) return null; throw e; }
+    // case mode: the three preview blocks get a thumbnail slot under their text (App-8: height; columns keep their width)
+    const extraHeight = caseMode ? Object.fromEntries(Object.keys(PREVIEW_BLOCKS).map((k) => [k, THUMB_EXTRA])) : {};
+    try { return layoutPipeline(trace, { ...(warn ? { warn } : {}), extraHeight }); } catch (e) { if (e instanceof LayoutError) return null; throw e; }
   }, [trace, caseMode]);
   // previews (App-4.4): fetched only by an explicit action in a drawer, once each, then cached
   const [sig, setSig] = useState(initialSignals ? { status: "ok", data: initialSignals } : { status: "idle" });
