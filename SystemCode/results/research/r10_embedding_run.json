@@ -1,0 +1,340 @@
+{
+ "stage": "R10",
+ "device": "mps",
+ "git_sha": "57efd8b881c06361749d9ab9809c57718b4c3a07-dirty",
+ "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+ "weights_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+ "batch_windows": 128,
+ "passes": [
+  {
+   "withheld": "imbalance",
+   "fold": 0,
+   "windows": 6381,
+   "seconds": 12.79
+  },
+  {
+   "withheld": "imbalance",
+   "fold": 1,
+   "windows": 6372,
+   "seconds": 12.33
+  },
+  {
+   "withheld": "imbalance",
+   "fold": 2,
+   "windows": 6363,
+   "seconds": 12.27
+  },
+  {
+   "withheld": "horizontal_misalignment",
+   "fold": 0,
+   "windows": 6822,
+   "seconds": 13.08
+  },
+  {
+   "withheld": "horizontal_misalignment",
+   "fold": 1,
+   "windows": 6804,
+   "seconds": 13.07
+  },
+  {
+   "withheld": "horizontal_misalignment",
+   "fold": 2,
+   "windows": 6768,
+   "seconds": 12.74
+  },
+  {
+   "withheld": "vertical_misalignment",
+   "fold": 0,
+   "windows": 6345,
+   "seconds": 11.82
+  },
+  {
+   "withheld": "vertical_misalignment",
+   "fold": 1,
+   "windows": 6561,
+   "seconds": 12.26
+  },
+  {
+   "withheld": "vertical_misalignment",
+   "fold": 2,
+   "windows": 6552,
+   "seconds": 12.19
+  },
+  {
+   "withheld": "underhang_ball",
+   "fold": 0,
+   "windows": 6786,
+   "seconds": 12.61
+  },
+  {
+   "withheld": "underhang_ball",
+   "fold": 1,
+   "windows": 6777,
+   "seconds": 12.44
+  },
+  {
+   "withheld": "underhang_ball",
+   "fold": 2,
+   "windows": 6759,
+   "seconds": 12.41
+  },
+  {
+   "withheld": "underhang_cage",
+   "fold": 0,
+   "windows": 6813,
+   "seconds": 12.5
+  },
+  {
+   "withheld": "underhang_cage",
+   "fold": 1,
+   "windows": 6813,
+   "seconds": 12.45
+  },
+  {
+   "withheld": "underhang_cage",
+   "fold": 2,
+   "windows": 6786,
+   "seconds": 12.41
+  },
+  {
+   "withheld": "underhang_outer",
+   "fold": 0,
+   "windows": 6813,
+   "seconds": 12.41
+  },
+  {
+   "withheld": "underhang_outer",
+   "fold": 1,
+   "windows": 6795,
+   "seconds": 12.39
+  },
+  {
+   "withheld": "underhang_outer",
+   "fold": 2,
+   "windows": 6786,
+   "seconds": 12.38
+  },
+  {
+   "withheld": "overhang_ball",
+   "fold": 0,
+   "windows": 6840,
+   "seconds": 12.46
+  },
+  {
+   "withheld": "overhang_ball",
+   "fold": 1,
+   "windows": 6831,
+   "seconds": 12.43
+  },
+  {
+   "withheld": "overhang_ball",
+   "fold": 2,
+   "windows": 6795,
+   "seconds": 12.38
+  },
+  {
+   "withheld": "overhang_cage",
+   "fold": 0,
+   "windows": 6822,
+   "seconds": 12.42
+  },
+  {
+   "withheld": "overhang_cage",
+   "fold": 1,
+   "windows": 6813,
+   "seconds": 12.42
+  },
+  {
+   "withheld": "overhang_cage",
+   "fold": 2,
+   "windows": 6777,
+   "seconds": 12.43
+  },
+  {
+   "withheld": "overhang_outer",
+   "fold": 0,
+   "windows": 6813,
+   "seconds": 12.51
+  },
+  {
+   "withheld": "overhang_outer",
+   "fold": 1,
+   "windows": 6804,
+   "seconds": 12.59
+  },
+  {
+   "withheld": "overhang_outer",
+   "fold": 2,
+   "windows": 6759,
+   "seconds": 12.5
+  }
+ ],
+ "seed_independence": [
+  {
+   "withheld": "imbalance",
+   "fold": 0,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "imbalance",
+   "fold": 1,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "imbalance",
+   "fold": 2,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "horizontal_misalignment",
+   "fold": 0,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "horizontal_misalignment",
+   "fold": 1,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "horizontal_misalignment",
+   "fold": 2,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "vertical_misalignment",
+   "fold": 0,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "vertical_misalignment",
+   "fold": 1,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "vertical_misalignment",
+   "fold": 2,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "underhang_ball",
+   "fold": 0,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "underhang_ball",
+   "fold": 1,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "underhang_ball",
+   "fold": 2,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "underhang_cage",
+   "fold": 0,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "underhang_cage",
+   "fold": 1,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "underhang_cage",
+   "fold": 2,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "underhang_outer",
+   "fold": 0,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "underhang_outer",
+   "fold": 1,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "underhang_outer",
+   "fold": 2,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "overhang_ball",
+   "fold": 0,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "overhang_ball",
+   "fold": 1,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "overhang_ball",
+   "fold": 2,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "overhang_cage",
+   "fold": 0,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "overhang_cage",
+   "fold": 1,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "overhang_cage",
+   "fold": 2,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "overhang_outer",
+   "fold": 0,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "overhang_outer",
+   "fold": 1,
+   "norm_identical": true,
+   "table_identical": true
+  },
+  {
+   "withheld": "overhang_outer",
+   "fold": 2,
+   "norm_identical": true,
+   "table_identical": true
+  }
+ ],
+ "first_pass_seconds": 12.79,
+ "projected_total_minutes": 6.06,
+ "total_seconds": 338.4,
+ "finding": "the 3C normalisation and window tables are identical across seeds 42, 43, 44 for all 27 (class, fold) pairs: 27 passes, reused for every seed"
+}
