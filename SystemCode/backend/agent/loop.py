@@ -1,6 +1,8 @@
 """One question about one stored case: the model may call the four read-only tools within a fixed budget, then gives a
 JSON answer that the evidence review (code) checks before anyone sees it; one revision; otherwise the fixed fallback with
-the report's findings and inspection steps. Each question stands alone (no chat memory). Model reasoning is never kept."""
+the report's findings and inspection steps. By default each question stands alone (no chat memory: the D7 behaviour).
+App-9 conversation mode passes earlier accepted turns of the same case as context (backend.agent.memory) with its own
+prompt version; the review is the same and checks only this turn's tool results. Model reasoning is never kept."""
 from __future__ import annotations
 
 import json
@@ -8,7 +10,8 @@ import time
 from dataclasses import dataclass
 from typing import Callable
 
-from backend.agent.prompt import AGENT_PROMPT_VERSION, SYSTEM, revision_message
+from backend.agent import memory
+from backend.agent.prompt import AGENT_PROMPT_VERSION, CONVERSATION_PROMPT_VERSION, CONVERSATION_SYSTEM, SYSTEM, revision_message
 from backend.agent.tools import SCHEMAS, Tools, summary
 from backend.explain.guard import ExplanationRejected, parse
 from backend.explain.provider import ProviderError
@@ -64,15 +67,21 @@ def fallback_sections(engine, record: dict) -> list[dict]:
 
 
 def ask(engine, case_id: str, question: str, provider, review: Review | None = None, budget: Budget = Budget(),
-        review_on: bool = True, enabled: bool = True) -> dict:
-    """Answer one question about a stored case. `review` defaults to the evidence review of backend.agent.review."""
+        review_on: bool = True, enabled: bool = True, history: list[dict] | None = None) -> dict:
+    """Answer one question about a stored case. `review` defaults to the evidence review of backend.agent.review.
+    `history` (App-9 conversation mode): the bounded context from memory.context_turns; None = the frozen single-question
+    behaviour (D7), with its prompt and version unchanged."""
     t0 = time.perf_counter()
     if review is None:
         from backend.agent.review import review
     record = engine.case(case_id)
     tools = Tools(engine)
     actions, results = [], []
-    base = {"question": question, "prompt_version": AGENT_PROMPT_VERSION, "model": getattr(provider, "model", None)}
+    conv = history is not None
+    base = {"question": question, "prompt_version": CONVERSATION_PROMPT_VERSION if conv else AGENT_PROMPT_VERSION,
+            "model": getattr(provider, "model", None)}
+    if conv:
+        base["context_turn_ids"] = [t["id"] for t in history]
 
     def done(source, obj=None, status=REVIEW_PASSED, failed=(), reason=None):
         obj = obj or {"answer": FALLBACK_TEXT, "claims": [], "citations": []}
@@ -85,7 +94,7 @@ def ask(engine, case_id: str, question: str, provider, review: Review | None = N
 
     if not enabled or provider is None:
         return done("fallback", status=REVIEW_FALLBACK, reason="language model disabled")
-    messages = [{"role": "system", "content": SYSTEM},
+    messages = [{"role": "system", "content": CONVERSATION_SYSTEM if conv else SYSTEM}, *memory.messages(history or []),
                 {"role": "user", "content": f"Question about the recording being viewed: {question}"}]
     revisions = 0
     while True:

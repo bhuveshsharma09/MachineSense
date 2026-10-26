@@ -222,7 +222,7 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
 
     QUESTION_MAX = 500
 
-    def _ask(request: Request, case_id: str, question: str) -> dict:
+    def _ask(request: Request, case_id: str, question: str, conversation: bool = False) -> dict:
         from datetime import datetime, timezone
 
         from backend.agent.loop import Budget, ask
@@ -231,11 +231,20 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         eng = engine(request)
         provider = OpenAICompatibleProvider(llm_base_url(), llm_model(), agent_timeout_s(), llm_api_key(),
                                             transport=request.app.state.llm_transport)
-        out = ask(eng, case_id, question, provider, budget=Budget.from_settings(), review_on=agent_review(),
-                  enabled=llm_enabled())
         created = datetime.now(timezone.utc).isoformat(timespec="seconds")
-        qid = eng.store.put_question(case_id, created, out)
-        return {"id": qid, "case_id": case_id, "created_at": created, **out}
+        if not conversation:  # the App-7 behaviour, exactly as the D7 pilot used it
+            out = ask(eng, case_id, question, provider, budget=Budget.from_settings(), review_on=agent_review(),
+                      enabled=llm_enabled())
+            qid = eng.store.put_question(case_id, created, out)
+            return {"id": qid, "case_id": case_id, "created_at": created, **out}
+        from backend.agent.memory import context_turns
+        conv = eng.store.conversation(case_id)
+        history = context_turns(eng.store.turns(case_id, conv))
+        # App-9: the evidence review always gates conversation answers (the D7 switch does not apply here)
+        out = ask(eng, case_id, question, provider, budget=Budget.from_settings(), review_on=True, enabled=llm_enabled(),
+                  history=history)
+        qid = eng.store.put_turn(case_id, conv, created, out)
+        return {"id": qid, "case_id": case_id, "created_at": created, "conversation_id": conv, "mode": "conversation", **out}
 
     @app.post("/api/cases/{case_id}/ask")
     async def ask_question(case_id: str, request: Request):
@@ -249,14 +258,29 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         q = body.get("question") if isinstance(body, dict) else None
         if not isinstance(q, str) or not q.strip() or len(q) > QUESTION_MAX:
             raise HTTPException(422, f'send JSON {{"question": ...}} with 1–{QUESTION_MAX} characters')
+        conv = body.get("conversation", False)
+        if not isinstance(conv, bool):
+            raise HTTPException(422, '"conversation" must be true or false')
         from starlette.concurrency import run_in_threadpool
-        return await run_in_threadpool(_ask, request, case_id, q.strip())
+        return await run_in_threadpool(_ask, request, case_id, q.strip(), conv)
+
+    @app.post("/api/cases/{case_id}/conversations")
+    def new_conversation(case_id: str, request: Request):
+        """App-9 "New conversation": later questions no longer see this case's earlier turns as context. Deletes nothing
+        (the diagnosis, the stored questions and notes stay)."""
+        from datetime import datetime, timezone
+        eng = engine(request)
+        _need(eng, case_id)
+        cid = eng.store.new_conversation(case_id, datetime.now(timezone.utc).isoformat(timespec="seconds"))
+        return {"case_id": case_id, "conversation_id": cid}
 
     @app.get("/api/cases/{case_id}/questions")
     def questions(case_id: str, request: Request):
         eng = engine(request)
         _need(eng, case_id)
-        return {"case_id": case_id, "questions": eng.store.questions(case_id)}
+        return {"case_id": case_id, "questions": eng.store.questions(case_id),
+                "current_conversation_id": eng.store.conversation(case_id),
+                "conversation": [t["id"] for t in eng.store.turns(case_id, eng.store.conversation(case_id))]}
 
     @app.get("/api/cases/{case_id}/report")
     def report(case_id: str, request: Request):
