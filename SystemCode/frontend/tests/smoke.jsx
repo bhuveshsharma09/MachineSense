@@ -237,7 +237,7 @@ const DESK = { w: 1440, h: 900 };
   pcheck("lr has no edge to decision", !drawn.some((d) => /^lr\./.test(d) && /->decision\./.test(d)) && drawn.some((d) => d.startsWith("lr.")));
   const blocks = flat(traceFx.blocks);
   pcheck("every trace block is drawn (developer titles)", blocks.every((b) => dev.includes(`data-block="${b.id}"`)) &&
-    blocks.every((b) => textOf(dev).includes(b.title_developer.slice(0, 20))));
+    blocks.every((b) => textOf(dev).includes(devTitle(b).slice(0, 20))));  // App-8.6 item 24: plain names, the code in the tooltip
   pcheck("header says it is the general architecture, not a diagnosis", textOf(dev).includes("General architecture view") &&
     textOf(dev).includes("not the result of a specific diagnosis"));
   // no case value: case id, record / activity / explanation numbers, statuses, hashes
@@ -290,7 +290,7 @@ const DESK = { w: 1440, h: 900 };
 }
 
 // App-4.2.1: legibility of the rebalanced layout, labels on demand, and the way in and out of the page.
-import { countCrossings, edgeThroughBlock, layoutPipeline, titleFits } from "../src/lib/pipelineLayout.js";
+import { countCrossings, devTitle, edgeThroughBlock, layoutPipeline, titleFits } from "../src/lib/pipelineLayout.js";
 import { fitView, INSET, LEGIBLE } from "../src/components/PipelineCanvas.jsx";
 {
   const L = layoutPipeline(traceFx);
@@ -400,7 +400,9 @@ import fxNoExpl from "./fixtures/trace_no_explanation.json";
     pcheck("decision panel: each check row states the relation its outcome implies", ok, JSON.stringify(rows));
   }
   pcheck("case mode: lr still has no edge to decision", drawnCase.length === fxKnown.edges.length && !drawnCase.some((d) => /^lr\./.test(d) && /->decision\./.test(d)));
-  pcheck("case mode: a not-recorded value shows the trace's reason", textOf(page(fxKnown, "developer")).includes("not recorded: the number of R1 feature columns"));
+  // App-8.6 item 23: the step line says "see feature dictionary"; the drawer still gives the trace's reason
+  pcheck("case mode: a not-recorded value shows the trace's reason", textOf(page(fxKnown, "developer", "physics_features")).includes("not recorded: the number of R1 feature columns")
+    && textOf(page(fxKnown, "developer")).includes("features: see feature dictionary"));
   const other = { ...fxKnown, bundle_matches_record: { ...fxKnown.bundle_matches_record, value: false },
     bundle_note: "this case was produced by a different bundle" };
   pcheck("different bundle: a visible banner in case mode", textOf(page(other, "mechanic")).includes("produced by a different bundle than the one now loaded"));
@@ -603,7 +605,7 @@ import { STAGES } from "../src/lib/pipelineLayout.js";
 import { valueOf } from "../src/lib/pipelineCase.js";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
-import { BEARING_NOTE, activeSection, bearingSpectrum, channelRows as channelRows86, defaultPart as defaultPart86, guidanceSteps, overflow as overflow86, showMeTarget } from "../src/lib/dashboard.js";
+import { BEARING_NOTE, activeSection, bearingSpectrum, featureLabel as featureLabel86, channelRows as channelRows86, defaultPart as defaultPart86, guidanceSteps, overflow as overflow86, showMeTarget } from "../src/lib/dashboard.js";
 import { ENVELOPE_GLOSS, JARGON_WORDS, fitBearingSteps } from "../src/lib/mechanic.js";
 import { locations } from "../src/lib/model.js";
 import { CALIBRATION_SPEED_WARNING as CAL_SPEED, cleanText as cleanText86, verdict as verdict86 } from "../src/lib/model.js";
@@ -642,7 +644,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
       ...(view === "mechanic" ? ["Evidence", "Measurements", "Back to home",
         ...(f.record.diagnosis.decision === "healthy" ? [] : ["Suggested checks"]),
         ...(shownWarnings(f.record).length ? [] : ["No signal-quality warnings detected."])]
-        : ["Research demonstration; not validated on real machines.", SN, "What to inspect next", "No healthy-reference spectrum is stored with the case.", "This is not a measure of damage severity."]),
+        : ["Research demonstration; not validated on real machines.", SN, "What to inspect next", "The healthy reference is used for the sensor comparison only; its spectrum is not stored with the case.", "This is not a measure of damage severity."]),
       ...(f.record.source === "dataset" && view === "developer" ? [INS] : []),
       ...(f.record.diagnosis.decision === "known_fault" ? [view === "mechanic" ? "Mapped from the model’s predicted class" : "According to the dataset label (model prediction)"] : [])];
     const miss = need.filter((x) => !t.includes(x));
@@ -793,6 +795,26 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
       activeSection([{ id: "a", top: -400 }, { id: "b", top: 90 }, { id: "c", top: 700 }], 120) === "b"
       && activeSection([{ id: "a", top: 300 }, { id: "b", top: 900 }], 120) === "a"
       && activeSection([{ id: "a", top: -900 }, { id: "b", top: -200 }, { id: "c", top: 400 }], 120, true) === "c");
+    // App-8.6 group D (Developer view)
+    const dk = dash(knownFault, "developer"), dkt = textOf(dk);
+    const pipe = renderToString(<DeveloperView caseId={fxKnown.case_id} record={knownFault.record} report={knownFault.report} channels={knownFault.channels}
+      signals={knownFault.signals} explanation={{ status: "ready", data: knownFault.explanation }} view="developer" onView={() => {}} trace={fxKnown} initialWidth={1440} />);
+    const ptxt = textOf(pipe.slice(pipe.indexOf('id="dvw-pipeline"'), pipe.indexOf('id="dvw-report"')));
+    pcheck("App-8.6 item 24: plain step names in the Developer pipeline, the code kept in small text",
+      ["Signal quality", "Decision rule", "Written explanation", "Physics features", "Order spectrogram"].every((x) => ptxt.includes(x))
+      && ptxt.includes("Explanation (App-3)") && devTitle({ id: "explanation", title_developer: "Explanation (App-3)" }) === "Written explanation");
+    const f0 = knownFault.record.xai.lr.top_features[0];
+    pcheck("App-8.6 item 25: the Models card shows plain feature names with the code in small mono text",
+      dkt.includes(featureLabel86(f0)) && dk.includes(`dvw-fcode">${f0.feature}`) && featureLabel86({ feature: "f_under_tangential_kurtosis", definition: "excess kurtosis; per window" }) === "excess kurtosis (underhang tangential)");
+    pcheck("App-8.6 item 27: the CNN attribution is collapsed behind \"Show exploratory attribution\" with its caveat visible",
+      dkt.includes("Show exploratory attribution") && dkt.includes("Not evidence of location") && !dkt.includes("Strongest order bands"));
+    const withRef = structuredClone(unknown);
+    withRef.signals.reference = { rec_id: "normal__14.336", speed_hz: 14.1, spectrum: Object.fromEntries(Object.entries(withRef.signals.channels).map(([c, v]) => [c, v.spectrum.map((x) => x / 2)])) };
+    const rt = textOf(dash(withRef, "developer"));
+    pcheck("App-8.6 item 26: the order spectrum overlays the healthy reference (grey, its id and speed); without it the page says why",
+      rt.includes("Healthy reference normal__14.336 at 14.1 Hz") && !rt.includes("its spectrum is not stored with the case")
+      && textOf(dash(unknown, "developer")).includes("its spectrum is not stored with the case")
+      && textOf(dash(withRef, "mechanic", { initialUi: { measure: "spectrum" } })).includes("grey healthy reference"));
     pcheck("App-8.6 item 15: a known fault reads \"Possible fault\" in both views' badge, never \"Faulty\"",
       kt.includes("Possible fault") && !kt.includes("Faulty") && textOf(dash(knownFault, "developer")).includes("Possible fault"));
   }
@@ -814,7 +836,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
   const spectrumText = textOf(dash(knownFault, "mechanic", { initialUi: { measure: "spectrum", sp: "order" } }));
   pcheck("App-8.2 Mechanic caveats remain visible word for word", caveatLines.every((line) => mechanicFaultText.includes(line))
     && mechanicFaultText.includes(knownFault.explanation.badge)
-    && spectrumText.includes("No healthy-reference spectrum is stored with the case.")
+    && spectrumText.includes("The healthy reference is used for the sensor comparison only; its spectrum is not stored with the case.")
     && spectrumText.includes("Without a healthy spectrum, compare the 2× peak with the 1× peak in this recording."),
   caveatLines.filter((line) => !mechanicFaultText.includes(line)).join(" | "));
   pcheck("App-8.2 new Mechanic blocks use the existing font scale without monospace labels", (() => {

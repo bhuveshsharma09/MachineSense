@@ -61,7 +61,7 @@ def feature_label(f: dict) -> str:
 
 def check_text(c: dict) -> str:
     return (f"{c['name'][0].upper() + c['name'][1:]} {c['value_text']} {c['relation']} {c['threshold_text']}: {c['status']} "
-            f"(margin {c['margin_abs']:+.4g}, {c['margin_rel'] * 100:+.3f} %{' on the 1 − MSP scale' if c['key'] == 'msp' else ''}).")
+            f"({c['margin_text']}).")
 
 
 def change_text(ch: str, c: dict, ref: str) -> str:

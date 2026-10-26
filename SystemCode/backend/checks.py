@@ -48,6 +48,14 @@ def _num(v: float) -> str:
     return fmt_score(v, 6) if 0 <= v <= 1 else f"{v:.4f}" if abs(v) < 10 else f"{v:.2f}"
 
 
+def margin_text(passed: bool, v: float, thr: float) -> str:
+    """App-8.6 item 22: one convention for every check: "passed by X (Y % of the threshold)" / "failed by …", the distance
+    to the threshold without a sign and as a share of the threshold, 1 decimal ("< 0.1 %" when smaller but not zero)."""
+    d, rel = abs(v - thr), (abs(v - thr) / abs(thr) * 100 if thr else 0.0)
+    pct = "< 0.1" if 0 < rel < 0.05 else f"{rel:.1f}"
+    return f"{'passed' if passed else 'failed'} by {d:.4g} ({pct} % of the threshold)"
+
+
 def checks(r: dict) -> list[dict]:
     d = r["diagnosis"]
     s, t = d["scores"], d["thresholds"]
@@ -71,6 +79,7 @@ def checks(r: dict) -> list[dict]:
         out.append({"key": key, "name": name, "role": role, "value": v, "threshold": thr, "value_text": _num(v),
                     "threshold_text": _num(thr), "relation": relation, "required": "≥" if sign > 0 else "≤",
                     "passed": ok, "margin_abs": v - thr, "margin_rel": rel, "narrow": abs(rel) <= NARROW_REL,
+                    "margin_text": margin_text(ok, v, thr),
                     "margin_scale": "relative to 1 − τ_p (the 1 − MSP scale)" if key == "msp" else "relative to the threshold",
                     "status": status, "tone": tone})
     return out
@@ -86,7 +95,7 @@ def assessment(r: dict) -> dict:
     hinge = classifier + (baseline if d["decision"] == "healthy" else [])
     narrow = [f"Exactly at the {c['name']} threshold (ties are accepted)." if c["value"] == c["threshold"] else
               f"Narrowly {'above' if c['value'] > c['threshold'] else 'below'} the {c['name']} threshold "
-              f"({c['margin_rel'] * 100:+.3f} %{' on the 1 − MSP scale' if c['key'] == 'msp' else ''})."
+              f"({c['margin_text']})."
               for c in hinge if c["narrow"]]
     comp = d["rule_comparison"]
     variants_disagree = len(set(comp.values())) > 1

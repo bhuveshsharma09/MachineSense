@@ -99,3 +99,35 @@ def test_template_states_direction_and_prefers_the_largest_increase(client):
             assert "higher than the healthy reference" in said[0], (rid, said[0])
             best = max(ups, key=lambda c: rows[c]["change_factor"] / rows[c]["band"])
             assert f"{rows[best]['change_factor']:.1f}×" in said[0]
+
+
+# D ---------------------------------------------------------------------------------------------------------------
+def test_report_margins_use_one_convention(rec):
+    from backend.checks import margin_text
+    assert margin_text(True, 0.999723, 0.998895) == "passed by 0.000828 (0.1 % of the threshold)"
+    assert margin_text(True, 0.99992, 0.99990) == "passed by 2e-05 (< 0.1 % of the threshold)"
+    assert margin_text(True, 8.93, 30.04) == "passed by 21.11 (70.3 % of the threshold)"
+    assert margin_text(False, 1.4853, 0.243072) == "failed by 1.242 (511.1 % of the threshold)"
+    for rid in (BEARING, FURTHER):
+        text = " ".join(i["text"] for i in rec(rid)["report"]["sections"][1]["items"]) + rec(rid)["report"]["report"]
+        assert "1 − MSP scale" not in text and "margin +" not in text and "margin −" not in text
+        for c in assessment(rec(rid)["record"])["checks"]:
+            assert c["margin_text"] in text and c["margin_text"].startswith("passed by" if c["passed"] else "failed by")
+
+
+def test_trace_counts_the_physics_features(client, rec):
+    r = rec(BEARING)["record"]
+    t = client.get(f"/api/cases/{r['case_id']}/trace").json()
+    pf = next(c for b in t["blocks"] for c in (b.get("children") or []) if c["id"] == "physics_features")
+    assert pf["output"]["n_features"] == {"value": 142, "from": "bundle:feature_dictionary.rows"}
+
+
+def test_signals_carry_the_healthy_reference_spectrum(client, rec):
+    r = rec(BEARING)["record"]
+    ch = client.get(f"/api/cases/{r['case_id']}/channels").json()
+    s = client.get(f"/api/cases/{r['case_id']}/signals").json()
+    ref = s["reference"]
+    assert ref["rec_id"] == ch["reference"]["rec_id"] and ref["rec_id"].startswith("normal__")
+    assert ref["speed_hz"] == pytest.approx(ch["reference"]["speed_hz"])
+    assert set(ref["spectrum"]) == set(s["channels"]) - {"tacho"}
+    assert all(len(v) == len(s["orders"]) for v in ref["spectrum"].values())

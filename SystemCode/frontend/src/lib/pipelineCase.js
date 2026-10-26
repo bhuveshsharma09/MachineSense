@@ -113,7 +113,9 @@ export function caseLine(trace, id, level) {
       return dev ? [R(`${o}.shaft_speed_hz`, "hz"), " · windows: ", R(`${o}.window_count`, "int"), " · microphone bursts removed: ", R(`${o}.mic_bursts_removed`, "int")]
         : [R(`${o}.shaft_speed_hz`, "speed")];
     case "physics_features":
-      return dev ? ["rows: ", R(`${o}.rows`, "int"), " · features: ", R(`${o}.n_features`, "int")] : ["Measurements for each window"];
+      if (!dev) return ["Measurements for each window"];
+      return missing(at(trace, `${o}.n_features`)) ? ["rows: ", R(`${o}.rows`, "int"), " · features: see feature dictionary"]
+        : [R(`${o}.n_features`, "int"), " physics features per window · ", R(`${o}.rows`, "int"), " windows"];
     case "order_spectrogram":
       return dev ? ["windows: ", R(`${o}.windows`, "int"), " · order bins: ", R(`${o}.order_bins`, "int"), " · frames: ", R(`${o}.frames`, "int")]
         : ["A vibration picture for each window"];

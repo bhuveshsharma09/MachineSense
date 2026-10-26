@@ -1,7 +1,7 @@
 import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { getCase, getSignals, getTrace } from "../api.js";
 import { PIPE, PIPE_KIND } from "../lib/theme.js";
-import { LayoutError, layoutPipeline } from "../lib/pipelineLayout.js";
+import { LayoutError, devCode, layoutPipeline } from "../lib/pipelineLayout.js";
 import { usePanelView } from "./Aside.jsx";
 import PipelineCanvas, { MiniMap, edgeCasing, edgeColour } from "./PipelineCanvas.jsx";
 import { CaseHeading, CaseLine, CaseSection } from "./PipelineCase.jsx";
@@ -250,6 +250,7 @@ function Drawer({ block, trace, layout, level, caseMode, onClose, preview, headR
         <button className="icon-btn" onClick={onClose} aria-label="Close">×</button>
       </div>
       <h2 ref={headRef} tabIndex={-1}>{t}</h2>
+      {level === "developer" && devCode(block) && <span className="mono pl-code">{devCode(block)}</span>}
       <DrawerBody block={block} trace={trace} layout={layout} level={level} caseMode={caseMode} preview={preview} />
     </aside>
   );

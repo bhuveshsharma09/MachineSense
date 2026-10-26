@@ -306,8 +306,10 @@ function Spectrum({ record, signals, part, chId, chOptions, mode, onMode, onChan
     chart = { p, ymax, max: ENV_MAXO, ticks: [0, 3, 6, 9, 12], cursors: cs.map(([k, l, o]) => ({ k, l, left: (o / ENV_MAXO) * 100, c: k === "shaft" ? K.ink3 : K.orangeT })),
       caption: `${CH[chId].name} · envelope spectrum (${env.band_hz[0] / 1000}–${env.band_hz[1] / 1000} kHz band) · 1× = ${fr.toFixed(2)} Hz`, note: D.BEARING_NOTE };
   } else if (signals?.channels?.[chId]) {
-    const s = signals.channels[chId], ymax = rangeMax(signals.orders, s.spectrum, 0.5, MAXO) * 1.15, p = linePath(signals.orders, s.spectrum, 0, MAXO, ymax);
-    chart = { p, ymax, max: MAXO, ticks: [0, 2, 4, 6, 8, 10], cursors: [1, 2, 3].map((o) => ({ k: o, l: `${o}×`, left: (o / MAXO) * 100, c: K.ink3 })),
+    const s = signals.channels[chId], rs = D.refSpectrum(signals, chId);
+    const ymax = Math.max(rangeMax(signals.orders, s.spectrum, 0.5, MAXO), rs ? rangeMax(signals.orders, rs, 0.5, MAXO) : 0) * 1.15;
+    const p = linePath(signals.orders, s.spectrum, 0, MAXO, ymax), ref = rs ? linePath(signals.orders, rs, 0, MAXO, ymax) : null;
+    chart = { p, ref, ymax, max: MAXO, ticks: [0, 2, 4, 6, 8, 10], cursors: [1, 2, 3].map((o) => ({ k: o, l: `${o}×`, left: (o / MAXO) * 100, c: K.ink3 })),
       caption: `${CH[chId].name} · order spectrum · 1× = ${fr.toFixed(2)} Hz · V`, note: "Shaft orders are evidence for imbalance and misalignment." };
   }
   return (
@@ -317,12 +319,13 @@ function Spectrum({ record, signals, part, chId, chOptions, mode, onMode, onChan
         title={k === "envelope" && !hasEnv ? "The saved envelope spectrum covers the radial channels" : undefined} className={m === k ? "on" : ""} onClick={() => onMode(k)}>{l}</button>)}</div></div>}>
       {chart ? <>
         <span className="dvw-muted">{chart.caption}</span>
-        <div className="dvw-plot"><Svg paths={[{ d: chart.p.area, fill: al(K.orange, 0.1) }, { d: chart.p.line, stroke: K.orange, w: 1.4 }]} />
+        <div className="dvw-plot"><Svg paths={[...(m === "order" && chart.ref ? [{ d: chart.ref.line, stroke: "oklch(0.55 0.008 260 / 0.75)", w: 1.1 }] : []), { d: chart.p.area, fill: al(K.orange, 0.1) }, { d: chart.p.line, stroke: K.orange, w: 1.4 }]} />
           {chart.cursors.map((c, i) => <span key={c.k}><span className="dvw-cur" style={{ left: c.left + "%", borderColor: c.c }} />
             <span className="mono dvw-curl" style={{ left: c.left + "%", color: c.c, top: -15 - (m === "envelope" ? (i % 2) * 11 : 0) }}>{c.l}</span></span>)}
           {chart.ticks.map((t) => <span key={t} className="mono dvw-xt" style={{ left: (t / chart.max) * 100 + "%" }}>{t ? `${t}×` : "0"}</span>)}
           <span className="mono dvw-yt" style={{ top: -6 }}>{f3(chart.ymax)}</span><span className="mono dvw-yt" style={{ bottom: -6 }}>0</span></div>
-        <span className="dvw-muted">{`This recording only. No healthy-reference spectrum is stored with the case. ${chart.note}`}</span>
+        <span className="dvw-muted">{`${m === "order" && chart.ref ? `Orange: this recording. Grey: ${D.refLabel(signals)} (the recording the sensor comparison uses).`
+          : m === "envelope" && signals?.reference ? D.REF_ORDER_ONLY : D.REF_MISSING} ${chart.note}`}</span>
       </> : <p className="dvw-muted">{part.ch.includes(chId) ? "The stored signal is not available for this channel." : "Loading the stored signal…"}</p>}
     </Panel>
   );
@@ -352,7 +355,7 @@ function LrPanel({ record }) {
       <div className="dvw-stack">{feats.map((f) => {
         const w = (Math.abs(f.contribution) / mx) * 50;
         return <div key={f.feature} className="dvw-feat" title={f.definition || f.feature}>
-          <div className="dvw-row-b"><span className="mono">{f.feature}</span><b className="mono">{`${f.contribution >= 0 ? "+" : "−"}${Math.abs(f.contribution).toFixed(2)}`}</b></div>
+          <div className="dvw-row-b"><span className="dvw-col dvw-fname"><span>{D.featureLabel(f)}</span><span className="mono dvw-fcode">{f.feature}</span></span><b className="mono">{`${f.contribution >= 0 ? "+" : "−"}${Math.abs(f.contribution).toFixed(2)}`}</b></div>
           <span className="dvw-div"><i /><span style={{ left: f.contribution >= 0 ? "50%" : `${50 - w}%`, width: `${w}%`, background: f.contribution >= 0 ? K.violet : "oklch(0.23 0.006 260 / 0.3)" }} /></span>
         </div>;
       })}</div>
@@ -361,16 +364,21 @@ function LrPanel({ record }) {
   );
 }
 
-function AttributionPanel({ record }) {
+function AttributionPanel({ record, initialOpen = false }) {
   const cnn = record.xai?.cnn;
+  const [open, setOpen] = useState(initialOpen);  // App-8.6 item 27: collapsed by default
   if (!cnn) return <Panel title="CNN attribution"><p className="dvw-muted">Not available for this case.</p></Panel>;
   const mx = Math.max(1e-9, ...cnn.top_channels.map((c) => c.share));
   return (
     <Panel title="CNN attribution · exploratory">
-      <div className="dvw-stack">{cnn.top_channels.map((c) => <div key={c.channel} className="dvw-attr">
-        <span>{CH[c.channel]?.name || c.channel}</span><span className="dvw-track"><i style={{ width: `${(c.share / mx) * 100}%` }} /></span><b className="mono">{c.share.toFixed(2)}</b></div>)}</div>
-      <span className="dvw-muted">{`Strongest order bands: ${cnn.top_order_bands.map((b) => `${b.orders[0].toFixed(1)}–${b.orders[1].toFixed(1)}×`).join(", ")}.`}</span>
       <span className="dvw-muted">{`${cnn.label}. Shows what the network weighted. Not evidence of location.`}</span>
+      <button type="button" className="dvw-ghost dvw-attr-toggle" aria-expanded={open} onClick={() => setOpen(!open)}>
+        {open ? "Hide exploratory attribution" : "Show exploratory attribution"}</button>
+      {open && <>
+        <div className="dvw-stack">{cnn.top_channels.map((c) => <div key={c.channel} className="dvw-attr">
+          <span>{CH[c.channel]?.name || c.channel}</span><span className="dvw-track"><i style={{ width: `${(c.share / mx) * 100}%` }} /></span><b className="mono">{c.share.toFixed(2)}</b></div>)}</div>
+        <span className="dvw-muted">{`Strongest order bands: ${cnn.top_order_bands.map((b) => `${b.orders[0].toFixed(1)}–${b.orders[1].toFixed(1)}×`).join(", ")}.`}</span>
+      </>}
     </Panel>
   );
 }
@@ -395,7 +403,7 @@ function CheckCard({ c }) {
       <div className="dvw-scale" aria-hidden="true"><span className="dvw-axis" /><span className="dvw-thr" style={{ left: pos(c.threshold) + "%" }} />
         <span className="dvw-val" style={{ left: pos(c.value) + "%" }} /></div>
       <span className="dvw-plain">{plain}</span>
-      <span className="mono dvw-muted">{`${c.passed ? "inside" : "outside"} the threshold by ${Math.abs(c.margin_abs).toPrecision(3)}${c.narrow ? " · narrow margin" : ""}`}{healthy ? " · caution only" : ""}</span>
+      <span className="mono dvw-muted">{`${c.margin_text || `${c.passed ? "passed" : "failed"} by ${Math.abs(c.margin_abs).toPrecision(4)}`}${c.narrow ? " · narrow margin" : ""}`}{healthy ? " · caution only" : ""}</span>
     </div>
   );
 }

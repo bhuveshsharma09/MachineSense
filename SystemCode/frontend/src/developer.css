@@ -135,6 +135,9 @@
 .dvw-stack { display: flex; flex-direction: column; gap: 8px; }
 .dvw-feat { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
 .dvw-feat b { font-weight: 400; }
+.dvw-fname { gap: 1px; }
+.dvw-fcode { font-size: 10.5px; color: var(--ink3); }
+.dvw-attr-toggle { margin-left: 0; align-self: flex-start; }
 .dvw-div { position: relative; height: 8px; border-radius: 4px; background: oklch(0.23 0.006 260 / 0.05); }
 .dvw-div i { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--ink3); }
 .dvw-div span { position: absolute; top: 0; bottom: 0; border-radius: 4px; }

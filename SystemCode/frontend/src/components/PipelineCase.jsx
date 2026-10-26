@@ -1,5 +1,6 @@
 import { K } from "../lib/theme.js";
 import { RULE_LINE } from "../lib/model.js";
+import { devTitle } from "../lib/pipelineLayout.js";
 import { FMT, STATUS_WORD, at, blockPaths, caseLine, isDerived, mechanicDetail, missing, statusReason, valueOf } from "../lib/pipelineCase.js";
 
 // App-4.3: case-mode rendering. Every value is a <span data-p="<trace path>" data-fmt="<formatter>"> so the tests can
@@ -169,7 +170,7 @@ export function DecisionPanel({ trace, block, level, geom }) {
   return (
     <div className="pl-dec">
       <div className="pl-dec-head" style={{ height: geom.HEAD }}>
-        <div className="pl-title" style={{ textAlign: "left" }}>{block.title_mechanic && !dev ? block.title_mechanic : block.title_developer}</div>
+        <div className="pl-title" style={{ textAlign: "left" }}>{block.title_mechanic && !dev ? block.title_mechanic : devTitle(block)}</div>
         <div className="pl-dec-intro">{!trace ? "Combines the checks with a fixed rule. The second opinion is not used."
           : dev ? "MSP ≥ τ_p and distance ≤ τ_d: the top class; otherwise further inspection. The healthy-baseline checks add a caution only."
           : "The verdict needs a confident, familiar match. The healthy checks can only add a caution."}</div>

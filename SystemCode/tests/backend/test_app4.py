@@ -56,7 +56,8 @@ def independent_sources(client, case_id):
             "activity": client.get(f"/api/cases/{case_id}/activity").json()["steps"],
             "config": eng.bundle.config.model_dump(mode="json"), "manifest": eng.bundle.manifest.model_dump(mode="json"),
             "explanation": e.json() if e.status_code == 200 else {},
-            "store": {"rerun_of": client.get(f"/api/cases/{case_id}/meta").json()["rerun_of"]}}
+            "store": {"rerun_of": client.get(f"/api/cases/{case_id}/meta").json()["rerun_of"]},
+            "bundle": {"feature_dictionary": {"rows": len(eng.bundle.feature_dictionary)}}}
 
 
 def check_every_value(t, src):

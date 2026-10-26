@@ -1,7 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { K, PIPE, PIPE_CASING, PIPE_KIND, PIPE_TEXT } from "../lib/theme.js";
 import { CaseLine, DecisionPanel } from "./PipelineCase.jsx";
-import { DEC } from "../lib/pipelineLayout.js";
+import { DEC, devCode } from "../lib/pipelineLayout.js";
 import { STATUS_WORD } from "../lib/pipelineCase.js";
 import { PREVIEW_BLOCKS, Thumb } from "./PipelinePreview.jsx";
 
@@ -143,7 +143,7 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
     return (
       <foreignObject key={b.id} x={n.x - 4} y={n.y - 4} width={n.w + 8} height={n.h + 8} style={{ overflow: "visible" }}>
         <div className={"pl-block" + (sel ? " glass-soft is-sel" : "")} role="button" tabIndex={0} aria-label={nameOf(b)} aria-pressed={sel}
-          title={titleOf(b)} data-block={b.id} style={{ width: n.w, height: n.h }} data-kind={dec ? "decision" : undefined}
+          title={level === "developer" && devCode(b) ? `${titleOf(b)} (${devCode(b)})` : titleOf(b)} data-block={b.id} style={{ width: n.w, height: n.h }} data-kind={dec ? "decision" : undefined}
           onClick={act} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } }}
           onFocus={() => reveal(n)} onMouseEnter={() => setHover(b.id)} onMouseLeave={() => setHover(null)}>
           {dec ? <DecisionPanel trace={mode === "case" ? trace : null} block={b} level={level} geom={DEC} />

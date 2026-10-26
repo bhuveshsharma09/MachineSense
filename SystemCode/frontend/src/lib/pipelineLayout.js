@@ -42,14 +42,19 @@ export const STAGES = [
 ];
 export const PLACEMENT = Object.fromEntries(STAGES.flatMap((s, c) => s.ids.map((id, i) => [id, { col: c, i }])));
 
-const title = (b, level) => (level === "developer" ? b.title_developer : b.title_mechanic) || b.id;
+// App-8.6 item 24: plain Developer names for steps whose trace title carries a code; the code stays visible (devCode)
+export const DEV_PLAIN = { signal_quality: "Signal quality", decision: "Decision rule", explanation: "Written explanation",
+  physics_features: "Physics features", order_spectrogram: "Order spectrogram" };
+export const devTitle = (b) => DEV_PLAIN[b.id] || b.title_developer || b.id;
+export const devCode = (b) => (DEV_PLAIN[b.id] && b.title_developer && b.title_developer !== DEV_PLAIN[b.id] ? b.title_developer : null);
+const title = (b, level) => (level === "developer" ? devTitle(b) : b.title_mechanic) || b.id;
 
 // Width of a title at 16px, by character class (see GEOM.TITLE_FIT; check against Switzer rendering)
 const charW = (ch) => (/[ilj.,:;'!|()[\] ]/.test(ch) ? 4.4 : /[ftrI\-_]/.test(ch) ? 5.8 : /[mwMW]/.test(ch) ? 12.2
   : /[A-Z]/.test(ch) ? 9.9 : /[0-9]/.test(ch) ? 8.6 : 8.3);
 export const titleWidth = (s) => [...(s || "")].reduce((a, c) => a + charW(c), 0) * GEOM.TITLE_FIT;
 // a title fits its block if it takes at most two lines at the block's title size
-export const titleFits = (n) => titleWidth(n.block.title_developer) * (GEOM.TITLE_PX / 16) <= 2 * (n.w - 2 * GEOM.PAD_X);
+export const titleFits = (n) => titleWidth(devTitle(n.block)) * (GEOM.TITLE_PX / 16) <= 2 * (n.w - 2 * GEOM.PAD_X);
 
 function flatten(blocks, parent = null, out = []) {
   for (const b of blocks || []) {

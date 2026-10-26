@@ -44,7 +44,23 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         if kind == "channels":
             return eng.channels(case_id)
         x, fr, _ = got
-        return signals(x, fr, eng.bundle.config)
+        out = signals(x, fr, eng.bundle.config)
+        return {**out, "reference": _reference_spectrum(eng, case_id)}
+
+    def _reference_spectrum(eng: Engine, case_id: str) -> dict | None:
+        """App-8.6 item 26: the order spectrum of the healthy reference recording the channel comparison uses (a
+        development-pool training normal; ml.inference.load_recording refuses reserved ids), at its own measured speed."""
+        from backend.evidence import signals
+        from ml.inference import load_recording
+        try:
+            ref = _evidence(eng, case_id, "channels")["reference"]
+            xr, _ = load_recording(ref["rec_id"])
+            s = signals(xr, float(ref["speed_hz"]), eng.bundle.config)
+        except Exception:  # the overlay is optional; the page says so when it is missing
+            return None
+        return {"rec_id": ref["rec_id"], "speed_hz": float(ref["speed_hz"]),
+                "spectrum": {ch: v["spectrum"] for ch, v in s["channels"].items() if ch != "tacho"},
+                "note": "order spectrum of the healthy training recording used by the channel comparison (development data)"}
 
     def _need(eng: Engine, case_id: str) -> dict:
         c = eng.case_entry(case_id)
@@ -182,7 +198,8 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         c = _need(eng, case_id)
         b = eng.bundle
         return build_trace(case_id, c, eng.store.get_explanation(case_id), b.config.model_dump(mode="json"),
-                           b.manifest.model_dump(mode="json"), b.manifest_sha256, eng.meta(case_id)["can_rerun"])
+                           b.manifest.model_dump(mode="json"), b.manifest_sha256, eng.meta(case_id)["can_rerun"],
+                           n_features=len(b.feature_dictionary))  # App-8.6 item 23
 
     def _explain(request: Request, case_id: str, user_fields: dict | None) -> dict:
         from backend.explain import explain_case

@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getTrace } from "../api.js";
 import { PIPE, PIPE_KIND } from "../lib/theme.js";
-import { STAGES } from "../lib/pipelineLayout.js";
+import { STAGES, devCode, devTitle } from "../lib/pipelineLayout.js";
 import { at, blockPaths, caseLine, valueOf } from "../lib/pipelineCase.js";
 import { edgeColour } from "./PipelineCanvas.jsx";
 import { Parts, StatusWord, V, Verdict } from "./PipelineCase.jsx";
@@ -127,7 +127,7 @@ function Grid({ trace, href, initialOpen }) {
             return (
               <div key={id} data-pn={id} className={"dvw-pg-dec" + (dim(id) ? " is-dim" : "")} style={{ gridRow: r + 1, order: r * 100 + 1 }}
                 onMouseEnter={() => setHot(id)}>
-                <div className="dvw-pg-dec-head"><b>{b.title_developer}</b><StatusWord status={b.status} />
+                <div className="dvw-pg-dec-head"><b>{devTitle(b)}</b>{devCode(b) && <span className="mono dvw-muted">{devCode(b)}</span>}<StatusWord status={b.status} />
                   <span className="dvw-muted">Confidence and familiarity decide with the top class; the healthy-baseline checks add a caution only.</span></div>
                 <div className="dvw-pg-cells">{DEC_KEYS.map(([k, name, ok, no]) => {
                   const j = checks.findIndex((x) => x.check.startsWith(k)), p = `${P}.output.checks.${j}`;
@@ -150,8 +150,8 @@ function Grid({ trace, href, initialOpen }) {
             <div key={id} data-pn={id} className={"dvw-pg-node" + (dim(id) ? " is-dim" : "") + (hot === id ? " is-hot" : "")}
               style={{ gridRow: r + 1, gridColumn: c + 2, order: r * 100 + 1 + c }} onMouseEnter={() => setHot(id)}>
               <button type="button" aria-expanded={isOpen} onClick={() => setOpen((o) => ({ ...o, [id]: !o[id] }))}>
-                <span className="dvw-pg-title"><b>{b.title_developer}</b><span className="dvw-pg-caret" aria-hidden="true">▾</span></span>
-                <span className="mono dvw-muted">{id}</span>
+                <span className="dvw-pg-title"><b>{devTitle(b)}</b><span className="dvw-pg-caret" aria-hidden="true">▾</span></span>
+                <span className="mono dvw-muted">{devCode(b) || id}</span>
                 <span className="dvw-pg-st"><StatusWord status={b.status} />{b.timing_ms != null && <span className="mono dvw-muted">{msText(b.timing_ms)}</span>}</span>
                 <span className="dvw-pg-sum"><Parts trace={trace} parts={caseLine(trace, id, "developer")} /></span>
                 {b.derived && <span className="dvw-pg-chip">computed for this view</span>}
@@ -159,8 +159,8 @@ function Grid({ trace, href, initialOpen }) {
               {isOpen && <div className="dvw-pg-open">
                 <p>{b.operation_case || b.purpose}</p>
                 <div className="dvw-pg-io">
-                  {ins.map((e, k) => <span key={"i" + k}><em>in</em><i style={{ background: edgeColour(e.kind, trace.edge_kinds) }} /><b className="mono">{portShort(b, e.pb, "in")}</b>{`from ${blockOf(trace, e.a).title_developer}`}</span>)}
-                  {outs.map((e, k) => <span key={"o" + k}><em>out</em><i style={{ background: edgeColour(e.kind, trace.edge_kinds) }} /><b className="mono">{portShort(b, e.pa, "out")}</b>{`to ${blockOf(trace, e.b).title_developer}`}</span>)}
+                  {ins.map((e, k) => <span key={"i" + k}><em>in</em><i style={{ background: edgeColour(e.kind, trace.edge_kinds) }} /><b className="mono">{portShort(b, e.pb, "in")}</b>{`from ${devTitle(blockOf(trace, e.a))}`}</span>)}
+                  {outs.map((e, k) => <span key={"o" + k}><em>out</em><i style={{ background: edgeColour(e.kind, trace.edge_kinds) }} /><b className="mono">{portShort(b, e.pa, "out")}</b>{`to ${devTitle(blockOf(trace, e.b))}`}</span>)}
                 </div>
                 {leaves(trace, id).length > 0 && <div className="dvw-pg-kv">{leaves(trace, id).map(([k, p]) => <div key={k}><span>{k.replace(/_/g, " ")}</span><V trace={trace} p={p} /></div>)}</div>}
               </div>}

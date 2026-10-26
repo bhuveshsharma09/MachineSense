@@ -161,12 +161,27 @@ export function trendBars(cases, current) {
 export const verdictWord = (decision, caution) => decision === "known_fault" ? "Known fault" : decision === "unknown" ? "Inspect further"
   : caution ? "Healthy · caution" : "Healthy";
 
+// App-8.6 item 26: the healthy reference recording's order spectrum (from /signals), when present
+export const refSpectrum = (signals, ch) => signals?.reference?.spectrum?.[ch] || null;
+export const refLabel = (signals) => `Healthy reference ${signals.reference.rec_id} at ${signals.reference.speed_hz.toFixed(1)} Hz`;
+export const REF_MISSING = "The healthy reference is used for the sensor comparison only; its spectrum is not stored with the case.";
+export const REF_ORDER_ONLY = "The healthy reference spectrum is shown in the order view only.";
 export const BEARING_NOTE = "Bearing evidence: look for peaks at the FTF, BPFO, BSF and BPFI lines. Lines are drawn at the measured speed.";
 // App-8.6 item 2: a bearing verdict opens the spectrum on the predicted bearing's radial channel, envelope view
 export function bearingSpectrum(record) {
   const d = record?.diagnosis, c = d?.decision === "known_fault" ? d.fault_class || "" : "";
   if (!/^(underhang|overhang)_/.test(c)) return null;
   return { ch: c.startsWith("underhang") ? "under_radial" : "over_radial", sp: "envelope" };
+}
+
+// App-8.6 item 25: a feature's plain name, as the report writes it (backend.report.feature_label): the first clause of its
+// feature-dictionary definition, with the channel
+const FEATURE_CHANNEL = { under_axial: "underhang axial", under_radial: "underhang radial", under_tangential: "underhang tangential",
+  over_axial: "overhang axial", over_radial: "overhang radial", over_tangential: "overhang tangential", mic: "microphone" };
+export function featureLabel(f) {
+  const d = (f.definition || "").split(";")[0].trim() || f.feature;
+  const ch = Object.entries(FEATURE_CHANNEL).find(([k]) => `${f.feature}_`.includes(`_${k}_`))?.[1];
+  return ch && !d.includes(ch) ? `${d} (${ch})` : d;
 }
 
 export const checkExpr = (c) => `${c.value_text} ${c.relation} ${c.threshold_text}`;

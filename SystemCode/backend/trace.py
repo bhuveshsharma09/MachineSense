@@ -44,7 +44,7 @@ def _get(obj: Any, path: str) -> Any:
 
 def resolve(ref: str, sources: dict) -> Any:
     """The value a "<source>:<path>" reference points to (sources: record, activity, config, manifest, explanation,
-    store). activity:<step> is that step's ms. Used by the builder and by the tests."""
+    store, bundle). activity:<step> is that step's ms. Used by the builder and by the tests."""
     src, path = ref.split(":", 1)
     if src == "activity":
         return next(s["ms"] for s in sources["activity"] if s["step"] == path)
@@ -217,7 +217,7 @@ def _preparation(R, rec: dict) -> dict:
                         "This case is a dataset recording: its metadata measured speed was used."))
 
 
-def _representations(R) -> dict:
+def _representations(R, n_features: int | None = None) -> dict:
     cand = "config:preprocess.spectro.candidates.C_order8rev"
     r1 = _block(
         "physics_features", "Vibration measurements", "Physics features (R1)",
@@ -226,8 +226,9 @@ def _representations(R) -> dict:
         "ml.features.recording_features on the cleaned recording, one row per window.",
         {"version": R("config:preprocess.features.version"),
          "rows": R("config:preprocess.window.n_windows"),
-         "n_features": _missing("the number of R1 feature columns is not declared in the packaged config; the column "
-                                "lists are stored in the LR and B1s model files and feature_dictionary.csv"),
+         "n_features": (R("bundle:feature_dictionary.rows") if n_features else
+                        _missing("the number of R1 feature columns is not declared in the packaged config; the column "
+                                 "lists are stored in the LR and B1s model files and feature_dictionary.csv")),
          "accel_orders": R("config:preprocess.features.accel_orders"),
          "envelope_channels": R("config:preprocess.features.envelope_channels"),
          "mic_bands_hz": R("config:preprocess.features.mic_bands_hz")},
@@ -522,15 +523,16 @@ def _all_blocks(blocks: list[dict]):
 
 
 def build_trace(case_id: str, entry: dict, explanation: dict | None, config: dict, manifest: dict,
-                manifest_sha256: str, stored_signal: bool) -> dict:
+                manifest_sha256: str, stored_signal: bool, n_features: int | None = None) -> dict:
     """The trace of a saved case. entry: CaseStore.get(case_id); config / manifest: the loaded bundle's packaged Config
     and manifest as JSON; manifest_sha256: the loaded bundle's; stored_signal: the case's signal can be read."""
     rec, activity = entry["record"], entry["activity"]
     sources = {"record": rec, "activity": activity, "config": config, "manifest": manifest,
-               "explanation": explanation or {}, "store": {"rerun_of": entry.get("rerun_of")}}
+               "explanation": explanation or {}, "store": {"rerun_of": entry.get("rerun_of")},
+               "bundle": {"feature_dictionary": {"rows": n_features}}}  # App-8.6 item 23: one row per physics feature
     R = _Refs(sources)
     blocks = [_input(R, rec, stored_signal), _validation(R, rec, entry.get("rerun_of")),
-              _signal_quality(R, rec, activity), _preparation(R, rec), _representations(R), _models(R, rec, activity),
+              _signal_quality(R, rec, activity), _preparation(R, rec), _representations(R, n_features), _models(R, rec, activity),
               _decision(R, rec, activity), _evidence_record(R, rec, activity), _explanation(R, explanation),
               _presentation(R, rec, case_id, entry.get("rerun_of"), stored_signal, explanation is not None, activity)]
     ports = {f"{b['id']}.{p['id']}" for b in _all_blocks(blocks) for p in b["ports_in"] + b["ports_out"]}

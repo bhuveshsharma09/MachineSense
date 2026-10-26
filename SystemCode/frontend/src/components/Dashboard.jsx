@@ -606,8 +606,10 @@ export function SpectrumCard({ record, signals, part, chId, chOptions, mode, onM
       ticks: [0, 3, 6, 9, 12], caption: `Envelope spectrum (${env.band_hz[0] / 1000}–${env.band_hz[1] / 1000} kHz band) · ${CH[chId].name} · orders of the measured speed (1× = ${fr.toFixed(2)} Hz)`,
       note: D.BEARING_NOTE };
   } else if (signals?.channels?.[chId]) {
-    const s = signals.channels[chId], ymax = rangeMax(signals.orders, s.spectrum, 0.5, MAXO) * 1.15, p = linePath(signals.orders, s.spectrum, 0, MAXO, ymax);
-    chart = { p, ymax, max: MAXO, cursors: [1, 2, 3].map((o) => ({ k: o, l: o + "×", left: (o / MAXO) * 100, color: K.ink3 })), ticks: [0, 2, 4, 6, 8],
+    const s = signals.channels[chId], rs = D.refSpectrum(signals, chId);
+    const ymax = Math.max(rangeMax(signals.orders, s.spectrum, 0.5, MAXO), rs ? rangeMax(signals.orders, rs, 0.5, MAXO) : 0) * 1.15;
+    const p = linePath(signals.orders, s.spectrum, 0, MAXO, ymax), ref = rs ? linePath(signals.orders, rs, 0, MAXO, ymax) : null;
+    chart = { p, ref, ymax, max: MAXO, cursors: [1, 2, 3].map((o) => ({ k: o, l: o + "×", left: (o / MAXO) * 100, color: K.ink3 })), ticks: [0, 2, 4, 6, 8],
       caption: `Order spectrum · ${CH[chId].name} · multiples of the measured shaft speed (1× = ${fr.toFixed(2)} Hz) · V`,
       note: "Shaft orders are evidence for imbalance and misalignment." };
   }
@@ -621,15 +623,18 @@ export function SpectrumCard({ record, signals, part, chId, chOptions, mode, onM
       </div>
       {chart ? <>
         <div className="rd-plot" style={{ marginTop: m === "envelope" ? 22 : 18 }}>
-          <Svg paths={[{ d: chart.p.area, fill: al(K.orange, 0.1) }, { d: chart.p.line, stroke: K.orange, w: 1.4 }]} />
+          <Svg paths={[...(m === "order" && chart.ref ? [{ d: chart.ref.line, stroke: "oklch(0.55 0.008 260 / 0.75)", w: 1.1 }] : []), { d: chart.p.area, fill: al(K.orange, 0.1) }, { d: chart.p.line, stroke: K.orange, w: 1.4 }]} />
           {chart.cursors.map((c, i) => <span key={c.k}><span className="rd-cursor" style={{ left: c.left + "%", borderColor: c.color }} />
             <span className="mono rd-cursor-l" style={{ left: c.left + "%", color: c.color, top: m === "envelope" ? -15 - (i % 2) * 11 : -15 }}>{c.l}</span></span>)}
           {chart.ticks.map((t) => <span key={t} className="mono rd-xtick" style={{ left: (t / chart.max) * 100 + "%" }}>{t ? t + "×" : "0"}</span>)}
           <span className="mono rd-ytick" style={{ top: -6 }}>{f3(chart.ymax)}</span><span className="mono rd-ytick" style={{ bottom: -6 }}>0</span>
         </div>
         <div className="rd-row-wrap rd-sub-s" style={{ gap: 16 }}><span className="rd-legend-line"><i style={{ background: K.orange }} />This recording</span>
-          {dev ? <span>No healthy-reference spectrum is stored with the case.</span> : <Caveat>No healthy-reference spectrum is stored with the case.</Caveat>}<span style={{ marginLeft: "auto" }}>{chart.note}</span></div>
-        {!dev && m === "order" && <Caveat>Without a healthy spectrum, compare the 2× peak with the 1× peak in this recording.</Caveat>}
+          {m === "order" && chart.ref ? <span className="rd-legend-line"><i style={{ background: "oklch(0.55 0.008 260)" }} />{D.refLabel(signals)}</span>
+            : dev ? <span>{m === "envelope" && signals?.reference ? D.REF_ORDER_ONLY : D.REF_MISSING}</span>
+            : <Caveat>{m === "envelope" && signals?.reference ? D.REF_ORDER_ONLY : D.REF_MISSING}</Caveat>}<span style={{ marginLeft: "auto" }}>{chart.note}</span></div>
+        {!dev && m === "order" && <Caveat>{chart.ref ? "Compare this recording's 1× and 2× peaks with the grey healthy reference at the same orders."
+          : "Without a healthy spectrum, compare the 2× peak with the 1× peak in this recording."}</Caveat>}
       </> : <p className="rd-muted">{part.ch.includes(chId) ? "The stored signal is not available for this channel." : ""}</p>}
     </Card>
   );
