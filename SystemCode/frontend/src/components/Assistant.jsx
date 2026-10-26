@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { askQuestion, getQuestions } from "../api.js";
+import { askConversation, getConversation, newConversation } from "../api.js";
 import { K, TAG, al } from "../lib/theme.js";
 import * as M from "../lib/mechanic.js";
 import * as D from "../lib/dashboard.js";
@@ -40,8 +40,18 @@ export function contextRows(record, report, channels) {
   ];
 }
 
-export function AssistantView({ caseId, record, report, channels, initialEntries = null, initialPart = null, ask = askQuestion, load = getQuestions, panel = false }) {
+// App-9: the current conversation of the case is shown and used as context; earlier questions stay stored and listed, but
+// are not context. "New conversation" starts a new one; nothing is deleted.
+export function splitConversation(data) {
+  const cur = new Set(data?.conversation || []);
+  const qs = data?.questions || [];
+  return { current: qs.filter((q) => cur.has(q.id)), earlier: qs.filter((q) => !cur.has(q.id)) };
+}
+
+export function AssistantView({ caseId, record, report, channels, initialEntries = null, initialEarlier = [], initialPart = null,
+  ask = askConversation, load = getConversation, restart = newConversation, panel = false }) {
   const [entries, setEntries] = useState(initialEntries || []);
+  const [earlier, setEarlier] = useState(initialEarlier);
   const [draft, setDraft] = useState("");
   const [open, setOpen] = useState({});
   const scroll = useRef(null);
@@ -50,12 +60,27 @@ export function AssistantView({ caseId, record, report, channels, initialEntries
     caseRef.current = caseId;
     if (initialEntries) return undefined;
     const ac = new AbortController();
-    load(caseId, { signal: ac.signal }).then((qs) => { if (caseRef.current === caseId) setEntries(qs.map((a) => ({ question: a.question, status: "done", answer: a }))); }).catch(() => {});
+    setEntries([]); setEarlier([]);
+    load(caseId, { signal: ac.signal }).then((data) => {
+      if (caseRef.current !== caseId) return;
+      const { current, earlier: old } = splitConversation(data);
+      setEntries(current.map((a) => ({ question: a.question, status: "done", answer: a })));
+      setEarlier(old);
+    }).catch(() => {});
     return () => ac.abort();
   }, [caseId]);
   useEffect(() => { const el = scroll.current; if (el?.scrollTo) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" }); }, [entries.length, entries.at?.(-1)?.status]);
 
   const busy = entries.some((e) => e.status === "loading");
+  const fresh = () => {
+    if (busy) return;
+    const forCase = caseId;
+    restart(forCase).then(() => {
+      if (caseRef.current !== forCase) return;
+      setEarlier((xs) => [...xs, ...entries.filter((e) => e.status === "done").map((e) => e.answer)]);
+      setEntries([]);
+    }).catch(() => {});
+  };
   const send = (q) => {
     q = (q || "").trim();
     if (!q || busy) return;
@@ -110,7 +135,11 @@ export function AssistantView({ caseId, record, report, channels, initialEntries
                 {!panel && <span className="rd-kicker">Investigation assistant</span>}
                 <h1 className="as-h1">Ask about this recording</h1>
                 <p className="rd-p" style={{ fontSize: 14, maxWidth: 560 }}>Answers come from the case record and the guidance library, and are checked against the case record before they are shown.</p>
+                <p className="rd-note" style={{ maxWidth: 560 }}>The assistant remembers this conversation about this recording only. Earlier answers help it follow your question; every fact is checked against the case record again.</p>
               </div>
+              {earlier.length > 0 && <details className="as-earlier"><summary>{`Earlier questions about this recording (${earlier.length}) · not used in this conversation`}</summary>
+                {earlier.map((a, i) => <div key={a.id ?? i} className="as-earlier-q"><b>{a.question}</b><span>{a.source === "fallback" ? "Could not answer with evidence" : a.answer}</span></div>)}
+              </details>}
               {entries.length === 0 && <div className="as-suggest">{SUGGESTIONS.map((q) => (
                 <button key={q} disabled={busy} onClick={() => send(q)}><span>{q}</span><span className="mono rd-sub-s">Suggested question</span></button>))}</div>}
               {entries.map((e, i) => <Turn key={i} e={e} open={!!open[i]} onToggle={() => setOpen((o) => ({ ...o, [i]: !o[i] }))} href={href} />)}
@@ -118,7 +147,8 @@ export function AssistantView({ caseId, record, report, channels, initialEntries
           </div>
           <div className="as-compose">
             <div className="as-inner-s">
-              {entries.length > 0 && <div className="rd-row-wrap" style={{ gap: 6 }}>{SUGGESTIONS.map((q) => <button key={q} className="as-chipq" disabled={busy} onClick={() => send(q)}>{q}</button>)}</div>}
+              {entries.length > 0 && <div className="rd-row-wrap" style={{ gap: 6 }}>{SUGGESTIONS.map((q) => <button key={q} className="as-chipq" disabled={busy} onClick={() => send(q)}>{q}</button>)}
+                <button type="button" className="as-chipq as-new" disabled={busy} onClick={fresh} title="Start a new conversation about this recording. Nothing is deleted.">New conversation</button></div>}
               <form className="as-form" onSubmit={(ev) => { ev.preventDefault(); send(draft); }}>
                 <input value={draft} onChange={(ev) => setDraft(ev.target.value)} maxLength={500} disabled={busy} aria-label="Ask about this recording"
                   placeholder="Ask about the evidence, the sensors or what to inspect…" />

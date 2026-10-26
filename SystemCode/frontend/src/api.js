@@ -39,3 +39,7 @@ export const runUnseen = (withheld, rec_id, role) => api.get("/unseen/run", { pa
 // App-7: the investigation assistant (one agent with read-only tools; answers checked by code before they are returned)
 export const askQuestion = (id, question, { signal } = {}) => api.post(`/cases/${id}/ask`, { question }, { signal }).then((r) => r.data);
 export const getQuestions = (id, { signal } = {}) => api.get(`/cases/${id}/questions`, { signal }).then((r) => r.data.questions);
+// App-9: conversation mode (earlier accepted turns of this case are context; every fact is re-checked by the review)
+export const askConversation = (id, question, { signal } = {}) => api.post(`/cases/${id}/ask`, { question, conversation: true }, { signal }).then((r) => r.data);
+export const getConversation = (id, { signal } = {}) => api.get(`/cases/${id}/questions`, { signal }).then((r) => r.data);
+export const newConversation = (id) => api.post(`/cases/${id}/conversations`).then((r) => r.data);

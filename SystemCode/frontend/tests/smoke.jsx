@@ -740,5 +740,27 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
   pcheck("App-8 assistant page: an unavailable model gives the one-line pointer to the report, no badge", a2.includes(UNAVAILABLE) && !a2.includes(REVIEW_BADGE.fallback));
 }
 
+// App-9: conversation mode in the assistant. On reload only the current conversation's turns are shown (and used as context
+// on the server); earlier questions stay listed as "not used in this conversation"; New conversation is offered once a
+// conversation has turns; the empty state still offers the suggestions.
+import { splitConversation } from "../src/components/Assistant.jsx";
+{
+  const turn = (id, q, extra = {}) => ({ id, question: q, answer: `answer ${id}`, source: "agent", review: { status: "passed", failed: [] },
+    citations: [], actions: [], ...extra });
+  const data = { questions: [turn(1, "old one"), turn(2, "old two"), turn(5, "current one")], current_conversation_id: 3, conversation: [5] };
+  const sp = splitConversation(data);
+  pcheck("App-9: reload splits the stored questions into the current conversation and earlier ones",
+    sp.current.map((x) => x.id).join() === "5" && sp.earlier.map((x) => x.id).join() === "1,2" && splitConversation(null).current.length === 0);
+  const view = (entries, earlier = []) => renderToString(<AssistantView caseId={knownFault.record.case_id} record={knownFault.record}
+    report={knownFault.report} channels={knownFault.channels} initialEntries={entries} initialEarlier={earlier} />);
+  const withConv = textOf(view(sp.current.map((a) => ({ question: a.question, status: "done", answer: a })), sp.earlier));
+  pcheck("App-9: the current conversation, the earlier questions marked not used, and New conversation are shown",
+    withConv.includes("current one") && withConv.includes("Earlier questions about this recording (2) · not used in this conversation")
+    && withConv.includes("New conversation") && withConv.includes("remembers this conversation about this recording only"));
+  const empty = textOf(view([]));
+  pcheck("App-9: an empty conversation shows the suggestions and no New conversation button or earlier block",
+    empty.includes("Why was this recording flagged?") && !empty.includes("New conversation") && !empty.includes("Earlier questions"));
+}
+
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }
 console.log(`all ${Object.keys(screens).length + Object.keys(mobileScreens).length + 1} screens rendered; ${pipelineChecks} pipeline checks passed`);

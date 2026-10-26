@@ -357,3 +357,10 @@ button.rd-ch-row:hover { background: oklch(0.23 0.006 260 / 0.03); }
   .as-suggest { grid-template-columns: minmax(0, 1fr); }
   .as-inner { padding: 24px 18px; }
 }
+
+/* App-9: conversation history */
+.as-earlier { font-size: 12.5px; color: oklch(0.40 0.008 260); border: 1px solid oklch(0.23 0.006 260 / 0.08); border-radius: 14px; padding: 8px 12px; }
+.as-earlier summary { cursor: pointer; }
+.as-earlier-q { display: flex; flex-direction: column; gap: 2px; padding: 6px 0; border-top: 1px solid oklch(0.23 0.006 260 / 0.06); }
+.as-earlier-q b { font-weight: 500; color: oklch(0.23 0.006 260); }
+.as-new { margin-left: auto; border-style: dashed; }
