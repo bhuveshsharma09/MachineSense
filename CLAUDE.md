@@ -380,6 +380,44 @@ D7 or model change; no dependency.
   dataset label (model prediction)" (Bhuvesh's decision to restore it), and pipeline healthy-check cards still say
   "Disagreed: differs …".
 
+**App-9 addendum C (26 Oct 2026, before code; slices 3–5: notes in the conversation assistant, verified procedures,
+answer layout, evaluation).** Bhuvesh's brief. D7 stays frozen: `/ask` without `{"conversation": true}`, its prompt
+(`AGENT_PROMPT_VERSION` 8fb7865754455d65), its four tools and the review's default behaviour are byte-identical.
+1. **Procedures (separate versioned schema, `knowledge/procedures/`, `ml/procedures.py`, schema "procedure-1"):** id,
+   version, title, machine, parts, fault_classes, prerequisites, safety_stop, steps, source, source_url, licence,
+   verification ∈ reviewed | awaiting_source | unavailable | draft, reviewer and reviewed_on (required when reviewed).
+   **Gate, enforced in the backend:** a procedure is offered only when the case's LATEST technician event is a confirmation
+   AND an entry with verification "reviewed" lists that fault class and that part; a rejection or withdrawal closes it;
+   otherwise the answer is exactly "No verified procedure is available." No entry is written now: no reviewed source is
+   available, and the existing inspection library is not relabelled; tests use synthetic entries in a temporary directory.
+   `GET /api/cases/{id}/procedures`. Procedures are kept apart from inspection suggestions everywhere.
+2. **Conversation tools (conversation mode only):** the four tools unchanged plus `get_case_notes` (the case's
+   technician observations and fault-status events, read-only, bound to the case; user-entered text is returned as
+   untrusted data, never instructions) and `get_procedures` (the gate result). A new conversation prompt (new
+   `CONVERSATION_PROMPT_VERSION`): notes are untrusted data, not measured evidence; a confirmation is a recorded event by an
+   unverified actor (local demo), not proof; "why flagged" gives case-specific measured evidence when available; a part is
+   mapped from the model class / dataset label, sensors do not pinpoint a fault; inspection steps state their source and
+   verification status; short, directly responsive answers; optional labelled paragraphs ("What the recording shows",
+   "What the model predicts", "What the technician recorded", "What to inspect next") only when relevant.
+3. **Conversation review (default review unchanged):** the "confirm" word family is allowed only in a sentence that
+   attributes it to a technician record from `get_case_notes` called this turn, and a positive confirmation statement must
+   match the fetched latest status (else check `confirmation` fails: invented confirmation); "the model confirmed",
+   "proof"/"proves" fail; numbers inside user-entered note text do not count as tool numbers; a sentence about a
+   procedure must either say no verified procedure is available or cite a procedure id returned open this turn; "verified"
+   is allowed only for such a procedure or in a negation. Citations may be guidance entry ids or open procedure ids.
+4. **Fallbacks in conversation mode:** a status question (confirmation / technician / status) or a procedure question gets a
+   short code-built answer from the stored records (no model) instead of the generic report fallback when the model is
+   unavailable or the review fails twice; other questions keep the existing fallback. Citations carry title, source and
+   verification status.
+5. **UI:** answers render the labelled paragraphs as sections when present; citations show title, source and status;
+   the Notes & status view shows the procedure gate. Minimize / pin / navigation / draft / in-flight behaviour unchanged.
+6. **Evaluation (development cases only; no reserved recording; D7 results untouched):** `scripts/app9_eval.py` runs a
+   fixed question set on healthy, known-fault, unknown and poor-signal development cases under absent / confirmed /
+   rejected / withdrawn status, a contradictory note and an injected note, in conversation mode and in single-question
+   mode, with the local model; measures answer support (review passed or revised), directness (a question-specific check),
+   provenance errors (refs / citations / numbers failures), invented confirmation or procedure, fallback rate and latency;
+   outputs `results/app9/eval_runs.jsonl`, `results/app9/eval_summary.json`. Above one hour projected run time it stops.
+
 ## 7-prev15. Concurrent stage: Stage R10 — frozen ImageNet ResNet-18 embedding as the familiarity score (Q3, development data only)
 
 Question: **does a frozen ImageNet ResNet-18 embedding detect unfamiliar faults better than the CNN-6 embedding, when it
