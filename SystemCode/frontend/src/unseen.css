@@ -113,7 +113,6 @@
 .uw-verdict p { margin: 0; font-size: 13.5px; color: oklch(0.88 0.008 260); }
 .uw-truth { border: 1.5px dashed var(--line); background: oklch(0.23 0.006 260 / 0.025); }
 .uw-truth p { margin: 0; color: var(--ink2); }
-.uw-truth .un-reveal { width: auto; align-self: flex-start; padding: 0 18px; margin-top: 4px; }
 .uw-truth.is-open { border-style: solid; background: var(--paper); }
 .uw-truth-name { font-size: 20px; font-weight: 400; }
 .uw-outcome { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; padding: 10px 12px; border-radius: 12px; font-size: 13px; }
@@ -122,6 +121,7 @@
 .uw-outcome.is-bad { background: oklch(0.66 0.19 42 / 0.1); }
 .uw-outcome.is-bad b { color: var(--orangeT); }
 .uw-outcome b { font-weight: 500; }
+.uw-rate { margin: 0; padding: 12px 16px; border-radius: 14px; border-left: 3px solid var(--violet); background: oklch(0.23 0.006 260 / 0.035); font-size: 13.5px; }
 .uw-res-mid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr); gap: 14px; }
 .uw-proposed { display: flex; flex-direction: column; gap: 6px; padding: 18px; border-radius: 20px; background: oklch(0.23 0.006 260 / 0.035); }
 .uw-proposed h3 { margin: 0; font-size: 20px; font-weight: 400; }

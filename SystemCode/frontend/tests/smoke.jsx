@@ -514,7 +514,7 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
 // must equal the backend's value for that example, the required copy must be on the page itself, and the steps stay hidden
 // until revealed.
 import unseenFile from "../../backend/unseen.json";
-import { UnseenView, pair, verdictText } from "../src/components/Unseen.jsx";
+import { UnseenView, pair, rateLine, rolesText, verdictText } from "../src/components/Unseen.jsx";
 import { UnseenLink } from "../src/components/TopBar.jsx";
 {
   const summary = { ...unseenFile, built: true, live: { available: false, reason: "saved" },
@@ -533,7 +533,7 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
   pcheck("unseen page: defaults to imbalance with the required copy, and lists the nine learned classes and the hidden one",
     t0.includes("This experimental model was trained without imbalance recordings.") && /Imbalance\s*— never seen/.test(t0)
     && (start.match(/<li>/g) || []).length === 9);
-  pcheck("unseen page: nothing is shown before Run investigation (no verdict, no reveal)", !start.includes('data-v="verdict"') && !t0.includes("Reveal actual condition"));
+  pcheck("unseen page: nothing is shown before Run investigation (no verdict, no actual condition)", !start.includes('data-v="verdict"') && !start.includes('data-v="truth"'));
   let bad = [];
   for (const [c, r] of Object.entries(unseenFile.runs)) for (const e of r.examples) for (const level of ["mechanic", "developer"]) {
     const h = page(c, e, { initialLevel: level }), t = textOf(h), res = e.result;
@@ -547,13 +547,45 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
     if (res.decision.decision === "unknown" && !t.includes(unseenFile.further_inspection)) bad.push(`${c}/${e.rec_id}: further-inspection copy`);
     if (level === "mechanic" && /MSP|Mahalanobis|τ_/.test(t.replace(/Experiment details.*$/, ""))) bad.push(`${c}/${e.rec_id}: technical names in Mechanic view`);
     if (level === "developer" && !(t.includes("MSP") && t.includes("Mahalanobis"))) bad.push(`${c}/${e.rec_id}: developer names missing`);
-    if (t.includes("Actual condition")) bad.push(`${c}/${e.rec_id}: truth shown before Reveal`);
+    // App-8.7 items 1 and 2: both roles stated (never the main model's role alone), the actual condition shown without a reveal
+    if (!t.includes(rolesText(res)) || /used for model training|\d Hz · used for/.test(t)) bad.push(`${c}/${e.rec_id}: roles`);
+    if (res.role === "withheld" && !t.includes("This experimental model: never saw this class.")) bad.push(`${c}/${e.rec_id}: hidden-class role`);
+    if (!h.includes('data-v="truth"') || !t.includes("Actual condition (dataset label)") || /Reveal/.test(t)) bad.push(`${c}/${e.rec_id}: actual condition`);
   }
   pcheck("unseen page: every curated example shows the backend's values, pass/fail and verdict; Mechanic has no technical names", !bad.length, bad.slice(0, 5).join("; "));
   const fail = exOf("imbalance", "honest failure");
-  const rev = textOf(page("imbalance", fail, { initialRevealed: true }));
-  pcheck("unseen page: Reveal actual condition shows the true label, marked hidden during fitting, and names the honest failure",
-    rev.includes("Actual condition (dataset label)") && rev.includes("Hidden from this model during fitting") && rev.includes("honest failure"));
+  const rev = textOf(page("imbalance", fail));
+  // App-8.7 item 2 (choice b): no reveal button; the actual condition is on the result page with the outcome
+  pcheck("unseen page: the result shows the true label directly, marked hidden during fitting, and names the honest failure",
+    rev.includes("Actual condition (dataset label)") && rev.includes("Hidden from this model during fitting") && rev.includes("honest failure")
+    && !rev.includes("Reveal actual condition"));
+  // App-8.7 item 1: the imbalance 10 g run of the user test says both roles
+  const ten = textOf(page("imbalance", unseenFile.runs.imbalance.examples.find((e) => e.rec_id === "imbalance__10g__34.4064")));
+  pcheck("App-8.7: Experiment details give the main model's role and the experimental model's (never saw the hidden class)",
+    ten.includes("Main model: used for training. This experimental model: never saw this class.") && !ten.includes("used for model training"));
+  const fam = unseenFile.runs.imbalance.examples.find((e) => e.role === "familiar");
+  pcheck("App-8.7: a familiar example was used for training by both models",
+    textOf(page("imbalance", fam)).includes("Main model: used for training. This experimental model: used for training."));
+  // App-8.7 item 3: on step 3 with every row shown, the rail says "Ready" for step 4 (not the verdict) until step 4 is opened
+  const on3 = textOf(page("imbalance", fail, { initialPage: 3 })), on4 = textOf(page("imbalance", fail));
+  const rail = (t) => t.slice(t.indexOf("Hide a fault"), t.indexOf("About this demonstration"));
+  pcheck("App-8.7: the step rail shows \"Ready\" for step 4 on step 3 and the verdict only once step 4 is open",
+    rail(on3).includes("Ready") && !rail(on3).includes(verdictText(fail.result.decision)) && rail(on4).includes(verdictText(fail.result.decision)),
+    rail(on3));
+  // App-8.7 item 4: every hidden fault's result page carries its failure-rate line, equal to the Experiment details counts
+  bad = [];
+  for (const [c, r] of Object.entries(unseenFile.runs)) {
+    const k = r.counts, t = textOf(page(c, r.examples[0]));
+    const line = rateLine(k);
+    if (!t.includes(line)) bad.push(`${c}: line missing`);
+    if (!t.includes(`${k.withheld_recordings} eligible recordings: ${k.rejected} not accepted, ${k.accepted_as_a_wrong_fault} accepted as a wrong fault, ${k.accepted_as_healthy} accepted as healthy`)) bad.push(`${c}: details`);
+    const m = line.match(/stopped (\d+) of (\d+) eligible development recordings \((\d+) %\)\. (\d+) got a wrong familiar label; (\d+) w/);
+    if (!m || +m[1] !== k.rejected || +m[2] !== k.withheld_recordings || +m[4] !== k.accepted_as_a_wrong_fault || +m[5] !== k.accepted_as_healthy
+      || +m[1] + +m[4] + +m[5] !== +m[2] || (+m[3] === 100) !== (k.rejected === k.withheld_recordings)) bad.push(`${c}: numbers`);
+  }
+  pcheck("App-8.7: every hidden fault's result shows the share of eligible development recordings the checks stopped (= Experiment details)",
+    !bad.length && rateLine(unseenFile.runs.imbalance.counts) === "For this hidden fault, the checks stopped 33 of 144 eligible development recordings (23 %). 111 got a wrong familiar label; 0 were called healthy.",
+    bad.join("; "));
   // App-8.5: the wizard's page 3 reveals the real result row by row (at step 2 the confidence row is shown, familiarity and the
   // verdict not yet, and no result page); page 4 is reached only after every row is shown
   const partial = page("imbalance", fail, { initialStep: 1 });
@@ -578,7 +610,7 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
   const desk = renderToString(<Workspace {...P} {...base} />), phone = renderToString(<Workspace {...P} {...base} initialViewport={MOBILE} />);
   // for tests/mobile-width.mjs: the page at 390 px, fully revealed (the widest state)
   const full = page("horizontal_misalignment", exOf("horizontal_misalignment", "honest failure", "called healthy"),
-    { initialRevealed: true, initialLevel: "developer" });
+    { initialLevel: "developer" });
   writeFileSync(join(here, "mobile", "unseen_390.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>${css}</style></head><body><div id="root">${full}</div></body></html>`);
   pcheck("navigation: \"Explore an unseen fault\" in the desktop top bar and the phone header",

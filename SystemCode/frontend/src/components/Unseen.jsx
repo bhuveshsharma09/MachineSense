@@ -38,6 +38,24 @@ export function exampleLabel(e, i, hidden) {
   return `Recording ${i + 1} of the hidden fault (${low(hidden)})`;
 }
 
+// Stage App-8.7 item 1: the recording's role for the main (ten-class) model and for this experimental model. The backend's
+// used_for is the main model's role (split_closed); the experimental model never saw the hidden class, and its fit set is
+// closed train within the development pool minus that class (§12a), so a familiar example (never one of its calibration
+// recordings, by may_show) was used for its training.
+export function rolesText(res) {
+  const main = res.used_for === "threshold calibration" ? "used for threshold calibration" : "used for training";
+  return `Main model: ${main}. This experimental model: ${res.role === "withheld" ? "never saw this class" : main}.`;
+}
+
+// Stage App-8.7 item 4: the share of this hidden fault's eligible development recordings the checks stopped, from the same
+// saved counts as Experiment details (a share below 100 % never rounds to 100 %).
+export function rateLine(k) {
+  const n = k.withheld_recordings, s = k.rejected, w = k.accepted_as_a_wrong_fault, h = k.accepted_as_healthy;
+  const pct = s === n ? 100 : s === 0 ? 0 : Math.min(99, Math.max(1, Math.round((100 * s) / n)));
+  return `For this hidden fault, the checks stopped ${s} of ${n} eligible development recordings (${pct} %). `
+    + `${w} got a wrong familiar label; ${h} ${h === 1 ? "was" : "were"} called healthy.`;
+}
+
 export function verdictText(d) {
   if (d.decision === "unknown") return "Further inspection needed";
   if (d.decision === "healthy") return d.caution ? "Healthy — with a caution" : "Healthy";
@@ -98,7 +116,7 @@ function CheckCard({ title, plain, tech, value, threshold, raw, rawT, passed, ru
   );
 }
 
-export function UnseenView({ summary, initialHidden, initialLevel, initialResult = null, initialStep = -1, initialRevealed = false,
+export function UnseenView({ summary, initialHidden, initialLevel, initialResult = null, initialStep = -1,
   initialExample = 0, initialPage = null, run }) {
   const runs = summary.runs || {};
   const classes = Object.keys(runs);
@@ -107,8 +125,10 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
   const [level, setLevel] = usePanelView(initialLevel);
   const [result, setResult] = useState(initialResult);
   const [step, setStep] = useState(initialStep);
-  const [page, setPage] = useState(initialPage || (initialResult ? (initialStep >= STEPS.length - 1 ? 4 : 3) : 1));
-  const [revealed, setRevealed] = useState(initialRevealed);
+  const startPage = initialPage || (initialResult ? (initialStep >= STEPS.length - 1 ? 4 : 3) : 1);
+  const [page, setPage] = useState(startPage);
+  // App-8.7 item 3: step 4's result stays "Ready" in the rail until the user opens step 4
+  const [opened, setOpened] = useState(startPage === 4);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [history, setHistory] = useState([]);
@@ -122,7 +142,8 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
   const missing = r.categories_without_an_eligible_recording || [];
 
   useEffect(() => () => clearInterval(timer.current), []);
-  const reset = () => { clearInterval(timer.current); setResult(null); setStep(-1); setRevealed(false); setError(null); };
+  useEffect(() => { if (page === 4) setOpened(true); }, [page]);
+  const reset = () => { clearInterval(timer.current); setResult(null); setStep(-1); setOpened(false); setError(null); };
   const go = async (e, i) => {
     if (!e || !run) return;
     reset();
@@ -155,7 +176,7 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
     [`${cap(human(hidden))} hidden`, true],
     [page >= 2 && chosen ? exLabel(chosen) : "Not chosen yet", page >= 2],
     [result ? (done ? "Checks run" : "Running…") : busy ? "Running…" : "Waiting for a recording", page >= 3],
-    [done ? verdictText(d) : "Not run yet", done],
+    [done ? (opened ? verdictText(d) : "Ready") : "Not run yet", done],
   ];
   const nav = {
     1: { label: "Next: choose a recording", on: () => setPage(2), ok: true },
@@ -282,18 +303,17 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
                 {d.caution && <p className="uw-small">A healthy-baseline check disagrees ({d.caution.replace("_", " ")}). {summary.gates_note}</p>}
                 {level === "developer" && <p className="uw-small mono">rule {d.rule_variant}; {Object.entries(result.rule_comparison).map(([k, v]) => `${k}: ${v}`).join(" · ")}</p>}
               </section>
-              <section className={"uw-truth" + (revealed ? " is-open" : "")}>
-                {!revealed ? <><span className="uw-kick">What the recording really was</span>
-                  <p>Hidden until you reveal it, so you can judge the verdict first.</p>
-                  <button type="button" className="un-reveal" onClick={() => setRevealed(true)}>Reveal actual condition</button></>
-                  : <div data-v="truth" className="uw-col">
-                    <span className="uw-kick">Revealed · Actual condition (dataset label)</span>
-                    <b className="uw-truth-name">{cap(name(result.true_class))}</b>
-                    <span className="uw-small">{isWithheld ? "Hidden from this model during fitting: it never saw this condition." : "A condition this model learned."}</span>
-                    <span className={"uw-outcome" + (o.good ? " is-good" : " is-bad")}><b>{o.word}</b><span className="un-copy">{o.text}</span></span>
-                  </div>}
+              {/* App-8.7 item 2 (choice b): step 1 names the hidden fault, so the actual condition is shown directly */}
+              <section className="uw-truth is-open">
+                <div data-v="truth" className="uw-col">
+                  <span className="uw-kick">Actual condition (dataset label)</span>
+                  <b className="uw-truth-name">{cap(name(result.true_class))}</b>
+                  <span className="uw-small">{isWithheld ? "Hidden from this model during fitting: it never saw this condition." : "A condition this model learned."}</span>
+                  <span className={"uw-outcome" + (o.good ? " is-good" : " is-bad")}><b>{o.word}</b><span className="un-copy">{o.text}</span></span>
+                </div>
               </section>
             </div>
+            {r.counts && <p className="uw-rate" data-v="rate">{rateLine(r.counts)}</p>}
             <div className="uw-res-mid">
               <section className="uw-proposed">
                 <span className="uw-kick">{level === "developer" ? "CNN-6 top class (leave-one-class-out model)" : "The label the model proposes"}</span>
@@ -321,7 +341,7 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
               {history.map((x) => { const oo = outcome(x.res);
                 return <button key={x.hidden + x.rec_id} type="button" className="uw-hrow" onClick={() => {
                   setHidden(x.hidden); setEx(Math.max(0, [...runs[x.hidden].examples.filter((e) => e.role === "withheld"), ...runs[x.hidden].examples.filter((e) => e.role === "familiar")].findIndex((e) => e.rec_id === x.rec_id)));
-                  setResult(x.res); setStep(STEPS.length - 1); setRevealed(false); setPage(4); }}>
+                  setResult(x.res); setStep(STEPS.length - 1); setPage(4); }}>
                   <span className="mono">{x.rec_id}</span><span>{cap(name(x.res.proposed_label))}</span>
                   <span>{x.res.checks.confidence.passed ? "passed" : "failed"}</span><span>{x.res.checks.familiarity.passed ? "passed" : "failed"}</span>
                   <span className={oo.good ? "is-good" : "is-bad"}>{oo.word}</span></button>; })}
@@ -340,7 +360,8 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
                 <dt>Withheld class</dt><dd>{human(hidden)}</dd>
                 <dt>Run</dt><dd>leave-one-class-out CNN-6, seed {summary.seed}</dd>
                 <dt>Recording</dt><dd className="mono">{chosen?.rec_id || "—"}</dd>
-                <dt>Recording details</dt><dd>{[severityText(result), `${result.speed_hz.toFixed(1)} Hz`, `used for ${result.used_for}`].filter(Boolean).join(" · ")}</dd>
+                <dt>Recording details</dt><dd>{[severityText(result), `${result.speed_hz.toFixed(1)} Hz`].filter(Boolean).join(" · ")}</dd>
+                <dt>Role in training</dt><dd data-v="roles">{rolesText(result)}</dd>
                 <dt>Example type</dt><dd>{chosen?.category}{chosen?.failure_kind ? ` (${chosen.failure_kind})` : ""}</dd>
                 {r.counts && <><dt>This model on its hidden class</dt><dd data-v="counts">{r.counts.withheld_recordings} eligible recordings: {r.counts.rejected} not accepted,
                   {" "}{r.counts.accepted_as_a_wrong_fault} accepted as a wrong fault, {r.counts.accepted_as_healthy} accepted as healthy</dd></>}
