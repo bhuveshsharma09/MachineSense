@@ -341,6 +341,20 @@ one passes tests:
 Honesty rules unchanged (location according to the dataset label; scores are not probabilities of correctness; the review
 stays on for the new behaviour; reasoning never stored or shown).
 
+**App-9 addendum A (26 Oct 2026, before code; Bhuvesh's brief "minimize and pin").** The assistant panel becomes ONE
+instance mounted in `App` above the dashboard / pipeline routes, with state scoped to one case: open, minimized, pinned and
+a session number, driven by a pure reducer (`frontend/src/lib/assistantDock.js`). Minimize hides the panel without
+unmounting it (draft, shown turns and an in-flight request survive); Restore shows it again; Pin (aria-pressed) is
+temporary state for this visit. Navigation: a pinned panel stays across Mechanic / Developer and the same case's Pipeline
+(minimized stays minimized); an unpinned panel stays on reading-level changes and closes on going to the Pipeline, which
+gets its own "Ask the assistant" control; another case closes the panel (nothing carried over); Home closes, unpins and
+ends the session. `#/case/<id>/assistant` stays a deep link: it opens the panel on the dashboard and is then canonicalised
+to `/dashboard`, so no URL claims an open panel that is not shown and Back / Forward only move between routes. Close and
+Home end the session; the next open starts a new App-9 conversation (only if the current one has turns), and the UI says
+saved history stays available. Escape minimizes (never navigates). The dashboard and pipeline reflow beside an expanded
+panel; below 1024 px it is a full-width overlay with a visible restore button when minimized. Frontend only; no backend,
+D7 or model change; no dependency.
+
 ## 7-prev15. Concurrent stage: Stage R10 — frozen ImageNet ResNet-18 embedding as the familiarity score (Q3, development data only)
 
 Question: **does a frozen ImageNet ResNet-18 embedding detect unfamiliar faults better than the CNN-6 embedding, when it
