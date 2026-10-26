@@ -4,7 +4,7 @@
 // laid out as the designer's four-step wizard (hide a fault, choose a recording, run the checks, see the result).
 import { useEffect, useRef, useState } from "react";
 import { getUnseen, runUnseen } from "../api.js";
-import { human, partsForClass } from "../lib/model.js";
+import { fmtCheck, human, partsForClass } from "../lib/model.js";
 import { PART_PLAIN } from "../lib/mechanic.js";
 import { usePanelView } from "./Aside.jsx";
 import { Logo } from "./TopBar.jsx";
@@ -12,20 +12,26 @@ import { PartView } from "./Dashboard.jsx";
 import "../unseen.css";
 
 export const STEPS = ["label", "confidence", "familiarity", "checks", "verdict"];
+const ICON = { pass: "✓", fail: "✗", na: "–", info: "•" };
 const STEP_MS = 750;
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 const name = (c) => (c === "normal" ? "healthy (normal)" : human(c));
 // a class name inside a sentence ("trained without imbalance recordings")
 export const low = (c) => { const h = human(c); return h.charAt(0).toLowerCase() + h.slice(1); };
 
-// enough decimals that a value and its threshold read differently whenever they differ, and that a value below the
-// maximum never reads as the maximum (a top probability of 0.99999 is not "100.00 %"); 2 to 8 decimals
-export function pair(v, t, scale = 1, unit = "", max = null) {
-  const atMax = (x, s) => max !== null && x < max && Number(s) >= max * scale;
-  for (let d = 2; d <= 8; d++) {
-    const a = (v * scale).toFixed(d), b = (t * scale).toFixed(d);
-    if ((a !== b && !atMax(v, a) && !atMax(t, b)) || d === 8) return [a + unit, b + unit];
-  }
+// Stage App-8.7 items 6, 7, 10: Mechanic shows a check as passed / failed with a value-vs-limit bar and no numbers;
+// Developer shows the value and its limit in the dashboard's check format (fmtCheck: 6 decimals in [0, 1], never 1).
+export const LIMITS_NOTE = "Each experimental model has its own limits, calibrated without the hidden fault.";
+const ENDS = { confidence: ["less sure", "more sure"], familiarity: ["close to learned patterns", "far from learned patterns"] };
+
+// Stage App-8.7 items 8, 9: the two healthy-machine checks add a caution to a healthy verdict only; for any other verdict
+// they are not applied. Plain names as the pipeline page uses them.
+export const HEALTHY = [["ae", "Healthy-pattern check", "AE-6 reconstruction error", "τ_e"], ["b1s", "Speed-aware healthy check", "B1s speed-aware baseline", "τ_b"]];
+export const healthyState = (res, k) => (res.decision.decision !== "healthy" ? "na" : res.checks[k].passed ? "pass" : "fail");
+export function cautionText(caution, level, gatesNote) {
+  if (level === "developer") return `A healthy-baseline check disagrees (${caution.replace("_", " ")}). ${gatesNote}`;
+  return caution === "both" ? "Both healthy-machine checks disagree, so this healthy result carries a caution."
+    : "One of the two healthy-machine checks disagrees, so this healthy result carries a caution.";
 }
 
 function severityText(r) {
@@ -94,30 +100,41 @@ export function outcome(res) {
     : { word: "Familiar label not accepted", good: false, text: "A check did not support the label of a condition this model learned." };
 }
 
-function CheckCard({ title, plain, tech, value, threshold, raw, rawT, passed, rule, level }) {
-  const atLeast = rule.includes("≥");
+// value-vs-limit bar: the shaded zone is the accepted side, the bar the limit, the dot this recording (no numbers)
+function Scale({ kind, raw, rawT, passed, small }) {
+  const atLeast = kind === "confidence";
   const lo = Math.min(raw, rawT), hi = Math.max(raw, rawT), span = hi - lo || Math.abs(hi) || 1;
   const a = lo - span * 0.8, b = hi + span * 0.8, pos = (x) => ((x - a) / (b - a)) * 100;
+  return <div className={"uw-scale-box" + (small ? " is-small" : "")} data-scale={kind}>
+    <div className="uw-scale" aria-hidden="true"><span className="uw-axis" />
+      <span className={"uw-zone" + (atLeast ? " is-right" : " is-left")} style={atLeast ? { left: pos(rawT) + "%" } : { width: pos(rawT) + "%" }} />
+      <span className="uw-thr" style={{ left: pos(rawT) + "%" }} /><span className={"uw-dot" + (passed ? "" : " is-bad")} style={{ left: pos(raw) + "%" }} /></div>
+    <div className="uw-ends"><span>{ENDS[kind][0]}</span><span>{ENDS[kind][1]}</span></div>
+  </div>;
+}
+
+function CheckCard({ kind, title, plain, tech, check, rule, level }) {
+  const atLeast = kind === "confidence";
   return (
-    <section className="uw-check" data-check={tech}>
+    <section className="uw-check" data-check={kind}>
       <div className="uw-check-head">
         <div className="uw-col"><span className="uw-kick">{level === "developer" ? tech : title}</span><b>{plain}</b></div>
-        <span className={"un-chip " + (passed ? "ok" : "bad")}>{passed ? "passed" : "failed"}</span>
+        <span className={"un-chip " + (check.passed ? "ok" : "bad")}>{check.passed ? "passed" : "failed"}</span>
       </div>
-      <div className="uw-scale" aria-hidden="true"><span className="uw-axis" />
-        <span className={"uw-zone" + (atLeast ? " is-right" : " is-left")} style={atLeast ? { left: pos(rawT) + "%" } : { width: pos(rawT) + "%" }} />
-        <span className="uw-thr" style={{ left: pos(rawT) + "%" }} /><span className={"uw-dot" + (passed ? "" : " is-bad")} style={{ left: pos(raw) + "%" }} /></div>
-      <div className="uw-measure">
-        <span><em>measured</em><b className="mono" data-v="value">{value}</b></span>
-        <span><em>{atLeast ? "required at least" : "allowed at most"}</em><b className="mono" data-v="threshold">{threshold}</b></span>
-      </div>
-      {level === "developer" && <span className="uw-small mono">{rule}</span>}
+      <Scale kind={kind} raw={check.value} rawT={check.threshold} passed={check.passed} />
+      {level === "developer" ? <>
+        <div className="uw-measure">
+          <span><em>measured</em><b className="mono" data-v="value">{fmtCheck(check.value)}</b></span>
+          <span><em>{atLeast ? "required at least" : "allowed at most"}</em><b className="mono" data-v="threshold">{fmtCheck(check.threshold)}</b></span>
+        </div>
+        <span className="uw-small mono">{rule}</span></>
+        : <span className="uw-small">{`The bar marks the limit; the dot is this recording. ${check.passed ? (atLeast ? "At or above the limit." : "Within the limit.") : (atLeast ? "Below the limit." : "Beyond the limit.")}`}</span>}
     </section>
   );
 }
 
 export function UnseenView({ summary, initialHidden, initialLevel, initialResult = null, initialStep = -1,
-  initialExample = 0, initialPage = null, run }) {
+  initialExample = 0, initialPage = null, initialHistory = [], run }) {
   const runs = summary.runs || {};
   const classes = Object.keys(runs);
   const [hidden, setHidden] = useState(initialHidden || summary.default_hidden_class || classes[0]);
@@ -131,7 +148,7 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
   const [opened, setOpened] = useState(startPage === 4);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState(initialHistory);
   const timer = useRef(null);
   const r = runs[hidden] || { examples: [], classes_learned: [] };
   const examples = r.examples || [];
@@ -161,15 +178,16 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
       setError(err?.response?.data?.detail || err?.message || "the example could not be run");
     } finally { setBusy(false); }
   };
-  const shown = (s) => result && step >= STEPS.indexOf(s);
+  // the healthy-machine row is revealed with the checks row
+  const shown = (s) => result && step >= STEPS.indexOf(s === "healthy" ? "checks" : s);
   const c = result?.checks;
-  const conf = c && pair(c.confidence.value, c.confidence.threshold, 100, " %", 1);
-  const fam = c && pair(c.familiarity.value, c.familiarity.threshold);
   const d = result?.decision;
   const isWithheld = result?.role === "withheld";
   const o = result && outcome(result);
   const done = result && step >= STEPS.length - 1;
   const parts = partsForClass(hidden);
+  const dev = level === "developer";
+  const healthyRow = result?.proposed_label === "normal";
   const exLabel = (e) => exampleLabel(e, e.role === "withheld" ? withheldEx.indexOf(e) : ordered.indexOf(e), hidden);
 
   const rail = [
@@ -183,12 +201,27 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
     2: { label: busy ? "Running…" : "Run the checks", on: () => go(chosen), ok: !!chosen && !busy && !!run },
     3: { label: "See the result", on: () => setPage(4), ok: !!done },
   }[page];
+  // App-8.7 item 5: each row's mark shows its state (pass ✓, fail ✗, not applicable –, information •)
+  const both = c && c.confidence.passed && c.familiarity.passed;
+  const hs = result ? HEALTHY.map(([k]) => healthyState(result, k)) : [];
   const runRows = result ? [
-    ["label", "Proposed label", cap(name(result.proposed_label)), `Its best answer among the ${result.classes_learned.length} conditions it learned.`],
-    ["confidence", "Confidence check", c.confidence.passed ? "Passed" : "Failed", `${conf[0]} measured, ${c.confidence.passed ? "at least" : "below the required"} ${conf[1]}`],
-    ["familiarity", "Familiarity check", c.familiarity.passed ? "Passed" : "Failed", `${fam[0]} measured, ${c.familiarity.passed ? "within" : "above the allowed"} ${fam[1]}`],
-    ["checks", "Both checks", c.confidence.passed && c.familiarity.passed ? "Both passed: the proposed label is accepted" : "Not both passed: the proposed label is not accepted", null],
-    ["verdict", "Verdict", verdictText(d), null],
+    ["label", "Proposed label", cap(name(result.proposed_label)), `Its best answer among the ${result.classes_learned.length} conditions it learned.`, "info"],
+    ["confidence", "Confidence check", c.confidence.passed ? "Passed" : "Failed", dev
+      ? `MSP ${fmtCheck(c.confidence.value)}, ${c.confidence.passed ? "at least" : "below"} τ_p ${fmtCheck(c.confidence.threshold)}`
+      : <Scale kind="confidence" raw={c.confidence.value} rawT={c.confidence.threshold} passed={c.confidence.passed} small />, c.confidence.passed ? "pass" : "fail"],
+    ["familiarity", "Familiarity check", c.familiarity.passed ? "Passed" : "Failed", dev
+      ? `Mahalanobis ${fmtCheck(c.familiarity.value)}, ${c.familiarity.passed ? "within" : "above"} τ_d ${fmtCheck(c.familiarity.threshold)}`
+      : <Scale kind="familiarity" raw={c.familiarity.value} rawT={c.familiarity.threshold} passed={c.familiarity.passed} small />, c.familiarity.passed ? "pass" : "fail"],
+    ["checks", "Both checks", both ? "Both passed: the proposed label is accepted" : "Not both passed: the proposed label is not accepted", null, both ? "pass" : "fail"],
+    ...(healthyRow ? [["healthy", "Healthy-machine checks (caution only)",
+      d.decision !== "healthy" ? "Not applied: the verdict is not healthy" : hs.every((x) => x === "pass") ? "Both agree: no caution"
+        : `${hs.every((x) => x === "fail") ? "Both disagree" : "One disagrees"}: the healthy verdict carries a caution`,
+      <span className="uw-hc">{HEALTHY.map(([k, plain, tech, tau], i) => <span key={k} data-hc={k} data-state={hs[i]}>
+        <i className={"uw-ico is-" + hs[i]} aria-hidden="true">{ICON[hs[i]]}</i>
+        {`${dev ? tech : plain}: ${{ pass: "passed", fail: "failed", na: "not applicable" }[hs[i]]}`}
+        {dev && ` (${fmtCheck(c[k].value)} vs ${tau} ${fmtCheck(c[k].threshold)})`}</span>)}</span>,
+      d.decision !== "healthy" ? "na" : hs.includes("fail") ? "fail" : "pass"]] : []),
+    ["verdict", "Verdict", verdictText(d), null, "info"],
   ] : [];
 
   return (
@@ -280,12 +313,14 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
 
           {page === 3 && <div className="uw-p3">
             {error && <p className="un-error" role="alert">{error}</p>}
-            <ol className="uw-run">{(result ? runRows : STEPS.map((s) => [s, cap(s), null, null])).map(([s, title, res, detail]) => {
+            <div className="uw-col"><ol className="uw-run">{(result ? runRows : STEPS.map((s) => [s, cap(s), null, null, null])).map(([s, title, res, detail, state]) => {
               const on = shown(s);
               return <li key={s} data-step={s} className={"uw-run-row" + (on ? " is-shown" : "")}>
-                <span className={"uw-run-mark" + (on ? " is-done" : busy || result ? " is-wait" : "")} aria-hidden="true">{on ? "✓" : ""}</span>
+                <span className={"uw-run-mark" + (on ? " is-" + state : busy || result ? " is-wait" : "")} data-state={on ? state : undefined}
+                  aria-hidden="true">{on ? ICON[state] : ""}</span>
                 <div className="uw-col"><b>{title}</b>{on && <><span className="uw-run-res">{res}</span>{detail && <span className="uw-small">{detail}</span>}</>}</div>
               </li>; })}</ol>
+            <p className="uw-small" data-copy="limits">{LIMITS_NOTE}</p></div>
             <div className="uw-facts"><span className="uw-kick">This run</span>
               <div><span>Hidden fault</span><b>{human(hidden)}</b></div>
               <div><span>Recording</span><b className="mono">{chosen?.rec_id || "—"}</b></div>
@@ -300,7 +335,7 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
                 <h3 data-v="verdict">{verdictText(d)}</h3>
                 <p>{d.decision === "unknown" ? "At least one check did not support the proposed familiar label." : "The decision rule accepted a learned condition."}</p>
                 {d.decision === "unknown" && <p className="un-copy" data-copy="further">{summary.further_inspection}</p>}
-                {d.caution && <p className="uw-small">A healthy-baseline check disagrees ({d.caution.replace("_", " ")}). {summary.gates_note}</p>}
+                {d.caution && <p className="uw-small" data-copy="caution">{cautionText(d.caution, level, summary.gates_note)}</p>}
                 {level === "developer" && <p className="uw-small mono">rule {d.rule_variant}; {Object.entries(result.rule_comparison).map(([k, v]) => `${k}: ${v}`).join(" · ")}</p>}
               </section>
               {/* App-8.7 item 2 (choice b): step 1 names the hidden fault, so the actual condition is shown directly */}
@@ -319,15 +354,18 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
                 <span className="uw-kick">{level === "developer" ? "CNN-6 top class (leave-one-class-out model)" : "The label the model proposes"}</span>
                 <h3 data-v="proposed">{cap(name(result.proposed_label))}</h3>
                 <span className="uw-small">Its best answer among the {result.classes_learned.length} conditions it learned.</span>
-                {level === "developer" && <ol className="un-top mono">{result.top_probabilities.map(([k, p]) => <li key={k}>{k}: {p.toFixed(6)}</li>)}</ol>}
+                {level === "developer" && <ol className="un-top mono">{result.top_probabilities.map(([k, p]) => <li key={k}>{k}: {fmtCheck(p)}</li>)}</ol>}
                 <p className="uw-sum" data-v="checks">{c.confidence.passed && c.familiarity.passed ? "Both checks passed, so the proposed label is accepted."
-                  : `${[!c.confidence.passed && "The confidence check", !c.familiarity.passed && "the familiarity check"].filter(Boolean).join(" and ")} failed, so the proposed label is not accepted.`}</p>
+                  : `${cap([!c.confidence.passed && "the confidence check", !c.familiarity.passed && "the familiarity check"].filter(Boolean).join(" and "))} failed, so the proposed label is not accepted.`}</p>
               </section>
-              <div className="uw-checks">
-                <CheckCard title="Confidence" plain="How sure is its best answer?" tech="MSP (maximum softmax probability)" value={conf[0]} threshold={conf[1]}
-                  raw={c.confidence.value} rawT={c.confidence.threshold} passed={c.confidence.passed} rule="MSP ≥ τ_p" level={level} />
-                <CheckCard title="Familiarity" plain="How close is this to learned patterns?" tech="Mahalanobis distance (shared Ledoit–Wolf)" value={fam[0]} threshold={fam[1]}
-                  raw={c.familiarity.value} rawT={c.familiarity.threshold} passed={c.familiarity.passed} rule="distance ≤ τ_d" level={level} />
+              <div className="uw-col">
+                <div className="uw-checks">
+                  <CheckCard kind="confidence" title="Confidence" plain="How sure is its best answer?" tech="MSP (maximum softmax probability)"
+                    check={c.confidence} rule="MSP ≥ τ_p" level={level} />
+                  <CheckCard kind="familiarity" title="Familiarity" plain="How close is this to learned patterns?" tech="Mahalanobis distance (shared Ledoit–Wolf)"
+                    check={c.familiarity} rule="distance ≤ τ_d" level={level} />
+                </div>
+                <p className="uw-small" data-copy="limits">{LIMITS_NOTE}</p>
               </div>
             </div>
             <div className="uw-actions">
@@ -336,13 +374,15 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
               <button type="button" className="uw-ghost" onClick={() => { reset(); setPage(2); }}>Try another recording</button>
               <button type="button" className="uw-ghost" onClick={() => { reset(); setPage(1); }}>Hide a different fault</button>
             </div>
-            {history.length > 0 && <section className="uw-history"><span className="uw-kick">Your runs</span>
-              <div className="uw-hrow uw-hhead"><span>Recording</span><span>Proposed label</span><span>Confidence</span><span>Familiarity</span><span>Outcome</span></div>
+            {history.length > 0 && <section className="uw-history">
+              <div className="uw-hbar"><span className="uw-kick">Your runs</span>
+                <button type="button" className="uw-ghost uw-clear" onClick={() => setHistory([])}>Clear runs</button></div>
+              <div className="uw-hrow uw-hhead"><span>Hidden fault</span><span>Recording</span><span>Proposed label</span><span>Confidence</span><span>Familiarity</span><span>Outcome</span></div>
               {history.map((x) => { const oo = outcome(x.res);
                 return <button key={x.hidden + x.rec_id} type="button" className="uw-hrow" onClick={() => {
                   setHidden(x.hidden); setEx(Math.max(0, [...runs[x.hidden].examples.filter((e) => e.role === "withheld"), ...runs[x.hidden].examples.filter((e) => e.role === "familiar")].findIndex((e) => e.rec_id === x.rec_id)));
                   setResult(x.res); setStep(STEPS.length - 1); setPage(4); }}>
-                  <span className="mono">{x.rec_id}</span><span>{cap(name(x.res.proposed_label))}</span>
+                  <span data-v="hidden">{human(x.hidden)}</span><span className="mono">{x.rec_id}</span><span>{cap(name(x.res.proposed_label))}</span>
                   <span>{x.res.checks.confidence.passed ? "passed" : "failed"}</span><span>{x.res.checks.familiarity.passed ? "passed" : "failed"}</span>
                   <span className={oo.good ? "is-good" : "is-bad"}>{oo.word}</span></button>; })}
             </section>}
@@ -353,6 +393,10 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
                 <span className="un-node">proposed familiar label</span><span className="un-arrow">↓</span>
                 <div className="un-split"><span className="un-node">confidence check</span><span className="un-node">familiarity check</span></div>
                 <div className="un-out"><span><b>both pass</b> → accept the proposed label</span><span><b>either fails</b> → further inspection needed</span></div>
+                {healthyRow && <><span className="un-arrow">↓</span>
+                  <span className="un-node" data-v="healthy-node">{`if the accepted label is healthy: healthy-machine checks (caution only) — ${HEALTHY.map(([k, plain, tech], i) =>
+                    `${dev ? tech : plain.toLowerCase()} ${{ pass: "passed", fail: "failed", na: "not applicable" }[hs[i]]}`).join(", ")}`}</span>
+                  <div className="un-out"><span><b>both pass</b> → healthy</span><span><b>either fails</b> → healthy, with a caution</span></div></>}
               </div>
             </details>
             <details className="uw-fold un-details"><summary>Experiment details</summary>
