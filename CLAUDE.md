@@ -345,6 +345,16 @@ presentation only: no backend, model, threshold, rule, bundle, saved case, assis
    1440 and 390 px against a scratch backend (LLM disabled). **Open, not resolved here:** the concurrent session's
    uncommitted `smoke.jsx` forbids "Traceability" and "Research limitations" in the Developer view; this stage keeps both
    (as declared and as HEAD requires). Bhuvesh decides when that session commits.
+5. **Addendum (26 Oct 2026; Bhuvesh: "you did not change the pipeline").** Section 06 was a step list; it now follows the
+   design's embedded diagram (`frontend/src/components/DevPipeline.jsx`): one row per pipeline stage (`STAGES` of
+   `lib/pipelineLayout.js`), one card per step with its status, recorded time and case line, wires from the trace's own
+   edges coloured by kind (hover traces a step's wires; click opens its purpose, ports and output values; Expand all),
+   the decision as a wide card with the four checks (healthy-baseline checks "caution only") and the verdict, a
+   "Connections carry" legend and a "Full-screen diagram" link. Every value is read from the case's saved trace
+   (`GET /cases/{id}/trace`) and rendered by the pipeline page's helpers (`caseLine`, `Parts`, `V`); the rule's internal
+   name and rule-comparison fields are not shown. Below 1024 px the cards stack per stage without wires. New smoke check:
+   on 4 trace fixtures every step card and stage is drawn, every value carries a resolvable trace path, four decision
+   cells and the verdict, no "B_with_caution". Frontend suite passes on ed8f354 plus this change; screenshots 1440 / 390 px.
 
 ## 7-c. Concurrent stage: Stage App-9 — investigation assistant across an investigation (application improvement; D7 frozen)
 

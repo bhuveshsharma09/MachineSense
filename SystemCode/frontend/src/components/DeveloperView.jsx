@@ -3,11 +3,12 @@ import { K, TAG, al } from "../lib/theme.js";
 import * as M from "../lib/mechanic.js";
 import * as D from "../lib/dashboard.js";
 import { decisionSummary } from "../lib/decisionSummary.js";
-import { CH, IN_SAMPLE_NOTICE, PART, SCORES_NOTE, STEP_CODE, cleanText, fmtScore, human, locations, shownWarnings,
+import { CH, IN_SAMPLE_NOTICE, PART, SCORES_NOTE, cleanText, fmtScore, human, locations, shownWarnings,
   unusualSensors, verdictTitle } from "../lib/model.js";
 import { Svg, bandPath, linePath, rangeMax } from "./Charts.jsx";
 import Scene, { markerFor } from "./Scene.jsx";
 import { Header } from "./Dashboard.jsx";
+import DevPipeline from "./DevPipeline.jsx";
 import "../developer.css";
 
 // Stage App-8.3: the dashboard's Developer view as one page of seven numbered sections (designer's "MachineSense
@@ -39,7 +40,7 @@ function Panel({ title, kicker, children, className = "", span }) {
 }
 
 export default function DeveloperView({ caseId, record, report, channels, signals, activity, explanation, onRegenerate,
-  view, onView, userName, assistantOpen = false, narrow = false, initialSel = null }) {
+  view, onView, userName, assistantOpen = false, narrow = false, initialSel = null, trace = null }) {
   const [sel, setSel] = useState(initialSel);
   const [hover, setHover] = useState(null);
   const [rig, setRig] = useState({ exploded: false, labels: false, resetTick: 0 });
@@ -210,19 +211,8 @@ export default function DeveloperView({ caseId, record, report, channels, signal
         </Section>
 
         {/* 06 Pipeline */}
-        <Section id="pipeline" n="06" title="Pipeline" sub="Every step that ran for this case, in order. The full diagram shows its inputs, outputs and connections.">
-          <div className="dvw-pipe">
-            {activity ? <ol>{activity.steps.map((s, i) => <li key={s.step}>
-              <span className="dvw-pn mono">{String(i + 1).padStart(2, "0")}</span>
-              <span className="dvw-pcode mono">{STEP_CODE[s.step]}</span>
-              <div className="dvw-col"><b>{s.title}</b><span className="dvw-muted">{s.detail}</span></div>
-              <span className="mono dvw-ms">{s.ms == null ? "—" : s.ms < 1 ? "<1 ms" : `${Math.round(s.ms).toLocaleString("en-US")} ms`}{s.startup ? " · startup" : ""}</span>
-            </li>)}</ol> : <p className="dvw-muted">Loading…</p>}
-            <div className="dvw-pipe-foot">
-              {record.timing_ms?.total != null && <span className="mono">{`Diagnosis ${Math.round(record.timing_ms.total).toLocaleString("en-US")} ms in total`}</span>}
-              <a href={`#/case/${encodeURIComponent(caseId)}/pipeline`}>Full pipeline diagram ›</a>
-            </div>
-          </div>
+        <Section id="pipeline" n="06" title="Pipeline" sub="How this diagnosis was made, read from the case's saved trace; nothing is re-run.">
+          <DevPipeline caseId={caseId} initialTrace={trace} />
         </Section>
 
         {/* 07 Report */}

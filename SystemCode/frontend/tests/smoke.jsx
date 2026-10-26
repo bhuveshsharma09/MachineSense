@@ -573,6 +573,9 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
 // App-8: the dashboard and the assistant page, from the same recorded responses. Every fixture in both views renders; the
 // honesty lines are on the page; the designer's sample values never appear; the Mechanic view shows no score or threshold.
 import { DashboardView } from "../src/components/Dashboard.jsx";
+import DeveloperView from "../src/components/DeveloperView.jsx";
+import { STAGES } from "../src/lib/pipelineLayout.js";
+import { valueOf } from "../src/lib/pipelineCase.js";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
 import { guidanceSteps, showMeTarget } from "../src/lib/dashboard.js";
@@ -659,12 +662,33 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
     if ((html.match(/class="dvw-check"/g) || []).length !== f.report.assessment.checks.length) errs.push("one card per check");
     if (!f.report.assessment.variants.every((v) => t.includes(v.name))) errs.push("alternative rules");
     if (t.includes("4 of 4 checks support") || /Rule A · used/.test(t) || t.includes("B_with_caution")) errs.push("design sample rule text");
-    if (!t.includes("Full pipeline diagram") || !html.includes(`href="#/case/${f.record.case_id}/pipeline"`)) errs.push("pipeline link");
+    if (!t.includes("Full-screen diagram") || !html.includes(`href="#/case/${f.record.case_id}/pipeline"`)) errs.push("pipeline link");
     if (d.decision === "known_fault" && !t.includes("Mapped from the model's predicted class on this test rig; the sensors do not pinpoint the fault.")) errs.push("mapped caveat");
     if (errs.length) devBad.push(`${n}: ${errs.join(", ")}`);
   }
   pcheck(`App-8.3 Developer: ${Object.keys(fx).length} fixtures render seven sections, the Mechanic finding title, the rule in use and every check and variant`,
     !devBad.length, devBad.join("\n"));
+  // App-8.3: section 06 embeds the pipeline diagram from the case's own trace (every value a trace path, the rule in use)
+  const pipeBad = [];
+  for (const [n, tr] of Object.entries({ fxKnown, fxUnknown, fxCaution, fxHealthy })) {
+    const ids = STAGES.flatMap((s) => s.ids).filter((id) => blockPaths(tr)[id]);
+    const html = renderToString(<DeveloperView caseId={tr.case_id} record={knownFault.record} report={knownFault.report} channels={knownFault.channels}
+      signals={knownFault.signals} explanation={{ status: "ready", data: knownFault.explanation }} view="developer" onView={() => {}} trace={tr}
+      initialWidth={1440} />);
+    const pipe = html.slice(html.indexOf('id="dvw-pipeline"'), html.indexOf('id="dvw-report"'));
+    const t = textOf(pipe), dec = blockPaths(tr).decision;
+    const errs = [];
+    if (!ids.every((id) => pipe.includes(`data-pn="${id}"`))) errs.push("a step card is missing");
+    if (!STAGES.every((s) => t.includes(s.title))) errs.push("a stage heading is missing");
+    const paths = [...pipe.matchAll(/data-p="([^"]+)"/g)].map((m) => m[1]);
+    if (!paths.length || paths.some((p) => at(tr, p) === undefined)) errs.push("a value without a trace path");
+    if ((pipe.match(/data-cell="/g) || []).length !== 4) errs.push("four decision checks");
+    if (!t.includes(String(valueOf(at(tr, `${dec}.output.display_label`))))) errs.push("verdict");
+    if (!t.includes("caution only") || t.includes("B_with_caution") || !t.includes("Expand all") || !t.includes("Connections carry")) errs.push("rule wording / controls");
+    if (!pipe.includes(`href="#/case/${tr.case_id}/pipeline"`)) errs.push("full-screen link");
+    if (errs.length) pipeBad.push(`${n}: ${errs.join(", ")}`);
+  }
+  pcheck("App-8.3 Developer section 06 draws every pipeline step from the trace, the four checks and the verdict", !pipeBad.length, pipeBad.join("\n"));
   const mapped = (src) => {
     const report = { ...knownFault.report, sections: knownFault.report.sections.map((s) => s.n !== "04" ? s : { ...s, items: [
       { tag: "Guidance", text: `Check the 2× to 1× ratio. (source: ${src}; AI-drafted, not yet checked against a published source)`,
