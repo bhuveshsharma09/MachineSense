@@ -311,6 +311,31 @@ assumption. The curated step text is never rewritten; a separate plain gloss may
 pass before each code commit; screenshots at 1440×900 and 1280×720 plus healthy and further-inspection cases. Commit each
 block group separately with Bhuvesh as sole author; do not push.
 
+## 7-d. Concurrent stage: Stage App-8.3 — Developer view redesign (frontend only)
+
+Declared 26 Oct 2026 before any code, at Bhuvesh's request ("improve the dev view based on this design": the designer's
+`MachineSense Developer.dc.html`, walkthrough (3)). Runs beside App-8.2 and App-9; neither section is moved. Frontend
+presentation only: no backend, model, threshold, rule, bundle, saved case, assistant or D7 change; no dependency.
+1. **Scope and files.** The dashboard's Developer view becomes one page of seven numbered sections with a sticky jump bar:
+   01 Verdict (finding, mapped location, key numbers, evidence, uncertainty), 02 Machine (the 3-D rig with a part
+   inspector whose related channels filter the data), 03 What the data shows (signal quality, channels vs a healthy
+   recording, order / envelope spectrum, waveform), 04 What the models saw (top-3 classes CNN-6 and LR, LR feature
+   contributions, CNN attribution marked exploratory, explanation details), 05 Decision (the four checks on a threshold
+   scale, the rule in use, the alternative rules), 06 Pipeline (the investigation steps with their times and a link to
+   the full pipeline page), 07 Report (the fixed report and traceability). New files `frontend/src/components/
+   DeveloperView.jsx` and `frontend/src/developer.css`; `Dashboard.jsx` gains only one import and one early return for the
+   Developer view (applied without committing the concurrent session's uncommitted edits). The Mechanic view is unchanged.
+2. **Data and honesty rules (as App-8).** Every value comes from the case's existing responses; the design's sample
+   numbers and ids are not used; no healthy-reference spectrum line (none is served). Location wording keeps "According
+   to the dataset label (model prediction)" beside the design's "mapped from the model's predicted class" line. **The
+   decision section shows the rule in use:** the classifier-first rule decides by confidence and familiarity with the
+   top class; the autoencoder and B1s checks add a caution only. The design's "Rule A · used: known_fault ⇐ confidence ∧
+   familiarity ∧ (AE ∨ B1s differs)" and "4 of 4 checks support" are not used. CNN attribution stays labelled
+   exploratory and not evidence of location; "Model scores are not the probability that the diagnosis is correct." stays.
+3. **Tests:** smoke checks that the Developer view renders all seven sections for every fixture, shows the rule in use
+   and "caution only" for the healthy checks, carries the honesty lines, uses no design sample value, and that the
+   Mechanic view is unchanged; both suites pass before the commit; a real-browser screenshot check.
+
 ## 7-c. Concurrent stage: Stage App-9 — investigation assistant across an investigation (application improvement; D7 frozen)
 
 Declared 26 Oct 2026 before any code, at Bhuvesh's request; runs beside App-8.2 (that section is not moved). Goal: the
