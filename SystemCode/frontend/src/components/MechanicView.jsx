@@ -37,8 +37,8 @@ export default function MechanicView({ caseId, record, report, channels, signals
   const healthyLine = (report?.sections?.find((s) => s.n === "04")?.items || []).find((it) => it.tag === "Model")?.text;
   const limits = (record.limitations || []).map(cleanText);
 
-  const partId = D.focusPart(ui.sel, loc, unusual);
-  const part = PART[partId];
+  const partId = D.defaultPart(ui.sel, record, loc, rows);  // App-8.6 item 10
+  const part = PART[partId || "rotor"];
   const sceneState = { ...ui, fault: loc.fault, cand: hasFaultArea ? loc.cand : [], unusual, flags, labelsAll: ui.labels };
   const evidenceChannel = rows.filter((r) => r.comparable && r.beyond && r.metric === "order_2x").sort((a, b) => b.factor / b.band - a.factor / a.band)[0]?.id
     || rows.find((r) => r.comparable && r.beyond)?.id;
@@ -65,7 +65,14 @@ export default function MechanicView({ caseId, record, report, channels, signals
     : d.decision === "unknown" ? "Verdict · Further inspection needed" : `Verdict · ${vk.chip}`;
   const verdictColor = d.decision === "known_fault" ? FAULT : d.decision === "unknown" || vk.kind === "caution" ? K.amberT : K.greenT;
   const marker = markerFor(part, sceneState);
-  const related = rows.filter((r) => part.ch.includes(r.id));
+  const related = partId ? rows.filter((r) => part.ch.includes(r.id)) : [];
+  const partChanged = related.some((r) => r.comparable && r.beyond);
+  const changedLine = D.changedOnHealthy(record, rows);  // App-8.6 item 11
+  const calRange = record.signal_quality.calibration_normal_speed_range_hz;
+  // App-8.6 items 13 and 14: bearing steps fitted to the predicted fault; each verification note shown once
+  const indexed = steps.map((s, i) => ({ ...s, i }));
+  const fitted = M.fitBearingSteps(indexed, d.fault_class);
+  const notes = [...new Set(fitted.steps.map((s) => s.flag).filter(Boolean))];
 
   return (
     <div className={"rd-root rd-mechanic mvw-root" + (narrow ? " is-narrow" : "") + (assistantOpen ? " has-assistant" : "")}>
@@ -83,7 +90,9 @@ export default function MechanicView({ caseId, record, report, channels, signals
             {d.caution && <span className="rd-sub">A healthy-baseline check disagrees; consider a recheck.</span>}
             {hasFaultArea && mloc.parts.length > 0 && <p className="mvw-next">Start with the {mloc.parts.map((p) => M.PART_PLAIN[p].toLowerCase()).join(" and ")}.</p>}
             {d.decision === "unknown" && <p className="mvw-next">The checks did not support a known condition; inspect the readings before choosing a fault area.</p>}
-            <span className="mvw-speed">Shaft speed {record.signal_quality.shaft_speed_hz.toFixed(1)} Hz ({Math.round(record.physics.shaft_speed_rpm).toLocaleString("en-US")} rpm)</span>
+            {changedLine && <p className="mvw-changed">{changedLine}</p>}
+            <span className="mvw-speed">{`Shaft speed ${record.signal_quality.shaft_speed_hz.toFixed(1)} Hz (${Math.round(record.physics.shaft_speed_rpm).toLocaleString("en-US")} rpm)`}
+              {d.decision === "unknown" && calRange && <span className="mvw-cal">{` · calibrated range ${Math.round(calRange[0])}–${Math.round(calRange[1])} Hz`}</span>}</span>
             {hasFaultArea && mloc.parts.length > 0 && <div className="mvw-location">
               <strong>{mloc.parts.map((p) => M.PART_PLAIN[p]).join(" and ")}</strong>
               <span className="mvw-loc-label">According to the dataset label (model prediction)</span>
@@ -103,11 +112,11 @@ export default function MechanicView({ caseId, record, report, channels, signals
             <h2>Evidence</h2>
             {e ? <>
               <Caveat>{e.badge}</Caveat>
-              <ul className="mvw-bullets">{e.text.why_flagged.map((x) => <li key={x}>{x}</li>)}</ul>
+              <ul className="mvw-bullets">{e.text.why_flagged.map((x) => <li key={x}>{M.plainExplain(x)}</li>)}</ul>
             </> : <p className="rd-muted">{explanation?.status === "error" ? "The explanation is unavailable. Review the measured channels below." : "Preparing the explanation…"}</p>}
             <div className="mvw-box"><span className="rd-m-label">Healthy-baseline check</span><span>{M.supporting(record, report?.assessment) || "Checking…"}</span></div>
-            {e?.text.uncertainty?.length > 0 && <div className="mvw-unc"><span className="rd-m-label">Uncertainty</span>
-              <ul>{e.text.uncertainty.map((x) => <li key={x}>{x}</li>)}</ul></div>}
+            {e?.text.uncertainty?.filter(M.notInSample).length > 0 && <div className="mvw-unc"><span className="rd-m-label">Uncertainty</span>
+              <ul>{e.text.uncertainty.filter(M.notInSample).map((x) => <li key={x}>{M.plainExplain(x)}</li>)}</ul></div>}
           </div>
         </section>
 
@@ -132,9 +141,12 @@ export default function MechanicView({ caseId, record, report, channels, signals
               </div>
             </div>
             <aside className="mvw-insp" aria-label="Selected part">
-              <span className="mvw-tag" style={marker.tag ? { color: marker.tagColor, background: al(marker.fill, 0.14) } : undefined}>{marker.tag || "Nothing flagged"}</span>
-              <b className="mvw-insp-name">{M.PART_PLAIN[part.id] || part.full || part.label}</b>
-              <p>{part.desc}</p>
+              {partId ? <>
+                <span className="mvw-tag" style={marker.tag ? { color: marker.tagColor, background: al(marker.fill, 0.14) } : partChanged ? { color: K.limeT, background: al(K.lime, 0.2) } : undefined}>
+                  {marker.tag || (partChanged ? "Change beyond typical healthy variation · measured" : "Nothing flagged")}</span>
+                <b className="mvw-insp-name">{M.PART_PLAIN[part.id] || part.full || part.label}</b>
+                <p>{part.desc}</p>
+              </> : <><b className="mvw-insp-name">No location</b><p>{D.NO_LOCATION} No sensor differs beyond typical healthy variation.</p></>}
               {related.length > 0 && <div className="mvw-col">
                 <span className="rd-m-label">Related channels</span>
                 {related.map((r) => <button key={r.id} type="button" className={"mvw-insp-ch" + (r.id === chId ? " on" : "")}
@@ -167,17 +179,19 @@ export default function MechanicView({ caseId, record, report, channels, signals
             {!showChecks ? <p className="mvw-healthy">{healthyLine || "No inspection steps are offered for a healthy verdict."}</p>
               : !report ? <p className="rd-muted">Suggested checks appear with the report.</p> : <>
                 <div className="mvw-col"><h3>Suggested checks</h3><span className="mvw-sub">From curated guidance · for {M.finding(record).replace(/^./, (c) => c.toLowerCase())}</span></div>
-                <ol className="mvw-steps">{steps.map((s, i) => { const show = D.showMeTarget(s, i);
+                {notes.map((n) => <Caveat key={n}>{`${n} (applies to the steps from that source).`}</Caveat>)}
+                <ol className="mvw-steps">{fitted.steps.map((s) => { const i = s.i, show = D.showMeTarget(s, i);
                   return <li key={i}>
-                    <span className="rd-step-n">{i + 1}</span>
+                    <span className="rd-step-n">{fitted.steps.indexOf(s) + 1}</span>
                     <div className="mvw-col">
                       <span className="mvw-step-t">{s.text}</span>
                       {/\b(?:1×|2×|order)\b/i.test(s.text) && <span className="rd-m-gloss">1× = once per shaft turn; 2× = twice per turn.</span>}
                       {s.src && <span className="mvw-cite" title={`${s.title} (source: ${s.src})`}>{s.title.split(" — ")[0]}</span>}
-                      {s.flag && <Caveat>{s.flag}</Caveat>}
+                      {M.needsEnvelopeGloss(s.text) && <span className="rd-m-gloss">{M.ENVELOPE_GLOSS}</span>}
                       {show && <button type="button" className="rd-m-show" onClick={() => showMeasurement(show)}>Show me</button>}
                     </div>
                   </li>; })}</ol>
+                {fitted.hidden > 0 && <span className="mvw-sub">{`${fitted.hidden} step${fitted.hidden > 1 ? "s" : ""} about other bearing fault types ${fitted.hidden > 1 ? "are" : "is"} not shown here (see the Developer view or the report).`}</span>}
                 <Caveat>Work on the rig only when it is stopped and isolated. These steps suggest where to look; they do not confirm a fault.</Caveat>
               </>}
           </div>

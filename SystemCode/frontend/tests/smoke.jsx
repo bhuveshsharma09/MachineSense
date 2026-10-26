@@ -28,7 +28,7 @@ const screens = {
   "name prompt": [{ ...base, userName: "", needsName: true }, ["Display name", "stored in this browser only"]],
   running: [{ ...base, selection: sel(knownFault), status: "running" }, ["Start investigation"]],
   "known fault": [done(knownFault, { initialUi: { sel: "out_brg", evCh: "over_radial", evView: "envelope", signal: true } }),
-    ["Known fault", "Overhang bearing · cage fault", "Dataset label: Overhang bearing · cage fault", "above healthy limit — consistent with a fault",
+    ["Possible fault", "Overhang bearing · cage fault", "Dataset label: Overhang bearing · cage fault", "above healthy limit — consistent with a fault",
       "Location according to the dataset label (model)", "outer bearing housing", "CNN-6 · main model", "Secondary logistic regression", "> 0.9999", "margin",
       "Decision rule: provisional research setting", "Excess kurt.",
       "Model scores are not the probability that the diagnosis is correct.", "This recording was used to build the model",
@@ -593,7 +593,9 @@ import { STAGES } from "../src/lib/pipelineLayout.js";
 import { valueOf } from "../src/lib/pipelineCase.js";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
-import { BEARING_NOTE, bearingSpectrum, guidanceSteps, overflow as overflow86, showMeTarget } from "../src/lib/dashboard.js";
+import { BEARING_NOTE, bearingSpectrum, channelRows as channelRows86, defaultPart as defaultPart86, guidanceSteps, overflow as overflow86, showMeTarget } from "../src/lib/dashboard.js";
+import { ENVELOPE_GLOSS, JARGON_WORDS, fitBearingSteps } from "../src/lib/mechanic.js";
+import { locations } from "../src/lib/model.js";
 import { CALIBRATION_SPEED_WARNING as CAL_SPEED, cleanText as cleanText86, verdict as verdict86 } from "../src/lib/model.js";
 import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, shownWarnings } from "../src/lib/model.js";
 {
@@ -652,7 +654,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
   const tk = textOf(dash(knownFault, "mechanic"));
   pcheck("App-8 dashboard: all inspection steps retain section 04 text and the guidance note, without raw ids in Mechanic",
     steps.length > 0 && steps.every((x) => x.src && knownFault.report.sections.find((s) => s.n === "04").items.some((it) => it.text.startsWith(x.text)))
-    && steps.every((x) => tk.includes(x.text)) && !tk.includes("source: bearing-defect-frequencies")
+    && fitBearingSteps(steps, knownFault.record.diagnosis.fault_class).steps.every((x) => tk.includes(x.text)) && !tk.includes("source: bearing-defect-frequencies")
     && tk.includes("Citation not yet checked against the full text"));
   const hp = textOf(dash(plainHealthy, "mechanic"));
   pcheck("App-8 dashboard: a healthy verdict hides suggested checks and fault location",
@@ -748,6 +750,37 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
     pcheck("App-8.6 item 6: a ratio beyond ×8 is drawn at the edge with its value; below ÷8 likewise",
       overflow86(31.3)?.text === "×31 ▸" && overflow86(1 / 12)?.text === "◂ ÷12" && overflow86(5) === null
       && textOf(dash(big, "mechanic")).includes("×31 ▸") && textOf(dash(big, "developer")).includes("×31 ▸"));
+  }
+  // App-8.6 group B (clarity for the mechanic)
+  {
+    const jar = structuredClone(knownFault);
+    jar.explanation.text.why_flagged = ["The classifier confidence (MSP) check passed and the familiarity check passed.",
+      "The autoencoder error and the speed-aware baseline (B1s) are above their limits."];
+    jar.explanation.text.uncertainty = ["This recording was used to build the model, so the result is not evidence of accuracy.", "One check is close to its limit."];
+    const mh = dash(jar, "mechanic"), ev = textOf(mh.match(/aria-label="Evidence"[\s\S]*?<\/section>/)?.[0] || "");
+    pcheck("App-8.6 item 8: the Mechanic view rewrites model jargon in a stored explanation; the Developer view keeps it",
+      ev.includes("the model is sure of its match") && !JARGON_WORDS.test(ev) && textOf(dash(jar, "developer")).includes("classifier confidence (MSP)"));
+    pcheck("App-8.6 item 16: the in-sample statement appears once on the Mechanic verdict card",
+      (textOf(mh).match(/used to build the model/g) || []).length === 1);
+    const ut = textOf(dash(unknown, "mechanic")), urows = channelRows86(unknown.channels);
+    const top = defaultPart86(null, unknown.record, locations(unknown.record), urows);
+    pcheck("App-8.6 item 10: with no model location the Machine panel selects the most-changed sensor; with none changed it says so",
+      top && top.startsWith("s_") && !ut.includes("Nothing flagged") && ut.includes("Change beyond typical healthy variation")
+      && textOf(dash(healthy, "mechanic")).includes("The model did not name a location.")
+      && textOf(dash(healthy, "developer")).includes("The model did not name a location."));
+    pcheck("App-8.6 item 11: a healthy verdict with 3 changed sensors says so and suggests repeating the reading (both views)",
+      textOf(dash(caution, "mechanic")).includes("3 of 7 sensors differ from a healthy recording at a similar speed. Consider repeating the reading.")
+      && textOf(dash(caution, "developer")).includes("3 of 7 sensors differ") && !textOf(dash(healthy, "mechanic")).includes("sensors differ"));
+    pcheck("App-8.6 item 12: a further-inspection verdict shows the calibrated range beside the shaft speed",
+      ut.includes("calibrated range 18–38 Hz"));
+    const kt = textOf(dash(knownFault, "mechanic"));
+    const fit = fitBearingSteps(guidanceSteps(knownFault.report.sections.find((s) => s.n === "04").items), knownFault.record.diagnosis.fault_class);
+    pcheck("App-8.6 item 13: a cage-fault verdict hides steps that name only other bearing faults, and says how many",
+      fit.hidden > 0 && !kt.includes("inner-race line") && kt.includes("about other bearing fault types") && kt.includes(ENVELOPE_GLOSS));
+    pcheck("App-8.6 item 14: the citation note appears once in the Mechanic step list",
+      (kt.match(/Citation not yet checked against the full text/g) || []).length === 1);
+    pcheck("App-8.6 item 15: a known fault reads \"Possible fault\" in both views' badge, never \"Faulty\"",
+      kt.includes("Possible fault") && !kt.includes("Faulty") && textOf(dash(knownFault, "developer")).includes("Possible fault"));
   }
   const mapped = (src) => {
     const report = { ...knownFault.report, sections: knownFault.report.sections.map((s) => s.n !== "04" ? s : { ...s, items: [

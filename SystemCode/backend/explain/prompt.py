@@ -28,7 +28,16 @@ Rules:
   (DATA does not contain them; do not invent any).
 - Never use percentages. Never say a fault is confirmed, never name a root cause, never recommend replacing a part,
   never express urgency.
-- A difference from a healthy example is not a confirmed fault; say so when you mention it.
+- A difference from the healthy reference is not a confirmed fault; say so when you mention it.
+- Name sensors exactly as DATA does (for example "Underhang bearing, radial"); never write "inner/outer bearing sensor" or
+  "sideways".
+- Never use the words "classifier confidence", "familiarity", "autoencoder", "speed-aware baseline", "MSP" or "Mahalanobis".
+  Say "the model is sure of its match", "the recording looks like ones the model has seen", "the recording looks like a
+  healthy machine", as in DATA.checks.
+- Every measured change states its direction and factor, for example "5.5× higher than the healthy reference" or
+  "5.5× lower than the healthy reference". The comparison is with one healthy reference recording at a similar speed:
+  never write "healthy examples".
+- When you mention a limitation, use its sentence from DATA.limitations word for word.
 - "finding": one sentence, at most 25 words.
 - "why_flagged": 2 or 3 short bullet sentences with the main evidence.
 - "uncertainty": 1 to 3 short bullet sentences on what limits the result (use DATA.checks, DATA.warnings, DATA.limitations).
@@ -50,26 +59,27 @@ def compact_view(record: dict, assessment: dict, channels: dict | None, user_fie
     if channels:
         rows = {c["channel"]: c for c in channels["channels"]}
         keys = channels.get("marked") or channels.get("exceeding", [])[:2]
+        keys = sorted(keys, key=lambda ch: plain.change_rank(rows[ch]))  # increases first (App-8.6 item 28)
         for ch in keys:
             c = rows[ch]
             changes.append({"sensor": plain.SENSOR_PLAIN.get(ch, ch), "measure": plain.MEASURE_PLAIN.get(c["change_metric"], c["change_metric"]),
                             "direction": "higher" if c["direction"] == "up" else "lower",
-                            "factor_vs_healthy_example": round(float(c["change_factor"]), 1),
+                            "factor_vs_healthy_reference": round(float(c["change_factor"]), 1),
                             "beyond_typical_healthy_variation": bool(c["exceeds"])})
     mech = {"speed_hz": round(fr, 1), "speed_rpm": int(round(60 * fr)),
-            "change_factors": [c["factor_vs_healthy_example"] for c in changes]}
+            "change_factors": [c["factor_vs_healthy_reference"] for c in changes]}
     return {
         "finding_label": plain.finding(record), "decision": d["decision"], "caution": d["caution"],
         "suggested_location": plain.location(record)["text"],
         "most_similar_classes_in_order": [plain.FAULT_PLAIN.get(c, c) for c, _ in top],
-        "checks": [{"name": c["name"], "role": c["role"], "passed": c["passed"], "status": c["status"],
+        "checks": [{"name": plain.CHECK_PLAIN.get(c["key"], c["name"]), "role": c["role"], "passed": c["passed"], "status": c["status"],
                     "close_to_its_limit": c["narrow"]}
                    for c in assessment["checks"]],
         "secondary_model_agrees": d["top_class"] == d["lr_secondary"]["top_class"],
         "warnings": plain.warnings(record),
         "largest_measured_changes": changes,
         "mechanic_numbers": mech,
-        "limitations": [plain.LIMITATION] + ([plain.IN_SAMPLE] if record["source"] == "dataset" else []),
+        "limitations": [plain.RESEARCH] + ([plain.IN_SAMPLE] if record["source"] == "dataset" else []),
         "user_provided_data": {k: str(v) for k, v in (user_fields or {}).items() if v},
     }
 

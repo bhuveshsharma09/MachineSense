@@ -54,8 +54,9 @@ export default function DeveloperView({ caseId, record, report, channels, signal
   const loc = locations(record);
   const unusual = unusualSensors(channels, flags);
   const rows = D.channelRows(channels);
-  const partId = D.focusPart(sel, loc, unusual);
-  const part = PART[partId];
+  const partId = D.defaultPart(sel, record, loc, rows);  // App-8.6 item 10
+  const part = PART[partId || "rotor"];
+  const changedLine = D.changedOnHealthy(record, rows);  // App-8.6 item 11
   const chOptions = part.ch.filter((c) => signals?.channels?.[c]);
   const chId = chOptions.includes(ch) ? ch : chOptions[0] || part.ch[0];
   const sceneState = { sel, hover, exploded: rig.exploded, labels: rig.labels, resetTick: rig.resetTick, fault: loc.fault, cand: loc.cand,
@@ -104,6 +105,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
             <span className="dvw-kick">{`Verdict · ${verdictTitle(record)}${d.decision === "known_fault" ? " (model prediction)" : ""}`}</span>
             <h1 className="rd-m-title">{M.finding(record)}</h1>
             <span className="dvw-sub">{`Shaft speed ${record.signal_quality.shaft_speed_hz.toFixed(2)} Hz (${Math.round(record.physics.shaft_speed_rpm).toLocaleString("en-US")} rpm)`}</span>
+            {changedLine && <span className="dvw-changed">{changedLine}</span>}
             {mloc.parts.length > 0 && <div className="dvw-loc">
               <b>{mloc.parts.map((p) => M.PART_PLAIN[p]).join(" and ")}</b>
               <span className="dvw-caveat">{mloc.kind === "candidate" ? "Candidate parts from the two most likely fault types (model prediction)."
@@ -121,7 +123,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
             {e ? <>
               <span className="dvw-caveat">{e.badge}</span>
               <ul className="dvw-bullets">{e.text.why_flagged.map((x) => <li key={x}>{x}</li>)}</ul>
-              {e.text.uncertainty?.length > 0 && <div className="dvw-unc"><span className="dvw-kick-s">Uncertainty</span>{e.text.uncertainty.map((x) => <div key={x}>{x}</div>)}</div>}
+              {e.text.uncertainty?.filter(M.notInSample).length > 0 && <div className="dvw-unc"><span className="dvw-kick-s">Uncertainty</span>{e.text.uncertainty.filter(M.notInSample).map((x) => <div key={x}>{x}</div>)}</div>}
             </> : <p className="dvw-muted">{explanation?.status === "error" ? "The explanation could not be prepared; the report below still applies." : "Preparing explanation…"}</p>}
             <div className="dvw-box"><b>Healthy-baseline check</b><span>{M.supporting(record, report?.assessment) || "Checking…"}</span></div>
           </div>
@@ -137,7 +139,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
               <button type="button" aria-pressed={rig.exploded} className={rig.exploded ? "on" : ""} onClick={() => setRig((r) => ({ ...r, exploded: !r.exploded }))}>Exploded view</button>
               <button type="button" aria-pressed={rig.labels} onClick={() => setRig((r) => ({ ...r, labels: !r.labels }))}>{rig.labels ? "Labels: all" : "Labels: minimal"}</button>
             </div>
-            <Inspector part={part} sceneState={sceneState} rows={rows} sel={sel} chId={chId} onChannel={(c) => setCh(c)} />
+            <Inspector part={partId ? part : null} sceneState={sceneState} rows={rows} sel={sel} chId={chId} onChannel={(c) => setCh(c)} />
             <div className="dvw-rig-legend"><span><i className="lg-sel" />Selected</span><span><i className="lg-fault" />Predicted location · model</span>
               <span><i className="lg-change" />Measured change</span><span><i className="lg-flag" />Inspect · quality flag</span>
               <span className="dvw-rig-note">Highlights suggest where to inspect; they do not confirm a fault.</span></div>
@@ -248,11 +250,16 @@ export default function DeveloperView({ caseId, record, report, channels, signal
 const pct = (v) => `${Math.max(0, Math.min(1, v || 0)) * 100}%`;
 
 function Inspector({ part, sceneState, rows, sel, chId, onChannel }) {
+  if (!part) return <aside className="dvw-insp" aria-label="Selected part"><b className="dvw-insp-name">No location</b>
+    <p>{`${D.NO_LOCATION} No sensor differs beyond typical healthy variation.`}</p>
+    <span className="dvw-muted dvw-insp-hint">Select a part or sensor on the rig.</span></aside>;
   const m = markerFor(part, sceneState);
   const mine = rows.filter((r) => part.ch.includes(r.id));
+  const changed = mine.some((r) => r.comparable && r.beyond);
   return (
     <aside className="dvw-insp" aria-label="Selected part">
-      <span className="dvw-pill" style={m.tag ? { color: m.tagColor, background: al(m.fill, 0.14) } : undefined}>{m.tag || "Nothing flagged"}</span>
+      <span className="dvw-pill" style={m.tag ? { color: m.tagColor, background: al(m.fill, 0.14) } : changed ? { color: K.limeT, background: al(K.lime, 0.2) } : undefined}>
+        {m.tag || (changed ? "Change beyond typical healthy variation · measured" : "Nothing flagged")}</span>
       <b className="dvw-insp-name">{part.full || part.label}</b>
       <p>{part.desc}</p>
       {mine.length > 0 && <div className="dvw-col">

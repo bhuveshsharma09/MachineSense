@@ -137,7 +137,7 @@ export const cleanText = (x) => x.replace(/Decision rule is a provisional demo d
 
 export function verdict(record) {
   const d = record.diagnosis;
-  if (d.decision === "known_fault") return { kind: "fault", chip: "Known fault" };
+  if (d.decision === "known_fault") return { kind: "fault", chip: "Possible fault" };  // App-8.6 item 15
   if (d.decision === "unknown") return { kind: "further", chip: "Further inspection needed" };
   if (d.caution) return { kind: "caution", chip: "Healthy — caution" };
   if (outsideCalibration(record)) return { kind: "caution", chip: "Healthy — speed not calibrated" };  // display only (App-8.6 item 5)

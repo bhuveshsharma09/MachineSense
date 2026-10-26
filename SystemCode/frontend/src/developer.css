@@ -56,6 +56,7 @@
 .dvw-keys > div { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 14px; background: oklch(0.23 0.006 260 / 0.04); min-width: 0; }
 .dvw-keys span { font-size: 11px; color: var(--ink3); }
 .dvw-keys b { font-weight: 400; font-size: 15px; }
+.dvw-changed { font-size: 13px; color: var(--amberT); }
 .dvw-note { font-size: 12px; color: var(--ink3); }
 .dvw-warn { padding: 10px 12px; border-radius: 12px; background: oklch(0.80 0.14 75 / 0.18); color: var(--amberT); font-size: 12.5px; }
 .dvw-ok { font-size: 12.5px; color: var(--greenT); }

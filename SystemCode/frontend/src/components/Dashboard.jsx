@@ -110,7 +110,7 @@ export function Header({ caseId, record, view, onView, back, title, userName }) 
           <span className="rd-dot" style={{ background: s.dot, boxShadow: "0 0 0 4px " + al(s.dot, 0.18) }} />
           {!mechanic && <span className="rd-case-id">Case {caseId.slice(0, 8)}</span>}
           {!mechanic && <span className="mono rd-case-file">{record.input?.rec_id || "uploaded recording"}</span>}
-          <span className="rd-chip" style={{ background: s.bg, color: s.color }}>{mechanic && v.kind === "fault" ? "Faulty" : v.chip}</span>
+          <span className="rd-chip" style={{ background: s.bg, color: s.color }}>{v.chip}</span>
         </div>}
       </div>
       {onView && <Seg label="Reading level" value={view} onChange={onView} options={[["mechanic", "Mechanic"], ["developer", "Developer"]]} />}

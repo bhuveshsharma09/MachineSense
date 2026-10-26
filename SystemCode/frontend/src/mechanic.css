@@ -25,6 +25,8 @@
 .mvw-verdict-label { font-size: 15px; font-weight: 500; }
 .mvw-verdict .rd-m-title { margin: 0; }
 .mvw-next { margin: 0; font-size: 16px; font-weight: 500; }
+.mvw-changed { margin: 0; font-size: 14px; color: oklch(0.50 0.11 65); }
+.mvw-cal { color: var(--ink3); }
 .mvw-speed { font-size: 14px; color: var(--ink2); }
 .mvw-location { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 18px; border-radius: 18px; background: oklch(0.66 0.19 42 / 0.08); }
 .mvw-location strong { font-size: 16px; font-weight: 500; }

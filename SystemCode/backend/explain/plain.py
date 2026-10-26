@@ -15,12 +15,20 @@ FAULT_PLAIN = {
     "overhang_ball": "bearing ball fault", "overhang_cage": "bearing cage fault", "overhang_outer": "bearing outer-race fault",
     "normal": "normal operation",
 }
-PART_PLAIN = {"in_brg": "Inner bearing housing", "out_brg": "Outer bearing housing", "rotor": "Rotor discs",
+# App-8.6 item 7: the page's names everywhere (Underhang / Overhang bearing; axial, radial, tangential)
+PART_PLAIN = {"in_brg": "Underhang bearing housing", "out_brg": "Overhang bearing housing", "rotor": "Rotor discs",
               "coupling": "Coupling", "shaft": "Shaft"}
-SENSOR_PLAIN = {"under_axial": "inner bearing sensor, along the shaft", "under_radial": "inner bearing sensor, radial",
-                "under_tangential": "inner bearing sensor, sideways", "over_axial": "outer bearing sensor, along the shaft",
-                "over_radial": "outer bearing sensor, radial", "over_tangential": "outer bearing sensor, sideways",
+SENSOR_PLAIN = {"under_axial": "Underhang bearing, axial", "under_radial": "Underhang bearing, radial",
+                "under_tangential": "Underhang bearing, tangential", "over_axial": "Overhang bearing, axial",
+                "over_radial": "Overhang bearing, radial", "over_tangential": "Overhang bearing, tangential",
                 "mic": "microphone"}
+# App-8.6 item 8: the checks in plain words for the explanation (no classifier confidence, familiarity, autoencoder,
+# speed-aware baseline, MSP or Mahalanobis)
+CHECK_PLAIN = {"msp": "the model is sure of its match", "maha": "the recording looks like ones the model has seen",
+               "ae": "the recording looks like a healthy machine (overall pattern)",
+               "b1s": "the recording looks like a healthy machine at this speed"}
+# App-8.6 item 17: the limitation sentence given to the model, to be repeated word for word
+RESEARCH = "This is a research demonstration. It is not validated on real machines."
 MEASURE_PLAIN = {"rms": "overall vibration level (RMS)", "order_1x": "vibration once per rotation (1×)",
                  "order_2x": "vibration twice per rotation (2×)", "env_bpfo1": "repeated impacts at the outer-race rate (envelope spectrum)",
                  "env_bpfi1": "repeated impacts at the inner-race rate (envelope spectrum)",
@@ -96,6 +104,18 @@ def warnings(record: dict) -> list[str]:
         if plain not in out:
             out.append(plain)
     return out
+
+
+def change_rank(c: dict) -> tuple:
+    """App-8.6 item 28: increases beyond typical variation first (largest beyond the band first), then decreases."""
+    return (c["direction"] != "up", not c.get("exceeds", True), -float(c["change_factor"]) / float(c.get("band") or 1))
+
+
+def change_sentence(ch: str, c: dict) -> str:
+    """One measured change with its direction and factor against the one healthy reference recording (App-8.6 item 9)."""
+    return (f"The {MEASURE_PLAIN.get(c['change_metric'], c['change_metric'])} on the {SENSOR_PLAIN.get(ch, ch)} sensor is "
+            f"{float(c['change_factor']):.1f}× {'higher' if c['direction'] == 'up' else 'lower'} than the healthy reference "
+            "recording at a similar speed (a difference, not a proven fault).")
 
 
 def supporting(record: dict, assessment: dict) -> str:

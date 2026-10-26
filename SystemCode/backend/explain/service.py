@@ -17,8 +17,8 @@ TEMPERATURE = 0.2
 
 
 def template_explanation(record: dict, assessment: dict, channels: dict | None, guidance: list[dict]) -> dict:
-    """The fixed, deterministic explanation (no language model), in the same schema; plain words, no numbers except in
-    `next_step`, which is report section 04's cited steps (`guidance`) as given."""
+    """The fixed, deterministic explanation (no language model), in the same schema; plain words; the only numbers are a
+    measured change factor (with its direction) and `next_step`, report section 04's cited steps (`guidance`) as given."""
     d = record["diagnosis"]
     why = []
     if d["decision"] == "known_fault":
@@ -29,14 +29,16 @@ def template_explanation(record: dict, assessment: dict, channels: dict | None, 
         why.append("The pattern does not closely match any fault type the model knows well enough to name it.")
         why.append("The most similar known types are " + " and ".join(plain.FAULT_PLAIN.get(c, c) for c, _ in top) + ".")
     else:
-        why.append("The vibration pattern matches the healthy examples the model learned from.")
+        why.append("The vibration pattern matches the healthy recordings the model learned from.")
+    numbers = []
     if channels:
         rows = {c["channel"]: c for c in channels["channels"]}
-        for ch in (channels.get("marked") or [])[:1]:
-            c = rows[ch]
-            why.append(f"Compared with a healthy example, the {plain.MEASURE_PLAIN.get(c['change_metric'], c['change_metric'])} on the "
-                       f"{plain.SENSOR_PLAIN.get(ch, ch)} is {'higher' if c['direction'] == 'up' else 'lower'} "
-                       "(different from a healthy example, not a proven fault).")
+        # App-8.6 item 28: the largest increase beyond typical variation first; a decrease only when nothing increased
+        pool = (channels.get("marked") or []) if d["decision"] == "healthy" else (channels.get("exceeding") or channels.get("marked") or [])
+        keys = sorted(pool, key=lambda ch: plain.change_rank(rows[ch]))
+        for ch in keys[:1]:
+            why.append(plain.change_sentence(ch, rows[ch]))
+            numbers.append(round(float(rows[ch]["change_factor"]), 1))
     if len(why) < 2:
         why.append(plain.supporting(record, assessment))
     unc = list(plain.warnings(record))[:2]
@@ -44,7 +46,7 @@ def template_explanation(record: dict, assessment: dict, channels: dict | None, 
         unc.append("One of the checks is close to its limit, so a repeat reading could change the result.")
     unc.append("The healthy baseline comes from a small number of healthy recordings on one test rig.")
     return {"finding": plain.finding(record), "why_flagged": why[:3], "uncertainty": unc[:3],
-            "next_step": plain.next_step(guidance), "numbers_used": []}
+            "next_step": plain.next_step(guidance), "numbers_used": numbers}
 
 
 def _log(path, entry: dict) -> None:

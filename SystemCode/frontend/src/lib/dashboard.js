@@ -79,6 +79,23 @@ export function focusPart(sel, loc, unusual) {
   return sel || loc.fault[0] || loc.cand[0] || unusual[0] || "rotor";
 }
 
+// App-8.6 item 10: the Machine panel's default. The selection; else the model's location (a known fault); else the sensor
+// most beyond typical healthy variation; else null ("The model did not name a location.").
+export function defaultPart(sel, record, loc, rows) {
+  if (sel) return sel;
+  if (record?.diagnosis?.decision === "known_fault" && loc.fault[0]) return loc.fault[0];
+  const r = (rows || []).filter((x) => x.comparable && x.beyond).sort((a, b) => b.factor / b.band - a.factor / a.band)[0];
+  return r ? r.sensor : null;
+}
+export const NO_LOCATION = "The model did not name a location.";
+
+// App-8.6 item 11: a healthy verdict with sensors beyond typical variation says so once
+export function changedOnHealthy(record, rows) {
+  if (record?.diagnosis?.decision !== "healthy") return null;
+  const n = (rows || []).filter((r) => r.comparable && r.beyond).length;
+  return n ? `${n} of ${rows.length} sensors differ from a healthy recording at a similar speed. Consider repeating the reading.` : null;
+}
+
 // The three most probable classes of CNN-6 with the logistic regression's score for the same class.
 export function candidates(record) {
   const d = record.diagnosis, lr = d.lr_secondary;

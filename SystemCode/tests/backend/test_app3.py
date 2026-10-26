@@ -121,7 +121,7 @@ def test_a_contradicted_direction_falls_back(app, model):
     """Part D: Gemma once called a level that was 5.7 times lower "5.7 times higher"; application code refuses that."""
     from backend.explain.guard import check_directions
 
-    changes = [{"direction": "lower", "factor_vs_healthy_example": 5.7}, {"direction": "higher", "factor_vs_healthy_example": 6.2}]
+    changes = [{"direction": "lower", "factor_vs_healthy_reference": 5.7}, {"direction": "higher", "factor_vs_healthy_reference": 6.2}]
     with pytest.raises(Exception, match="direction contradicts"):
         check_directions(["The overall level is 5.7 times higher than a healthy example."], changes)
     check_directions(["The overall level is 5.7 times lower than a healthy example.",

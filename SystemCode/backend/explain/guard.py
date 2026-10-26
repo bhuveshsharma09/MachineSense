@@ -61,13 +61,37 @@ def check_directions(texts: list[str], changes: list[dict]) -> None:
     higher" for a level that was 5.7 times lower). Only sentences whose quoted factors all share one direction are judged."""
     for t in texts:
         dirs = {c["direction"] for c in changes for tok in NUMBER.findall(t)
-                if "." in tok and _matches(tok, [c["factor_vs_healthy_example"]])}
+                if "." in tok and _matches(tok, [c["factor_vs_healthy_reference"]])}
         if len(dirs) != 1:
             continue
         d = dirs.pop()
         right, wrong = (UP, DOWN) if d == "higher" else (DOWN, UP)
         if wrong.search(t) and not right.search(t):
             raise ExplanationRejected(f"direction contradicts the record (should be {d}): {t[:80]!r}", retryable=False)
+
+
+# App-8.6 item 8: explanation-only (the agent review keeps its own checks; FORBIDDEN above is shared and unchanged)
+JARGON = re.compile(r"\bclassifier confidence\b|\bfamiliarity\b|\bautoencoder\b|\bspeed-aware baseline\b|\bMSP\b|"
+                    r"\bMahalanobis\b", re.IGNORECASE)
+
+
+def check_jargon(texts: list[str]) -> None:
+    for t in texts:
+        m = JARGON.search(t)
+        if m:
+            raise ExplanationRejected(f"model jargon in a mechanic explanation: {m.group(0)!r}", retryable=True)
+
+
+def check_direction_stated(texts: list[str], changes: list[dict]) -> None:
+    """App-8.6 item 9: a sentence quoting a change factor states its direction, and compares with one healthy reference."""
+    for t in texts:
+        quoted = any("." in tok and _matches(tok, [c["factor_vs_healthy_reference"]]) for c in changes for tok in NUMBER.findall(t))
+        if not quoted:
+            continue
+        if not (UP.search(t) or DOWN.search(t)):
+            raise ExplanationRejected(f"a change factor without its direction: {t[:80]!r}", retryable=True)
+        if re.search(r"healthy examples", t, re.IGNORECASE):
+            raise ExplanationRejected("a change compared with 'healthy examples' (one healthy reference is used)", retryable=True)
 
 
 def check_content(obj: dict, allowed: list[float], raw: list[float], changes: list[dict] | None = None) -> None:
@@ -89,3 +113,5 @@ def check_content(obj: dict, allowed: list[float], raw: list[float], changes: li
             raise ExplanationRejected(f"raw model score quoted: {tok}", retryable=False)
         raise ExplanationRejected(f"number not in the evidence record: {tok}", retryable=False)
     check_directions(texts, changes or [])
+    check_direction_stated(texts, changes or [])
+    check_jargon(texts)

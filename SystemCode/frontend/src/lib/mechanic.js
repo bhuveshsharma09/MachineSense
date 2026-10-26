@@ -99,3 +99,38 @@ export function supporting(record, assessment) {
 
 export const rpm = (hz) => Math.round(60 * hz).toLocaleString("en-US");
 export const speedText = (hz) => `Rotation speed ${rpm(hz)} rpm (shaft speed ${hz.toFixed(1)} Hz)`;
+
+// App-8.6 item 8: a Mechanic-view rewrite of model jargon in a stored explanation (explanations written before the
+// prompt and guard change may still use it); the Developer view keeps the technical names.
+const JARGON = [
+  [/classifier confidence(?: \(MSP\))?(?: check)?/gi, "the check that the model is sure of its match"],
+  [/\bMSP\b/g, "how sure the model is"],
+  [/familiarity(?: \(Mahalanobis distance\))?(?: check)?/gi, "the check that the recording looks like ones the model has seen"],
+  [/Mahalanobis distance/gi, "likeness to recordings the model has seen"],
+  [/speed-aware baseline(?: \(B1s\))?(?: check)?/gi, "the check that the recording looks like a healthy machine at this speed"],
+  [/autoencoder(?: error)?(?: check)?/gi, "the check that the recording looks like a healthy machine"],
+];
+export const plainExplain = (t) => JARGON.reduce((s, [re, by]) => s.replace(re, by), String(t || ""));
+export const JARGON_WORDS = /classifier confidence|familiarity|autoencoder|speed-aware baseline|\bMSP\b|Mahalanobis/i;
+
+// App-8.6 item 16: the in-sample statement is shown once (the verdict card already carries it)
+export const notInSample = (line) => !/used to build the model/i.test(line);
+
+// App-8.6 item 13: bearing steps that name only other bearing fault types are left out of the Mechanic view for a bearing
+// verdict (display only: the report's section 04 and the assistant keep every step); analyst terms get a short gloss.
+const FAULT_TERMS = { inner: /inner[- ]race|\bBPFI\b/i, outer: /outer[- ]race|\bBPFO\b/i, ball: /\bball\b|\bBSF\b/i, cage: /\bcage\b|\bFTF\b/i };
+export function bearingKind(faultClass) {
+  const m = /^(?:underhang|overhang)_(ball|cage|outer)$/.exec(faultClass || "");
+  return m ? m[1] : null;
+}
+export function fitBearingSteps(steps, faultClass) {
+  const kind = bearingKind(faultClass);
+  if (!kind) return { steps, hidden: 0 };
+  const keep = steps.filter((s) => {
+    const named = Object.entries(FAULT_TERMS).filter(([, re]) => re.test(s.text)).map(([k]) => k);
+    return !named.length || named.includes(kind);
+  });
+  return { steps: keep, hidden: steps.length - keep.length };
+}
+export const ENVELOPE_GLOSS = "(envelope spectrum: Sensors → Spectrum → Envelope)";
+export const needsEnvelopeGloss = (t) => /envelope|\bcomb\b|defect line|sidebands?/i.test(t);
