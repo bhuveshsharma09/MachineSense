@@ -193,7 +193,7 @@ class Engine:
                  f"CNN-6 top {d['top_class']} (MSP {fmt_score(s['msp'])}); LR {d['lr_secondary']['top_class']}; "
                  f"Mahalanobis {s['maha']:.2f}; AE {s['ae_error']:.3f}; B1s {s['b1s']:.3f}"),
                 ("decision_rule", "Decision rule", steps.get("decision_rule"),
-                 f"provisional research setting → {d['display_label']}"),
+                 f"B_with_caution (frozen 28 Sep 2026) → {d['display_label']}"),
                 ("physics", "Physics cursors and envelope spectrum", steps.get("physics"),
                  f"cursors at {q['shaft_speed_hz']:.2f} Hz"),
                 ("explanations", "Explanations", steps.get("explanations"), "LR contributions; CNN map (advanced)"),

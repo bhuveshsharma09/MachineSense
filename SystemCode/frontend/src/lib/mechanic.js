@@ -1,6 +1,7 @@
 // Mechanic-level wording (Stage App-3), mirroring backend/explain/plain.py: plain words, no percentages, no raw scores.
 // Everything is derived from the evidence record, the check assessment and the measured channel evidence.
 import { healthyCheckPhrase } from "./decisionSummary.js";
+import { calibrationWarning } from "./model.js";
 
 export const LIMITATION = "Research demonstration; not validated on real machines.";
 export const IN_SAMPLE = "This recording was used to build the model, so the result is not evidence of accuracy.";
@@ -66,7 +67,7 @@ export function location(record) {
 
 const WARN = [
   [/speed outside the range the model was trained on/, "The rotation speed is outside the range the model was trained on."],
-  [/healthy thresholds were not calibrated at this speed/, "The healthy checks were not calibrated at this rotation speed."],
+  [/healthy thresholds were not calibrated at this speed/, "The shaft speed is outside the calibrated range. The healthy checks are less reliable at this speed."],
   [/shaft speed varies/, "The rotation speed was not steady during the recording."],
   [/windows use the recording speed|no usable tacho/, "The speed sensor signal was partly unusable."],
   [/glitched tacho intervals/, "The speed sensor signal had glitches."],
@@ -78,12 +79,11 @@ const WARN = [
 // One signal-quality warning in plain words
 export const plainWarning = (w) => (WARN.find(([re]) => re.test(w)) || [null, "A recording-quality warning applies."])[1];
 
+// App-8.6 item 4: the calibration-speed warning on every verdict, with the record's calibrated range
 export function warnings(record) {
-  const healthy = record.diagnosis.decision === "healthy";
   const out = [];
   for (const w of record.signal_quality.warnings) {
-    if (/not calibrated at this speed/.test(w) && !healthy) continue;
-    const p = plainWarning(w);
+    const p = /not calibrated at this speed/.test(w) ? calibrationWarning(record) : plainWarning(w);
     if (!out.includes(p)) out.push(p);
   }
   return out;

@@ -5,7 +5,7 @@ import * as M from "../lib/mechanic.js";
 import * as D from "../lib/dashboard.js";
 import { decisionSummary } from "../lib/decisionSummary.js";
 import {
-  CH, IN_SAMPLE_NOTICE, PART, SCORES_NOTE, STEP_CODE, fmtScore, human, locations, shownWarnings, unusualSensors,
+  CH, IN_SAMPLE_NOTICE, PART, RULE_LINE, SCORES_NOTE, STEP_CODE, fmtScore, human, locations, shownWarnings, unusualSensors,
   verdict, verdictTitle,
 } from "../lib/model.js";
 import { Svg, bandPath, linePath, rangeMax } from "./Charts.jsx";
@@ -421,7 +421,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
         <WaveformCard signals={signals} chId={chId} />
 
         {dev && <Card id="rd-decision-checks" area="dc" title="Decision checks">
-          <span className="rd-rule" title={report?.assessment?.rule_tooltip}>{report?.assessment?.rule_line || "Decision rule: provisional research setting"}</span>
+          <span className="rd-rule" title={report?.assessment?.rule_tooltip}>{report?.assessment?.rule_line || RULE_LINE}</span>
           {checks ? <div className="rd-checks">{checks.map((c) => (
             <div key={c.key} className="rd-check">
               <div className="rd-between"><span className="rd-strong">{c.name[0].toUpperCase() + c.name.slice(1)}</span>
@@ -573,7 +573,8 @@ export function ChannelCard({ channels, rows, dev, sel, onSelect }) {
                   <span className="rd-ch-band" style={{ left: b0 + "%", width: b1 - b0 + "%" }} />
                   <span className="rd-ch-one" style={{ left: one + "%" }} />
                   <span className="rd-ch-bar" style={{ left: Math.min(one, v) + "%", width: Math.abs(v - one) + "%", background: r.beyond ? K.lime : "oklch(0.23 0.006 260 / 0.25)" }} />
-                  <span className="rd-ch-knob" style={{ left: v + "%", background: r.beyond ? K.lime : K.white, boxShadow: "0 0 0 1px " + (r.beyond ? K.ink : "oklch(0.23 0.006 260 / 0.35)") }} />
+                  <span className={"rd-ch-knob" + (D.overflow(r.ratio) ? " is-over" : "")} style={{ left: v + "%", background: r.beyond ? K.lime : K.white, boxShadow: "0 0 0 1px " + (r.beyond ? K.ink : "oklch(0.23 0.006 260 / 0.35)") }} />
+                  {D.overflow(r.ratio) && <span className={"mono rd-ch-over is-" + D.overflow(r.ratio).side} title="Beyond the axis">{D.overflow(r.ratio).text}</span>}
                 </span>
                 <span className={dev ? "mono rd-ch-v" : "rd-ch-v"} style={{ color: col }}>{dev ? `${D.changeText(r)} ${D.METRIC_NAME[r.metric] || r.metric}` : r.beyond ? "Changed" : "Typical"}</span>
               </button>
@@ -603,7 +604,7 @@ export function SpectrumCard({ record, signals, part, chId, chOptions, mode, onM
     const cs = [["ftf", "FTF", cur.ftf[0]], ["shaft", "1×", 1], ["bpfo", "BPFO", cur.bpfo[0]], ["bsf", "2×BSF", cur.bsf[1]], ["bpfi", "BPFI", cur.bpfi[1]]];
     chart = { p, ymax, max: ENV_MAXO, cursors: cs.map(([k, l, o]) => ({ k, l, left: (o / ENV_MAXO) * 100, color: k === "shaft" ? K.ink3 : K.orangeT })),
       ticks: [0, 3, 6, 9, 12], caption: `Envelope spectrum (${env.band_hz[0] / 1000}–${env.band_hz[1] / 1000} kHz band) · ${CH[chId].name} · orders of the measured speed (1× = ${fr.toFixed(2)} Hz)`,
-      note: "Bearing cursors at the measured speed. Bearing evidence comes from the envelope spectrum." };
+      note: D.BEARING_NOTE };
   } else if (signals?.channels?.[chId]) {
     const s = signals.channels[chId], ymax = rangeMax(signals.orders, s.spectrum, 0.5, MAXO) * 1.15, p = linePath(signals.orders, s.spectrum, 0, MAXO, ymax);
     chart = { p, ymax, max: MAXO, cursors: [1, 2, 3].map((o) => ({ k: o, l: o + "×", left: (o / MAXO) * 100, color: K.ink3 })), ticks: [0, 2, 4, 6, 8],
@@ -628,7 +629,7 @@ export function SpectrumCard({ record, signals, part, chId, chOptions, mode, onM
         </div>
         <div className="rd-row-wrap rd-sub-s" style={{ gap: 16 }}><span className="rd-legend-line"><i style={{ background: K.orange }} />This recording</span>
           {dev ? <span>No healthy-reference spectrum is stored with the case.</span> : <Caveat>No healthy-reference spectrum is stored with the case.</Caveat>}<span style={{ marginLeft: "auto" }}>{chart.note}</span></div>
-        {!dev && <Caveat>Without a healthy spectrum, compare the 2× peak with the 1× peak in this recording.</Caveat>}
+        {!dev && m === "order" && <Caveat>Without a healthy spectrum, compare the 2× peak with the 1× peak in this recording.</Caveat>}
       </> : <p className="rd-muted">{part.ch.includes(chId) ? "The stored signal is not available for this channel." : ""}</p>}
     </Card>
   );

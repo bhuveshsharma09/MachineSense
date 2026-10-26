@@ -105,6 +105,9 @@
 .dvw-one { position: absolute; top: 1px; width: 1px; height: 16px; background: var(--ink3); }
 .dvw-bar { position: absolute; top: 6px; height: 6px; border-radius: 3px; }
 .dvw-knob { position: absolute; top: 3px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; border: 1.5px solid var(--ink); }
+.dvw-over { position: absolute; top: -12px; font-size: 10px; white-space: nowrap; color: var(--limeT); }
+.dvw-over.is-right { right: 0; }
+.dvw-over.is-left { left: 0; }
 .dvw-tick { position: absolute; top: 0; transform: translateX(-50%); font-size: 10px; color: var(--ink3); }
 .dvw-chip { height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-size: 11.5px; cursor: pointer; }
 .dvw-chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }

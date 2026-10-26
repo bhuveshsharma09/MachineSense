@@ -3,7 +3,7 @@ import { K, TAG, al } from "../lib/theme.js";
 import * as M from "../lib/mechanic.js";
 import * as D from "../lib/dashboard.js";
 import { decisionSummary } from "../lib/decisionSummary.js";
-import { CH, IN_SAMPLE_NOTICE, PART, SCORES_NOTE, cleanText, fmtScore, human, locations, shownWarnings,
+import { CH, IN_SAMPLE_NOTICE, PART, RULE_LINE, SCORES_NOTE, cleanText, fmtScore, human, locations, shownWarnings,
   unusualSensors, verdictTitle } from "../lib/model.js";
 import { Svg, bandPath, linePath, rangeMax } from "./Charts.jsx";
 import Scene, { markerFor } from "./Scene.jsx";
@@ -44,8 +44,8 @@ export default function DeveloperView({ caseId, record, report, channels, signal
   const [sel, setSel] = useState(initialSel);
   const [hover, setHover] = useState(null);
   const [rig, setRig] = useState({ exploded: false, labels: false, resetTick: 0 });
-  const [ch, setCh] = useState(null);
-  const [sp, setSp] = useState("order");
+  const [ch, setCh] = useState(() => D.bearingSpectrum(record)?.ch || null);
+  const [sp, setSp] = useState(() => D.bearingSpectrum(record)?.sp || "order");
   const [current, setCurrent] = useState("verdict");
   const machineRef = useRef(null);
 
@@ -187,7 +187,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
         </Section>
 
         {/* 05 Decision */}
-        <Section id="decision" n="05" title="Decision" sub={<span title={report?.assessment?.rule_tooltip} className="dvw-dotted">{report?.assessment?.rule_line || "Decision rule: provisional research setting"}</span>}>
+        <Section id="decision" n="05" title="Decision" sub={<span title={report?.assessment?.rule_tooltip} className="dvw-dotted">{report?.assessment?.rule_line || RULE_LINE}</span>}>
           <div className="dvw-dec">
             <span className="dvw-kick-s">Decision checks</span>
             {checks ? <div id="rd-decision-checks" tabIndex={-1} className="dvw-checks">{checks.map((c) => <CheckCard key={c.key} c={c} />)}</div> : <p className="dvw-muted">Loading the checks…</p>}
@@ -281,7 +281,8 @@ function Channels({ channels, rows, sel, chId, span, onRow }) {
           <span className="dvw-chtrack"><span className="dvw-axis" /><span className="dvw-band" style={{ left: b0 + "%", width: b1 - b0 + "%" }} />
             <span className="dvw-one" style={{ left: one + "%" }} />
             <span className="dvw-bar" style={{ left: Math.min(one, v) + "%", width: Math.abs(v - one) + "%", background: r.beyond ? K.lime : "oklch(0.23 0.006 260 / 0.25)" }} />
-            <span className="dvw-knob" style={{ left: v + "%", background: r.beyond ? K.lime : K.white }} /></span>
+            <span className="dvw-knob" style={{ left: v + "%", background: r.beyond ? K.lime : K.white }} />
+            {D.overflow(r.ratio) && <span className={"mono dvw-over is-" + D.overflow(r.ratio).side} title="Beyond the axis">{D.overflow(r.ratio).text}</span>}</span>
           <b className="mono" style={{ color: r.beyond ? K.limeT : K.ink2 }}>{`${D.changeText(r)} ${D.METRIC_NAME[r.metric] || r.metric}`}</b>
         </button>;
       })}</div>
@@ -304,7 +305,7 @@ function Spectrum({ record, signals, part, chId, chOptions, mode, onMode, onChan
     const cur = record.physics.cursors_orders;
     const cs = [["ftf", "FTF", cur.ftf[0]], ["shaft", "1×", 1], ["bpfo", "BPFO", cur.bpfo[0]], ["bsf", "2×BSF", cur.bsf[1]], ["bpfi", "BPFI", cur.bpfi[1]]];
     chart = { p, ymax, max: ENV_MAXO, ticks: [0, 3, 6, 9, 12], cursors: cs.map(([k, l, o]) => ({ k, l, left: (o / ENV_MAXO) * 100, c: k === "shaft" ? K.ink3 : K.orangeT })),
-      caption: `${CH[chId].name} · envelope spectrum (${env.band_hz[0] / 1000}–${env.band_hz[1] / 1000} kHz band) · 1× = ${fr.toFixed(2)} Hz`, note: "Bearing cursors at the measured speed." };
+      caption: `${CH[chId].name} · envelope spectrum (${env.band_hz[0] / 1000}–${env.band_hz[1] / 1000} kHz band) · 1× = ${fr.toFixed(2)} Hz`, note: D.BEARING_NOTE };
   } else if (signals?.channels?.[chId]) {
     const s = signals.channels[chId], ymax = rangeMax(signals.orders, s.spectrum, 0.5, MAXO) * 1.15, p = linePath(signals.orders, s.spectrum, 0, MAXO, ymax);
     chart = { p, ymax, max: MAXO, ticks: [0, 2, 4, 6, 8, 10], cursors: [1, 2, 3].map((o) => ({ k: o, l: `${o}×`, left: (o / MAXO) * 100, c: K.ink3 })),

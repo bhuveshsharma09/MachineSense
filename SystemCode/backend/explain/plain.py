@@ -77,7 +77,7 @@ def location(record: dict) -> dict:
 
 _WARN = [
     (r"speed outside the range the model was trained on", "The rotation speed is outside the range the model was trained on."),
-    (r"healthy thresholds were not calibrated at this speed", "The healthy checks were not calibrated at this rotation speed."),
+    (r"healthy thresholds were not calibrated at this speed", "The shaft speed is outside the calibrated range; the healthy checks are less reliable at this speed."),
     (r"shaft speed varies", "The rotation speed was not steady during the recording."),
     (r"windows use the recording speed|no usable tacho", "The speed sensor signal was partly unusable."),
     (r"glitched tacho intervals", "The speed sensor signal had glitches."),
@@ -88,13 +88,10 @@ _WARN = [
 
 
 def warnings(record: dict) -> list[str]:
-    """Warnings that affect interpretation, in plain words (no numbers); the calibration-speed warning only on healthy
-    verdicts, as in the Developer view."""
-    healthy = record["diagnosis"]["decision"] == "healthy"
+    """Warnings that affect interpretation, in plain words (no numbers); the calibration-speed warning on every verdict
+    (App-8.6 item 4)."""
     out = []
     for w in record["signal_quality"]["warnings"]:
-        if "not calibrated at this speed" in w and not healthy:
-            continue
         plain = next((p for pat, p in _WARN if re.search(pat, w)), "A recording-quality warning applies.")
         if plain not in out:
             out.append(plain)

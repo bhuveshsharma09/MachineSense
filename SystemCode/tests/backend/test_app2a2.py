@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from backend.checks import NARROW_REL, assessment, checks, fmt_score
+from backend.checks import NARROW_REL, RULE_LINE, assessment, checks, fmt_score
 from ml.paths import SYSTEM_CODE_DIR
 
 FAULT = "underhang__outer_race__0g__14.7456"   # known fault; AE and B1s above their healthy limits
@@ -93,11 +93,12 @@ def test_no_rule_codes_or_stages_in_user_text(rec):
     for rid in (FAULT, CAUTION, VARIANTS):
         rep = rec(rid)["report"]
         text = json.dumps(rep["sections"], ensure_ascii=False) + rep["report"] + json.dumps(rep["assessment"], ensure_ascii=False)
-        for bad in ("Stage 3D", "App-2b", "B_with_caution", "rule A", "rule B", "rule C", "rule D"):
+        for bad in ("Stage 3D", "App-2b", "rule A", "rule B", "rule C", "rule D", "provisional"):
             assert bad not in text, (rid, bad)
-        assert text.count("Decision rule: provisional research setting") >= 1
+        # App-8.6 item 1 (Bhuvesh): the internal name appears only inside the rule-in-use line
+        assert text.count(RULE_LINE) >= 1 and "B_with_caution" not in text.replace(RULE_LINE, "")
         s1 = json.dumps(rep["sections"][0], ensure_ascii=False)
-        assert s1.count("provisional research setting") == 1  # stated once
+        assert s1.count(RULE_LINE) == 1  # stated once
 
 
 # 3 ---------------------------------------------------------------------------------------------------------------

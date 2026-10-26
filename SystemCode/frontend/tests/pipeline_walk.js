@@ -2,6 +2,7 @@
 // <span data-p="<trace path>" data-fmt="<formatter>">; the walker resolves the path in the FIXTURE trace, formats it
 // with the same named helper and requires the displayed text to match exactly. Text outside those spans may contain a
 // digit only if it is a string or key of the fixture trace (titles, port names, class names), never a stray number.
+import { RULE_LINE } from "../src/lib/model.js";
 import { FMT, at, missing, valueOf } from "../src/lib/pipelineCase.js";
 
 const unescape = (s) => s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
@@ -45,6 +46,7 @@ export function walkPage(html, fixture) {
   for (const raw of rest.split(/<[^>]*>/)) {
     const t = unescape(raw).trim();
     if (!/\d/.test(t)) continue;
+    if (t === RULE_LINE) continue;  // App-8.6 item 1: the fixed rule-in-use line (its date is not a case value)
     // structure labels may join trace strings (e.g. "<block title> · <port label>"); each piece must be a trace string
     const pieces = t.split(/ · |, |: |^: /).map((x) => x.trim()).filter((x) => /\d/.test(x));
     if (!pieces.every((x) => strings.some((s) => s.includes(x)))) errors.push(`stray number in text: "${t.slice(0, 80)}"`);

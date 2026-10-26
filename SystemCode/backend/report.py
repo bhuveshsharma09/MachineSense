@@ -25,9 +25,21 @@ METRIC_NAME = {"rms": "RMS", "order_1x": "1× amplitude", "order_2x": "2× ampli
                "env_ftf1": "envelope line at FTF"}
 
 
+RULE_LIMITATION = re.compile(r"Decision rule is a provisional demo default \(B_with_caution\), not a final rule selection\.?")
+
+
 def clean_text(x: str) -> str:
-    """User-facing text without internal rule codes."""
-    return re.sub(r"\s*\((?:rule )?B_with_caution\)", "", x).replace("provisional demo default", "provisional research setting")
+    """User-facing text without internal rule codes; the saved records' rule limitation reads as the rule in use
+    (App-8.6 item 1)."""
+    x = RULE_LIMITATION.sub(RULE_LINE + ".", x)
+    return re.sub(r"\s*\((?:rule )?B_with_caution\)(?! \(frozen)", "", x).replace("provisional demo default", "rule in use")
+
+
+def calibration_warning(r: dict) -> str:
+    """The calibration-speed warning in the app's words, on every verdict (App-8.6 item 4); the range is the record's."""
+    lo_hi = r["signal_quality"].get("calibration_normal_speed_range_hz")
+    rng = f" ({round(lo_hi[0])}–{round(lo_hi[1])} Hz)" if lo_hi else ""
+    return f"Shaft speed is outside the calibrated range{rng}. The healthy checks are less reliable at this speed"
 
 
 def _name(c: str) -> str:
@@ -70,7 +82,7 @@ def build_report(r: dict) -> str:
     src = r["input"]["rec_id"] or "uploaded recording"
     lines = [f"# MachineSense report — {src}", "",
              "Research demonstration; development results; not validated for real machines.", "",
-             "## Verdict", f"**{d['display_label']}**. {RULE_LINE}: {RULE_TOOLTIP}", ""]
+             "## Verdict", f"**{d['display_label']}**. {RULE_LINE}. {RULE_TOOLTIP}", ""]
     if d["decision"] == "unknown":
         lines.append("The recording did not pass the classifier's confidence and familiarity checks, so it is reported as "
                      "needing further inspection rather than as a known condition.")
@@ -194,7 +206,7 @@ def build_sections(r: dict, channels: dict | None = None, evidence_names=()) -> 
     if d["top_class"] != d["lr_secondary"]["top_class"]:
         s3.append(it("Model", f"CNN-6 ranks {_name(d['top_class'])} first; the secondary logistic regression ranks "
                               f"{_name(d['lr_secondary']['top_class'])} first."))
-    s3 += [it("Measured", f"Warning: {w}.") for w in q["warnings"] if d["decision"] == "healthy" or "not calibrated" not in w]
+    s3 += [it("Measured", f"Warning: {calibration_warning(r) if 'not calibrated' in w else w}.") for w in q["warnings"]]
     if r["source"] == "dataset":
         s3.append(it("Missing", "This recording was used to build the model; the result is not evidence of accuracy."))
     s3 += [it("Missing", "No maintenance history, operating context or repeat recording is available."),

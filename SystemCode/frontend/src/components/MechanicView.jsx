@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { K, al } from "../lib/theme.js";
 import * as M from "../lib/mechanic.js";
 import * as D from "../lib/dashboard.js";
-import { CH, IN_SAMPLE_NOTICE, PART, SCORES_NOTE, cleanText, human, locations, shownWarnings, unusualSensors } from "../lib/model.js";
+import { CH, IN_SAMPLE_NOTICE, PART, SCORES_NOTE, cleanText, human, locations, shownWarnings, unusualSensors, verdict } from "../lib/model.js";
 import Scene, { markerFor } from "./Scene.jsx";
 import { Caveat, ChannelCard, Header, Seg, SpectrumCard, WaveformCard } from "./Dashboard.jsx";
 import "../mechanic.css";
@@ -16,7 +16,7 @@ const FAULT = "oklch(0.50 0.16 40)";
 
 export default function MechanicView({ caseId, record, report, channels, signals, explanation, view, onView, userName,
   assistantOpen = false, narrow = false, initialSel = null, initialUi = {} }) {
-  const [ui, setUi] = useState({ sel: initialSel, hover: null, exploded: false, labels: false, resetTick: 0, ch: null, sp: "order",
+  const [ui, setUi] = useState({ sel: initialSel, hover: null, exploded: false, labels: false, resetTick: 0, ch: D.bearingSpectrum(record)?.ch || null, sp: D.bearingSpectrum(record)?.sp || "order",
     measure: "channels", lim: false, ...initialUi });
   const set = (p) => setUi((u) => ({ ...u, ...p }));
   const [rigFocus, setRigFocus] = useState(null);
@@ -60,9 +60,10 @@ export default function MechanicView({ caseId, record, report, channels, signals
     return () => io.disconnect();
   }, []);
 
+  const vk = verdict(record);  // App-8.6 item 5: an out-of-range healthy verdict reads "Healthy — speed not calibrated"
   const verdictLabel = d.decision === "known_fault" ? `Verdict · ${human(d.top_class)} (model prediction)`
-    : d.decision === "unknown" ? "Verdict · Further inspection needed" : "Verdict · Healthy";
-  const verdictColor = d.decision === "known_fault" ? FAULT : d.decision === "unknown" ? K.amberT : K.greenT;
+    : d.decision === "unknown" ? "Verdict · Further inspection needed" : `Verdict · ${vk.chip}`;
+  const verdictColor = d.decision === "known_fault" ? FAULT : d.decision === "unknown" || vk.kind === "caution" ? K.amberT : K.greenT;
   const marker = markerFor(part, sceneState);
   const related = rows.filter((r) => part.ch.includes(r.id));
 

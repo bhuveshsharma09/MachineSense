@@ -49,6 +49,14 @@ export function arcPath(f0, f1, r) {
 export const CH_MIN = 1 / 8, CH_MAX = 8;
 export const logPos = (x) => (Math.min(Math.max(Math.log2(x), Math.log2(CH_MIN)), Math.log2(CH_MAX)) - Math.log2(CH_MIN))
   / (Math.log2(CH_MAX) - Math.log2(CH_MIN)) * 100;
+// App-8.6 item 6: a ratio beyond ×8 / ÷8 is drawn at the axis edge with an overflow marker and its value.
+const big = (x) => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10);
+export function overflow(ratio) {
+  if (!(ratio > 0)) return null;
+  if (ratio > CH_MAX) return { side: "right", text: `×${big(ratio)} ▸` };
+  if (ratio < CH_MIN) return { side: "left", text: `◂ ÷${big(1 / ratio)}` };
+  return null;
+}
 export const CH_TICKS = [[1 / 8, "÷8"], [1 / 4, "÷4"], [1 / 2, "÷2"], [1, "×1"], [2, "×2"], [4, "×4"], [8, "×8"]];
 
 // Each compared channel: its change metric's ratio to the healthy reference, the typical healthy band, and whether it is
@@ -135,6 +143,14 @@ export function trendBars(cases, current) {
 
 export const verdictWord = (decision, caution) => decision === "known_fault" ? "Known fault" : decision === "unknown" ? "Inspect further"
   : caution ? "Healthy · caution" : "Healthy";
+
+export const BEARING_NOTE = "Bearing evidence: look for peaks at the FTF, BPFO, BSF and BPFI lines. Lines are drawn at the measured speed.";
+// App-8.6 item 2: a bearing verdict opens the spectrum on the predicted bearing's radial channel, envelope view
+export function bearingSpectrum(record) {
+  const d = record?.diagnosis, c = d?.decision === "known_fault" ? d.fault_class || "" : "";
+  if (!/^(underhang|overhang)_/.test(c)) return null;
+  return { ch: c.startsWith("underhang") ? "under_radial" : "over_radial", sp: "envelope" };
+}
 
 export const checkExpr = (c) => `${c.value_text} ${c.relation} ${c.threshold_text}`;
 export { fmtCheck };

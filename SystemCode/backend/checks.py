@@ -16,9 +16,10 @@
 from __future__ import annotations
 
 NARROW_REL = 0.001
-RULE_LINE = "Decision rule: provisional research setting"
-RULE_TOOLTIP = ("The decision rule is a provisional setting, not a final rule selection; the final choice will be made "
-                "later under stated assumptions about fault frequency and costs.")
+# Stage App-8.6 item 1 (Bhuvesh, 26 Oct 2026): the rule was frozen on 28 Sep 2026 before the final evaluation (§12).
+RULE_LINE = "Rule in use: B_with_caution (frozen 28 Sep 2026 before the final evaluation)"
+RULE_TOOLTIP = ("Classifier first: the confidence and familiarity checks decide with the top class; the autoencoder and "
+                "speed-aware healthy-baseline checks only add a caution to a healthy verdict. Not tuned on any test data.")
 VARIANT_NAMES = {
     "A": "classifier first, with an autoencoder override",
     "B": "classifier first (the rule in use)",

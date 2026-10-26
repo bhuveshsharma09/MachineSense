@@ -6,6 +6,8 @@ export const CALIBRATION_SPEED_WARNING =
 export const IN_SAMPLE_NOTICE = "This recording was used to build the model; the result is not evidence of accuracy.";
 export const SCORES_NOTE = "Model scores are not the probability that the diagnosis is correct.";
 export const ASK_DISABLED = "Available when the investigation assistant is connected";
+// Stage App-8.6 item 1 (Bhuvesh, 26 Oct 2026): the rule was frozen on 28 Sep 2026 before the final evaluation.
+export const RULE_LINE = "Rule in use: B_with_caution (frozen 28 Sep 2026 before the final evaluation)";
 
 // Backend channel ids (ml PreprocessConfig.channels). Underhang = inner bearing housing, overhang = outer.
 export const CHANNELS = [
@@ -98,11 +100,21 @@ export function unusualSensors(channels, flags = {}) {
   return [...new Set((channels.marked || []).map((c) => CH[c]?.sensor).filter(Boolean))].filter((s) => !flags[s]);
 }
 
-// Warnings to show: every signal-quality warning, except the calibration-speed warning on a non-healthy verdict.
+// App-8.6 items 4 and 5: the measured speed against the calibration normals' speed range (read from the record).
+export function outsideCalibration(record) {
+  const q = record?.signal_quality, r = q?.calibration_normal_speed_range_hz;
+  if (r) return q.shaft_speed_hz < r[0] || q.shaft_speed_hz > r[1];
+  return !!q?.warnings?.includes(CALIBRATION_SPEED_WARNING);
+}
+export function calibrationWarning(record) {
+  const r = record?.signal_quality?.calibration_normal_speed_range_hz;
+  return `Shaft speed is outside the calibrated range${r ? ` (${Math.round(r[0])}–${Math.round(r[1])} Hz)` : ""}. The healthy checks are less reliable at this speed.`;
+}
+
+// Warnings to show: every signal-quality warning; the calibration-speed warning on every verdict, in the app's words.
 export function shownWarnings(record) {
   if (!record) return [];
-  const healthy = record.diagnosis.decision === "healthy";
-  return record.signal_quality.warnings.filter((w) => healthy || w !== CALIBRATION_SPEED_WARNING);
+  return record.signal_quality.warnings.map((w) => (w === CALIBRATION_SPEED_WARNING ? calibrationWarning(record) : w));
 }
 
 // A model score in [0, 1] without implying certainty: never "1.0000" or "0.0000" (same rule as backend.checks.fmt_score).
@@ -120,13 +132,15 @@ export function fmtCheck(v) {
 }
 
 // User-facing text without internal rule codes (limitations come from the bundle manifest).
-export const cleanText = (x) => x.replace(/\s*\((?:rule )?B_with_caution\)/g, "").replace("provisional demo default", "provisional research setting");
+export const cleanText = (x) => x.replace(/Decision rule is a provisional demo default \(B_with_caution\), not a final rule selection\.?/, RULE_LINE + ".")
+  .replace(/\s*\((?:rule )?B_with_caution\)/g, "").replace("provisional demo default", "rule in use");
 
 export function verdict(record) {
   const d = record.diagnosis;
   if (d.decision === "known_fault") return { kind: "fault", chip: "Known fault" };
   if (d.decision === "unknown") return { kind: "further", chip: "Further inspection needed" };
   if (d.caution) return { kind: "caution", chip: "Healthy — caution" };
+  if (outsideCalibration(record)) return { kind: "caution", chip: "Healthy — speed not calibrated" };  // display only (App-8.6 item 5)
   return { kind: "healthy", chip: "Healthy" };
 }
 

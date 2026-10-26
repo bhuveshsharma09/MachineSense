@@ -77,6 +77,8 @@ const screens = {
     ["New investigation"], [], () => true],
 };
 const always = ["MachineSense"];
+// App-8.6 item 1 (Bhuvesh): the internal rule name is allowed only inside the fixed rule-in-use line
+const noRule = (t) => t.split("Rule in use: B_with_caution (frozen 28 Sep 2026 before the final evaluation)").join("");
 const never = ["not yet connected", "Simulated", "Classifier A", "Classifier B", "Demo state", "remaining life", "urgency", "Stage 3D", "App-2b",
   "B_with_caution", "1.0000", "100.0 %", "(Recommended)", "Largest change vs healthy reference"];
 
@@ -89,7 +91,8 @@ for (const [name, [props, expect, absent = [], extra]] of Object.entries(screens
   try { html = renderToString(<Workspace {...p} />) + (p.record && p.status === "done" ? renderToString(<Workspace {...p} initialViewport={{ w: 390, h: 844 }} />) : ""); } catch (e) { console.error(`✗ ${name}: render threw ${e.stack}`); failed++; continue; }
   const text = html.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/\s+/g, " ");
   const miss = [...expect, ...always].filter((s) => !text.includes(s) && !html.includes(s));
-  const bad = [...never, ...absent].filter((s) => text.toLowerCase().includes(s.toLowerCase()));
+  const plainText = noRule(text);
+  const bad = [...never, ...absent].filter((s) => plainText.toLowerCase().includes(s.toLowerCase()));
   if (extra && !extra()) miss.push("extra check");
   if (miss.length || bad.length) { failed++; console.error(`✗ ${name}: missing ${JSON.stringify(miss)} forbidden ${JSON.stringify(bad)}`); }
   else console.log(`✓ ${name}`);
@@ -590,7 +593,8 @@ import { STAGES } from "../src/lib/pipelineLayout.js";
 import { valueOf } from "../src/lib/pipelineCase.js";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
-import { guidanceSteps, showMeTarget } from "../src/lib/dashboard.js";
+import { BEARING_NOTE, bearingSpectrum, guidanceSteps, overflow as overflow86, showMeTarget } from "../src/lib/dashboard.js";
+import { CALIBRATION_SPEED_WARNING as CAL_SPEED, cleanText as cleanText86, verdict as verdict86 } from "../src/lib/model.js";
 import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, shownWarnings } from "../src/lib/model.js";
 {
   const cases = [knownFault, unknown, caution, plainHealthy];
@@ -630,7 +634,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
       ...(f.record.source === "dataset" && view === "developer" ? [INS] : []),
       ...(f.record.diagnosis.decision === "known_fault" ? [view === "mechanic" ? "Mapped from the model’s predicted class" : "According to the dataset label (model prediction)"] : [])];
     const miss = need.filter((x) => !t.includes(x));
-    const forb = [...never, ...SAMPLE].filter((x) => t.toLowerCase().includes(x.toLowerCase()));
+    const forb = [...never, ...SAMPLE].filter((x) => noRule(t).toLowerCase().includes(x.toLowerCase()));
     if (view === "mechanic") {
       const d = f.record.diagnosis;
       forb.push(...["τ_", "MSP", "Mahalanobis", fmtC(d.scores.b1s), fmtC(d.thresholds.tau_b), "Traceability", "Decision checks"].filter((x) => t.includes(x)));
@@ -675,7 +679,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
     if (!t.includes("Rule in use · classifier first") || !t.includes("caution only") || !t.includes(s.outcome)) errs.push("rule in use");
     if ((html.match(/class="dvw-check"/g) || []).length !== f.report.assessment.checks.length) errs.push("one card per check");
     if (!f.report.assessment.variants.every((v) => t.includes(v.name))) errs.push("alternative rules");
-    if (t.includes("4 of 4 checks support") || /Rule A · used/.test(t) || t.includes("B_with_caution")) errs.push("design sample rule text");
+    if (t.includes("4 of 4 checks support") || /Rule A · used/.test(t) || noRule(t).includes("B_with_caution")) errs.push("design sample rule text");
     if (!t.includes("Full-screen diagram") || !html.includes(`href="#/case/${f.record.case_id}/pipeline"`)) errs.push("pipeline link");
     if (d.decision === "known_fault" && !t.includes("Mapped from the model's predicted class on this test rig; the sensors do not pinpoint the fault.")) errs.push("mapped caveat");
     if (errs.length) devBad.push(`${n}: ${errs.join(", ")}`);
@@ -719,6 +723,32 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
   }
   pcheck(`App-8.4 Mechanic: ${Object.keys(fx).length} fixtures render four sections with the location label and honesty footer, no score, threshold, percentage or factor`,
     !mechBad.length, mechBad.join("\n"));
+  // App-8.6 group A (26 Oct user test): rule in use, bearing spectrum default, footnote, calibration warning, chip, overflow
+  {
+    const RL = "Rule in use: B_with_caution (frozen 28 Sep 2026 before the final evaluation)";
+    const withRule = { ...knownFault, report: { ...knownFault.report, assessment: { ...knownFault.report.assessment, rule_line: RL } } };
+    pcheck("App-8.6 item 1: the Developer decision header shows the rule in use; saved limitation text reads the same",
+      textOf(dash(withRule, "developer")).includes(RL) && cleanText86("Decision rule is a provisional demo default (B_with_caution), not a final rule selection.") === RL + ".");
+    const spec = textOf(dash(knownFault, "mechanic", { initialUi: { measure: "spectrum" } }));
+    pcheck("App-8.6 items 2–3: a bearing verdict opens the radial envelope spectrum with the bearing-line footnote, not the 2×/1× note",
+      bearingSpectrum(knownFault.record)?.ch === "over_radial" && spec.includes("Envelope spectrum") && spec.includes("Overhang bearing · radial")
+      && spec.includes(BEARING_NOTE) && !spec.includes("compare the 2× peak with the 1× peak") && bearingSpectrum(unknown.record) === null);
+    const um = textOf(dash(unknown, "mechanic")), ud = textOf(dash(unknown, "developer"));
+    const CALW = "Shaft speed is outside the calibrated range (18–38 Hz). The healthy checks are less reliable at this speed.";
+    pcheck("App-8.6 item 4: a further-inspection verdict at 13.6 Hz shows the calibration-speed warning in both views",
+      unknown.record.diagnosis.decision === "unknown" && um.includes(CALW) && ud.includes(CALW) && !um.includes("No signal-quality warnings detected."));
+    const slow = structuredClone(plainHealthy);
+    slow.record.signal_quality.shaft_speed_hz = 13.1; slow.record.signal_quality.warnings = [CAL_SPEED];
+    pcheck("App-8.6 item 5: an out-of-range healthy verdict reads \"Healthy — speed not calibrated\" (amber), the stored verdict unchanged",
+      verdict86(slow.record).chip === "Healthy — speed not calibrated" && verdict86(slow.record).kind === "caution" && slow.record.diagnosis.decision === "healthy"
+      && textOf(dash(slow, "mechanic")).includes("Healthy — speed not calibrated") && verdict86(plainHealthy.record).chip === "Healthy");
+    const big = structuredClone(knownFault);
+    const row = big.channels.channels.find((c) => c.channel === "under_radial");
+    Object.assign(row, { change: 31.3, change_factor: 31.3, direction: "up" });
+    pcheck("App-8.6 item 6: a ratio beyond ×8 is drawn at the edge with its value; below ÷8 likewise",
+      overflow86(31.3)?.text === "×31 ▸" && overflow86(1 / 12)?.text === "◂ ÷12" && overflow86(5) === null
+      && textOf(dash(big, "mechanic")).includes("×31 ▸") && textOf(dash(big, "developer")).includes("×31 ▸"));
+  }
   const mapped = (src) => {
     const report = { ...knownFault.report, sections: knownFault.report.sections.map((s) => s.n !== "04" ? s : { ...s, items: [
       { tag: "Guidance", text: `Check the 2× to 1× ratio. (source: ${src}; AI-drafted, not yet checked against a published source)`,
@@ -734,7 +764,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
     "Mapped from the model’s predicted class on this test rig; the sensors do not pinpoint the fault.",
     "Highlights do not confirm a fault.", "They show where the signal changed, not the fault location.",
   ];
-  const spectrumText = textOf(dash(knownFault, "mechanic", { initialUi: { measure: "spectrum" } }));
+  const spectrumText = textOf(dash(knownFault, "mechanic", { initialUi: { measure: "spectrum", sp: "order" } }));
   pcheck("App-8.2 Mechanic caveats remain visible word for word", caveatLines.every((line) => mechanicFaultText.includes(line))
     && mechanicFaultText.includes(knownFault.explanation.badge)
     && spectrumText.includes("No healthy-reference spectrum is stored with the case.")

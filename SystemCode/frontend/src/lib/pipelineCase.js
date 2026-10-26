@@ -56,6 +56,8 @@ export const FMT = {
   decision: (v) => decisionWords[v] || String(v),
   warnPlain: (v) => plainWarning(v),
   source: (v) => (v === "llm" ? "AI-written (checked)" : v === "template" ? "fixed template" : String(v)),
+  // the saved records' rule status (written before F1) as the rule in use (App-8.6 item 1, Bhuvesh)
+  ruleStatus: () => "B_with_caution, frozen 28 Sep 2026 before the final evaluation",
 };
 
 export const STATUS_WORD = { completed: "Completed", warning: "Warning", failed: "Failed", not_run: "Not run", unavailable: "Unavailable" };

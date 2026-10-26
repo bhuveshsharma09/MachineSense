@@ -1,4 +1,5 @@
 import { K } from "../lib/theme.js";
+import { RULE_LINE } from "../lib/model.js";
 import { FMT, STATUS_WORD, at, blockPaths, caseLine, isDerived, mechanicDetail, missing, statusReason, valueOf } from "../lib/pipelineCase.js";
 
 // App-4.3: case-mode rendering. Every value is a <span data-p="<trace path>" data-fmt="<formatter>"> so the tests can
@@ -62,7 +63,7 @@ export function CaseLine({ trace, id, level }) {
 }
 
 // ------------------------------------------------------------------------------------------------------------ drawer
-const FMT_BY_KEY = { display_label: "verdict", decision: "decision", caution: "noneText", fault_class: "noneText", rerun_of: "noneText",
+const FMT_BY_KEY = { rule_status: "ruleStatus", display_label: "verdict", decision: "decision", caution: "noneText", fault_class: "noneText", rerun_of: "noneText",
   rec_id: "recid", source: "text", fallback_reason: "noneText" };
 const label = (k) => k.replace(/_/g, " ");
 
@@ -198,7 +199,7 @@ export function DecisionPanel({ trace, block, level, geom }) {
           : d === "known_fault" ? "Model prediction, according to the dataset label." : d === "unknown" ? "Further inspection needed: the checks did not support a known condition."
           : "No fault detected by the checks in use."}</div>
       </div>
-      <span className="pl-dec-rule" title="The decision rule is a provisional setting for this research demonstration.">Decision rule: provisional research setting</span>
+      <span className="pl-dec-rule" title="Classifier first; the healthy-baseline checks add a caution only. Not tuned on any test data.">{RULE_LINE}</span>
     </div>
   );
 }
