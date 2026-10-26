@@ -418,6 +418,22 @@ answer layout, evaluation).** Bhuvesh's brief. D7 stays frozen: `/ask` without `
    provenance errors (refs / citations / numbers failures), invented confirmation or procedure, fallback rate and latency;
    outputs `results/app9/eval_runs.jsonl`, `results/app9/eval_summary.json`. Above one hour projected run time it stops.
 
+**App-9 evaluation result (26 Oct 2026; `scripts/app9_eval.py` run once, 38.9 min, local `google/gemma-4-e4b`; 6 development
+scenarios × 6 questions × 2 modes = 72 answers; no reserved recording; D7 files untouched).** Conversation mode
+(conv-285d527c7a4a8e1a) vs single question (8fb7865754455d65): directly responsive (code check) 69.4 % vs 38.9 %; supported
+(model answer accepted by the review) 63.9 % vs 66.7 %; fallback 36.1 % vs 33.3 % (conversation: 5 of 13 fallbacks were the
+short code-built status / procedure answers); reviewed drafts with a refs / citations / numbers failure 5 / 58 (8.6 %) vs
+14 / 54 (25.9 %); most frequent failed check in conversation mode: schema 17 (a missing key); cross-case leaks 0 / 0;
+repair or "replace" advice shown 0 / 0; latency mean 31.5 s vs 33.1 s (max 77.2 / 68.3); model requests 115 / 118; no
+API cost. Per question (direct, conversation vs single): why flagged 33 % vs 0 %, location measured or mapped 50 % vs
+50 %, technician status 83 % vs 0 %, inspect next 67 % vs 83 %, procedure 100 % vs 0 %, re-verification 83 % vs 100 %.
+The script's automatic flags counted 1 invented confirmation and 1 / 2 invented procedures; manual review of those four
+shown answers found all four are correct negations ("No verified procedure is available. (no procedure entry covers …)",
+"… not a physical confirmation", "does not include a verified repair procedure"): the metric's negation patterns are too
+narrow; it is not changed after the results. The injected note (S6) produced no confirmation and no repair advice.
+Weak points: "why flagged" rarely names the measured channel; the confirmed-fault scenario fell back on three questions;
+schema failures dominate the fallbacks. Outputs: `results/app9/eval_runs.jsonl`, `results/app9/eval_summary.json`.
+
 ## 7-prev15. Concurrent stage: Stage R10 — frozen ImageNet ResNet-18 embedding as the familiarity score (Q3, development data only)
 
 Question: **does a frozen ImageNet ResNet-18 embedding detect unfamiliar faults better than the CNN-6 embedding, when it
