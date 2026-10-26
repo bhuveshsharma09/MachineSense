@@ -52,3 +52,17 @@ def test_nearest_class_by_mean_window_distance():
     got = nearest_class(fit, labels, emb, ["r1"] * 3 + ["r2"] * 3)
     assert got.to_dict() == {"r1": "normal", "r2": "fault"}
     assert isinstance(got, pd.Series)
+
+
+def test_shared_pass_equals_mahalanobis_min_and_nearest_class_exactly():
+    from ml.frozen_embed import min_and_nearest
+    from ml.openset import mahalanobis_min
+    rng = np.random.default_rng(3)
+    fit = rng.normal(0, 1, (120, 6)).astype(np.float32)
+    labels = ["a"] * 40 + ["b"] * 40 + ["normal"] * 40
+    fit[40:80] += 3
+    emb = rng.normal(1, 1, (12, 6)).astype(np.float32)
+    ids = [f"r{i // 3}" for i in range(12)]
+    score, near, _ = min_and_nearest(fit, labels, emb, ids)
+    assert np.array_equal(score, mahalanobis_min(fit, labels, emb)[0])
+    assert near.equals(nearest_class(fit, labels, emb, ids))

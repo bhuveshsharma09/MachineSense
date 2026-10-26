@@ -83,11 +83,21 @@ def run_scores_f(seed: int, withheld: str, fold: int) -> tuple[pd.DataFrame, dic
     fit = (z_f["role"] == "fit")
     labels = win.class10.to_numpy()[fit]
     ev_ids = z_f["rec_id"][~fit]
-    f_w, f_info = mahalanobis_min(z_f["embedding"][fit], labels, z_f["embedding"][~fit])
+    f_w, f_near, f_info = min_and_nearest(z_f["embedding"][fit], labels, z_f["embedding"][~fit], ev_ids)
     rec["F"] = recording_mean(f_w, ev_ids).loc[rec.rec_id].to_numpy()
-    for arm, emb in (("M", z_m["embedding"]), ("F", z_f["embedding"])):
-        rec[f"nearest_{arm}"] = nearest_class(emb[fit], labels, emb[~fit], ev_ids).loc[rec.rec_id].to_numpy()
+    rec["nearest_F"] = f_near.loc[rec.rec_id].to_numpy()
+    rec["nearest_M"] = nearest_class(z_m["embedding"][fit], labels, z_m["embedding"][~fit], ev_ids).loc[rec.rec_id].to_numpy()
     return rec, {**info, "shrinkage_f": f_info["shrinkage"]}
+
+
+def min_and_nearest(fit_emb: np.ndarray, fit_labels, emb: np.ndarray, rec_ids) -> tuple[np.ndarray, pd.Series, dict]:
+    """mahalanobis_min's window score and nearest_class's per-recording class from ONE fit and one pass over the class
+    distances (the same arithmetic as calling both, bit for bit; the 1,024-d distance pass is the slow step)."""
+    params = fit_mahalanobis(fit_emb, fit_labels)
+    d2 = np.stack([np.einsum("ij,jk,ik->i", emb - m, params["precision"], emb - m) for m in params["centroids"]], axis=1)
+    score = np.sqrt(np.maximum(d2.min(axis=1), 0.0))
+    d = pd.DataFrame(np.sqrt(np.maximum(d2, 0.0)), columns=params["classes"], index=list(rec_ids))
+    return score, d.groupby(level=0, sort=False).mean().idxmin(axis=1), {"classes": params["classes"], "shrinkage": params["shrinkage"]}
 
 
 def nearest_class(fit_emb: np.ndarray, fit_labels, emb: np.ndarray, rec_ids) -> pd.Series:

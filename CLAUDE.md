@@ -360,6 +360,19 @@ pure code `ml/frozen_embed.py` (tests `tests/test_frozen_embed.py`); script `scr
    seeds (181,350 windows per seed). Embeddings are therefore computed **27 times** and reused for every seed; the script
    re-checks both facts before each pass. The weights `resnet18-f37072fd.pth` verify (sha256 f37072fd…07ec).
 
+13. **Addendum (26 Oct 2026; a stopped execution, not a result; no method change).** The first execution of notebook 21
+   (at 434834f) stopped in the scoring cell at nbconvert's per-cell timeout of 30 minutes (set by the runner); no cell
+   after it ran and no output file was written. Cause: arm F's distance pass (`np.einsum` over 1,024-d, single-threaded,
+   36.6 s per run) ran twice per run, once for the score (`mahalanobis_min`) and once for the nearest-centroid diagnostic
+   (`nearest_class`), projecting about 1 h 45 min. Fix: `ml.frozen_embed.min_and_nearest` takes one fit and one distance
+   pass and derives both the score and the nearest class, bit-identical to calling `mahalanobis_min` and `nearest_class`
+   (tested); the estimator is unchanged (a faster matrix-product form, which differs by up to 3e-6, was not used). Arm M's
+   checks (|Δ maha| 0, R8 per-run results equal within 3.6e-15, 0 decision mismatches with `decide`'s rule B) were re-run
+   on their own to locate the stop. **Disclosure:** while locating it, one run's AUROC was seen (seed 42, withheld
+   imbalance, fold 0: M 0.618, F 0.600); nothing is changed because of it. The notebook is re-executed once with no
+   cell timeout (projected ≈ 50 min of scoring, under the one-hour line); the run sha is recorded as dirty if unrelated
+   uncommitted frontend files are present.
+
 ## 7-prev14. Previous stage: Stage App-8 — redesign: diagnosis dashboard, assistant page, pipeline (frontend only)
 
 The report page's right-hand panel becomes a button that opens a full **diagnosis dashboard**; the assistant gets its own
