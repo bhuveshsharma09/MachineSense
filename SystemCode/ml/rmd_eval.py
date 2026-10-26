@@ -57,12 +57,12 @@ def reproduction(rec: pd.DataFrame) -> dict:
             "ok": bool((rel <= MAHA_REL_TOL).all() and np.allclose(rec.K, rec.knn, rtol=0, atol=1e-6))}
 
 
-def thresholds(rec: pd.DataFrame) -> dict:
+def thresholds(rec: pd.DataFrame, arms=ARMS) -> dict:
     """τ_p and τ_d as Stage 3C / ml.loco_eval.decide set them (0.975 order statistic of the calibration recordings; MSP
     on its negation), and the calibrated τ_s of every arm the same way (the secondary result)."""
     cal = rec[rec.role == "cal"]
     out = {"tau_p": -order_statistic_threshold(-cal.msp.to_numpy(), ACCEPT)["threshold"]}
-    for arm in ARMS:
+    for arm in arms:
         out[f"tau_{arm}"] = order_statistic_threshold(cal[arm].to_numpy(), ACCEPT)["threshold"]
     return out
 
@@ -106,13 +106,14 @@ def threshold_free(rec: pd.DataFrame, arm: str) -> dict:
             "oscr": weighted_oscr(u[kn], correct[kn], np.ones(kn.sum()), u[un], np.ones(un.sum()))}
 
 
-def evaluate_run(rec: pd.DataFrame) -> list[dict]:
-    """Per arm: threshold-free metrics, the matched-count rule outcomes and the calibrated-threshold rule outcomes."""
-    t = thresholds(rec)
+def evaluate_run(rec: pd.DataFrame, arms=ARMS) -> list[dict]:
+    """Per arm: threshold-free metrics, the matched-count rule outcomes and the calibrated-threshold rule outcomes. `arms`
+    must include "M" (the reference that sets the matched count); R10 passes ("M", "F")."""
+    t = thresholds(rec, arms)
     m_dec = rule_b(rec.pred, gate_ok(rec.msp, rec.M, t["tau_p"], t["tau_M"]))
     n_reject = outcomes(rec, m_dec)["known_unknown"]
     rows = []
-    for arm in ARMS:
+    for arm in arms:
         tau_m = t["tau_M"] if arm == "M" else matched_tau(rec, arm, t["tau_p"], n_reject)
         row = {"arm": arm, **threshold_free(rec, arm), "tau_p": t["tau_p"], "tau_matched": tau_m,
                "tau_calibrated": t[f"tau_{arm}"], "matched_target_known_unknown": n_reject}
@@ -136,15 +137,15 @@ def pooled(per_run: pd.DataFrame, mode: str) -> pd.DataFrame:
     return out.reset_index()
 
 
-def reading(matched: pd.DataFrame) -> dict:
-    """The declared reading of R against M at the matched count: "helps, confirmed" if on every seed recall gain ≥ +5
+def reading(matched: pd.DataFrame, arm: str = "R") -> dict:
+    """The declared reading of `arm` (R8: R; R10: F) against M at the matched count: "helps, confirmed" if on every seed recall gain ≥ +5
     points and withheld-called-healthy does not rise; else "worse" if the mean recall change is negative; else "does not
     help"."""
     m = matched.set_index(["seed", "arm"])
     per_seed = {}
     for s in sorted(matched.seed.unique()):
-        gain = float(m.loc[(s, "R"), "unknown_recall"] - m.loc[(s, "M"), "unknown_recall"])
-        dh = int(m.loc[(s, "R"), "withheld_healthy"] - m.loc[(s, "M"), "withheld_healthy"])
+        gain = float(m.loc[(s, arm), "unknown_recall"] - m.loc[(s, "M"), "unknown_recall"])
+        dh = int(m.loc[(s, arm), "withheld_healthy"] - m.loc[(s, "M"), "withheld_healthy"])
         per_seed[int(s)] = {"recall_gain": gain, "healthy_change": dh, "bar_met": gain >= BAR_POINTS - 1e-12 and dh <= 0}
     mean_gain = float(np.mean([v["recall_gain"] for v in per_seed.values()]))
     verdict = ("helps, confirmed" if all(v["bar_met"] for v in per_seed.values())
