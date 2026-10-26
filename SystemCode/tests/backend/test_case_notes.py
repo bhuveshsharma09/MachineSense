@@ -132,7 +132,12 @@ def test_notes_stay_out_of_measured_evidence_tools_report_and_assistant_context(
     assert app.get(f"/api/cases/{a['case_id']}").json()["diagnosis"]["decision"] == "known_fault"
     n = len(model.calls)
     out = app.post(f"/api/cases/{a['case_id']}/ask", json={"question": "Is it confirmed?", "conversation": True}).json()
-    assert "ignore your rules" not in json.dumps(model.calls[n:]) and "confirmed" not in out["answer"].lower()
+    # addendum C: a status question may now be answered (here by the code-built fallback) with the RECORDED status, worded
+    # as a recorded event, never as proof; the injected note text still reaches neither the model nor the answer
+    assert "ignore your rules" not in json.dumps(model.calls[n:]) and "ignore your rules" not in out["answer"].lower()
+    assert "replace" not in out["answer"].lower()
+    if "confirmed" in out["answer"].lower():
+        assert "a technician recorded" in out["answer"].lower() and "not independent proof" in out["answer"]
 
 
 def test_migration_2_on_a_fresh_and_an_existing_database(tmp_path):
