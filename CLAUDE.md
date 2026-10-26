@@ -289,7 +289,29 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage R10 — frozen ImageNet ResNet-18 embedding as the familiarity score (Q3, development data only)
+## 7. Current stage: Stage App-8.2 — dashboard reading order and plain-language evidence (frontend only)
+
+**Declared 26 Oct 2026 before implementation, at Bhuvesh's request.** App-8.1's shared bearing labels, healthy-check
+phrases and three-line summary are implemented first in this same frontend session, then reused here. Stage R10 may continue
+concurrently by Bhuvesh's explicit decision; its data, results and protocol are untouched. App-8.2 changes presentation
+only: a full-width finding, a five-step decision explanation, a smaller rig beside measured sensor changes, all curated
+inspection checks, then the existing measurements. The pipeline remains a separate page and Developer view links to it.
+Every value comes from the saved case's existing responses. Verdicts, thresholds, scoring, guidance selection, assistant
+prompts, reserved data and backend are unchanged. Mechanic view shows no model scores, thresholds or percentages. Existing
+honesty sentences are preserved verbatim and visible beside the claim each qualifies, using one small-text caveat style.
+All new type uses the existing Mechanic scale and no new monospace labels. No dependency is added.
+
+**Declared “Show me” mappings (no others):** the first `misalignment-2x-axial` step selects the inner/underhang axial
+channel's order spectrum with 1× and 2× cursors; the first `imbalance-1x` step selects the inner/underhang radial channel's
+order spectrum with the same cursors. Both links jump to the measurements block. Other guidance steps are shown in the
+server's order without a chart link: their action, sensor or comparison does not identify one chart without an extra
+assumption. The curated step text is never rewritten; a separate plain gloss may explain shaft orders.
+
+**Verification and commits:** frontend `npm test` and backend `MACHINESENSE_NO_RESERVED_READ=1 .venv/bin/python -m pytest -q`
+pass before each code commit; screenshots at 1440×900 and 1280×720 plus healthy and further-inspection cases. Commit each
+block group separately with Bhuvesh as sole author; do not push.
+
+## 7-prev15. Concurrent stage: Stage R10 — frozen ImageNet ResNet-18 embedding as the familiarity score (Q3, development data only)
 
 Question: **does a frozen ImageNet ResNet-18 embedding detect unfamiliar faults better than the CNN-6 embedding, when it
 replaces the shared-covariance Mahalanobis familiarity score and everything else stays the same?** Why: R8 found that
