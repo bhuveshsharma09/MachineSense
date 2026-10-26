@@ -391,6 +391,32 @@ copied), applied without committing the concurrent session's uncommitted edits. 
    used). Frontend suite passes on 55c5bec plus this change in a clean worktree; screenshots at 1440 and 390 px against a
    scratch backend (LLM disabled).
 
+## 7-f. Stage App-8.5 — "Explore an unseen fault" page redesign (frontend only)
+
+Declared 26 Oct 2026 before any code, at Bhuvesh's request ("update unseen fault page": the designer's
+`MachineSense Unseen Fault.dc.html`, walkthrough (5)). Presentation only: `frontend/src/components/Unseen.jsx` (its
+`UnseenView`) and a new `frontend/src/unseen.css`; `backend/unseen.json`, the `/api/unseen` endpoints, the eligibility
+predicate, the LOCO models, scoring, thresholds and verdicts are unchanged; reserved data sealed; no dependency.
+1. **Layout (the design).** A four-step wizard with a step rail and an "About this demonstration" box: 1 Hide a fault (the
+   nine faults grouped Rotor / Alignment / Inner bearing (underhang) / Outer bearing (overhang); the isolated rig part where
+   the fault occurs, according to the dataset label; the conditions this model learned with the hidden one marked "not
+   learned"), 2 Choose a recording (the curated examples as cards), 3 Run the checks (the real result revealed row by row:
+   proposed label, confidence, familiarity, both checks, verdict), 4 See the result (verdict; the actual condition behind
+   "Reveal actual condition"; the proposed label; the two checks on a scale with pass / fail; "Compare with a familiar
+   recording", "Try another recording", "Hide a different fault"; this visit's runs; Experiment details). Back / Next and
+   progress dots.
+2. **Data rules (App-6, unchanged).** Every number and label comes from `/api/unseen` and `/api/unseen/run`; the design's
+   generated scores, thresholds, file names and speeds are not used. A recording card does not reveal its category
+   (rejection / honest failure) before it is run; it shows the recording id, the hidden-fault or familiar role and the
+   nominal speed from the id. Outcome wording is derived from the role and the verdict only: withheld + further inspection
+   "Wrong familiar label stopped"; withheld + a fault "Wrong familiar label accepted"; withheld + healthy "Hidden fault
+   called healthy"; familiar + accepted "Correct familiar label accepted"; familiar + further inspection "Familiar label not
+   accepted". Kept verbatim: the simulated-fault, easier-part, further-inspection and gates statements; values formatted by
+   `pair` (no probability below 1 shown as 100 %); categories without an eligible recording stated with their reason; the
+   Mechanic view names no MSP, Mahalanobis or τ; "Research demonstration; not validated on real machines.".
+3. **Tests:** the App-6 smoke checks keep their data and copy assertions; the structural ones change to the wizard (the
+   step reveal on page 3, the result on page 4); both suites pass; screenshots at 1440 and 390 px.
+
 ## 7-c. Concurrent stage: Stage App-9 — investigation assistant across an investigation (application improvement; D7 frozen)
 
 Declared 26 Oct 2026 before any code, at Bhuvesh's request; runs beside App-8.2 (that section is not moved). Goal: the
