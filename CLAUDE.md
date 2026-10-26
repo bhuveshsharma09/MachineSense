@@ -383,6 +383,13 @@ copied), applied without committing the concurrent session's uncommitted edits. 
    new smoke checks: four sections in order for every fixture, no score / threshold / percentage, the location wording, the
    honesty footer, Changed / Typical only, the declared Show me only; both suites pass; real-browser screenshots at
    1440 and 390 px.
+4. **Result (26 Oct 2026).** Built as declared. Section ids `rd-finding`, `rd-measurements`, `rd-suggested-checks` are kept
+   (the assistant-link targets of the concurrent session's uncommitted work); the machine section is `mvw-machine`. The
+   verdict line reads "Verdict · <class> (model prediction)" (healthy: "Verdict · Healthy"; unknown: "Verdict · Further
+   inspection needed"). The App-8 check that forbade the honesty lines in Mechanic was narrowed (they are now shown); its
+   order check follows the new order; the new App-8.4 check passes on the 8 fixtures. CSS prefix `mvw-` (`mv-` is already
+   used). Frontend suite passes on 55c5bec plus this change in a clean worktree; screenshots at 1440 and 390 px against a
+   scratch backend (LLM disabled).
 
 ## 7-c. Concurrent stage: Stage App-9 — investigation assistant across an investigation (application improvement; D7 frozen)
 

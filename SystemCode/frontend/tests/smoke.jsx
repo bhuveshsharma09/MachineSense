@@ -619,10 +619,10 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
     const forb = [...never, ...SAMPLE].filter((x) => t.toLowerCase().includes(x.toLowerCase()));
     if (view === "mechanic") {
       const d = f.record.diagnosis;
-      forb.push(...["τ_", "MSP", "Mahalanobis", fmtC(d.scores.b1s), fmtC(d.thresholds.tau_b), "Traceability", "Decision checks",
-        "Research demonstration; not validated on real machines.", INS, SN].filter((x) => t.includes(x)));
-      const ordered = ['aria-label="Finding"', 'aria-label="Interactive test rig"',
-        ...(f.record.diagnosis.decision === "healthy" ? [] : ['aria-label="Suggested checks"']), 'aria-label="Explore measurements"'];
+      forb.push(...["τ_", "MSP", "Mahalanobis", fmtC(d.scores.b1s), fmtC(d.thresholds.tau_b), "Traceability", "Decision checks"].filter((x) => t.includes(x)));
+      // App-8.4: the design's order (finding, rig, measurements, then what to check)
+      const ordered = ['aria-label="Finding"', 'aria-label="Interactive test rig"', 'aria-label="Explore measurements"',
+        ...(f.record.diagnosis.decision === "healthy" ? [] : ['aria-label="Suggested checks"'])];
       if (ordered.some((x, i) => h.indexOf(x) < 0 || i > 0 && h.indexOf(x) < h.indexOf(ordered[i - 1]))) miss.push("mechanic section order");
     } else {
       miss.push(...["Decision checks", "only add a caution to a healthy verdict", "Traceability", "CNN attribution · exploratory", "Not evidence of location"].filter((x) => !t.includes(x)));
@@ -689,6 +689,22 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
     if (errs.length) pipeBad.push(`${n}: ${errs.join(", ")}`);
   }
   pcheck("App-8.3 Developer section 06 draws every pipeline step from the trace, the four checks and the verdict", !pipeBad.length, pipeBad.join("\n"));
+  // App-8.4: the Mechanic view is four numbered sections; no score, threshold or percentage; the location keeps its label
+  const mechBad = [];
+  for (const [n, f] of Object.entries(fx)) {
+    const html = dash(f, "mechanic"), t = textOf(html), d = f.record.diagnosis, errs = [];
+    const ids = ["rd-finding", "mvw-machine", "rd-measurements", "rd-suggested-checks"].map((id) => html.indexOf(`id="${id}"`));
+    if (ids.some((x, i) => x < 0 || (i > 0 && x < ids[i - 1]))) errs.push("four sections in order");
+    if (!["Verdict", "Machine", "Sensors", "What to check"].every((x) => t.includes(x))) errs.push("jump bar");
+    if (/\d+(?:\.\d+)?\s?%/.test(t.replace(SN, "")) || /\b0\.\d{3,}/.test(t) || t.includes("τ_")) errs.push("a score, threshold or percentage");
+    if (d.decision === "known_fault" && !(t.includes("According to the dataset label (model prediction)") && t.includes("(model prediction)"))) errs.push("location label");
+    if (!t.includes("Research demonstration; not validated on real machines.") || !t.includes(SN)) errs.push("honesty footer");
+    if (/\b[↑↓]\s?×\d/.test(t)) errs.push("a change factor");
+    if (d.decision === "healthy" && (t.includes("Suggested checks") || t.includes("on the rig</button>"))) errs.push("healthy shows checks");
+    if (errs.length) mechBad.push(`${n}: ${errs.join(", ")}`);
+  }
+  pcheck(`App-8.4 Mechanic: ${Object.keys(fx).length} fixtures render four sections with the location label and honesty footer, no score, threshold, percentage or factor`,
+    !mechBad.length, mechBad.join("\n"));
   const mapped = (src) => {
     const report = { ...knownFault.report, sections: knownFault.report.sections.map((s) => s.n !== "04" ? s : { ...s, items: [
       { tag: "Guidance", text: `Check the 2× to 1× ratio. (source: ${src}; AI-drafted, not yet checked against a published source)`,

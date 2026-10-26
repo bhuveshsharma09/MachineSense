@@ -14,6 +14,7 @@ import Scene from "./Scene.jsx";
 import { Logo } from "./TopBar.jsx";
 import { AskButton } from "./AssistantDock.jsx";
 import DeveloperView from "./DeveloperView.jsx";
+import MechanicView from "./MechanicView.jsx";
 import "../redesign.css";
 
 // Stage App-8: #/case/<id>/dashboard — the whole diagnosis of one stored case on one page (layout "A · Rig stage").
@@ -141,7 +142,7 @@ function Card({ area, title, kicker, kickerColor, children, label, className = "
 
 const Tick = ({ ok }) => <span className={"rd-tick" + (ok ? "" : " is-warn")} aria-hidden="true">{ok ? "✓" : "!"}</span>;
 
-function Caveat({ children }) { return <span className="rd-m-caveat"><span aria-hidden="true" className="rd-m-info">i</span>{children}</span>; }
+export function Caveat({ children }) { return <span className="rd-m-caveat"><span aria-hidden="true" className="rd-m-info">i</span>{children}</span>; }
 
 function WhyStrip({ summary, warnings, caseId, developer = false }) {
   const value = (v, yes, no) => v == null ? "Not available" : v ? yes : no;
@@ -231,6 +232,10 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
   const summary = decisionSummary({ topClass: d.top_class, decision: d.decision, caution: d.caution, checks });
   const limits = (record.limitations || []).map(cleanText);
   const href = (p) => `#/case/${encodeURIComponent(caseId)}/${p}`;
+
+  if (!dev) return <MechanicView caseId={caseId} record={record} report={report} channels={channels} signals={signals}
+    explanation={explanation} view={view} onView={changeView} userName={userName} assistantOpen={assistantOpen} narrow={narrow}
+    initialSel={initialSel} initialUi={initialUi} />;
 
   if (!dev) {
     const showChecks = d.decision !== "healthy";
@@ -538,7 +543,7 @@ export function PartView({ partId, sceneState, height = 216, children }) {
   );
 }
 
-function ChannelCard({ channels, rows, dev, sel, onSelect }) {
+export function ChannelCard({ channels, rows, dev, sel, onSelect }) {
   const n = rows.filter((r) => r.beyond).length;
   const ref = channels?.reference;
   return (
@@ -579,7 +584,7 @@ function ChannelCard({ channels, rows, dev, sel, onSelect }) {
 const MAXO = 8, ENV_MAXO = 12;
 const f3 = (v) => (v == null || !Number.isFinite(v) ? "—" : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 1 ? v.toFixed(2) : v.toFixed(4));
 
-function SpectrumCard({ record, signals, part, chId, chOptions, mode, onMode, onChannel, dev = true }) {
+export function SpectrumCard({ record, signals, part, chId, chOptions, mode, onMode, onChannel, dev = true }) {
   const fr = record.signal_quality.shaft_speed_hz;
   const env = record.physics.envelope_spectrum;
   const hasEnv = !!env?.channels?.[chId];
@@ -622,7 +627,7 @@ function SpectrumCard({ record, signals, part, chId, chOptions, mode, onMode, on
   );
 }
 
-function WaveformCard({ signals, chId }) {
+export function WaveformCard({ signals, chId }) {
   const s = signals?.channels?.[chId];
   let el = null;
   if (s) {
