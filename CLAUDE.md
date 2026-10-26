@@ -450,6 +450,16 @@ largest increase beyond typical variation first and a decrease only when nothing
 frontend `npm test`; new tests for items 1, 4, 5, 6, 8, 9, 10, 11, 14, 22 and 28 at least; `AGENT_PROMPT_VERSION` printed and
 equal to 8fb7865754455d65; the seven recordings opened in both views in a browser. One commit per group (A, B, C, D).
 
+**Result (26 Oct 2026).** All 28 items done (A 336a901, B 134314a, C c912383, D 668ba67). Backend 612 passed, 2 skipped (the
+reserved-signal tests); frontend `npm test` 248 checks; `AGENT_PROMPT_VERSION` 8fb7865754455d65 (unchanged); explanation
+`PROMPT_VERSION` f154953912c969cc → 32cdea4284bfee3f. Manual check: the seven recordings diagnosed on a scratch backend
+(language model disabled, so explanations are the template) and opened in both views in headless Chrome; 88 per-item text
+checks pass. Notes: item 1's annotation is recorded here, not in §12 (frozen F1 text) or §7a2; item 6's overflow value and
+item 9's factor-with-direction appear in the Mechanic view (App-8.4's no-factor rule meant the ↑/↓ change-factor badges,
+which stay out); item 13 hides one inner-race step for the cage verdict and says so, the report and the assistant keep
+every step; item 23 adds a `bundle` source to the trace (`bundle:feature_dictionary.rows`) and the App-4 source test
+resolves it independently; item 26's reference overlay is the order spectrum only (the envelope view says so).
+
 ## 7-f. Stage App-8.5 — "Explore an unseen fault" page redesign (frontend only)
 
 Declared 26 Oct 2026 before any code, at Bhuvesh's request ("update unseen fault page": the designer's
