@@ -12,7 +12,7 @@ from typing import Callable
 
 from backend.agent import memory
 from backend.agent.prompt import AGENT_PROMPT_VERSION, CONVERSATION_PROMPT_VERSION, CONVERSATION_SYSTEM, SYSTEM, revision_message
-from backend.agent.tools import SCHEMAS, Tools, summary
+from backend.agent.tools import CONV_SCHEMAS, SCHEMAS, Tools, summary
 from backend.explain.guard import ExplanationRejected, parse
 from backend.explain.provider import ProviderError
 from backend.report import _entries, build_sections
@@ -37,9 +37,18 @@ class Budget:
         return cls(agent_max_tool_calls(), agent_max_revisions(), agent_timeout_s())
 
 
-def citations_with_titles(ids) -> list[dict]:
-    titles = {e.id: e.title for e in _entries()}
-    return [{"id": i, "title": titles.get(i)} for i in ids]
+def citations_with_titles(ids, detail: bool = False) -> list[dict]:
+    """[{id, title}] for the cited guidance entry ids (D7 shape). With `detail` (conversation mode) also the kind, the
+    source and the verification status, so the UI can show them beside the step; open procedure ids are labelled too."""
+    entries = {e.id: e for e in _entries()}
+    if not detail:
+        return [{"id": i, "title": entries[i].title if i in entries else None} for i in ids]
+    out = []
+    for i in ids:
+        e = entries.get(i)
+        out.append({"id": i, "title": e.title, "kind": "inspection guidance", "source": e.source, "source_url": e.source_url,
+                    "verification": e.verification} if e else {"id": i, "title": None, "kind": "procedure"})
+    return out
 
 
 def parsed_answer(content: str) -> dict:
@@ -78,18 +87,27 @@ def ask(engine, case_id: str, question: str, provider, review: Review | None = N
     tools = Tools(engine)
     actions, results = [], []
     conv = history is not None
+    schemas = CONV_SCHEMAS if conv else SCHEMAS
     base = {"question": question, "prompt_version": CONVERSATION_PROMPT_VERSION if conv else AGENT_PROMPT_VERSION,
             "model": getattr(provider, "model", None)}
     if conv:
         base["context_turn_ids"] = [t["id"] for t in history]
 
     def done(source, obj=None, status=REVIEW_PASSED, failed=(), reason=None):
-        obj = obj or {"answer": FALLBACK_TEXT, "claims": [], "citations": []}
-        out = {**base, "answer": obj["answer"], "claims": obj["claims"], "citations": citations_with_titles(obj["citations"]),
+        quick = None
+        if source == "fallback" and conv:  # App-9: a status / procedure question gets a short code-built answer
+            from backend.agent.quick import answer as quick_answer
+            quick = quick_answer(engine, case_id, question)
+        obj = obj or {"answer": quick[1] if quick else FALLBACK_TEXT, "claims": [], "citations": []}
+        out = {**base, "answer": obj["answer"], "claims": obj["claims"], "citations": citations_with_titles(obj["citations"], detail=conv),
                "actions": actions, "review": {"status": status, "failed": list(failed)}, "source": source,
                "latency_ms": round((time.perf_counter() - t0) * 1000, 1), "tool_calls_used": len(actions)}
         if source == "fallback":
-            out |= {"reason": reason, "report_sections": fallback_sections(engine, record)}
+            out |= {"reason": reason}
+            if quick:
+                out["fallback_kind"] = quick[0]  # short answer from the stored records; no report sections
+            else:
+                out["report_sections"] = fallback_sections(engine, record)
         return out
 
     if not enabled or provider is None:
@@ -101,7 +119,7 @@ def ask(engine, case_id: str, question: str, provider, review: Review | None = N
         if time.perf_counter() - t0 > budget.timeout_s:
             return done("fallback", status=REVIEW_FALLBACK, reason="time budget exhausted")
         try:
-            msg = provider.chat(messages, SCHEMAS, temperature=TEMPERATURE)
+            msg = provider.chat(messages, schemas, temperature=TEMPERATURE)
         except ProviderError as e:
             return done("fallback", status=REVIEW_FALLBACK, reason=f"language model unreachable ({e})")
         calls = msg["tool_calls"]
@@ -112,14 +130,14 @@ def ask(engine, case_id: str, question: str, provider, review: Review | None = N
                              "tool_calls": [{"id": c["id"], "type": "function",
                                              "function": {"name": c["name"], "arguments": c["raw_arguments"]}} for c in calls]})
             for c in calls:
-                result = (tools.call(c["name"], case_id, c["arguments"]) if c["arguments"] is not None else
+                result = (tools.call(c["name"], case_id, c["arguments"], schemas) if c["arguments"] is not None else
                           {"error": "the arguments are not valid JSON"})
                 results.append(result)
                 actions.append({"tool": c["name"], "arguments": c["arguments"] if c["arguments"] is not None else c["raw_arguments"],
                                 "summary": summary(c["name"], result)})
                 messages.append({"role": "tool", "tool_call_id": c["id"], "content": json.dumps(result, ensure_ascii=False)})
             continue
-        obj, failed = review(msg["content"], results)
+        obj, failed = review(msg["content"], results, mode="conversation") if conv else review(msg["content"], results)
         if not review_on:  # D7 arm "agent without review": shown as written; what the review would reject is recorded
             shown = obj or parsed_answer(msg["content"])
             return done("agent", shown, status=REVIEW_OFF, failed=failed)

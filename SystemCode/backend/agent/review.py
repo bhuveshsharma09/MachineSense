@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import re
 
-from backend.agent.tools import leaves
+from backend.agent.tools import UNTRUSTED, leaves
 from backend.explain.guard import FORBIDDEN, NUMBER, ExplanationRejected, _matches, parse
 from backend.explain.prompt import INTEGER_CONSTANTS
 
@@ -84,8 +84,71 @@ def schema_errors(obj) -> list[str]:
     return errs
 
 
-def review(content: str, results: list[dict]) -> tuple[dict | None, list[dict]]:
-    """The checks, each failure named: schema, numbers, refs, citations, forbidden, location, ranking."""
+# ---------------------------------------------------------------------- App-9 addendum C: conversation mode only
+# The default review (mode "single", D7) is unchanged. Conversation mode replaces the forbidden pattern by one without
+# the "confirm" family and adds: confirmation wording only as a technician record fetched this turn and matching its
+# status; no "proof"; procedures only as fetched; "verified" only for a fetched open procedure or in a negation; numbers
+# inside user-entered note text are not tool numbers.
+FORBIDDEN_CONV = re.compile(FORBIDDEN.pattern.replace(r"\bconfirm\w*|", ""), re.IGNORECASE)
+CONFIRM = re.compile(r"\bconfirm\w*", re.IGNORECASE)
+CONFIRM_NEG = re.compile(r"\b(?:not|never|no|n't)\s+(?:yet\s+)?(?:been\s+)?(?:a\s+|any\s+)?(?:recorded\s+)?(?:technician[- ]?)?confirm\w*|"
+                         r"\bunconfirmed\b|\bno (?:recorded |current )?(?:technician )?confirmation\b|\bwithout (?:a )?confirmation\b|"
+                         r"\bwithdr\w*|\breject\w*", re.IGNORECASE)
+ATTRIBUTED = re.compile(r"\b(?:technician|recorded)\b", re.IGNORECASE)
+PROOF = re.compile(r"\b(?:proof|proves?|proven|physically confirm\w*|independently confirm\w*)\b", re.IGNORECASE)
+NOT_PROOF = re.compile(r"\bnot (?:independent |physical )?proof\b|\bnot proven\b|\bdoes not prove\b", re.IGNORECASE)
+PROCEDURE = re.compile(r"\bprocedures?\b", re.IGNORECASE)
+NO_PROCEDURE = re.compile(r"\bno verified procedure\b", re.IGNORECASE)
+VERIFIED = re.compile(r"\bverified\b", re.IGNORECASE)
+VERIFIED_NEG = re.compile(r"\b(?:not|no|un|never)\s*(?:yet\s+)?verified\b|\bno verified\b", re.IGNORECASE)
+
+
+def _trusted(o):
+    """A tool result without its user-entered text (whose numbers must not count as tool numbers)."""
+    if isinstance(o, dict):
+        return {k: _trusted(v) for k, v in o.items() if k != UNTRUSTED}
+    if isinstance(o, list):
+        return [_trusted(v) for v in o]
+    return o
+
+
+def conversation_checks(obj: dict, results: list[dict]) -> list[dict]:
+    notes = [r for r in results if isinstance(r, dict) and "technician_status" in r]
+    status = notes[-1]["technician_status"]["value"] if notes else None
+    procs = [r for r in results if isinstance(r, dict) and "gate_open" in r]
+    open_ids = {p["cite"] for r in procs if r["gate_open"]["value"] for p in r.get("procedures", [])}
+    texts = [obj["answer"], *[c["text"] for c in obj["claims"]]]
+    failed = []
+    for t in texts:
+        for snt in sentences(t):
+            if CONFIRM.search(snt):
+                if not notes:
+                    failed.append(_f("confirmation", f"confirmation wording without get_case_notes in this turn: {snt!r}"))
+                elif not ATTRIBUTED.search(snt):
+                    failed.append(_f("confirmation", f"a confirmation must be stated as a technician record: {snt!r}"))
+                elif not CONFIRM_NEG.search(snt) and status != "technician_confirmed":
+                    failed.append(_f("confirmation", f"states a confirmation, but the fetched status is {status}: {snt!r}"))
+                elif CONFIRM_NEG.search(snt) and status == "technician_confirmed" and not re.search(r"\bwithdr|\breject|\bproof", snt, re.I):
+                    failed.append(_f("confirmation", f"denies a confirmation, but the fetched status is {status}: {snt!r}"))
+            if PROOF.search(snt) and not NOT_PROOF.search(snt):
+                failed.append(_f("confirmation", f"a recorded or predicted fault is not proof: {snt!r}"))
+            if PROCEDURE.search(snt):
+                if not procs:
+                    failed.append(_f("procedure", f"procedure wording without get_procedures in this turn: {snt!r}"))
+                elif NO_PROCEDURE.search(snt):
+                    if open_ids:
+                        failed.append(_f("procedure", f"says no verified procedure, but get_procedures returned one: {snt!r}"))
+                elif not (open_ids and set(obj["citations"]) & open_ids):
+                    failed.append(_f("procedure", f"a procedure is mentioned without citing one returned open this turn: {snt!r}"))
+            if VERIFIED.search(snt) and not VERIFIED_NEG.search(snt) and not (open_ids and set(obj["citations"]) & open_ids):
+                failed.append(_f("verified", f"'verified' only for a procedure returned open this turn: {snt!r}"))
+    return failed
+
+
+def review(content: str, results: list[dict], mode: str = "single") -> tuple[dict | None, list[dict]]:
+    """The checks, each failure named: schema, numbers, refs, citations, forbidden, location, ranking; in conversation mode
+    also confirmation, procedure and verified (App-9 addendum C)."""
+    conv = mode == "conversation"
     try:
         obj = parse(content)
     except ExplanationRejected as e:
@@ -97,8 +160,11 @@ def review(content: str, results: list[dict]) -> tuple[dict | None, list[dict]]:
     refs = {ref for ref, _ in found}
     values = dict(found)
     allowed = [float(v) for _, v in found if isinstance(v, (int, float)) and not isinstance(v, bool)]
-    allowed += [float(t.replace(",", "")) for s in _strings(results) for t in NUMBER.findall(s)]
+    allowed += [float(t.replace(",", "")) for s in _strings(_trusted(results) if conv else results) for t in NUMBER.findall(s)]
     cited = {i["cite"] for r in results for i in (r.get("items") or []) if isinstance(i, dict) and i.get("cite")}
+    if conv:  # an open procedure's id may be cited like a guidance entry id
+        cited |= {p["cite"] for r in results if isinstance(r, dict) and r.get("gate_open", {}).get("value")
+                  for p in r.get("procedures", [])}
     claims = obj["claims"]
     texts = [obj["answer"], *[c["text"] for c in claims]]
     failed = []
@@ -120,7 +186,7 @@ def review(content: str, results: list[dict]) -> tuple[dict | None, list[dict]]:
         if INSPECTION.search(c["text"]) and not any(r in cited for r in c["refs"]):
             failed.append(_f("citations", f"claim {k + 1} states an inspection step without the entry id among its refs"))
     for t in texts:  # (5) forbidden phrases
-        m = FORBIDDEN.search(t)
+        m = (FORBIDDEN_CONV if conv else FORBIDDEN).search(t)
         if m:
             failed.append(_f("forbidden", f"forbidden phrase {m.group(0)!r}"))
     for t in texts:  # (6) location wording (§11 rule 5)
@@ -135,4 +201,6 @@ def review(content: str, results: list[dict]) -> tuple[dict | None, list[dict]]:
         failed += [_f("ranking", f"claim {k + 1}: {e}") for e in ranking_errors(c["text"], c["refs"], values)]
     for s in sentences(obj["answer"]):
         failed += [_f("ranking", f"answer sentence {s!r}: {e} among the claims") for e in ranking_errors(s, claim_refs, values)]
+    if conv:
+        failed += conversation_checks(obj, results)
     return obj, failed
