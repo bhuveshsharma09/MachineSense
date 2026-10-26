@@ -50,7 +50,7 @@ export function Marker({ m, onClick, onEnter, onLeave, style }) {
   );
 }
 
-export default function Scene({ state, onSelect, onHover, inspector, forceStatic = false, captureMode = false, insets = INSETS, zoomOut = 1 }) {
+export default function Scene({ state, onSelect, onHover, inspector, forceStatic = false, captureMode = false, insets = INSETS, zoomOut = 1, wheelZoomRequiresModifier = false, focusOnSelect = true }) {
   const sceneRef = useRef(null), overlayRef = useRef(null), rig = useRef(null);
   const [mode, setMode] = useState(forceStatic ? "static" : "loading");
   const [anchors, setAnchors] = useState(null);
@@ -65,7 +65,7 @@ export default function Scene({ state, onSelect, onHover, inspector, forceStatic
       try {
         const rm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
         rig.current = mod.createRig(sceneRef.current, {
-          overlay: overlayRef.current, reducedMotion: !!(rm && rm.matches),
+          overlay: overlayRef.current, reducedMotion: !!(rm && rm.matches), wheelZoomRequiresModifier, focusOnSelect,
           onPick: (id) => cb.current.onSelect(id && id === cb.current.sel ? null : id),
           onHover: (id) => cb.current.onHover(id),
         });
@@ -77,7 +77,7 @@ export default function Scene({ state, onSelect, onHover, inspector, forceStatic
       }
     }).catch((e) => { console.warn("3D view unavailable", e); setMode("static"); });
     return () => { dead = true; if (rig.current) rig.current.dispose(); rig.current = null; };
-  }, [forceStatic, captureMode]);
+  }, [forceStatic, captureMode, wheelZoomRequiresModifier, focusOnSelect]);
 
   useEffect(() => {
     if (mode !== "static" || anchors) return;

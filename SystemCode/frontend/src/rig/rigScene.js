@@ -376,7 +376,8 @@ export function createRig(container, opts = {}) {
     down = null; dragging = false; cv.style.cursor = hoverPick ? 'pointer' : 'grab';
   };
   const onLeave = () => { if (hoverPick) { hoverPick = null; apply(); if (opts.onHover) opts.onHover(null); } };
-  const onWheel = e => { e.preventDefault(); view.radius = clamp(view.radius * Math.exp(e.deltaY * 0.0011), DEF.radius * 0.65, DEF.radius * 1.65); };
+  const onWheel = e => { if (opts.wheelZoomRequiresModifier && !e.ctrlKey && !e.metaKey) return;
+    e.preventDefault(); view.radius = clamp(view.radius * Math.exp(e.deltaY * 0.0011), DEF.radius * 0.65, DEF.radius * 1.65); };
   cv.addEventListener('pointerdown', onDown); cv.addEventListener('pointermove', onMove); cv.addEventListener('pointerup', onUp);
   cv.addEventListener('pointerleave', onLeave); cv.addEventListener('wheel', onWheel, { passive: false });
   cv.style.cursor = 'grab';
@@ -466,7 +467,7 @@ export function createRig(container, opts = {}) {
       st = Object.assign({}, st, s);
       if (st.isolate !== prevIso) { applyIso(); resize(); }
       if (JSON.stringify(st.insets) !== prevIns || st.zoomOut !== prevZoom) resize();
-      if (st.sel !== prevSel) { if (st.sel) focus(st.sel); else resetView(); }
+      if (st.sel !== prevSel && opts.focusOnSelect !== false) { if (st.sel) focus(st.sel); else resetView(); }
       apply();
     },
     resetView() { resetView(); },

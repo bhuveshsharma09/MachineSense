@@ -19,6 +19,14 @@ export function guidanceSteps(items) {
   });
 }
 
+// Only the first step of these cards names a single measured channel and an order-spectrum comparison.
+export function showMeTarget(step, index) {
+  if (index !== 0) return null;
+  if (step.src === "misalignment-2x-axial") return { channel: "under_axial", view: "spectrum", mode: "order" };
+  if (step.src === "imbalance-1x") return { channel: "under_radial", view: "spectrum", mode: "order" };
+  return null;
+}
+
 // The speed-aware healthy check (B1s) against its threshold τ_b: where both sit on one scale. A healthy-baseline check,
 // not a severity measure.
 export function gauge(record) {

@@ -575,7 +575,7 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
 import { DashboardView } from "../src/components/Dashboard.jsx";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
-import { guidanceSteps } from "../src/lib/dashboard.js";
+import { guidanceSteps, showMeTarget } from "../src/lib/dashboard.js";
 import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarnings } from "../src/lib/model.js";
 {
   const cases = [knownFault, unknown, caution, plainHealthy];
@@ -585,6 +585,16 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
     const c = Object.fromEntries(f.report.assessment.checks.map((x) => [x.key, x.passed]));
     return s.checks.msp === c.msp && s.checks.maha === c.maha && s.checks.ae === c.ae && s.checks.b1s === c.b1s
       && s.healthy === healthyCheckPhrase(f.report.assessment.checks, d.decision) && s.lines.length === 3;
+  }));
+  pcheck("App-8.2 dashboard check outcomes match the pipeline Decision box", [
+    [knownFault, fxKnown], [unknown, fxUnknown], [caution, fxCaution], [plainHealthy, fxHealthy],
+  ].every(([f, trace]) => {
+    const report = decisionSummary({ topClass: f.record.diagnosis.top_class, decision: f.record.diagnosis.decision,
+      caution: f.record.diagnosis.caution, checks: f.report.assessment.checks });
+    const pipeline = decisionSummary({ topClass: f.record.diagnosis.top_class, decision: f.record.diagnosis.decision,
+      caution: f.record.diagnosis.caution, checks: trace.blocks.find((b) => b.id === "decision").output.checks });
+    return ["msp", "maha", "ae", "b1s"].every((key) => report.checks[key] === pipeline.checks[key])
+      && report.healthy === pipeline.healthy && report.outcome === pipeline.outcome;
   }));
   const SAMPLE = ["6.82", "0.9981", "0.9412", "GL-BRG", "c_8f3a21", "36.454", "Sam Okafor", "xp-prompt v3", "7e2d9a1", "look_up_guidance"];
   const fx = { knownFault, unknown, caution, poor, healthy, disagree, narrow, plainHealthy };
@@ -596,7 +606,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
     let h; try { h = dash(f, view); } catch (e) { bad.push(`${n}/${view}: threw ${e.message}`); continue; }
     const t = textOf(h);
     const need = ["Sensor channels vs a healthy recording",
-      ...(view === "mechanic" ? ["Evidence", "Explore measurements", "Back to home",
+      ...(view === "mechanic" ? ["Evidence", "Why does it say this?", "Measurements", "Back to home",
         ...(f.record.diagnosis.decision === "healthy" ? [] : ["Suggested checks"]),
         ...(shownWarnings(f.record).length ? [] : ["No signal-quality warnings detected."])]
         : ["Research demonstration; not validated on real machines.", SN, "What to inspect next", "No healthy-reference spectrum is stored with the case.", "This is not a measure of damage severity."]),
@@ -608,9 +618,9 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
       const d = f.record.diagnosis;
       forb.push(...["τ_", "MSP", "Mahalanobis", fmtC(d.scores.b1s), fmtC(d.thresholds.tau_b), "Traceability", "Decision checks",
         "Research demonstration; not validated on real machines.", INS, SN].filter((x) => t.includes(x)));
-      const ordered = ["Possible", "Evidence", "Suggested checks", "Explore measurements"];
-      if (f.record.diagnosis.decision === "known_fault" && ordered.some((x, i) => i > 0 && t.indexOf(x) < t.indexOf(ordered[i - 1])))
-        miss.push("mechanic section order");
+      const ordered = ['aria-label="Finding"', 'aria-label="Why does it say this?"', 'aria-label="Which sensors changed?"',
+        ...(f.record.diagnosis.decision === "healthy" ? [] : ['aria-label="Suggested checks"']), 'aria-label="Explore measurements"'];
+      if (ordered.some((x, i) => h.indexOf(x) < 0 || i > 0 && h.indexOf(x) < h.indexOf(ordered[i - 1]))) miss.push("mechanic section order");
     } else {
       miss.push(...["Decision checks", "only add a caution to a healthy verdict", "Traceability", "CNN attribution · exploratory", "Not evidence of location"].filter((x) => !t.includes(x)));
     }
@@ -619,22 +629,62 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
   pcheck(`App-8 dashboard: ${Object.keys(fx).length} fixtures × 2 views render with the required lines, no sample values, no scores in Mechanic`, !bad.length, bad.join("\n"));
   const steps = guidanceSteps(knownFault.report.sections.find((s) => s.n === "04").items);
   const tk = textOf(dash(knownFault, "mechanic"));
-  pcheck("App-8 dashboard: inspection steps are section 04's items with their source chip and note, text unchanged",
+  pcheck("App-8 dashboard: all inspection steps retain section 04 text and the guidance note, without raw ids in Mechanic",
     steps.length > 0 && steps.every((x) => x.src && knownFault.report.sections.find((s) => s.n === "04").items.some((it) => it.text.startsWith(x.text)))
-    && tk.includes("source: bearing-defect-frequencies") && tk.includes("Citation not yet checked against the full text"));
+    && steps.every((x) => tk.includes(x.text)) && !tk.includes("source: bearing-defect-frequencies")
+    && tk.includes("Citation not yet checked against the full text"));
   const hp = textOf(dash(plainHealthy, "mechanic"));
   pcheck("App-8 dashboard: a healthy verdict hides suggested checks and fault location",
     !hp.includes("Suggested checks") && !hp.includes("Suggested location"));
+  pcheck("App-8.2 further inspection does not name a candidate fault area as a next action",
+    !textOf(dash(unknown, "mechanic")).includes("Consider the")
+    && textOf(dash(unknown, "mechanic")).includes("inspect the readings before choosing a fault area."));
   const mechanicFault = dash(knownFault, "mechanic");
   const mechanicFaultText = textOf(mechanicFault);
   const developerFault = dash(knownFault, "developer");
   const developerFinding = developerFault.match(/<section[^>]*aria-label="Finding"[\s\S]*?<\/section>/)?.[0] || "";
-  pcheck("App-8 dashboard: fault finding, location and rig action; evidence and checks follow in the requested order",
-    mechanicFault.includes("Faulty") && mechanicFault.includes("Suggested location")
+  pcheck("App-8 dashboard: fault finding, location and rig action; reasoning and checks follow in the requested order",
+    mechanicFault.includes("Faulty") && mechanicFault.includes("Known fault · model prediction")
     && mechanicFaultText.includes("Show overhang bearing housing on the rig")
-    && mechanicFault.indexOf('aria-label="Finding"') < mechanicFault.indexOf('aria-label="Evidence"')
+    && mechanicFault.indexOf('aria-label="Finding"') < mechanicFault.indexOf('aria-label="Why does it say this?"')
     && mechanicFault.indexOf('aria-label="Interactive test rig"') < mechanicFault.indexOf('aria-label="Suggested checks"')
     && mechanicFault.indexOf('aria-label="Suggested checks"') < mechanicFault.indexOf('aria-label="Explore measurements"'));
+  pcheck("App-8.2 why strip has five plain steps from the saved checks for every verdict", [knownFault, unknown, caution, plainHealthy].every((f) => {
+    const html = dash(f, "mechanic");
+    const strip = html.match(/<section[^>]*aria-label="Why does it say this\?"[\s\S]*?<\/section>/)?.[0] || "";
+    const d = f.record.diagnosis;
+    const s = decisionSummary({ topClass: d.top_class, decision: d.decision, caution: d.caution, checks: f.report.assessment.checks });
+    return (strip.match(/<li class=/g) || []).length === 5 && strip.includes(s.confidence) && strip.includes(s.healthy)
+      && strip.includes(s.outcome) && !/\d/.test(textOf(strip)) && !strip.includes("See the full pipeline");
+  }) && dash(knownFault, "developer").includes(`href="#/case/${knownFault.record.case_id}/pipeline">See the full pipeline</a>`));
+  const mapped = (src) => {
+    const report = { ...knownFault.report, sections: knownFault.report.sections.map((s) => s.n !== "04" ? s : { ...s, items: [
+      { tag: "Guidance", text: `Check the 2× to 1× ratio. (source: ${src}; AI-drafted, not yet checked against a published source)`,
+        hover: "Compare shaft orders — internal" },
+    ] }) };
+    return dash({ ...knownFault, report }, "mechanic");
+  };
+  pcheck("App-8.2 Show me appears only for the two declared first-step mappings", !!showMeTarget({ src: "misalignment-2x-axial" }, 0)
+    && !!showMeTarget({ src: "imbalance-1x" }, 0) && !showMeTarget({ src: "bearing-defect-frequencies" }, 0)
+    && !showMeTarget({ src: "misalignment-2x-axial" }, 1) && mapped("misalignment-2x-axial").includes("Show me")
+    && mapped("imbalance-1x").includes("Show me") && !mapped("bearing-defect-frequencies").includes("Show me"));
+  const caveatLines = [
+    "Mapped from the model’s predicted class on this test rig; the sensors do not pinpoint the fault.",
+    "Highlights do not confirm a fault.", "They show where the signal changed, not the fault location.",
+  ];
+  const spectrumText = textOf(dash(knownFault, "mechanic", { initialUi: { measure: "spectrum" } }));
+  pcheck("App-8.2 Mechanic caveats remain visible word for word", caveatLines.every((line) => mechanicFaultText.includes(line))
+    && mechanicFaultText.includes(knownFault.explanation.badge)
+    && spectrumText.includes("No healthy-reference spectrum is stored with the case.")
+    && spectrumText.includes("Without a healthy spectrum, compare the 2× peak with the 1× peak in this recording."),
+  caveatLines.filter((line) => !mechanicFaultText.includes(line)).join(" | "));
+  pcheck("App-8.2 new Mechanic blocks use the existing font scale without monospace labels", (() => {
+    const blocks = mechanicFault.match(/<main class="rd-m-main"[\s\S]*?<\/main>/)?.[0] || "";
+    const css = readFileSync("src/redesign.css", "utf8");
+    return !/class="[^"]*mono[^"]*rd-m-(?:label|caveat|gloss|citation|show|why|sensor)/.test(blocks)
+      && !/\.rd-m-(?:label|caveat|gloss|citation|show|why|sensor)[^\n]*font-family:\s*"Fragment Mono"/.test(css)
+      && !/font-size:\s*(?:10px|14px|16px|17px|18px|19px|20px)/.test(css.slice(css.indexOf("/* The answer and its reasoning lead"), css.indexOf(".rd-m-measure {")));
+  })());
   pcheck("App-8 dashboard: no demo badge or in-sample line in the Developer finding; both views link home",
     !mechanicFault.includes("Research demo</span>") && !developerFault.includes("Research demo</span>")
     && !developerFinding.includes(INS) && developerFault.includes('Back to home</a>'));
