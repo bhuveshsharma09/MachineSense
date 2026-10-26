@@ -49,3 +49,4 @@ export const addObservation = (id, text, author) => api.post(`/cases/${id}/obser
 export const editObservation = (id, oid, text, author) => api.patch(`/cases/${id}/observations/${oid}`, { text, author }).then((r) => r.data);
 export const getFaultStatus = (id, { signal } = {}) => api.get(`/cases/${id}/fault-status`, { signal }).then((r) => r.data);
 export const addStatusEvent = (id, body) => api.post(`/cases/${id}/confirmations`, body).then((r) => r.data);
+export const getProcedures = (id, { signal } = {}) => api.get(`/cases/${id}/procedures`, { signal }).then((r) => r.data);

@@ -576,7 +576,7 @@ import { DashboardView } from "../src/components/Dashboard.jsx";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
 import { guidanceSteps, showMeTarget } from "../src/lib/dashboard.js";
-import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarnings } from "../src/lib/model.js";
+import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, shownWarnings } from "../src/lib/model.js";
 {
   const cases = [knownFault, unknown, caution, plainHealthy];
   pcheck("App-8.1 shared decision summary uses the saved checks for each outcome", cases.every((f) => {
@@ -605,7 +605,9 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
   for (const [n, f] of Object.entries(fx)) for (const view of ["mechanic", "developer"]) {
     let h; try { h = dash(f, view); } catch (e) { bad.push(`${n}/${view}: threw ${e.message}`); continue; }
     const t = textOf(h);
-    const need = ["Sensor channels vs a healthy recording",
+    const verdictLine = f.record.diagnosis.decision === "known_fault" ? `Verdict · ${human(f.record.diagnosis.top_class)} (model prediction)`
+      : f.record.diagnosis.decision === "unknown" ? "Verdict · Further inspection needed" : "Verdict · Healthy";
+    const need = ["Sensor channels vs a healthy recording", verdictLine,
       ...(view === "mechanic" ? ["Evidence", "Measurements", "Back to home",
         ...(f.record.diagnosis.decision === "healthy" ? [] : ["Suggested checks"]),
         ...(shownWarnings(f.record).length ? [] : ["No signal-quality warnings detected."])]
@@ -622,7 +624,8 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
         ...(f.record.diagnosis.decision === "healthy" ? [] : ['aria-label="Suggested checks"']), 'aria-label="Explore measurements"'];
       if (ordered.some((x, i) => h.indexOf(x) < 0 || i > 0 && h.indexOf(x) < h.indexOf(ordered[i - 1]))) miss.push("mechanic section order");
     } else {
-      miss.push(...["Decision checks", "only add a caution to a healthy verdict", "Traceability", "CNN attribution · exploratory", "Not evidence of location"].filter((x) => !t.includes(x)));
+      miss.push(...["Decision checks", "only add a caution to a healthy verdict", "CNN attribution · exploratory", "Not evidence of location"].filter((x) => !t.includes(x)));
+      if (t.includes("Traceability") || t.includes("Research limitations")) forb.push("removed Developer sections");
     }
     if (miss.length || forb.length) bad.push(`${n}/${view}: missing ${JSON.stringify(miss)} forbidden ${JSON.stringify(forb)}`);
   }
@@ -653,7 +656,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
       && developer.includes('aria-label="Model output"');
   }));
   pcheck("Dashboard: fault finding and full-width rig precede checks and measurements",
-    mechanicFault.includes("Faulty") && mechanicFault.includes("Known fault · model prediction")
+    mechanicFault.includes("Faulty") && mechanicFault.includes(`Verdict · ${human(knownFault.record.diagnosis.top_class)} (model prediction)`)
     && mechanicFaultText.includes("Show overhang bearing housing on the rig")
     && !mechanicFault.includes('aria-label="Why does it say this?"')
     && !mechanicFault.includes('aria-label="Which sensors changed?"')
@@ -838,6 +841,45 @@ import CaseNotes, { KIND, STATUS_TEXT } from "../src/components/CaseNotes.jsx";
   pcheck("dock: Ask and Notes & status tabs; both views mounted, the inactive one hidden",
     /role="tab"[^>]*aria-selected="true"[^>]*>Ask</.test(dk) && dk.includes(">Notes &amp; status<") && /id="as-view-notes"[^>]*hidden=""/.test(dk)
     && dk.includes('aria-label="Ask about this recording"') && dk.includes(KIND.model));
+}
+
+// App-9 addendum C: conversation answers keep the kinds of fact apart (labelled sections when the model uses them; the
+// source kinds from the claim refs), show each citation's title and verification status, render a code-built status answer
+// even when the model is unavailable, and the Notes view shows the procedure gate apart from inspection guidance.
+import { answerKinds, sections, SUGGESTIONS as SUGG } from "../src/components/Assistant.jsx";
+{
+  const sec = sections("A technician recorded a confirmed fault.\n\nWhat the recording shows: over_radial is furthest outside its healthy range.\n\n**What to inspect next:** Check the comb.");
+  pcheck("App-9 answers: labelled paragraphs become sections, unlabelled ones stay plain",
+    sec.length === 3 && sec[0].label === null && sec[1].label === "What the recording shows" && sec[1].text.startsWith("over_radial")
+    && sec[2].label === "What to inspect next" && sec[2].text === "Check the comb.");
+  const a = { question: "Why?", answer: "What the model predicts: a known fault.\n\nWhat the technician recorded: no confirmation is recorded.",
+    claims: [{ text: "x", refs: ["diagnosis.decision"] }, { text: "y", refs: ["notes.status.current"] }, { text: "z", refs: ["evidence.over_radial.rank"] }],
+    citations: [{ id: "bearing-defect-frequencies", title: "Check a bearing verdict against the envelope defect lines", kind: "inspection guidance",
+      source: "Randall and Antoni", verification: "ai_drafted" }], actions: [], review: { status: "passed", failed: [] }, source: "agent" };
+  pcheck("App-9 answers: the source kinds come from the claim refs and citations", answerKinds(a).join() === "measured,model,technician,guidance");
+  const v = (entries) => textOf(renderToString(<AssistantView caseId={knownFault.record.case_id} record={knownFault.record} report={knownFault.report}
+    channels={knownFault.channels} initialEntries={entries} />));
+  const t = v([{ question: a.question, status: "done", answer: a }]);
+  pcheck("App-9 answers: sections, source-kind chips and the citation's title and AI-drafted status are shown",
+    t.includes("What the model predicts") && t.includes("What the technician recorded") && t.includes("Measured (recording)")
+    && t.includes("Technician record (local demo)") && t.includes("Check a bearing verdict against the envelope defect lines · AI-drafted, not yet checked against a published source"));
+  const quick = { question: "Has a technician confirmed this?", answer: "No technician confirmation is recorded for this case. The model prediction is unchanged.",
+    claims: [], citations: [], actions: [], review: { status: "fallback", failed: [] }, source: "fallback", reason: "language model disabled", fallback_kind: "status" };
+  const tq = v([{ question: quick.question, status: "done", answer: quick }]);
+  pcheck("App-9 answers: a code-built status answer is shown (not the 'unavailable' line) with its own badge",
+    tq.includes("No technician confirmation is recorded for this case.") && tq.includes("From the stored case records") && !tq.includes(UNAVAILABLE));
+  pcheck("App-9 answers: the status question is a suggestion", SUGG.includes("Has a technician confirmed this?"));
+  const closed = { open: false, message: "No verified procedure is available.", reason: "no technician confirmation has been recorded", procedures: [] };
+  const synth = { open: true, message: null, reason: "a technician confirmation is recorded and a reviewed entry applies", procedures: [{ id: "synthetic", title: "SYNTHETIC procedure",
+    reviewer: "Test Reviewer", reviewed_on: "2026-10-26", source: "SYNTHETIC source", version: "1.0", safety_stop: ["SYNTHETIC stop"], steps: ["SYNTHETIC step"] }] };
+  const st0 = { case_id: "c1", local_demo: "Local demo action.", model_prediction: { kind: "model_prediction", decision: "known_fault", fault_class: "imbalance", note: "Model prediction." },
+    technician: { status: "not_confirmed", latest: null, agrees_with_model: null }, events: [], parts: { rotor: "Rotor discs" }, fault_classes: ["imbalance"] };
+  const g0 = textOf(renderToString(<CaseNotes caseId="c1" initialStatus={st0} initialObservations={[]} initialProcedures={closed} />));
+  const g1 = textOf(renderToString(<CaseNotes caseId="c1" initialStatus={st0} initialObservations={[]} initialProcedures={synth} />));
+  pcheck("App-9 notes: the procedure gate says no verified procedure and why, or lists a reviewed one with reviewer, source and stop conditions",
+    g0.includes("Post-confirmation procedure") && g0.includes("No verified procedure is available.") && g0.includes("Why: no technician confirmation has been recorded.")
+    && g1.includes("SYNTHETIC procedure") && g1.includes("Reviewed by Test Reviewer on 2026-10-26") && g1.includes("Stop if: SYNTHETIC stop")
+    && g0.includes("Inspection suggestions are separate guidance, not procedures."));
 }
 
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }

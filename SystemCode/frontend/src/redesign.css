@@ -229,7 +229,7 @@ button.rd-ch-row:hover { background: oklch(0.23 0.006 260 / 0.03); }
 .rd-m-answer, .rd-m-finding-evidence { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; }
 .rd-m-finding-evidence { border-left: 1px solid oklch(0.23 0.006 260 / 0.08); padding-left: 26px; }
 .rd-m-finding-evidence .rd-box { width: 100%; }
-.rd-m-category { align-self: flex-start; font-size: 12.5px; font-weight: 500; }
+.rd-m-category { align-self: flex-start; font-size: 15px; font-weight: 600; }
 .rd-m-next-line { margin: 0; font-size: 15px; font-weight: 500; }
 .rd-m-speed { font-size: 13px; color: oklch(0.40 0.008 260); }
 .rd-m-label { font-size: 12.5px; font-weight: 500; color: oklch(0.48 0.008 260); }
@@ -420,3 +420,14 @@ button.rd-ask { border: 0; cursor: pointer; font: inherit; font-size: 13.5px; fo
 .cn-empty { color: oklch(0.50 0.008 260); }
 .cn-hist { font-size: 12px; color: oklch(0.45 0.008 260); }
 .cn-hist summary { cursor: pointer; }
+
+/* App-9 addendum C: answer sections, source kinds, citation status */
+.as-sec h4 { margin: 0 0 2px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: oklch(0.45 0.008 260); }
+.as-kinds { display: flex; flex-wrap: wrap; gap: 5px; }
+.as-kind { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: oklch(0.23 0.006 260 / 0.06); color: oklch(0.35 0.007 260); }
+.as-kind.is-measured { background: oklch(0.89 0.17 118 / 0.3); }
+.as-kind.is-model { background: oklch(0.54 0.21 277 / 0.1); color: oklch(0.44 0.15 277); }
+.as-kind.is-technician { background: oklch(0.80 0.14 75 / 0.22); color: oklch(0.42 0.07 62); }
+.as-cite-full { display: inline-flex; flex-direction: column; gap: 2px; max-width: 100%; }
+.as-cite-meta { font-size: 11px; color: oklch(0.48 0.008 260); padding-left: 4px; }
+.cn-proc ol { margin: 4px 0 0; padding-left: 18px; font-size: 12.5px; }

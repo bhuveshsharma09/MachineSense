@@ -11,8 +11,35 @@ import "../redesign.css";
 // Stage App-8: #/case/<id>/assistant — the investigation assistant (App-7) on its own page. Same endpoints as the chat
 // panel (POST /ask, GET /questions); the page shows the answer, its citations, the actions taken and the review outcome,
 // never model reasoning. Context on the left is read from the case record.
-export const SUGGESTIONS = ["Why was this recording flagged?", "Which sensor changed most?", "What should I inspect next?"];
-export const TOOLS = ["diagnose", "check_signal", "get_evidence", "lookup_guidance"];
+export const SUGGESTIONS = ["Why was this recording flagged?", "Which sensor changed most?", "What should I inspect next?",
+  "Has a technician confirmed this?"];
+export const TOOLS = ["diagnose", "check_signal", "get_evidence", "lookup_guidance", "get_case_notes", "get_procedures"];
+
+// App-9 addendum C: what an answer rests on, by kind, from its claim refs and citations (never from the answer text)
+export const SOURCE_KIND = { measured: "Measured (recording)", model: "Model prediction", technician: "Technician record (local demo)",
+  guidance: "Inspection guidance", procedure: "Verified procedure" };
+export function refKind(ref, citations = []) {
+  if (/^(?:evidence|signal_quality|physics)\./.test(ref)) return "measured";
+  if (/^(?:diagnosis|assessment)\./.test(ref)) return "model";
+  if (/^notes\./.test(ref)) return "technician";
+  if (/^procedures\./.test(ref) || citations.some((c) => c.id === ref && c.kind === "procedure")) return "procedure";
+  return "guidance";
+}
+export function answerKinds(a) {
+  const kinds = new Set((a.claims || []).flatMap((c) => c.refs || []).map((r) => refKind(r, a.citations || [])));
+  for (const c of a.citations || []) kinds.add(c.kind === "procedure" ? "procedure" : "guidance");
+  return Object.keys(SOURCE_KIND).filter((k) => kinds.has(k));
+}
+// the four labelled paragraphs the conversation prompt may use; other paragraphs stay plain
+export const SECTION_LABELS = ["What the recording shows", "What the model predicts", "What the technician recorded", "What to inspect next"];
+export function sections(text) {
+  return String(text || "").split(/\n\s*\n/).filter(Boolean).map((p) => {
+    const m = new RegExp(`^\\s*(?:\\*\\*)?(${SECTION_LABELS.join("|")}):?(?:\\*\\*)?:?\\s*`).exec(p);
+    return m ? { label: m[1], text: p.slice(m[0].length) } : { label: null, text: p };
+  });
+}
+export const VERIFICATION_LABEL = { internal: "project protocol", open_verified: "checked against an open source",
+  citation_unverified: "citation not yet checked against the full text", ai_drafted: "AI-drafted, not yet checked against a published source" };
 const BADGE_STYLE = {
   passed: { bg: al(K.green, 0.12), color: "oklch(0.42 0.09 160)", dot: K.green },
   revised: { bg: al(K.violet, 0.09), color: "oklch(0.44 0.15 277)", dot: K.violet },
@@ -168,8 +195,11 @@ export function AssistantView({ caseId, record, report, channels, initialEntries
 
 function Turn({ e, open, onToggle, href }) {
   const a = e.answer;
-  const off = e.status === "error" || unavailable(a);
-  const badge = a && !off ? REVIEW_BADGE[a.review?.status] : null, bs = badge ? BADGE_STYLE[a.review.status] : null;
+  const quick = !!a?.fallback_kind;  // a short answer built from the stored records (no model)
+  const off = e.status === "error" || (unavailable(a) && !quick);
+  const badge = a && !off ? (quick ? "From the stored case records" : REVIEW_BADGE[a.review?.status]) : null;
+  const bs = badge ? (quick ? BADGE_STYLE.passed : BADGE_STYLE[a.review.status]) : null;
+  const kinds = a && !off ? answerKinds(a) : [];
   const acts = a?.actions || [];
   return <>
     <div className="as-user">{e.question}</div>
@@ -184,13 +214,19 @@ function Turn({ e, open, onToggle, href }) {
             <button className="as-acts-head" onClick={onToggle} aria-expanded={open}><span className="rd-kicker">Actions · {acts.length}</span><span className="rd-sub-s" style={{ marginLeft: "auto" }}>{open ? "Hide" : "Show"}</span></button>
             {open && acts.map((x, i) => <div key={i} className="as-act"><span className="mono as-tool">{x.tool}</span><span>{x.summary}</span></div>)}
           </div>}
-          <div className="rd-stack-8">{String(a.answer || "").split(/\n\s*\n/).filter(Boolean).map((p, i) => <p key={i} className="as-para">{p}</p>)}</div>
+          <div className="rd-stack-8">{sections(a.answer).map((p, i) => p.label
+            ? <section key={i} className="as-sec"><h4>{p.label}</h4><p className="as-para">{p.text}</p></section>
+            : <p key={i} className="as-para">{p.text}</p>)}</div>
+          {kinds.length > 0 && <div className="as-kinds" aria-label="What this answer rests on">{kinds.map((k) => <span key={k} className={"as-kind is-" + k}>{SOURCE_KIND[k]}</span>)}</div>}
           {a.source === "fallback" && (a.report_sections || []).map((sec) => (
             <div key={sec.n} className="as-fallback"><span className="rd-kicker">{sec.title}</span>
               {sec.items.map((it, i) => <div key={i} className="rd-row-top" title={it.hover}><span className="tag" style={{ color: TAG[it.tag].c, background: TAG[it.tag].b }}>{it.tag}</span><span className="rd-report-t">{it.text}</span></div>)}
             </div>))}
           <div className="rd-row-wrap" style={{ gap: 6 }}>
-            {(a.citations || []).map((c) => <span key={c.id} className="mono as-cite" title={c.title || c.id}><span className="rd-dot" style={{ width: 5, height: 5, background: "oklch(0.70 0.15 125)" }} />{c.id}</span>)}
+            {(a.citations || []).map((c) => <span key={c.id} className="as-cite-full" title={[c.title, c.source].filter(Boolean).join(" — ")}>
+              <span className="mono as-cite"><span className="rd-dot" style={{ width: 5, height: 5, background: "oklch(0.70 0.15 125)" }} />{c.id}</span>
+              {(c.title || c.verification) && <span className="as-cite-meta">{[c.title, c.kind === "procedure" ? "reviewed procedure" : VERIFICATION_LABEL[c.verification]].filter(Boolean).join(" · ")}</span>}
+            </span>)}
             <a href={href} style={{ marginLeft: "auto", fontSize: 12.5 }}>See the evidence on the dashboard ›</a>
           </div>
         </>}

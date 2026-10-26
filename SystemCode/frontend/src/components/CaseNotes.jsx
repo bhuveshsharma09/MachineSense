@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { addObservation, addStatusEvent, editObservation, getFaultStatus, getObservations } from "../api.js";
+import { addObservation, addStatusEvent, editObservation, getFaultStatus, getObservations, getProcedures } from "../api.js";
 import { human } from "../lib/model.js";
 
 // App-9 slice 2 (addendum B): the case's human records in the assistant panel, kept visibly apart from the model:
@@ -12,16 +12,19 @@ export const STATUS_TEXT = { technician_confirmed: "Technician-confirmed fault",
 const readName = () => { try { return localStorage.getItem("ms_display_name") || ""; } catch { return ""; } };
 const when = (iso) => { try { return new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }); } catch { return iso; } };
 
-export default function CaseNotes({ caseId, initialStatus = null, initialObservations = null, api = {} }) {
-  const A = { getObservations, addObservation, editObservation, getFaultStatus, addStatusEvent, ...api };
+export default function CaseNotes({ caseId, initialStatus = null, initialObservations = null, initialProcedures = null, api = {} }) {
+  const A = { getObservations, addObservation, editObservation, getFaultStatus, addStatusEvent, getProcedures, ...api };
   const [status, setStatus] = useState(initialStatus);
   const [obs, setObs] = useState(initialObservations);
+  const [proc, setProc] = useState(initialProcedures);
   const [err, setErr] = useState(null);
+  const loadProc = () => A.getProcedures(caseId).then(setProc).catch(() => setProc({ open: false, message: "No verified procedure is available.", reason: "the procedure gate could not be read" }));
   useEffect(() => {
     if (initialStatus && initialObservations) return undefined;
     const ac = new AbortController();
     Promise.all([A.getFaultStatus(caseId, { signal: ac.signal }), A.getObservations(caseId, { signal: ac.signal })])
       .then(([s, o]) => { setStatus(s); setObs(o.observations); }).catch(() => { if (!ac.signal.aborted) setErr("The case notes could not be loaded."); });
+    if (!initialProcedures) loadProc();
     return () => ac.abort();
   }, [caseId]);
   if (err) return <p className="cn-state" role="status">{err}</p>;
@@ -33,7 +36,8 @@ export default function CaseNotes({ caseId, initialStatus = null, initialObserva
       <p className="cn-demo">{status.local_demo}</p>
       <ModelPrediction mp={status.model_prediction} />
       <TechnicianStatus status={status} author={author} onEvent={(body) => A.addStatusEvent(caseId, { ...body, author })
-        .then((r) => setStatus(r)).catch(fail)} />
+        .then((r) => { setStatus(r); loadProc(); }).catch(fail)} />
+      <ProcedureGate proc={proc} />
       <Observations obs={obs} author={author} onAdd={(t) => A.addObservation(caseId, t, author).then((o) => setObs((xs) => [...xs, o])).catch(fail)}
         onEdit={(id, t) => A.editObservation(caseId, id, t, author).then((o) => setObs((xs) => xs.map((x) => (x.id === id ? o : x)))).catch(fail)} />
     </div>
@@ -120,6 +124,25 @@ function Observations({ obs, onAdd, onEdit }) {
           placeholder="Add an observation, e.g. what you heard or found when you checked" />
         <div className="cn-actions"><button type="submit" className="as-chipq is-primary" disabled={!draft.trim()}>Add observation</button></div>
       </form>
+    </section>
+  );
+}
+
+// The backend-enforced gate: a procedure only after a recorded technician confirmation AND a reviewed entry; kept apart
+// from the inspection suggestions (which are guidance, not repair procedures).
+function ProcedureGate({ proc }) {
+  if (!proc) return <section className="cn-card" aria-label="Post-confirmation procedure"><span className="cn-kind">Post-confirmation procedure</span>
+    <span className="cn-sub">Checking…</span></section>;
+  return (
+    <section className="cn-card" aria-label="Post-confirmation procedure">
+      <span className="cn-kind">Post-confirmation procedure</span>
+      {proc.open ? proc.procedures.map((p) => <div key={p.id} className="cn-proc">
+        <b>{p.title}</b>
+        <span className="cn-sub">{`Reviewed by ${p.reviewer} on ${p.reviewed_on} · source: ${p.source} · version ${p.version}`}</span>
+        <span className="cn-sub">Stop if: {p.safety_stop.join("; ")}</span>
+        <ol>{p.steps.map((s, i) => <li key={i}>{s}</li>)}</ol>
+      </div>) : <><b>{proc.message}</b><span className="cn-sub">{`Why: ${proc.reason}.`}</span></>}
+      <span className="cn-sub">Advisory only: the app does not control the machine or record that a repair is complete. Inspection suggestions are separate guidance, not procedures.</span>
     </section>
   );
 }
