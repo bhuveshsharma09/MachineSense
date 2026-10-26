@@ -100,7 +100,7 @@ def checks(failed):
 
 def test_confirmation_wording_must_match_the_status_fetched_this_turn(app):
     a = new_case(app)
-    yes = "A technician recorded a confirmed fault; it is a recorded event, not independent proof."
+    yes = "A technician recorded a confirmed fault under an unverified local-demo name; it is a recorded event, not independent proof."
     assert "confirmation" in checks(review(obj(yes), [notes(app, a)], mode="conversation")[1])  # status: not confirmed
     assert "confirmation" in checks(review(obj(yes), [], mode="conversation")[1])                # notes not fetched
     no = "No technician confirmation is currently recorded."
@@ -168,7 +168,8 @@ def test_short_answers_when_the_model_is_disabled(app, model, monkeypatch):
     assert len(model.calls) == n  # no model call
     assert s["fallback_kind"] == "status" and "latest technician event is a rejected status" in s["answer"]
     assert p["fallback_kind"] == "procedure" and p["answer"].startswith("No verified procedure is available.")
-    assert "fallback_kind" not in g and g["report_sections"]  # other questions keep the report fallback
+    assert g["source"] == "case_summary" and g["fallback_kind"] == "explanation"
+    assert "classifier checks" in g["answer"] and "channel" in g["answer"]
 
 
 def test_conversation_citations_carry_source_and_verification(app, model):
@@ -181,3 +182,13 @@ def test_conversation_citations_carry_source_and_verification(app, model):
     assert c["kind"] == "inspection guidance" and c["verification"] in ("citation_unverified", "ai_drafted") and c["source"]
     single, _ = ask(app, model, a, [tool("lookup_guidance"), ans], "What should I inspect next?", conversation=False)
     assert set(single["citations"][0]) == {"id", "title"}  # the D7 shape is unchanged
+
+
+def test_a_recorded_confirmation_must_carry_its_unverified_and_not_proof_qualifiers(app):
+    a = new_case(app)
+    app.post(f"/api/cases/{a}/confirmations", json={"status": "confirmed", "fault_class": "underhang_outer", "part": "in_brg", "author": "Sam"})
+    bare = obj("Yes, a technician has recorded a confirmed fault for this recording.")
+    assert "confirmation" in checks(review(bare, [notes(app, a)], mode="conversation")[1])
+    full = obj("Yes, a technician has recorded a confirmed fault for this recording. It is a recorded event by a local demo "
+               "user whose name is not verified, not independent proof.")
+    assert review(full, [notes(app, a)], mode="conversation")[1] == []

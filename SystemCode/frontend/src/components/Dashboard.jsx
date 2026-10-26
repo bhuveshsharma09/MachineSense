@@ -5,7 +5,7 @@ import * as M from "../lib/mechanic.js";
 import * as D from "../lib/dashboard.js";
 import { decisionSummary } from "../lib/decisionSummary.js";
 import {
-  CH, IN_SAMPLE_NOTICE, PART, SCORES_NOTE, STEP_CODE, cleanText, fmtScore, human, locations, shownWarnings, unusualSensors,
+  CH, IN_SAMPLE_NOTICE, PART, SCORES_NOTE, STEP_CODE, fmtScore, human, locations, shownWarnings, unusualSensors,
   verdict, verdictTitle,
 } from "../lib/model.js";
 import { Svg, bandPath, linePath, rangeMax } from "./Charts.jsx";
@@ -71,11 +71,11 @@ export function useCaseData(caseId, { withExplanation = true, skip = false } = {
   return [st, () => setRegen((n) => n + 1)];
 }
 
-export default function Dashboard({ caseId, assistantOpen = false }) {
+export default function Dashboard({ caseId, assistantOpen = false, focusRequest = null }) {
   const [st, regenerate] = useCaseData(caseId);
   if (st.status !== "ok") return <PageState message={st.status === "loading" ? "Loading the case…" : st.message} />;
   return <DashboardView {...st} caseId={caseId} onRegenerate={regenerate}
-    assistantOpen={assistantOpen} />;
+    assistantOpen={assistantOpen} focusRequest={focusRequest} />;
 }
 
 export function PageState({ message }) {
@@ -128,9 +128,9 @@ export function Seg({ label, value, onChange, options }) {
   );
 }
 
-function Card({ area, title, kicker, kickerColor, children, label, className = "" }) {
+function Card({ id, area, title, kicker, kickerColor, children, label, className = "" }) {
   return (
-    <section className={"rd-card " + className} style={{ gridArea: area }} aria-label={label || title}>
+    <section id={id} tabIndex={id ? -1 : undefined} className={"rd-card " + className} style={{ gridArea: area }} aria-label={label || title}>
       {(title || kicker) && <div className="rd-card-head">
         {title && <h2>{title}</h2>}
         {kicker && <span className="rd-kicker" style={kickerColor ? { color: kickerColor } : undefined}>{kicker}</span>}
@@ -163,9 +163,13 @@ function FindingSummary({ area, record, report, explanation, loc, mloc, warnings
   const d = record.diagnosis;
   const e = explanation?.status === "ready" ? explanation.data : null;
   const hasFaultArea = d.decision === "known_fault" && loc.fault.length > 0;
-  return <Card area={area} label="Finding" className="rd-m-finding">
+  const verdictLabel = d.decision === "known_fault" ? `Verdict · ${human(d.top_class)} (model prediction)`
+    : d.decision === "unknown" ? "Verdict · Further inspection needed" : "Verdict · Healthy";
+  const verdictColor = d.decision === "known_fault" ? MECHANIC_FAULT_COLOR
+    : d.decision === "unknown" ? K.amberT : K.greenT;
+  return <Card id="rd-finding" area={area} label="Finding" className="rd-m-finding">
     <div className="rd-m-finding-content"><div className="rd-m-answer">
-      {hasFaultArea && <span className="rd-m-category" style={{ color: MECHANIC_FAULT_COLOR }}>Known fault · model prediction</span>}
+      <span className="rd-m-category" style={{ color: verdictColor }}>{verdictLabel}</span>
       <h1 className="rd-m-title">{M.finding(record)}</h1>
       {d.caution && <span className="rd-sub">A healthy-baseline check disagrees; consider a recheck.</span>}
       {hasFaultArea && mloc.parts.length > 0 && <p className="rd-m-next-line">Start with the {mloc.parts.map((p) => M.PART_PLAIN[p].toLowerCase()).join(" and ")}.</p>}
@@ -191,19 +195,34 @@ function FindingSummary({ area, record, report, explanation, loc, mloc, warnings
 }
 
 export function DashboardView({ caseId, record, report, channels, signals, activity, explanation, onRegenerate,
-  initialView, initialWidth, initialSel = null, initialUi = {}, assistantOpen = false }) {
+  initialView, initialWidth, initialSel = null, initialUi = {}, assistantOpen = false, focusRequest = null }) {
   const [view, setView] = usePanelView(initialView);
   const changeView = (next) => { setRigFocus(null); setView(next); };
   const dev = view === "developer";
   const width = useWidth(initialWidth);
   const narrow = width < DASH_NARROW || (assistantOpen && width < 1400);
-  const [ui, setUi] = useState({ sel: initialSel, hover: null, exploded: false, labels: false, resetTick: 0, ch: null, sp: "order", allSteps: false, lim: false, measure: "channels", zoomHint: false, ...initialUi });
+  const [ui, setUi] = useState({ sel: initialSel, hover: null, exploded: false, labels: false, resetTick: 0, ch: null, sp: "order", allSteps: false, measure: "channels", zoomHint: false, ...initialUi });
   const set = (p) => setUi((u) => ({ ...u, ...p }));
   const zoomHintSeen = useRef(false);
   const zoomHintTimer = useRef(null);
   const rigSection = useRef(null);
   const [rigFocus, setRigFocus] = useState(null);
+  const handledFocus = useRef(null);
   useEffect(() => () => clearTimeout(zoomHintTimer.current), []);
+  useEffect(() => {
+    if (!focusRequest || handledFocus.current === focusRequest) return undefined;
+    const target = focusRequest?.target;
+    if (!target) return undefined;
+    if (view !== target.view) { setView(target.view); return undefined; }
+    const el = document.getElementById(`rd-${target.card}`) || document.getElementById("rd-finding");
+    if (!el) return undefined;
+    handledFocus.current = focusRequest;
+    el.classList.add("rd-focus-highlight");
+    el.focus({ preventScroll: true });
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const timer = setTimeout(() => el.classList.remove("rd-focus-highlight"), 4200);
+    return () => { clearTimeout(timer); el.classList.remove("rd-focus-highlight"); };
+  }, [focusRequest, view]);
   const userName = useRef(readName()).current;
   // App-9 addendum A: the assistant panel is mounted by App (AssistantDock); assistantOpen only makes room for it here.
   const d = record.diagnosis;
@@ -230,7 +249,6 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
   const warn = shownWarnings(record);
   const hasFaultArea = d.decision === "known_fault" && loc.fault.length > 0;
   const summary = decisionSummary({ topClass: d.top_class, decision: d.decision, caution: d.caution, checks });
-  const limits = (record.limitations || []).map(cleanText);
   const href = (p) => `#/case/${encodeURIComponent(caseId)}/${p}`;
 
   if (!dev) return <MechanicView caseId={caseId} record={record} report={report} channels={channels} signals={signals}
@@ -279,7 +297,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
             {ui.zoomHint && <span className="rd-m-zoom-hint">Hold Ctrl (⌘) and scroll to zoom</span>}
           </section>
 
-          {showChecks && <Card title="Suggested checks" label="Suggested checks" className="rd-m-next">
+          {showChecks && <Card id="rd-suggested-checks" title="Suggested checks" label="Suggested checks" className="rd-m-next">
             <span className="rd-m-label">From curated guidance</span>
             {!report ? <p className="rd-muted">Suggested checks appear with the report.</p> : <>
               <ol className="rd-steps">{steps.map((s, i) => <li key={i} className={s.src ? "" : "is-plain"}>
@@ -294,7 +312,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
             </>}
           </Card>}
 
-          <section id="rd-measurements" className="rd-m-measure" aria-label="Explore measurements">
+          <section id="rd-measurements" tabIndex={-1} className="rd-m-measure" aria-label="Explore measurements">
             <div className="rd-m-measure-head"><div><span className="rd-m-label">Measurements</span>
               <h2>{ui.measure === "channels" ? "Compare this recording with a healthy example" : ui.measure === "spectrum" ? "Inspect the frequency pattern" : "Inspect the signal over time"}</h2>
               <p>{ui.measure === "channels" ? (channels ? `${rows.filter((r) => r.beyond).length} of ${rows.length} vibration and sound channels differ from the typical healthy range. The tachometer measures shaft speed.` : "Loading measured comparisons…")
@@ -323,9 +341,9 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
   }
 
   const areas = dev
-    ? ["hero hero hero", "sum sum sum", "fd rig gg", "cd rig dq", "ch ch ch", "sp sp wf", "dc dc dc", "why nx nx", "xp rp rp", "rd ac ac", "tc tc tc", "lim lim lim"]
+    ? ["hero hero hero", "sum sum sum", "fd rig gg", "cd rig dq", "ch ch ch", "sp sp wf", "dc dc dc", "why nx nx", "xp rp rp", "rd ac ac", "lim lim lim"]
     : [];
-  const narrowAreas = dev ? ["hero", "sum", "fd", "gg", "dq", "cd", "ch", "sp", "wf", "dc", "why", "nx", "xp", "rp", "rd", "ac", "tc", "lim"] : [];
+  const narrowAreas = dev ? ["hero", "sum", "fd", "gg", "dq", "cd", "ch", "sp", "wf", "dc", "why", "nx", "xp", "rp", "rd", "ac", "lim"] : [];
   const gridStyle = narrow ? { gridTemplateColumns: "minmax(0,1fr)", gridTemplateAreas: narrowAreas.map((a) => `"${a}"`).join(" ") }
     : { gridTemplateColumns: "minmax(300px,340px) minmax(0,1fr) minmax(300px,340px)", gridTemplateAreas: areas.map((a) => `"${a}"`).join(" ") };
 
@@ -359,7 +377,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
           </div>
         </section>}
 
-        <Card area="fd" title="Model output" kicker="Model">
+        <Card id="rd-model-output" area="fd" title="Model output" kicker="Model">
           {mloc.parts.length > 0 && <div className="rd-loc" style={mloc.kind === "candidate" ? { background: al(K.amber, 0.14) } : undefined}>
             <span className="rd-kicker" style={{ color: mloc.kind === "candidate" ? K.amberT : K.orangeT }}>{mloc.kind === "candidate" ? "Candidate locations" : "Suggested location"}</span>
             <span className="rd-loc-name">{mloc.parts.map((p) => M.PART_PLAIN[p]).join(" and ")}</span>
@@ -374,7 +392,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
 
         <Gauge record={record} dev={dev} />
 
-        <Card area="dq" title="Signal quality" kicker="Measured">
+        <Card id="rd-signal-quality" area="dq" title="Signal quality" kicker="Measured">
           <div className="rd-big-line"><span className="rd-title-l">{record.signal_quality.warnings.length ? `${record.signal_quality.warnings.length} warning${record.signal_quality.warnings.length > 1 ? "s" : ""}` : "No warnings"}</span>
             <span className="rd-sub-s">{8 - (record.signal_quality.clipping_channels || []).length} of 8 channels without clipping</span></div>
           {dev ? <div className="rd-kv">{D.qualityRows(record).map(([k, x]) => <div key={k}><span>{k}</span><span className="mono">{x}</span></div>)}</div>
@@ -402,7 +420,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
 
         <WaveformCard signals={signals} chId={chId} />
 
-        {dev && <Card area="dc" title="Decision checks">
+        {dev && <Card id="rd-decision-checks" area="dc" title="Decision checks">
           <span className="rd-rule" title={report?.assessment?.rule_tooltip}>{report?.assessment?.rule_line || "Decision rule: provisional research setting"}</span>
           {checks ? <div className="rd-checks">{checks.map((c) => (
             <div key={c.key} className="rd-check">
@@ -421,7 +439,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
           <ExplanationBody explanation={explanation} record={record} report={report} />
         </Card>
 
-        <Card area="nx" title="What to inspect next" kicker="Guidance" kickerColor="oklch(0.45 0.11 125)">
+        <Card id="rd-developer-checks" area="nx" title="What to inspect next" kicker="Guidance" kickerColor="oklch(0.45 0.11 125)">
           {!report ? <p className="rd-muted">The inspection steps appear with the report.</p> : <>
             <ol className="rd-steps">{shown.map((s, i) => (
               <li key={i} className={s.src ? "" : "is-plain"}>
@@ -436,7 +454,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
 
         {dev && <XpCard record={record} explanation={explanation} onRegenerate={onRegenerate} />}
 
-        {dev && <Card area="rp" title="Fixed evidence report">
+        {dev && <Card id="rd-fixed-report" area="rp" title="Fixed evidence report">
           <details className="rd-report-details"><summary>View full report</summary>
           {report ? <div className="rd-report">{report.sections.map((sec) => (
             <div key={sec.n} className="rd-col" style={{ gap: 8 }}>
@@ -470,21 +488,10 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
             </li>))}</ol> : <p className="rd-muted">Loading…</p>}
         </Card>
 
-        {dev && <Card area="tc" title="Traceability">
-          <div className="rd-kv rd-kv-3">{[
-            ["Recording", record.input?.rec_id || "uploaded recording"], ["Case", record.case_id], ["Created", record.created_at],
-            ["Bundle manifest sha256", record.provenance.manifest_sha256.slice(0, 16) + "…"], ["Bundle git sha", String(record.provenance.bundle_git_sha).slice(0, 12)],
-            ["Preprocess config sha256", record.provenance.preprocess_config_sha256.slice(0, 16) + "…"], ["Split hash", record.provenance.split_hash.slice(0, 16) + "…"],
-            ["Schema version", record.provenance.schema_version], ["Diagnosis time", `${Math.round(record.timing_ms?.total || 0)} ms`],
-          ].map(([k, x]) => <div key={k}><span>{k}</span><span className="mono" title={x}>{x}</span></div>)}</div>
-        </Card>}
-
         <footer className="rd-footer" style={{ gridArea: "lim" }}>
           <div className="rd-row-wrap" style={{ gap: 18 }}>
             <span className="rd-strong">{M.LIMITATION}</span><span>{SCORES_NOTE}</span>
-            {limits.length > 0 && <button className="rd-ghost" style={{ marginLeft: "auto" }} aria-expanded={ui.lim} onClick={() => set({ lim: !ui.lim })}>{ui.lim ? "Hide research limitations" : "Research limitations"}</button>}
           </div>
-          {ui.lim && <ul>{limits.map((l) => <li key={l}>{l}</li>)}</ul>}
         </footer>
       </main>
     </div>
@@ -547,7 +554,7 @@ export function ChannelCard({ channels, rows, dev, sel, onSelect }) {
   const n = rows.filter((r) => r.beyond).length;
   const ref = channels?.reference;
   return (
-    <Card area="ch" title="Sensor channels vs a healthy recording" kicker={dev ? channels ? `${n} of ${rows.length} beyond typical variation` : "Measured" : undefined}>
+    <Card id="rd-sensor-channels" area="ch" title="Sensor channels vs a healthy recording" kicker={dev ? channels ? `${n} of ${rows.length} beyond typical variation` : "Measured" : undefined}>
       {!channels ? <p className="rd-muted">Loading the channel comparison…</p> : <>
         {!dev && <span className="rd-m-label">{n} of {rows.length} beyond typical variation</span>}
         <span className="rd-sub-s" style={{ marginTop: -8 }}>{dev ? <>Reference: healthy training recording <span className="mono">{ref.rec_id}</span> at {ref.speed_hz.toFixed(2)} Hz</> : <>Reference: a healthy recording at a similar speed ({ref.speed_hz.toFixed(1)} Hz)</>} · each channel's most changed measurement</span>

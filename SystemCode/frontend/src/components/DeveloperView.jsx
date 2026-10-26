@@ -21,18 +21,18 @@ const PRIMARY = { msp: "Confidence", maha: "Familiarity", ae: "Healthy pattern",
 const TECH = { msp: "MSP · CNN-6", maha: "Mahalanobis distance", ae: "autoencoder error", b1s: "B1s speed-aware baseline" };
 const f3 = (v) => (v == null || !Number.isFinite(v) ? "—" : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 1 ? v.toFixed(2) : v.toFixed(4));
 
-function Section({ id, n, title, sub, children, wide = false }) {
+function Section({ id, n, title, sub, children, wide = false, anchor }) {
   return (
     <section id={`dvw-${id}`} className={"dvw-sec" + (wide ? " is-wide" : "")} aria-labelledby={`dvw-${id}-h`}>
-      <div className="dvw-sec-head"><span className="dvw-n">{n}</span><h2 id={`dvw-${id}-h`}>{title}</h2>{sub && <span className="dvw-sub">{sub}</span>}</div>
+      <div id={anchor} tabIndex={anchor ? -1 : undefined} className="dvw-sec-head"><span className="dvw-n">{n}</span><h2 id={`dvw-${id}-h`}>{title}</h2>{sub && <span className="dvw-sub">{sub}</span>}</div>
       {children}
     </section>
   );
 }
 
-function Panel({ title, kicker, children, className = "", span }) {
+function Panel({ id, title, kicker, children, className = "", span }) {
   return (
-    <div className={"dvw-panel " + className} style={span ? { gridColumn: `span ${span}` } : undefined}>
+    <div id={id} tabIndex={id ? -1 : undefined} className={"dvw-panel " + className} style={span ? { gridColumn: `span ${span}` } : undefined}>
       {(title || kicker) && <div className="dvw-panel-head">{title && <h3>{title}</h3>}{kicker}</div>}
       {children}
     </div>
@@ -147,7 +147,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
         {/* 03 Data */}
         <Section id="data" n="03" title="What the data shows" sub="Measured values only. No model is involved in this section.">
           <div className="dvw-grid3">
-            <Panel title="Signal quality" kicker={<span className={"dvw-pill" + (warn.length ? " is-warn" : "")}>
+            <Panel id="rd-signal-quality" title="Signal quality" kicker={<span className={"dvw-pill" + (warn.length ? " is-warn" : "")}>
               {warn.length ? `${warn.length} warning${warn.length > 1 ? "s" : ""}` : "No warnings"}</span>}>
               <div className="dvw-kv">{D.qualityRows(record).map(([k, v]) => <div key={k}><span>{k}</span><b className="mono">{v}</b></div>)}</div>
               <span className="dvw-muted">{warn.length ? warn.join(" · ") : "Warnings: none."}</span>
@@ -190,7 +190,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
         <Section id="decision" n="05" title="Decision" sub={<span title={report?.assessment?.rule_tooltip} className="dvw-dotted">{report?.assessment?.rule_line || "Decision rule: provisional research setting"}</span>}>
           <div className="dvw-dec">
             <span className="dvw-kick-s">Decision checks</span>
-            {checks ? <div className="dvw-checks">{checks.map((c) => <CheckCard key={c.key} c={c} />)}</div> : <p className="dvw-muted">Loading the checks…</p>}
+            {checks ? <div id="rd-decision-checks" tabIndex={-1} className="dvw-checks">{checks.map((c) => <CheckCard key={c.key} c={c} />)}</div> : <p className="dvw-muted">Loading the checks…</p>}
             <span className="dvw-muted">Each scale marks the check's threshold (bar) and this recording's value (dot). This is not a measure of damage severity.</span>
             <div className="dvw-ruleblock">
               <div className="dvw-col">
@@ -216,7 +216,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
         </Section>
 
         {/* 07 Report */}
-        <Section id="report" n="07" title="Report" sub="Fixed template from the evidence record; no language model.">
+        <Section id="report" n="07" anchor="rd-fixed-report" title="Report" sub="Fixed template from the evidence record; no language model.">
           <div className="dvw-grid2">
             {report ? report.sections.map((sec) => (
               <Panel key={sec.n} title={`${sec.n} · ${sec.title}`}>
@@ -270,7 +270,7 @@ function Channels({ channels, rows, sel, chId, span, onRow }) {
   if (!channels) return <Panel title="Sensor channels vs a healthy recording" span={span}><p className="dvw-muted">Loading the channel comparison…</p></Panel>;
   const n = rows.filter((r) => r.beyond).length;
   return (
-    <Panel title="Sensor channels vs a healthy recording" span={span} kicker={<span className="dvw-kick-s">{`${n} of ${rows.length} beyond typical variation`}</span>}>
+    <Panel id="rd-sensor-channels" title="Sensor channels vs a healthy recording" span={span} kicker={<span className="dvw-kick-s">{`${n} of ${rows.length} beyond typical variation`}</span>}>
       <span className="dvw-muted">{`Reference: healthy training recording ${channels.reference.rec_id} at ${channels.reference.speed_hz.toFixed(2)} Hz · each channel's most changed measurement`}</span>
       <div className="dvw-chrows">{rows.map((r) => {
         if (!r.comparable) return <div key={r.id} className="dvw-chrow is-off"><span>{r.name}</span><span className="dvw-muted">no comparable reading</span><span /></div>;

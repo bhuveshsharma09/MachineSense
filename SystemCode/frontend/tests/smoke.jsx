@@ -579,7 +579,7 @@ import { valueOf } from "../src/lib/pipelineCase.js";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
 import { guidanceSteps, showMeTarget } from "../src/lib/dashboard.js";
-import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarnings } from "../src/lib/model.js";
+import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, shownWarnings } from "../src/lib/model.js";
 {
   const cases = [knownFault, unknown, caution, plainHealthy];
   pcheck("App-8.1 shared decision summary uses the saved checks for each outcome", cases.every((f) => {
@@ -608,7 +608,9 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
   for (const [n, f] of Object.entries(fx)) for (const view of ["mechanic", "developer"]) {
     let h; try { h = dash(f, view); } catch (e) { bad.push(`${n}/${view}: threw ${e.message}`); continue; }
     const t = textOf(h);
-    const need = ["Sensor channels vs a healthy recording",
+    const verdictLine = f.record.diagnosis.decision === "known_fault" ? `Verdict · ${human(f.record.diagnosis.top_class)} (model prediction)`
+      : f.record.diagnosis.decision === "unknown" ? "Verdict · Further inspection needed" : "Verdict · Healthy";
+    const need = ["Sensor channels vs a healthy recording", verdictLine,
       ...(view === "mechanic" ? ["Evidence", "Measurements", "Back to home",
         ...(f.record.diagnosis.decision === "healthy" ? [] : ["Suggested checks"]),
         ...(shownWarnings(f.record).length ? [] : ["No signal-quality warnings detected."])]
@@ -625,7 +627,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
         ...(f.record.diagnosis.decision === "healthy" ? [] : ['aria-label="Suggested checks"'])];
       if (ordered.some((x, i) => h.indexOf(x) < 0 || i > 0 && h.indexOf(x) < h.indexOf(ordered[i - 1]))) miss.push("mechanic section order");
     } else {
-      miss.push(...["Decision checks", "only add a caution to a healthy verdict", "Traceability", "CNN attribution · exploratory", "Not evidence of location"].filter((x) => !t.includes(x)));
+      miss.push(...["Decision checks", "only add a caution to a healthy verdict", "CNN attribution · exploratory", "Not evidence of location"].filter((x) => !t.includes(x)));
     }
     if (miss.length || forb.length) bad.push(`${n}/${view}: missing ${JSON.stringify(miss)} forbidden ${JSON.stringify(forb)}`);
   }
@@ -770,7 +772,8 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
     && a0.includes("according to the dataset label") && a0.includes(SN) && a0.includes("Research demonstration; not validated on real machines.")
     && a0.includes("inspection step") && !SAMPLE.some((x) => a0.includes(x)));
   pcheck("App-8 assistant page: an answer shows its paragraphs, review badge, actions count and citation (title on hover), never reasoning",
-    a1.includes("First paragraph.") && a1.includes("Second paragraph.") && a1.includes(REVIEW_BADGE.revised) && a1.includes("Actions · 1")
+    a1.includes("First paragraph.") && a1.includes("Second paragraph.") && a1.includes(REVIEW_BADGE.revised) && a1.includes("What I checked · 1")
+    && a1.includes("Inspection guidance") && a1.includes("lookup_guidance") && a1.includes("7 inspection step(s)")
     && a1h.includes('title="Check a bearing verdict') && !a1h.includes(secret));
   pcheck("App-8 assistant page: an unavailable model gives the one-line pointer to the report, no badge", a2.includes(UNAVAILABLE) && !a2.includes(REVIEW_BADGE.fallback));
 }

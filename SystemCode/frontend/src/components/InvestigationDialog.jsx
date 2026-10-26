@@ -29,7 +29,7 @@ export default function InvestigationDialog({ open, recordings, showcase, select
         <ol><li>Checking the signal</li><li>Preparing features and spectrograms</li><li>Running model checks and building the report</li></ol>
         <div className="progress"><div /></div>
       </div> : <>
-        <p className="invest-intro">Select a development recording or upload a five-second CSV. The result will open as a saved report.</p>
+        <p className="invest-intro">Select a development recording or upload a five-second CSV. The results will open in the dashboard.</p>
         <label className="invest-field">Development recording
           <select value={selection?.rec_id || ""} onChange={(e) => onPick(e.target.value)} aria-label="Development recording" className="rec-select">
             <option value="">Select a recording…</option>

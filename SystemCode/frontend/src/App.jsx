@@ -51,12 +51,15 @@ export default function App() {
   const [page, setPage] = useState(casePage);
   const [unseen, setUnseen] = useState(isUnseen);
   const [dock, dispatch] = useReducer(dockReducer, CLOSED, (s) => dockReducer(s, { type: "route", route: casePage() }));
+  const [dockWidth, setDockWidth] = useState(420);
+  const [dashboardFocus, setDashboardFocus] = useState(null);
   const trigger = useRef(null);
   useEffect(() => {
     canonicalizeCaseHash();
     const on = () => {
       const r = casePage();
       dispatch({ type: "route", route: r });
+      setDashboardFocus((focus) => r && focus && r.id === focus.caseId && r.page !== "pipeline" ? focus : null);
       canonicalizeCaseHash();
       setPage(r && r.page === "assistant" ? { ...r, page: "dashboard" } : r);
       setUnseen(isUnseen());
@@ -70,17 +73,25 @@ export default function App() {
     open: (caseId, el) => { trigger.current = el || null; dispatch({ type: "open", caseId }); },
     expanded: (caseId) => expanded(dock, caseId),
   }), [dock]);
+  const showEvidence = (caseId, target) => {
+    setDashboardFocus({ caseId, target });
+    window.location.hash = `#/case/${encodeURIComponent(caseId)}/dashboard`;
+  };
   if (capture) return <Capture />;
   let route;
   if (unseen) route = <Unseen key="unseen" />;
   else if (page?.page === "pipeline") route = <Pipeline key={`p:${page.id}`} caseId={page.id} />;
-  else if (page) route = <Dashboard key={`d:${page.id}`} caseId={page.id} assistantOpen={expanded(dock, page.id)} />;
+  else if (page) route = <Dashboard key={`d:${page.id}`} caseId={page.id} assistantOpen={expanded(dock, page.id)}
+    focusRequest={dashboardFocus?.caseId === page.id ? dashboardFocus : null} />;
   else route = <Main key="main" />;
   // ONE assistant panel above the routes: pinning keeps this instance across the dashboard and the pipeline
   return (
     <DockContext.Provider value={ctx}>
-      {route}
-      <AssistantDock key="assistant-dock" state={dock} dispatch={dispatch} triggerRef={trigger} />
+      <div style={{ "--assistant-width": `${dockWidth}px` }}>
+        {route}
+        <AssistantDock key="assistant-dock" state={dock} dispatch={dispatch} triggerRef={trigger}
+          width={dockWidth} onWidthChange={setDockWidth} onShowEvidence={showEvidence} />
+      </div>
     </DockContext.Provider>
   );
 }

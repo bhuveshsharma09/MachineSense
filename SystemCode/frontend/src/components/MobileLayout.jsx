@@ -98,7 +98,7 @@ export default function MobileLayout(props) {
         onPick={onPick} onFile={onFile} onClearUpload={onClearUpload} onStart={onStart} onClose={() => setDialogOpen(false)}
         status={status} error={error} runningFor={runningFor} />
       {needsName && <NameModal initial={userName} onSave={onSaveName} />}
-      <AgentChat caseId={record?.case_id} open={props.chatOpen} onOpen={props.onOpenChat} onClose={props.onCloseChat} />
+      {reportPage && <AgentChat caseId={record.case_id} open={props.chatOpen} onOpen={props.onOpenChat} onClose={props.onCloseChat} />}
     </div>
   );
 }

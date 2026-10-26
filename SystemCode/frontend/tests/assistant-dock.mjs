@@ -53,8 +53,16 @@ const server = createServer((req, res) => {
     req.on("data", (c) => { body += c; });
     return req.on("end", () => setTimeout(() => {
       const q = JSON.parse(body).question;
+      const guidance = q === "What should I inspect next?";
+      const sensor = q === "Which sensor changed most?";
       const ans = { id: store.questions.length + 1, case_id: id, conversation_id: conv, mode: "conversation", question: q,
-        answer: `Answer to: ${q}`, claims: [], citations: [], actions: [], review: { status: "passed", failed: [] }, source: "agent" };
+        answer: `Answer to: ${q}`,
+        claims: sensor ? [{ text: "The sensor changed.", refs: ["evidence.largest_change.channel"] }]
+          : guidance ? [{ text: "Inspect the bearing.", refs: ["guidance.items.0"] }] : [],
+        citations: guidance ? [{ id: "bearing-defect-frequencies", kind: "inspection" }] : [],
+        actions: guidance ? [{ tool: "lookup_guidance", summary: "inspection steps" }]
+          : sensor ? [{ tool: "get_evidence", summary: "changed channels" }] : [],
+        review: { status: "passed", failed: [] }, source: "agent" };
       store.questions.push(ans);
       json(res, ans);
     }, 1500));
@@ -102,6 +110,45 @@ try {
     "the URL is canonicalised to /dashboard and the dashboard makes room");
   check(await until(`document.activeElement === ${INPUT}`), "focus goes to the question box on open");
 
+  // The left edge resizes the panel and the dashboard together; keyboard adjustment works too.
+  const grip = await ev(`(() => { const r = document.querySelector('.as-resize-handle').getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; })()`);
+  await send("Input.dispatchMouseEvent", { type: "mousePressed", x: grip.x, y: grip.y, button: "left", buttons: 1, clickCount: 1 });
+  await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: grip.x - 160, y: grip.y, button: "left", buttons: 1 });
+  await send("Input.dispatchMouseEvent", { type: "mouseReleased", x: grip.x - 160, y: grip.y, button: "left", buttons: 0, clickCount: 1 });
+  await sleep(100);
+  const afterDrag = await ev(`(() => { const p = document.getElementById('assistant-panel').getBoundingClientRect();
+    const d = document.querySelector('.rd-root').getBoundingClientRect(); return { width: p.width, left: p.left, dashboardRight: d.right }; })()`);
+  check(Math.abs(afterDrag.width - 580) < 3 && Math.abs(afterDrag.dashboardRight - afterDrag.left) < 3,
+    "dragging the edge widens the panel and reflows the dashboard", JSON.stringify(afterDrag));
+  await ev(`(() => { const h = document.querySelector('.as-resize-handle'); h.focus();
+    h.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true })); return true; })()`);
+  await sleep(100);
+  const afterKey = await ev(`(() => ({ width: document.getElementById('assistant-panel').getBoundingClientRect().width,
+    value: document.querySelector('.as-resize-handle').getAttribute('aria-valuenow') }))()`);
+  check(Math.abs(afterKey.width - 600) < 3 && afterKey.value === '600',
+    "the resize handle also supports keyboard adjustment", JSON.stringify(afterKey));
+
+  // A cited inspection answer opens the Mechanic checks even if Developer is showing; a sensor answer opens the
+  // Developer sensor card. In both cases the destination receives a visible highlight without closing the panel.
+  await ev(`(() => { const b = [...document.querySelectorAll('[role=radio]')].find((x) => x.textContent.trim() === 'Developer'); b.click(); return true; })()`);
+  await typeDraft("What should I inspect next?");
+  await ev("(document.querySelector('#assistant-panel form').requestSubmit(), true)");
+  check(await until(`document.querySelector('#assistant-panel').textContent.includes('Answer to: What should I inspect next?')`),
+    "an inspection answer is shown");
+  await ev(`(() => { [...document.querySelectorAll('#assistant-panel a')].find((a) => a.textContent.includes('See suggested checks'))?.click(); return true; })()`);
+  check(await until(`!!document.querySelector('#rd-suggested-checks.rd-focus-highlight')`) && await ev(`
+    document.querySelector('[role=radio][aria-checked=true]')?.textContent.trim() === 'Mechanic' && ${visible}`),
+    "inspection link switches to Mechanic and highlights Suggested checks");
+  await typeDraft("Which sensor changed most?");
+  await ev("(document.querySelector('#assistant-panel form').requestSubmit(), true)");
+  check(await until(`document.querySelector('#assistant-panel').textContent.includes('Answer to: Which sensor changed most?')`),
+    "a sensor answer is shown");
+  await ev(`(() => { [...document.querySelectorAll('#assistant-panel a')].find((a) => a.textContent.includes('See the sensor comparison'))?.click(); return true; })()`);
+  check(await until(`!!document.querySelector('#rd-sensor-channels.rd-focus-highlight')`) && await ev(`
+    document.querySelector('[role=radio][aria-checked=true]')?.textContent.trim() === 'Developer' && ${visible}`),
+    "sensor link switches to Developer and highlights the sensor card");
+  await ev(`(() => { const b = [...document.querySelectorAll('[role=radio]')].find((x) => x.textContent.trim() === 'Mechanic'); b.click(); return true; })()`);
+
   // 2. open → minimize → restore with the draft and the same instance
   await typeDraft("my unsent draft");
   await click('button[aria-label="Minimize the assistant"]');
@@ -119,8 +166,10 @@ try {
   await sleep(300);
   check(await ev(`${visible} && ${same} && ${INPUT}.value === 'my unsent draft'`), "pinned: Mechanic → Developer keeps the instance and draft");
   await go(`#/case/${caseA}/pipeline`);
-  check(await until(`!!document.querySelector('.pl-root')`) && await ev(`${visible} && ${same} && ${INPUT}.value === 'my unsent draft' && !!document.querySelector('.pl-root.has-assistant')`),
-    "pinned: the pipeline keeps the same instance and draft and makes room");
+  check(await until(`!!document.querySelector('.pl-root')`) && await ev(`${visible} && ${same} && ${INPUT}.value === 'my unsent draft'
+    && !!document.querySelector('.pl-root.has-assistant') && Math.abs(document.getElementById('assistant-panel').getBoundingClientRect().width - 600) < 3
+    && Math.abs(document.querySelector('.pl-root').getBoundingClientRect().right - document.getElementById('assistant-panel').getBoundingClientRect().left) < 3`),
+    "pinned: the pipeline keeps the same instance, draft and resized width");
   await ev("(history.back(), true)");
   await sleep(500);
   check(await ev(`location.hash === '#/case/${caseA}/dashboard' && ${visible} && ${same}`), "browser Back to the dashboard keeps the pinned panel");
@@ -195,6 +244,8 @@ try {
   await go(`#/case/${caseB}/assistant`);
   check(await until(`${visible}`) && await ev(`Math.round(document.getElementById('assistant-panel').getBoundingClientRect().width) === innerWidth`),
     "390 px: the panel is a full-width overlay");
+  check(await ev(`getComputedStyle(document.querySelector('.as-resize-handle')).display === 'none'`),
+    "390 px: the resize handle is hidden on the full-width overlay");
   await click('button[aria-label="Minimize the assistant"]');
   await sleep(200);
   check(await ev(`(() => { const r = document.querySelector('.as-restore').getBoundingClientRect(); return r.width > 0 && r.right <= innerWidth && r.bottom <= innerHeight; })()`),

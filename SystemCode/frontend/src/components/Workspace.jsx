@@ -7,7 +7,6 @@ import { factsFor } from "./EvidenceStrip.jsx";
 import ReadingDetails from "./ReadingDetails.jsx";
 import Inspector from "./Inspector.jsx";
 import InvestigationDialog from "./InvestigationDialog.jsx";
-import AgentChat from "./AgentChat.jsx";
 import NameModal from "./NameModal.jsx";
 import Scene, { markerFor } from "./Scene.jsx";
 import TopBar from "./TopBar.jsx";
@@ -116,7 +115,7 @@ export default function Workspace(props) {
         <span className="hero-t">{hero.t}</span>
         {hero.label && <span className="hero-label">{hero.label}</span>}
         <span className="hero-s">{hero.s}</span>
-        {!reportPage && <span className="hero-scene-note">Illustrative 3D rig · drag to orbit gently · click a sensor or part</span>}
+        {!reportPage && <span className="hero-scene-note">Drag to orbit · click a sensor or part</span>}
         {!reportPage && <button type="button" className="start-btn home-cta" onClick={() => setDialogOpen(true)}>Start investigation <span aria-hidden="true">→</span></button>}
       </div>
       <TopBar onHome={onHome} onInvestigate={() => setDialogOpen(true)} status={status}
@@ -138,8 +137,7 @@ export default function Workspace(props) {
         onPick={onPick} onFile={onFile} onClearUpload={onClearUpload} onStart={onStart} onClose={() => setDialogOpen(false)}
         status={status} error={error} runningFor={runningFor} />
       {needsName && <NameModal initial={userName} onSave={onSaveName} />}
-      {reportPage ? <AssistantLink caseId={record.case_id} />
-        : <AgentChat caseId={record?.case_id} open={chatOpen} onOpen={() => setChatOpen(true)} onClose={() => setChatOpen(false)} />}
+      {reportPage && <AssistantLink caseId={record.case_id} />}
     </div>
   );
 }

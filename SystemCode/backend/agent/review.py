@@ -100,6 +100,9 @@ NOT_PROOF = re.compile(r"\bnot (?:independent |physical )?proof\b|\bnot proven\b
 PROCEDURE = re.compile(r"\bprocedures?\b", re.IGNORECASE)
 NO_PROCEDURE = re.compile(r"\bno verified procedure\b", re.IGNORECASE)
 VERIFIED = re.compile(r"\bverified\b", re.IGNORECASE)
+UNVERIFIED_ACTOR = re.compile(r"\b(?:not verified|unverified|local demo)\b", re.IGNORECASE)
+NOT_PROOF_ANY = re.compile(r"\bnot (?:independent |physical )?proof\b|\brecorded event\b|\bnot (?:a )?(?:physical|independent) confirmation\b",
+                           re.IGNORECASE)
 VERIFIED_NEG = re.compile(r"\b(?:not|no|un|never)\s*(?:yet\s+)?verified\b|\bno verified\b", re.IGNORECASE)
 
 
@@ -119,6 +122,10 @@ def conversation_checks(obj: dict, results: list[dict]) -> list[dict]:
     open_ids = {p["cite"] for r in procs if r["gate_open"]["value"] for p in r.get("procedures", [])}
     texts = [obj["answer"], *[c["text"] for c in obj["claims"]]]
     failed = []
+    asserts = any(CONFIRM.search(snt) and ATTRIBUTED.search(snt) and not CONFIRM_NEG.search(snt) for snt in sentences(obj["answer"]))
+    if asserts and status == "technician_confirmed" and not (UNVERIFIED_ACTOR.search(obj["answer"]) and NOT_PROOF_ANY.search(obj["answer"])):
+        failed.append(_f("confirmation", "a recorded confirmation must be reported as a recorded event by an unverified "
+                                         "local-demo user (say the name is not verified and that it is not proof)"))
     for t in texts:
         for snt in sentences(t):
             if CONFIRM.search(snt):

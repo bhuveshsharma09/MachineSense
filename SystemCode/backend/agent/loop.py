@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass
 from typing import Callable
 
-from backend.agent import memory
+from backend.agent import intent, memory
 from backend.agent.prompt import AGENT_PROMPT_VERSION, CONVERSATION_PROMPT_VERSION, CONVERSATION_SYSTEM, SYSTEM, revision_message
 from backend.agent.tools import CONV_SCHEMAS, SCHEMAS, Tools, summary
 from backend.explain.guard import ExplanationRejected, parse
@@ -87,6 +87,7 @@ def ask(engine, case_id: str, question: str, provider, review: Review | None = N
     tools = Tools(engine)
     actions, results = [], []
     conv = history is not None
+    intent_kind = intent.classify(question) if conv else None
     schemas = CONV_SCHEMAS if conv else SCHEMAS
     base = {"question": question, "prompt_version": CONVERSATION_PROMPT_VERSION if conv else AGENT_PROMPT_VERSION,
             "model": getattr(provider, "model", None)}
@@ -110,22 +111,52 @@ def ask(engine, case_id: str, question: str, provider, review: Review | None = N
                 out["report_sections"] = fallback_sections(engine, record)
         return out
 
+    if conv:
+        from backend.agent.social import reply
+        social_answer = reply(question)
+        if social_answer is not None:
+            out = done("social", {"answer": social_answer, "claims": [], "citations": []}, status="not_applicable")
+            out["model"] = None
+            return out
+
+    prefetched = []
+    if intent_kind:
+        for name in intent.required_tools(intent_kind):
+            if len(actions) >= budget.max_tool_calls:
+                break
+            result = tools.call(name, case_id, {}, schemas)
+            results.append(result)
+            actions.append({"tool": name, "arguments": {}, "summary": summary(name, result)})
+            prefetched.append((f"case_prefetch_{len(prefetched)}", name, result))
+
+    def fit_fallback(reason: str):
+        out = done("case_summary", intent.safe_answer(intent_kind, results), status="not_applicable")
+        out |= {"fallback_kind": "explanation", "reason": reason, "model": None}
+        return out
+
     if not enabled or provider is None:
-        return done("fallback", status=REVIEW_FALLBACK, reason="language model disabled")
-    messages = [{"role": "system", "content": CONVERSATION_SYSTEM if conv else SYSTEM}, *memory.messages(history or []),
+        return fit_fallback("language model disabled") if intent_kind else done("fallback", status=REVIEW_FALLBACK, reason="language model disabled")
+    messages = [{"role": "system", "content": (CONVERSATION_SYSTEM + "\n" + intent.hint(intent_kind)) if intent_kind else
+                 CONVERSATION_SYSTEM if conv else SYSTEM}, *memory.messages(history or []),
                 {"role": "user", "content": f"Question about the recording being viewed: {question}"}]
+    if prefetched:
+        messages.append({"role": "assistant", "content": "", "tool_calls": [
+            {"id": call_id, "type": "function", "function": {"name": name, "arguments": "{}"}}
+            for call_id, name, _ in prefetched]})
+        messages.extend({"role": "tool", "tool_call_id": call_id, "content": json.dumps(result, ensure_ascii=False)}
+                        for call_id, _, result in prefetched)
     revisions = 0
     while True:
         if time.perf_counter() - t0 > budget.timeout_s:
-            return done("fallback", status=REVIEW_FALLBACK, reason="time budget exhausted")
+            return fit_fallback("time budget exhausted") if intent_kind else done("fallback", status=REVIEW_FALLBACK, reason="time budget exhausted")
         try:
             msg = provider.chat(messages, schemas, temperature=TEMPERATURE)
         except ProviderError as e:
-            return done("fallback", status=REVIEW_FALLBACK, reason=f"language model unreachable ({e})")
+            return fit_fallback(f"language model unreachable ({e})") if intent_kind else done("fallback", status=REVIEW_FALLBACK, reason=f"language model unreachable ({e})")
         calls = msg["tool_calls"]
         if calls:
             if len(actions) + len(calls) > budget.max_tool_calls:
-                return done("fallback", status=REVIEW_FALLBACK, reason="tool-call budget exhausted")
+                return fit_fallback("tool-call budget exhausted") if intent_kind else done("fallback", status=REVIEW_FALLBACK, reason="tool-call budget exhausted")
             messages.append({"role": "assistant", "content": msg["content"] or "",
                              "tool_calls": [{"id": c["id"], "type": "function",
                                              "function": {"name": c["name"], "arguments": c["raw_arguments"]}} for c in calls]})
@@ -138,13 +169,15 @@ def ask(engine, case_id: str, question: str, provider, review: Review | None = N
                 messages.append({"role": "tool", "tool_call_id": c["id"], "content": json.dumps(result, ensure_ascii=False)})
             continue
         obj, failed = review(msg["content"], results, mode="conversation") if conv else review(msg["content"], results)
+        if conv and not failed:
+            failed += intent.fit_failures(intent_kind, obj, results)
         if not review_on:  # D7 arm "agent without review": shown as written; what the review would reject is recorded
             shown = obj or parsed_answer(msg["content"])
             return done("agent", shown, status=REVIEW_OFF, failed=failed)
         if not failed:
             return done("agent", obj, status=REVIEW_REVISED if revisions else REVIEW_PASSED)
         if revisions >= budget.max_revisions:
-            return done("fallback", status=REVIEW_FALLBACK, failed=failed, reason="evidence review failed")
+            return fit_fallback("answer did not address the question") if intent_kind else done("fallback", status=REVIEW_FALLBACK, failed=failed, reason="evidence review failed")
         revisions += 1
         accepted = list(dict.fromkeys(i["cite"] for r in results for i in (r.get("items") or [])
                                       if isinstance(i, dict) and i.get("cite")))

@@ -84,8 +84,11 @@ Keep four kinds of fact apart and never mix them:
   inspection step as a procedure, and never call guidance verified.
 How to answer:
 - Answer the question directly in the first sentence. Be brief: 1 to 4 sentences for a simple question.
-- "Why was this recording flagged?": give the verdict and the case-specific measured evidence (call get_evidence and use
-  its rank 1 channel), not only the predicted class.
+- For any wording asking why the verdict, diagnosis or flag was given: explain the decision checks using diagnose, then
+  give a separate case-specific measured channel comparison from get_evidence when available. The channel comparison is
+  descriptive evidence, not an input to the classifier's decision or a physical fault location.
+- For a question asking what physically caused a fault: state first that the recording cannot establish a physical
+  cause. Do not substitute the predicted fault class or dataset-mapped part for that missing causal finding.
 - "Has a technician confirmed this?": call get_case_notes and state the current recorded status directly.
 - When a question needs several kinds of fact, you may write short paragraphs, separated by a blank line, each starting
   with exactly one of these labels: "What the recording shows:", "What the model predicts:", "What the technician
@@ -93,6 +96,8 @@ How to answer:
 
 CONVERSATION_SYSTEM = SYSTEM + "\n" + CONVERSATION_RULES
 
+from backend.agent import intent  # noqa: E402
+
 CONVERSATION_PROMPT_VERSION = "conv-" + hashlib.sha256(
     (CONVERSATION_SYSTEM + json.dumps(CONV_SCHEMAS, sort_keys=True) + json.dumps(ANSWER_SCHEMA, sort_keys=True)
-     + REVISION + IDS_ACCEPTED + IDS_NONE).encode()).hexdigest()[:16]
+     + REVISION + IDS_ACCEPTED + IDS_NONE + intent.hint("verdict_reason") + intent.hint("physical_cause")).encode()).hexdigest()[:16]

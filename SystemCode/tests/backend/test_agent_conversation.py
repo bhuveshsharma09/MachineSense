@@ -88,6 +88,80 @@ def test_follow_up_sees_the_earlier_accepted_turn_as_context_only(app, model):
     assert SECRET not in json.dumps(calls) and SECRET not in json.dumps(out)
 
 
+def test_simple_conversation_does_not_invoke_the_model_or_case_report(app, model):
+    from backend.agent.social import reply
+
+    case = new_case(app)
+    hello, calls = ask(app, case, model, [], "Hey!")
+    assert not calls and hello["source"] == "social" and hello["review"]["status"] == "not_applicable"
+    assert hello["answer"].startswith("Hello!") and hello["claims"] == [] and "report_sections" not in hello
+    assert hello["tool_calls_used"] == 0
+    thanks, calls = ask(app, case, model, [], "Thanks")
+    assert not calls and thanks["source"] == "social" and "welcome" in thanks["answer"]
+    assert reply("Hey, which sensor changed most?") is None  # a case question still uses the evidence path
+    case_answer, calls = ask(app, case, model, [tool("diagnose"), final({**CLEAN, "citations": [], "answer": "The verdict is a known fault."})],
+                             "What did the model find?")
+    assert calls and case_answer["source"] == "agent" and case_answer["context_turn_ids"] == []
+
+
+def test_why_verdict_fetches_decision_and_measurements_and_rejects_a_verdict_recap(app, model):
+    case = new_case(app)
+    recap = {"answer": "The verdict is a known fault: imbalance, with rotor discs according to the dataset label.",
+             "claims": [{"text": "The verdict is a known fault.", "refs": ["diagnosis.decision"]}], "citations": []}
+    explanation = {"answer": ("The model predicted a known fault because its classifier checks passed. "
+                              "Separately, the underhang radial channel had a measured difference from the healthy recording."),
+                   "claims": [{"text": "The classifier checks passed.", "refs": ["assessment.checks.msp.passed"]},
+                              {"text": "The underhang radial channel was measured.",
+                               "refs": ["evidence.largest_change.channel"]}], "citations": []}
+    out, calls = ask(app, case, model, [final(recap), final(explanation)], "why this verdict")
+    assert [a["tool"] for a in out["actions"]] == ["diagnose", "get_evidence"]
+    assert out["review"]["status"] == "revised" and out["answer"] == explanation["answer"]
+    assert "answer_fit" in calls[-1]["messages"][-1]["content"]
+    first_messages = calls[0]["messages"]
+    assert [x["function"]["name"] for x in first_messages[-3]["tool_calls"]] == ["diagnose", "get_evidence"]
+    assert all(m["role"] == "tool" for m in first_messages[-2:])
+    fallback, _ = ask(app, new_case(app), model, [final(recap), final(recap)], "Why was this recording flagged?")
+    assert fallback["source"] == "case_summary" and fallback["fallback_kind"] == "explanation"
+    assert "classifier checks" in fallback["answer"] and "channel" in fallback["answer"]
+    assert "report_sections" not in fallback
+
+
+def test_cause_question_must_state_the_physical_limit_and_has_a_direct_fallback(app, model):
+    case = new_case(app)
+    recap = {"answer": "The model diagnosed a known fault: imbalance, at rotor discs according to the dataset label.",
+             "claims": [{"text": "The verdict is a known fault.", "refs": ["diagnosis.decision"]}], "citations": []}
+    direct = {"answer": ("This recording cannot establish what physically caused the condition. "
+                         "The model predicts imbalance, but that does not establish what happened physically."),
+              "claims": [{"text": "The model predicts imbalance.", "refs": ["diagnosis.fault_class"]}], "citations": []}
+    out, calls = ask(app, case, model, [final(recap), final(direct)], "what caused this fault")
+    assert out["review"]["status"] == "revised" and out["answer"] == direct["answer"]
+    assert [a["tool"] for a in out["actions"]] == ["diagnose"]
+    assert "answer_fit" in calls[-1]["messages"][-1]["content"]
+    fallback, _ = ask(app, case, model, [final(recap), final(recap)], "what caused this fault")
+    assert fallback["source"] == "case_summary" and fallback["fallback_kind"] == "explanation"
+    assert fallback["answer"].startswith("This recording cannot establish what physically caused")
+    assert "report_sections" not in fallback
+
+
+def test_conversation_intent_is_narrow_and_code_answers_pass_the_evidence_guard(app):
+    from backend.agent.intent import classify, safe_answer
+    from backend.agent.review import review
+    from backend.agent.tools import Tools
+
+    assert classify("Why was this recording flagged?") == "verdict_reason"
+    assert classify("why this verdict") == "verdict_reason"
+    assert classify("what caused this fault") == "physical_cause"
+    assert classify("why did you say that?") is None
+    case = new_case(app)
+    tools = Tools(app.app.state.engine)
+    diagnosis = tools.diagnose(case["case_id"])
+    evidence = tools.get_evidence(case["case_id"])
+    for kind, results in (("physical_cause", [diagnosis]), ("verdict_reason", [diagnosis, evidence])):
+        obj = safe_answer(kind, results)
+        _, failed = review(json.dumps(obj), results, mode="conversation")
+        assert failed == [], (kind, failed)
+
+
 def test_a_fact_from_an_earlier_answer_must_be_refetched_this_turn(app, model):
     case = new_case(app)
     first, _ = ask(app, case, model, [tool("check_signal"), final(speed_answer(case))], "How fast was the shaft turning?")

@@ -5,6 +5,7 @@ import * as M from "../lib/mechanic.js";
 import * as D from "../lib/dashboard.js";
 import { PART, SCORES_NOTE, human, locations, qualityFlags, unusualSensors, verdict, verdictTitle } from "../lib/model.js";
 import { AssistantIcon, REVIEW_BADGE, UNAVAILABLE } from "./AgentChat.jsx";
+import { dashboardTarget } from "../lib/assistantLinks.js";
 import { Header, PageState, PartView, VKIND, useCaseData } from "./Dashboard.jsx";
 import "../redesign.css";
 
@@ -40,6 +41,8 @@ export function sections(text) {
 }
 export const VERIFICATION_LABEL = { internal: "project protocol", open_verified: "checked against an open source",
   citation_unverified: "citation not yet checked against the full text", ai_drafted: "AI-drafted, not yet checked against a published source" };
+const TOOL_LABEL = { diagnose: "Model verdict", check_signal: "Signal quality", get_evidence: "Sensor comparison",
+  lookup_guidance: "Inspection guidance", get_case_notes: "Technician records", get_procedures: "Verified procedures" };
 const BADGE_STYLE = {
   passed: { bg: al(K.green, 0.12), color: "oklch(0.42 0.09 160)", dot: K.green },
   revised: { bg: al(K.violet, 0.09), color: "oklch(0.44 0.15 277)", dot: K.violet },
@@ -76,11 +79,10 @@ export function splitConversation(data) {
 }
 
 export function AssistantView({ caseId, record, report, channels, initialEntries = null, initialEarlier = [], initialPart = null,
-  ask = askConversation, load = getConversation, restart = newConversation, panel = false, newSession = false }) {
+  ask = askConversation, load = getConversation, restart = newConversation, panel = false, newSession = false, onShowEvidence }) {
   const [entries, setEntries] = useState(initialEntries || []);
   const [earlier, setEarlier] = useState(initialEarlier);
   const [draft, setDraft] = useState("");
-  const [open, setOpen] = useState({});
   const scroll = useRef(null);
   const caseRef = useRef(caseId);
   useEffect(() => {
@@ -172,7 +174,8 @@ export function AssistantView({ caseId, record, report, channels, initialEntries
               </details>}
               {entries.length === 0 && <div className="as-suggest">{SUGGESTIONS.map((q) => (
                 <button key={q} disabled={busy} onClick={() => send(q)}><span>{q}</span><span className="mono rd-sub-s">Suggested question</span></button>))}</div>}
-              {entries.map((e, i) => <Turn key={i} e={e} open={!!open[i]} onToggle={() => setOpen((o) => ({ ...o, [i]: !o[i] }))} href={href} />)}
+              {entries.map((e, i) => <Turn key={i} e={e}
+                href={href} caseId={caseId} onShowEvidence={onShowEvidence} />)}
             </div>
           </div>
           <div className="as-compose">
@@ -193,14 +196,17 @@ export function AssistantView({ caseId, record, report, channels, initialEntries
   );
 }
 
-function Turn({ e, open, onToggle, href }) {
+function Turn({ e, href, caseId, onShowEvidence }) {
   const a = e.answer;
   const quick = !!a?.fallback_kind;  // a short answer built from the stored records (no model)
   const off = e.status === "error" || (unavailable(a) && !quick);
-  const badge = a && !off ? (quick ? "From the stored case records" : REVIEW_BADGE[a.review?.status]) : null;
+  const badge = a && !off ? (quick ? "From the stored case records"
+    : a.review?.status === "passed" ? (a.claims?.length ? "Claims checked against the case record" : "No case facts checked")
+      : REVIEW_BADGE[a.review?.status]) : null;
   const bs = badge ? (quick ? BADGE_STYLE.passed : BADGE_STYLE[a.review.status]) : null;
   const kinds = a && !off ? answerKinds(a) : [];
   const acts = a?.actions || [];
+  const target = dashboardTarget(e.question, a);
   return <>
     <div className="as-user">{e.question}</div>
     <article className="as-bot">
@@ -211,9 +217,10 @@ function Turn({ e, open, onToggle, href }) {
       {e.status === "loading" ? <div className="as-acts"><span className="as-acts-head"><span className="as-spin" />Checking the case record…</span></div>
         : off ? <p className="as-para">{UNAVAILABLE}</p> : <>
           {acts.length > 0 && <div className="as-acts">
-            <button className="as-acts-head" onClick={onToggle} aria-expanded={open}><span className="rd-kicker">Actions · {acts.length}</span><span className="rd-sub-s" style={{ marginLeft: "auto" }}>{open ? "Hide" : "Show"}</span></button>
-            {open && acts.map((x, i) => <div key={i} className="as-act"><span className="mono as-tool">{x.tool}</span><span>{x.summary}</span></div>)}
+            <span className="rd-kicker">What I checked · {acts.length}</span>
+            {acts.map((x, i) => <div key={i} className="as-act"><span className="rd-strong">{TOOL_LABEL[x.tool] || x.tool} <span className="mono as-tool">{x.tool}</span></span><span>{x.summary}</span></div>)}
           </div>}
+          {a.source === "agent" && acts.length === 0 && <div className="as-acts"><span className="rd-kicker">What I checked</span><span className="rd-sub-s">No case tools were used for this answer.</span></div>}
           <div className="rd-stack-8">{sections(a.answer).map((p, i) => p.label
             ? <section key={i} className="as-sec"><h4>{p.label}</h4><p className="as-para">{p.text}</p></section>
             : <p key={i} className="as-para">{p.text}</p>)}</div>
@@ -227,7 +234,11 @@ function Turn({ e, open, onToggle, href }) {
               <span className="mono as-cite"><span className="rd-dot" style={{ width: 5, height: 5, background: "oklch(0.70 0.15 125)" }} />{c.id}</span>
               {(c.title || c.verification) && <span className="as-cite-meta">{[c.title, c.kind === "procedure" ? "reviewed procedure" : VERIFICATION_LABEL[c.verification]].filter(Boolean).join(" · ")}</span>}
             </span>)}
-            <a href={href} style={{ marginLeft: "auto", fontSize: 12.5 }}>See the evidence on the dashboard ›</a>
+            {target && <a href={href} style={{ marginLeft: "auto", fontSize: 12.5 }} onClick={(event) => {
+              if (!onShowEvidence || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              onShowEvidence(caseId, target);
+            }}>{target.label} ›</a>}
           </div>
         </>}
     </article>

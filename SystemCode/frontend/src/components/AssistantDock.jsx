@@ -11,19 +11,29 @@ export const DockContext = createContext(null);
 export const useDock = () => useContext(DockContext);
 
 export const SESSION_NOTE = "Closing ends this session. Saved questions about this recording stay available.";
+export const MIN_PANEL_WIDTH = 320;
+export const MAX_PANEL_WIDTH = 900;
+const MIN_PAGE_WIDTH = 400;
 
-export default function AssistantDock({ state, dispatch, triggerRef, AssistantComponent = AssistantView, initialData = null, initialTab = "ask", notesProps = {} }) {
+export function clampPanelWidth(width, viewportWidth) {
+  const max = Math.max(MIN_PANEL_WIDTH, Math.min(MAX_PANEL_WIDTH, viewportWidth - MIN_PAGE_WIDTH));
+  return Math.max(MIN_PANEL_WIDTH, Math.min(max, Math.round(width)));
+}
+
+export default function AssistantDock({ state, dispatch, triggerRef, width = 420, onWidthChange = () => {}, onShowEvidence, AssistantComponent = AssistantView, initialData = null, initialTab = "ask", notesProps = {} }) {
   const { caseId, open, minimized, pinned, session } = state;
   if (!open || !caseId) return null;
   return <DockPanel key={`${caseId}:${session}`} caseId={caseId} minimized={minimized} pinned={pinned} dispatch={dispatch}
-    triggerRef={triggerRef} AssistantComponent={AssistantComponent} initialData={initialData} initialTab={initialTab} notesProps={notesProps} />;
+    triggerRef={triggerRef} width={width} onWidthChange={onWidthChange} onShowEvidence={onShowEvidence} AssistantComponent={AssistantComponent}
+    initialData={initialData} initialTab={initialTab} notesProps={notesProps} />;
 }
 
-function DockPanel({ caseId, minimized, pinned, dispatch, triggerRef, AssistantComponent, initialData, initialTab, notesProps }) {
+function DockPanel({ caseId, minimized, pinned, dispatch, triggerRef, width, onWidthChange, onShowEvidence, AssistantComponent, initialData, initialTab, notesProps }) {
   const [tab, setTab] = useState(initialTab);  // both views stay mounted, so switching keeps the draft
   const [loaded] = useCaseData(caseId, { withExplanation: false, skip: !!initialData });
   const st = initialData || loaded;
   const panel = useRef(null), restoreBtn = useRef(null), minBtn = useRef(null);
+  const drag = useRef(null);
   const wasMin = useRef(minimized);
   // focus: the question box on open / restore; the restore button on minimize
   useEffect(() => {
@@ -31,6 +41,33 @@ function DockPanel({ caseId, minimized, pinned, dispatch, triggerRef, AssistantC
     else requestAnimationFrame(() => panel.current?.querySelector('input[aria-label="Ask about this recording"]')?.focus());
     wasMin.current = minimized;
   }, [minimized, st.status]);
+  useEffect(() => () => document.body.classList.remove("as-resizing"), []);
+  const maxWidth = clampPanelWidth(MAX_PANEL_WIDTH, typeof window === "undefined" ? 1440 : window.innerWidth);
+  const resizeTo = (value) => onWidthChange(clampPanelWidth(value, window.innerWidth));
+  const stopResize = () => { drag.current = null; document.body.classList.remove("as-resizing"); };
+  const startResize = (e) => {
+    if (e.button !== 0) return;
+    drag.current = { pointerId: e.pointerId, x: e.clientX, width: panel.current?.getBoundingClientRect().width || width };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    document.body.classList.add("as-resizing");
+    e.preventDefault();
+  };
+  const moveResize = (e) => {
+    if (drag.current?.pointerId === e.pointerId) resizeTo(drag.current.width + drag.current.x - e.clientX);
+  };
+  const endResize = (e) => {
+    if (drag.current?.pointerId !== e.pointerId) return;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+    stopResize();
+  };
+  const keyResize = (e) => {
+    const step = e.shiftKey ? 60 : 20;
+    const next = e.key === "ArrowLeft" ? width + step : e.key === "ArrowRight" ? width - step
+      : e.key === "Home" ? MIN_PANEL_WIDTH : e.key === "End" ? maxWidth : null;
+    if (next == null) return;
+    e.preventDefault();
+    resizeTo(next);
+  };
   // Escape inside the panel minimizes it (never navigates away from the case)
   const onKeyDown = (e) => { if (e.key === "Escape") { e.stopPropagation(); dispatch({ type: "minimize" }); } };
   const close = () => {
@@ -41,6 +78,10 @@ function DockPanel({ caseId, minimized, pinned, dispatch, triggerRef, AssistantC
   return <>
     <aside ref={panel} id="assistant-panel" className="as-panel" role="complementary" aria-label="Investigation assistant"
       hidden={minimized} onKeyDown={onKeyDown}>
+      <div className="as-resize-handle" role="separator" aria-label="Resize assistant panel" aria-orientation="vertical"
+        aria-valuemin={MIN_PANEL_WIDTH} aria-valuemax={maxWidth} aria-valuenow={Math.min(width, maxWidth)} tabIndex={0}
+        title="Drag to resize the assistant panel" onPointerDown={startResize} onPointerMove={moveResize}
+        onPointerUp={endResize} onPointerCancel={endResize} onLostPointerCapture={stopResize} onKeyDown={keyResize} />
       <div className="as-panel-head">
         <div className="as-panel-title"><span className="rd-kicker">This investigation</span><h2>Ask the assistant</h2>
           <span className="as-panel-note">{SESSION_NOTE}</span></div>
@@ -60,7 +101,8 @@ function DockPanel({ caseId, minimized, pinned, dispatch, triggerRef, AssistantC
           aria-selected={tab === k} aria-controls={`as-view-${k}`} className={tab === k ? "on" : ""} onClick={() => setTab(k)}>{lab}</button>)}
       </div>
       <div id="as-view-ask" role="tabpanel" aria-labelledby="as-tab-ask" className="as-view" hidden={tab !== "ask"}>
-        {st.status === "ok" ? <AssistantComponent panel newSession caseId={caseId} record={st.record} report={st.report} channels={st.channels} />
+        {st.status === "ok" ? <AssistantComponent panel newSession caseId={caseId} record={st.record} report={st.report}
+          channels={st.channels} onShowEvidence={onShowEvidence} />
           : <p className="as-panel-state" role="status">{st.status === "error" ? st.message : "Loading the case…"}</p>}
       </div>
       <div id="as-view-notes" role="tabpanel" aria-labelledby="as-tab-notes" className="as-view as-view-notes" hidden={tab !== "notes"}>
