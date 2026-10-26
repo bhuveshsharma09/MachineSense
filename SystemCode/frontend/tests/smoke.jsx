@@ -709,12 +709,11 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
     dash(knownFault, "mechanic").includes('Back to home</a>')
     && dash(knownFault, "mechanic").includes(`href="#/case/${knownFault.record.case_id}/assistant"`)
     && dash(knownFault, "developer").includes(`href="#/case/${knownFault.record.case_id}/pipeline"`));
-  const withAssistant = dash(knownFault, "mechanic", { assistantOpen: true, AssistantComponent: AssistantView });
-  pcheck("Assistant opens beside the dashboard with a close link and no duplicate context column",
-    withAssistant.includes('aria-label="Finding"') && withAssistant.includes('aria-label="Investigation assistant"')
-    && withAssistant.includes('aria-label="Conversation"') && withAssistant.includes("Why was this recording flagged?")
-    && withAssistant.includes(`href="#/case/${knownFault.record.case_id}/dashboard"`)
-    && !withAssistant.includes('class="as-aside"'));
+  // App-9 addendum A: the dashboard no longer renders the panel (one dock above the routes does); it only makes room
+  const withAssistant = dash(knownFault, "mechanic", { assistantOpen: true });
+  pcheck("Assistant: the dashboard makes room for the expanded panel and renders no panel of its own",
+    withAssistant.includes('aria-label="Finding"') && withAssistant.includes("has-assistant")
+    && !withAssistant.includes('aria-label="Investigation assistant"') && !withAssistant.includes('class="as-aside"'));
   const narrowHtml = dash(knownFault, "developer", { initialWidth: 390 });
   pcheck("App-8 dashboard: below 1024 px Developer stays one column without the 3-D rig", narrowHtml.includes("is-narrow") && !narrowHtml.includes("Rotor test rig · illustrative"));
   pcheck("Mechanic keeps its full-width rig at narrow widths", dash(knownFault, "mechanic", { initialWidth: 390 }).includes('aria-label="Interactive test rig"'));
@@ -760,6 +759,51 @@ import { splitConversation } from "../src/components/Assistant.jsx";
   const empty = textOf(view([]));
   pcheck("App-9: an empty conversation shows the suggestions and no New conversation button or earlier block",
     empty.includes("Why was this recording flagged?") && !empty.includes("New conversation") && !empty.includes("Earlier questions"));
+}
+
+// App-9 addendum A: the panel lifecycle (pure reducer) and the dock's controls. The browser test (tests/assistant-dock.mjs)
+// checks the same rules with real navigation, focus and one continuous React instance.
+import { CLOSED, dockReducer, expanded as dockExpanded } from "../src/lib/assistantDock.js";
+import AssistantDock, { SESSION_NOTE } from "../src/components/AssistantDock.jsx";
+{
+  const run = (...acts) => acts.reduce((st, a) => dockReducer(st, a), CLOSED);
+  const R = (id, page) => ({ type: "route", route: id ? { id, page } : null });
+  const A = "case-a", B = "case-b";
+  const opened = run(R(A, "dashboard"), { type: "open", caseId: A });
+  pcheck("dock: open → minimize → restore keeps the same session (so the same mounted assistant and draft)",
+    (() => { const m = dockReducer(opened, { type: "minimize" }), r = dockReducer(m, { type: "restore" });
+      return m.open && m.minimized && r.open && !r.minimized && r.session === opened.session && !r.pinned; })());
+  const pinned = dockReducer(opened, { type: "togglePin" });
+  const walk = [R(A, "dashboard"), R(A, "pipeline"), R(A, "dashboard"), R(A, "pipeline")].reduce((st, a) => dockReducer(st, a), pinned);
+  pcheck("dock: a pinned panel stays open with the same session across the dashboard and the same case's pipeline",
+    walk.open && walk.pinned && !walk.minimized && walk.session === pinned.session && walk.caseId === A);
+  const minPin = [R(A, "pipeline"), R(A, "dashboard")].reduce((st, a) => dockReducer(st, a), dockReducer(pinned, { type: "minimize" }));
+  pcheck("dock: minimized + pinned stays minimized (restore available) across navigation", minPin.open && minPin.minimized && minPin.session === pinned.session);
+  const toPipe = dockReducer(opened, R(A, "pipeline"));
+  pcheck("dock: an unpinned panel closes on going to the pipeline (session ended) and stays open on dashboard routes",
+    !toPipe.open && toPipe.session === opened.session + 1 && dockReducer(opened, R(A, "dashboard")).open);
+  const home = dockReducer(pinned, R(null));
+  pcheck("dock: Home closes, unpins and ends the session", !home.open && !home.pinned && home.caseId === null && home.session === pinned.session + 1);
+  const other = dockReducer(pinned, R(B, "dashboard"));
+  pcheck("dock: another case closes the panel and carries nothing over", !other.open && !other.pinned && other.caseId === B && other.session === pinned.session + 1);
+  const deep = run(R(A, "assistant"));
+  pcheck("dock: the /assistant deep link opens the panel on the dashboard; later dashboard routes keep it",
+    deep.open && deep.caseId === A && dockReducer(deep, R(A, "dashboard")).open && dockExpanded(deep, A) && !dockExpanded(deep, B));
+  const closed = dockReducer(pinned, { type: "close" }), again = dockReducer(closed, { type: "open", caseId: A });
+  pcheck("dock: Close ends the session and a reopen is a new session (a new conversation, nothing deleted)",
+    !closed.open && !closed.pinned && again.open && again.session === pinned.session + 1);
+  const data = { status: "ok", record: knownFault.record, report: knownFault.report, channels: knownFault.channels };
+  const dockHtml = (st) => renderToString(<AssistantDock state={st} dispatch={() => {}} initialData={data} />);
+  const open1 = dockHtml(pinned);
+  pcheck("dock: the panel header has Minimize, Pin (aria-pressed) and Close, and says saved history stays available",
+    open1.includes('aria-label="Minimize the assistant"') && /aria-pressed="true"[^>]*aria-label="Unpin the assistant"/.test(open1)
+    && open1.includes('aria-label="Close the assistant and end this session"') && textOf(open1).includes(SESSION_NOTE)
+    && open1.includes('aria-label="Ask about this recording"') && !/<aside[^>]*hidden/.test(open1));
+  const min1 = dockHtml(dockReducer(pinned, { type: "minimize" }));
+  pcheck("dock: minimized keeps the panel mounted (hidden) and shows a visible Ask the assistant restore button",
+    /<aside[^>]*hidden=""/.test(min1) && min1.includes('aria-label="Ask about this recording"') && min1.includes('class="as-restore"')
+    && textOf(min1).includes("Ask the assistant"));
+  pcheck("dock: a closed dock renders nothing", dockHtml(CLOSED) === "");
 }
 
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }

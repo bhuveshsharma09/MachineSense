@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vite build && vite build --ssr tests/smoke.jsx --outDir tests/.ssr --emptyOutDir && node tests/.ssr/smoke.js && node tests/mobile-width.mjs && node tests/race.mjs && node tests/pipeline-requests.mjs",
+    "test": "vite build && vite build --ssr tests/smoke.jsx --outDir tests/.ssr --emptyOutDir && node tests/.ssr/smoke.js && node tests/mobile-width.mjs && node tests/race.mjs && node tests/pipeline-requests.mjs && node tests/assistant-dock.mjs",
     "audit:cases": "vite build --ssr tests/audit_real_cases.jsx --outDir tests/.ssr-audit --emptyOutDir && node tests/.ssr-audit/audit_real_cases.js"
   },
   "dependencies": {

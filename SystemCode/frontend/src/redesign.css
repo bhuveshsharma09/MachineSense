@@ -364,3 +364,28 @@ button.rd-ch-row:hover { background: oklch(0.23 0.006 260 / 0.03); }
 .as-earlier-q { display: flex; flex-direction: column; gap: 2px; padding: 6px 0; border-top: 1px solid oklch(0.23 0.006 260 / 0.06); }
 .as-earlier-q b { font-weight: 500; color: oklch(0.23 0.006 260); }
 .as-new { margin-left: auto; border-style: dashed; }
+
+/* App-9 addendum A: one assistant panel above the routes (minimize, pin, close); pages make room when it is expanded */
+.as-panel[hidden] { display: none; }
+.as-panel-title { min-width: 0; display: flex; flex-direction: column; }
+.as-panel-note { font-size: 11.5px; color: oklch(0.48 0.008 260); margin-top: 2px; }
+.as-panel-ctl { display: flex; gap: 6px; flex: none; }
+.as-ctl { height: 34px; min-width: 34px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 999px; border: 1px solid oklch(0.23 0.006 260 / 0.12); background: oklch(0.995 0.002 85); color: oklch(0.40 0.008 260);
+  font-size: 13px; cursor: pointer; }
+.as-ctl:hover { background: oklch(0.23 0.006 260 / 0.06); color: oklch(0.23 0.006 260); }
+.as-ctl.is-on { background: oklch(0.54 0.21 277 / 0.12); border-color: oklch(0.54 0.21 277 / 0.55); color: oklch(0.44 0.15 277); font-weight: 500; }
+.as-panel-state { padding: 24px; color: oklch(0.48 0.008 260); }
+.as-restore { position: fixed; right: 24px; bottom: 22px; z-index: 75; height: 46px; padding: 0 18px; display: inline-flex; align-items: center; gap: 9px;
+  border-radius: 999px; border: 0; background: oklch(0.23 0.006 260); color: oklch(0.98 0.002 85); font-size: 14px; font-weight: 500;
+  box-shadow: 0 10px 28px oklch(0.3 0.01 260 / 0.25); cursor: pointer; }
+.as-restore .rd-dot { background: oklch(0.66 0.19 42); }
+.as-restore-pin { font-weight: 400; opacity: 0.8; }
+.pl-root.has-assistant { width: auto; margin-right: min(420px, 48vw); }
+.pl-ask { white-space: nowrap; }
+@media (max-width: 1023px) {
+  .as-panel { width: 100vw; }
+  .rd-root.has-assistant, .pl-root.has-assistant { margin-right: 0; }
+  .as-restore { right: 16px; bottom: 16px; }
+}
+button.rd-ask { border: 0; cursor: pointer; font: inherit; font-size: 13.5px; font-weight: 500; }

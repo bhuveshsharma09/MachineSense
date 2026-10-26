@@ -12,6 +12,7 @@ import { Svg, bandPath, linePath, rangeMax } from "./Charts.jsx";
 import { usePanelView } from "./Aside.jsx";
 import Scene from "./Scene.jsx";
 import { Logo } from "./TopBar.jsx";
+import { AskButton } from "./AssistantDock.jsx";
 import "../redesign.css";
 
 // Stage App-8: #/case/<id>/dashboard — the whole diagnosis of one stored case on one page (layout "A · Rig stage").
@@ -33,10 +34,11 @@ const readName = () => { try { return localStorage.getItem("ms_display_name") ||
 
 // Load one stored case and everything the dashboard shows about it (the main session's follow-up requests, read only;
 // the explanation is generated on the server if the case has none yet, exactly as the report page does).
-export function useCaseData(caseId, { withExplanation = true } = {}) {
+export function useCaseData(caseId, { withExplanation = true, skip = false } = {}) {
   const [st, setSt] = useState({ status: "loading" });
   const [regen, setRegen] = useState(0);
   useEffect(() => {
+    if (skip) return undefined;
     const ac = new AbortController(), signal = ac.signal;
     const live = () => !signal.aborted;
     const patch = (p) => { if (live()) setSt((s) => ({ ...s, ...p })); };
@@ -67,11 +69,11 @@ export function useCaseData(caseId, { withExplanation = true } = {}) {
   return [st, () => setRegen((n) => n + 1)];
 }
 
-export default function Dashboard({ caseId, assistantOpen = false, AssistantComponent }) {
+export default function Dashboard({ caseId, assistantOpen = false }) {
   const [st, regenerate] = useCaseData(caseId);
   if (st.status !== "ok") return <PageState message={st.status === "loading" ? "Loading the case…" : st.message} />;
   return <DashboardView {...st} caseId={caseId} onRegenerate={regenerate}
-    assistantOpen={assistantOpen} AssistantComponent={AssistantComponent} />;
+    assistantOpen={assistantOpen} />;
 }
 
 export function PageState({ message }) {
@@ -110,7 +112,7 @@ export function Header({ caseId, record, view, onView, back, title, userName }) 
         </div>}
       </div>
       {onView && <Seg label="Reading level" value={view} onChange={onView} options={[["mechanic", "Mechanic"], ["developer", "Developer"]]} />}
-      {!title && <a className="rd-ask" href={`#/case/${encodeURIComponent(caseId)}/assistant`}><span className="rd-dot" style={{ background: K.orange }} />Ask the assistant</a>}
+      {!title && <AskButton caseId={caseId}><span className="rd-dot" style={{ background: K.orange }} />Ask the assistant</AskButton>}
       <span className="rd-avatar" title={userName || "Guest"}>{initials(userName)}</span>
     </header>
   );
@@ -187,7 +189,7 @@ function FindingSummary({ area, record, report, explanation, loc, mloc, warnings
 }
 
 export function DashboardView({ caseId, record, report, channels, signals, activity, explanation, onRegenerate,
-  initialView, initialWidth, initialSel = null, initialUi = {}, assistantOpen = false, AssistantComponent }) {
+  initialView, initialWidth, initialSel = null, initialUi = {}, assistantOpen = false }) {
   const [view, setView] = usePanelView(initialView);
   const changeView = (next) => { setRigFocus(null); setView(next); };
   const dev = view === "developer";
@@ -201,30 +203,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
   const [rigFocus, setRigFocus] = useState(null);
   useEffect(() => () => clearTimeout(zoomHintTimer.current), []);
   const userName = useRef(readName()).current;
-  const assistantPanel = useRef(null);
-  const dashboardHref = `#/case/${encodeURIComponent(caseId)}/dashboard`;
-  useEffect(() => {
-    if (!assistantOpen) return undefined;
-    const previousFocus = document.activeElement;
-    const onKeyDown = (event) => {
-      if (event.key === "Escape") window.location.hash = dashboardHref;
-    };
-    document.addEventListener("keydown", onKeyDown);
-    assistantPanel.current?.querySelector('input[aria-label="Ask about this recording"]')?.focus();
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      if (previousFocus?.isConnected) previousFocus.focus();
-    };
-  }, [assistantOpen, dashboardHref]);
-
-  const assistantDrawer = assistantOpen && AssistantComponent && <aside ref={assistantPanel} className="as-panel" role="complementary" aria-label="Investigation assistant">
-    <div className="as-panel-head">
-      <div><span className="rd-kicker">This investigation</span><h2>Ask the assistant</h2></div>
-      <a className="as-panel-close" href={dashboardHref} aria-label="Close the assistant panel" title="Close assistant">×</a>
-    </div>
-    <AssistantComponent panel caseId={caseId} record={record} report={report} channels={channels} />
-  </aside>;
-
+  // App-9 addendum A: the assistant panel is mounted by App (AssistantDock); assistantOpen only makes room for it here.
   const d = record.diagnosis;
   const flags = D.qualityFlags(record);
   const loc = locations(record);
@@ -333,7 +312,6 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
             </div>
           </details>
         </main>
-        {assistantDrawer}
       </div>
     );
   }
@@ -499,7 +477,6 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
           {ui.lim && <ul>{limits.map((l) => <li key={l}>{l}</li>)}</ul>}
         </footer>
       </main>
-      {assistantDrawer}
     </div>
   );
 }

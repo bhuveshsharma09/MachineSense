@@ -40,6 +40,7 @@ function signalsUnavailable(trace) {
   return v && v.available?.value === false ? v.reason || "the stored signal is not available" : null;
 }
 import { Logo } from "./TopBar.jsx";
+import { AskButton, useDock } from "./AssistantDock.jsx";
 
 // App-4.2: #/case/<case_id>/pipeline — the general architecture of a diagnosis, drawn from one GET of the case's trace.
 // Structure only: the case id is used only to fetch a trace (it is not shown or linked); no score, threshold, probability,
@@ -98,6 +99,7 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
     return () => window.removeEventListener("resize", on);
   }, []);
   const narrow = vw < NARROW;
+  const dock = useDock();
   const layout = useMemo(() => {
     if (problem) return null;
     // case mode: the three preview blocks get a thumbnail slot under their text (App-8: height; columns keep their width)
@@ -153,7 +155,7 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
   const mismatch = caseMode && trace.bundle_matches_record?.value === false;
   const kinds = [...new Set(Object.keys(trace.edge_kinds || {}))];
   return (
-    <div className={"pl-root" + (caseMode ? " is-case" : "") + (narrow ? " is-narrow" : "")}>
+    <div className={"pl-root" + (caseMode ? " is-case" : "") + (narrow ? " is-narrow" : "") + (caseId && dock?.expanded(caseId) ? " has-assistant" : "")}>
       <header className="pl-header glass">
         <a className="pl-brand ms-brand" href="#/" aria-label="MachineSense home"><Logo /><span style={{ fontSize: 17, fontWeight: 500 }}>MachineSense</span></a>
         <div className="pl-heading">
@@ -178,6 +180,7 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
             <button key={k} role="radio" aria-checked={level === k} className={level === k ? "on" : ""} onClick={() => setLevel(k)}>{lab}</button>
           ))}
         </div>
+        {caseId && <AskButton caseId={caseId} className="ctl pl-ask" />}
         {caseId && <a className="ctl pl-link" href={`#/case/${encodeURIComponent(caseId)}/dashboard`}>← Back to the case</a>}
       </header>
 

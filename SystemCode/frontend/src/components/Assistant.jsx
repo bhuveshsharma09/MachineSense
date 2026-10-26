@@ -49,7 +49,7 @@ export function splitConversation(data) {
 }
 
 export function AssistantView({ caseId, record, report, channels, initialEntries = null, initialEarlier = [], initialPart = null,
-  ask = askConversation, load = getConversation, restart = newConversation, panel = false }) {
+  ask = askConversation, load = getConversation, restart = newConversation, panel = false, newSession = false }) {
   const [entries, setEntries] = useState(initialEntries || []);
   const [earlier, setEarlier] = useState(initialEarlier);
   const [draft, setDraft] = useState("");
@@ -61,8 +61,11 @@ export function AssistantView({ caseId, record, report, channels, initialEntries
     if (initialEntries) return undefined;
     const ac = new AbortController();
     setEntries([]); setEarlier([]);
-    load(caseId, { signal: ac.signal }).then((data) => {
-      if (caseRef.current !== caseId) return;
+    load(caseId, { signal: ac.signal }).then(async (data) => {
+      if (caseRef.current !== caseId || ac.signal.aborted) return;
+      // App-9 addendum A: a new panel session starts a new conversation (only if the current one has turns; nothing deleted)
+      if (newSession && (data?.conversation || []).length) { await restart(caseId); data = { ...data, conversation: [] }; }
+      if (caseRef.current !== caseId || ac.signal.aborted) return;
       const { current, earlier: old } = splitConversation(data);
       setEntries(current.map((a) => ({ question: a.question, status: "done", answer: a })));
       setEarlier(old);
