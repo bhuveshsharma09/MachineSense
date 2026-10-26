@@ -503,6 +503,16 @@ details. (16) `UnseenLink`'s accessible name starts with its visible text ("Expl
 least; the seven runs re-checked in both views (same proposed label, checks and verdict); `AGENT_PROMPT_VERSION` printed and
 equal to 8fb7865754455d65. One commit per group (A, B, C), then a result line here.
 
+**Result (26 Oct 2026; commits b344158 A, 63e7d86 B, 28e798e C).** All 16 items built as declared; item 2 choice (b). The
+seven user-test runs, re-run in both views against a scratch backend (live values from the saved final models; LLM
+disabled), give the same proposed label, check results and verdict as on 26 Oct. Stopped share per hidden fault (item 4):
+imbalance 33 / 144 (23 %), horizontal misalignment 36 / 73 (49 %; 36 called healthy), vertical misalignment 40 / 125 (32 %),
+underhang ball 76 / 77 (99 %), underhang cage 72 / 72, underhang outer 73 / 73, overhang ball 69 / 69, overhang outer 74 / 74
+(100 %), overhang cage 70 / 72 (97 %). Frontend `npm test`: 32 screens, 135 pipeline checks (127 before; the App-6 checks of
+the reveal and of `pair` replaced one for one), 390 px width, race, request and dock checks pass; backend 606 passed, 2
+skipped (the reserved-signal tests); `AGENT_PROMPT_VERSION` 8fb7865754455d65. Also fixed: the single-failure sentence began
+in lower case. Screenshots at 1440, 1280 and 390 px.
+
 ## 7-f. Stage App-8.5 — "Explore an unseen fault" page redesign (frontend only)
 
 Declared 26 Oct 2026 before any code, at Bhuvesh's request ("update unseen fault page": the designer's
