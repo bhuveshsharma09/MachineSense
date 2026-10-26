@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import CaseNotes from "./CaseNotes.jsx";
 import { useCaseData } from "./Dashboard.jsx";
 import { AssistantView } from "./Assistant.jsx";
 import "../redesign.css";
@@ -11,14 +12,15 @@ export const useDock = () => useContext(DockContext);
 
 export const SESSION_NOTE = "Closing ends this session. Saved questions about this recording stay available.";
 
-export default function AssistantDock({ state, dispatch, triggerRef, AssistantComponent = AssistantView, initialData = null }) {
+export default function AssistantDock({ state, dispatch, triggerRef, AssistantComponent = AssistantView, initialData = null, initialTab = "ask", notesProps = {} }) {
   const { caseId, open, minimized, pinned, session } = state;
   if (!open || !caseId) return null;
   return <DockPanel key={`${caseId}:${session}`} caseId={caseId} minimized={minimized} pinned={pinned} dispatch={dispatch}
-    triggerRef={triggerRef} AssistantComponent={AssistantComponent} initialData={initialData} />;
+    triggerRef={triggerRef} AssistantComponent={AssistantComponent} initialData={initialData} initialTab={initialTab} notesProps={notesProps} />;
 }
 
-function DockPanel({ caseId, minimized, pinned, dispatch, triggerRef, AssistantComponent, initialData }) {
+function DockPanel({ caseId, minimized, pinned, dispatch, triggerRef, AssistantComponent, initialData, initialTab, notesProps }) {
+  const [tab, setTab] = useState(initialTab);  // both views stay mounted, so switching keeps the draft
   const [loaded] = useCaseData(caseId, { withExplanation: false, skip: !!initialData });
   const st = initialData || loaded;
   const panel = useRef(null), restoreBtn = useRef(null), minBtn = useRef(null);
@@ -53,8 +55,17 @@ function DockPanel({ caseId, minimized, pinned, dispatch, triggerRef, AssistantC
             title={SESSION_NOTE}>×</button>
         </div>
       </div>
-      {st.status === "ok" ? <AssistantComponent panel newSession caseId={caseId} record={st.record} report={st.report} channels={st.channels} />
-        : <p className="as-panel-state" role="status">{st.status === "error" ? st.message : "Loading the case…"}</p>}
+      <div className="as-tabs" role="tablist" aria-label="Assistant panel views">
+        {[["ask", "Ask"], ["notes", "Notes & status"]].map(([k, lab]) => <button key={k} type="button" role="tab" id={`as-tab-${k}`}
+          aria-selected={tab === k} aria-controls={`as-view-${k}`} className={tab === k ? "on" : ""} onClick={() => setTab(k)}>{lab}</button>)}
+      </div>
+      <div id="as-view-ask" role="tabpanel" aria-labelledby="as-tab-ask" className="as-view" hidden={tab !== "ask"}>
+        {st.status === "ok" ? <AssistantComponent panel newSession caseId={caseId} record={st.record} report={st.report} channels={st.channels} />
+          : <p className="as-panel-state" role="status">{st.status === "error" ? st.message : "Loading the case…"}</p>}
+      </div>
+      <div id="as-view-notes" role="tabpanel" aria-labelledby="as-tab-notes" className="as-view as-view-notes" hidden={tab !== "notes"}>
+        <CaseNotes caseId={caseId} {...notesProps} />
+      </div>
     </aside>
     {minimized && <button ref={restoreBtn} type="button" className="as-restore" aria-controls="assistant-panel" aria-expanded="false"
       onClick={() => dispatch({ type: "restore" })} title={pinned ? "Restore the pinned assistant" : "Restore the assistant"}>

@@ -806,5 +806,39 @@ import AssistantDock, { SESSION_NOTE } from "../src/components/AssistantDock.jsx
   pcheck("dock: a closed dock renders nothing", dockHtml(CLOSED) === "");
 }
 
+// App-9 slice 2: the Notes & status view keeps the model prediction, the technician status and observations apart, says
+// the actions are a local demo with an unverified name, and shows edit and status history.
+import CaseNotes, { KIND, STATUS_TEXT } from "../src/components/CaseNotes.jsx";
+{
+  const actor = { name: "Sam", verified: false, method: "local-demo" };
+  const base = { case_id: "c1", local_demo: "Local demo action: this app does not sign in technicians; the name is the display name set in this browser and is not verified.",
+    model_prediction: { kind: "model_prediction", decision: "known_fault", fault_class: "underhang_outer", display_label: "known fault: underhang outer",
+      note: "Model prediction from the recording; not a physical confirmation." },
+    parts: { in_brg: "Underhang bearing housing", out_brg: "Overhang bearing housing" }, fault_classes: ["underhang_outer", "underhang_ball"] };
+  const none = { ...base, technician: { status: "not_confirmed", latest: null, agrees_with_model: null }, events: [] };
+  const ev = { id: 2, case_id: "c1", created_at: "2026-10-26T10:00:00+00:00", status: "confirmed", fault_class: "underhang_ball", part: "in_brg", note: "Pitting on a ball", actor };
+  const conf = { ...base, technician: { status: "technician_confirmed", latest: ev, agrees_with_model: false },
+    events: [{ ...ev, id: 1, status: "rejected", fault_class: null, part: null }, ev] };
+  const obs = [{ id: 7, kind: "technician_observation", created_at: "2026-10-26T09:00:00+00:00", updated_at: "2026-10-26T09:30:00+00:00", actor,
+    text: "Grinding noise after 10 min.", edits: [{ edited_at: "2026-10-26T09:30:00+00:00", actor, previous_text: "Grinding noise.", new_text: "Grinding noise after 10 min." }] }];
+  const t0 = textOf(renderToString(<CaseNotes caseId="c1" initialStatus={none} initialObservations={[]} />));
+  pcheck("notes: model prediction, technician status and observations are separately labelled; local demo stated",
+    t0.includes(KIND.model) && t0.includes("Known fault · Underhang bearing · outer race") && t0.includes("not a physical confirmation")
+    && t0.includes(STATUS_TEXT.not_confirmed) && t0.includes("Technician observations") && t0.includes("No observations yet.")
+    && t0.includes("does not sign in technicians") && t0.includes("not part of the recording's measurements") && !t0.includes("Withdraw"));
+  const t1 = textOf(renderToString(<CaseNotes caseId="c1" initialStatus={conf} initialObservations={obs} />));
+  pcheck("notes: a technician-confirmed fault shows class, part, unverified name and that it differs from the model, beside the unchanged prediction",
+    t1.includes(STATUS_TEXT.technician_confirmed) && t1.includes("Underhang bearing · ball fault at the underhang bearing housing")
+    && t1.includes("Sam (name not verified)") && t1.includes("differs from the model prediction") && t1.includes("Known fault · Underhang bearing · outer race")
+    && t1.includes("Status history (2 events)") && t1.includes("Withdraw"));
+  pcheck("notes: an edited observation shows its edit count and history", t1.includes("edited 1×") && t1.includes("was: “Grinding noise.”"));
+  const dk = renderToString(<AssistantDock state={{ caseId: "c1", open: true, minimized: false, pinned: false, session: 0 }} dispatch={() => {}}
+    initialData={{ status: "ok", record: knownFault.record, report: knownFault.report, channels: knownFault.channels }}
+    notesProps={{ initialStatus: none, initialObservations: [] }} />);
+  pcheck("dock: Ask and Notes & status tabs; both views mounted, the inactive one hidden",
+    /role="tab"[^>]*aria-selected="true"[^>]*>Ask</.test(dk) && dk.includes(">Notes &amp; status<") && /id="as-view-notes"[^>]*hidden=""/.test(dk)
+    && dk.includes('aria-label="Ask about this recording"') && dk.includes(KIND.model));
+}
+
 if (failed) { console.error(`${failed} screen(s) failed`); process.exit(1); }
 console.log(`all ${Object.keys(screens).length + Object.keys(mobileScreens).length + 1} screens rendered; ${pipelineChecks} pipeline checks passed`);

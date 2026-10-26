@@ -43,3 +43,9 @@ export const getQuestions = (id, { signal } = {}) => api.get(`/cases/${id}/quest
 export const askConversation = (id, question, { signal } = {}) => api.post(`/cases/${id}/ask`, { question, conversation: true }, { signal }).then((r) => r.data);
 export const getConversation = (id, { signal } = {}) => api.get(`/cases/${id}/questions`, { signal }).then((r) => r.data);
 export const newConversation = (id) => api.post(`/cases/${id}/conversations`).then((r) => r.data);
+// App-9 slice 2: technician observations and fault status (human records; the model verdict is never changed)
+export const getObservations = (id, { signal } = {}) => api.get(`/cases/${id}/observations`, { signal }).then((r) => r.data);
+export const addObservation = (id, text, author) => api.post(`/cases/${id}/observations`, { text, author }).then((r) => r.data);
+export const editObservation = (id, oid, text, author) => api.patch(`/cases/${id}/observations/${oid}`, { text, author }).then((r) => r.data);
+export const getFaultStatus = (id, { signal } = {}) => api.get(`/cases/${id}/fault-status`, { signal }).then((r) => r.data);
+export const addStatusEvent = (id, body) => api.post(`/cases/${id}/confirmations`, body).then((r) => r.data);
