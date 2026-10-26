@@ -886,6 +886,13 @@ threshold or scoring path changes. The protocol (item 1) is committed before any
    fell back although the facts could answer; Correct (Q2) = names the rank-1 channel (alongside others only if clearly
    marked the largest). Items are scored in the order shown; an earlier score is changed only for a plain misclick.
 
+6. **Scores received (26 Oct 2026; recorded before any analysis).** `results/d7/scores.csv`: 225 rows, one per item id of
+   `scoring.html` (45 per question), sha256 4e64a1b5…7685484. Validated: supported, unsupported_repair and
+   unnecessary_refusal yes / no on every row; useful_next_inspection only for Q4 / Q5; correct only for Q2 (29 yes, 16 no);
+   no duplicate, missing or unknown item id. **Scorer: Bhuvesh, by hand** (his statement). **The scorer could not see
+   `results/d7/key.json`** (his statement). The file also has a `scoring_notes` column (filled on all 225 rows) that the
+   sheet's own download does not produce; per Bhuvesh the notes were added by hand; the analysis does not read them.
+
 ## 7-prev10. Previous stage: Stage App-7 — the investigation assistant: one agent with tools (D6)
 
 The chat panel is connected: one agent answers a mechanic's question about one diagnosed case, using only four read-only
