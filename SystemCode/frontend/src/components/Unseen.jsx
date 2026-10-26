@@ -62,6 +62,19 @@ export function rateLine(k) {
     + `${w} got a wrong familiar label; ${h} ${h === 1 ? "was" : "were"} called healthy.`;
 }
 
+// Stage App-8.7 item 15: the file name's nominal speed and the measured speed, each labelled
+export const speedText = (id, measured) => [Number.isFinite(nominalHz(id)) && `nominal ${nominalHz(id).toFixed(1)} Hz (from the file name)`,
+  Number.isFinite(measured) && `measured ${measured.toFixed(1)} Hz`].filter(Boolean).join(" · ");
+
+// Stage App-8.7 item 14: the rule variants under the dashboard's names (backend.checks.VARIANT_NAMES); B is the rule in use
+export const VARIANT_NAMES = {
+  A: "classifier first, with an autoencoder override",
+  B: "classifier first (the rule in use)",
+  C: "strict: healthy also needs the autoencoder check",
+  D: "strict: healthy also needs the speed-aware check",
+};
+const variantVerdict = (v) => (v === "unknown" ? "further inspection" : v === "healthy" ? "healthy" : human(v));
+
 export function verdictText(d) {
   if (d.decision === "unknown") return "Further inspection needed";
   if (d.decision === "healthy") return d.caution ? "Healthy — with a caution" : "Healthy";
@@ -80,12 +93,13 @@ const SHORT = { imbalance: "Imbalance", horizontal_misalignment: "Horizontal mis
   underhang_ball: "Ball fault", underhang_cage: "Cage fault", underhang_outer: "Outer race", overhang_ball: "Ball fault",
   overhang_cage: "Cage fault", overhang_outer: "Outer race" };
 const partNames = (c) => partsForClass(c).map((p, i) => (i ? PART_PLAIN[p].toLowerCase() : PART_PLAIN[p])).join(" and ");
+// nominal shaft speed from the recording id (the file name is the nominal speed in Hz)
+const nominalHz = (id) => Number(String(id).split("__").pop());
 const PAGES = [["Hide a fault", "Pick one fault. An experimental model was trained without it, then shown recordings of it."],
   ["Choose a recording", "Start with a recording of the hidden fault. Try the familiar example afterward to compare."],
   ["Run the checks", "The model proposes a familiar label; two checks decide whether to accept it."],
   ["See the result", "What the model proposed, what the checks said, and what the recording really was."]];
-// nominal shaft speed from the recording id (the file name is the nominal speed in Hz)
-const nominalHz = (id) => Number(String(id).split("__").pop());
+
 const accepted = (d) => d.decision !== "unknown";
 
 // Outcome words from the role and the verdict only (App-8.5 item 2).
@@ -302,9 +316,10 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
                   onClick={() => { setEx(i); reset(); }}>
                   <span className={"uw-tag" + (e.role === "withheld" ? " is-hidden" : "")}>{e.role === "withheld" ? "Hidden fault" : "Familiar condition"}</span>
                   <b>{exLabel(e)}</b>
-                  <span>{e.role === "withheld" ? `A recording of ${low(hidden)}, which this model never saw.` : `A recording of ${low(e.true_class)}, a condition this model learned.`}</span>
+                  <span>{e.role === "withheld" ? `A recording of ${low(hidden)}, which this model never saw.`
+                    : e.true_class === "normal" ? "A healthy recording (a condition this model learned)." : `A recording of ${low(e.true_class)} (a condition this model learned).`}</span>
                   <span className="uw-rec-meta"><span className="mono">{e.rec_id}</span>
-                    {Number.isFinite(nominalHz(e.rec_id)) && <span>{`nominal ${nominalHz(e.rec_id).toFixed(1)} Hz`}</span>}
+                    <span data-v="speed">{speedText(e.rec_id, prev?.res.speed_hz)}</span>
                     {prev && <span className="uw-done">{`✓ Already run · ${verdictText(prev.res.decision)}`}</span>}</span>
                 </button>; })}
             </div>
@@ -333,10 +348,13 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
               <section className={"uw-verdict" + (d.decision === "unknown" ? " is-unknown" : "")}>
                 <span className="uw-kick">Verdict</span>
                 <h3 data-v="verdict">{verdictText(d)}</h3>
-                <p>{d.decision === "unknown" ? "At least one check did not support the proposed familiar label." : "The decision rule accepted a learned condition."}</p>
+                <p>{d.decision === "unknown" ? "At least one check did not support the proposed familiar label."
+                  : d.decision === "healthy" ? "The decision rule accepted the healthy label." : "The decision rule accepted a learned condition."}</p>
                 {d.decision === "unknown" && <p className="un-copy" data-copy="further">{summary.further_inspection}</p>}
                 {d.caution && <p className="uw-small" data-copy="caution">{cautionText(d.caution, level, summary.gates_note)}</p>}
-                {level === "developer" && <p className="uw-small mono">rule {d.rule_variant}; {Object.entries(result.rule_comparison).map(([k, v]) => `${k}: ${v}`).join(" · ")}</p>}
+                {level === "developer" && <div className="uw-rules" data-v="rules"><span className="uw-small">Decision rules (comparison only; the rule in use decides)</span>
+                  {Object.entries(result.rule_comparison).filter(([k]) => VARIANT_NAMES[k]).map(([k, v]) => <span key={k} className={"uw-small" + (k === "B" ? " is-used" : "")}
+                    title={k === "B" ? d.rule_variant : k}>{`${VARIANT_NAMES[k]}: ${variantVerdict(v)}`}{k === "B" && <b> · in use</b>}</span>)}</div>}
               </section>
               {/* App-8.7 item 2 (choice b): step 1 names the hidden fault, so the actual condition is shown directly */}
               <section className="uw-truth is-open">
@@ -404,14 +422,14 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
                 <dt>Withheld class</dt><dd>{human(hidden)}</dd>
                 <dt>Run</dt><dd>leave-one-class-out CNN-6, seed {summary.seed}</dd>
                 <dt>Recording</dt><dd className="mono">{chosen?.rec_id || "—"}</dd>
-                <dt>Recording details</dt><dd>{[severityText(result), `${result.speed_hz.toFixed(1)} Hz`].filter(Boolean).join(" · ")}</dd>
+                <dt>Recording details</dt><dd data-v="speed">{[severityText(result), speedText(result.rec_id, result.speed_hz)].filter(Boolean).join(" · ")}</dd>
                 <dt>Role in training</dt><dd data-v="roles">{rolesText(result)}</dd>
                 <dt>Example type</dt><dd>{chosen?.category}{chosen?.failure_kind ? ` (${chosen.failure_kind})` : ""}</dd>
                 {r.counts && <><dt>This model on its hidden class</dt><dd data-v="counts">{r.counts.withheld_recordings} eligible recordings: {r.counts.rejected} not accepted,
                   {" "}{r.counts.accepted_as_a_wrong_fault} accepted as a wrong fault, {r.counts.accepted_as_healthy} accepted as healthy</dd></>}
                 <dt>Values</dt><dd>{result.source === "live" ? "computed now from the saved models" : "saved values (the model weights are not present here)"}</dd>
                 <dt>Final manifest</dt><dd className="mono" title={summary.final_manifest_sha256}>{summary.final_manifest_sha256?.slice(0, 16)}…</dd>
-                {level === "developer" && <><dt>Healthy-baseline checks</dt><dd className="mono">AE {result.scores.ae.toFixed(4)} / τ_e {result.thresholds.tau_e.toFixed(4)} · B1s {result.scores.b1s.toFixed(4)} / τ_b {result.thresholds.tau_b.toFixed(4)} — {summary.gates_note}</dd></>}
+                {level === "developer" && <><dt>Healthy-baseline checks</dt><dd className="mono">AE {fmtCheck(result.scores.ae)} / τ_e {fmtCheck(result.thresholds.tau_e)} · B1s {fmtCheck(result.scores.b1s)} / τ_b {fmtCheck(result.thresholds.tau_b)} — {summary.gates_note}</dd></>}
                 <dt>Categories without an eligible recording</dt><dd>{missing.length ? missing.map((m) => `${m} (${r.why_missing?.[m] || "none"})`).join("; ") : "none"}</dd>
               </dl>
             </details>

@@ -514,7 +514,7 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
 // must equal the backend's value for that example, the required copy must be on the page itself, and the steps stay hidden
 // until revealed.
 import unseenFile from "../../backend/unseen.json";
-import { UnseenView, LIMITS_NOTE, cautionText, rateLine, rolesText, verdictText } from "../src/components/Unseen.jsx";
+import { UnseenView, LIMITS_NOTE, VARIANT_NAMES as UVN, cautionText, rateLine, rolesText, speedText, verdictText } from "../src/components/Unseen.jsx";
 import { fmtCheck as fmtU } from "../src/lib/model.js";
 import { UnseenLink } from "../src/components/TopBar.jsx";
 {
@@ -595,6 +595,29 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
   const rows = [...hh.matchAll(/data-v="hidden">([^<]*)</g)].map((m) => m[1]);
   pcheck("App-8.7: \"Your runs\" has a Hidden fault column for every run and a Clear runs control",
     textOf(hh).includes("Hidden fault") && rows.join() === hist.map((x) => human(x.hidden)).join() && textOf(hh).includes("Clear runs"), rows.join());
+  // App-8.7 item 13: wording for a healthy familiar recording and for an accepted healthy verdict
+  const hmCards = textOf(renderToString(<UnseenView summary={summary} initialHidden="horizontal_misalignment" initialPage={2} />));
+  pcheck("App-8.7: \"A healthy recording (a condition this model learned).\" and \"The decision rule accepted the healthy label.\"",
+    hmCards.includes("A healthy recording (a condition this model learned).") && !hmCards.includes("A recording of normal")
+    && hmM.includes("The decision rule accepted the healthy label.") && !hmM.includes("accepted a learned condition"));
+  // App-8.7 item 14: Developer lists the rule variants under the dashboard's names, the one in use marked; no raw rule line
+  bad = [];
+  for (const [c, r] of Object.entries(unseenFile.runs)) for (const e of r.examples) {
+    const dv = page(c, e, { initialLevel: "developer" }), mv = textOf(page(c, e, { initialLevel: "mechanic" })), td = textOf(dv);
+    const blk = (dv.match(/data-v="rules">([^]*?)<\/div>/) || [])[1] || "";
+    if (/rule B_with_caution;|A: (unknown|healthy)/.test(td)) bad.push(`${c}/${e.rec_id}: raw rule line`);
+    if (!Object.values(UVN).every((n) => textOf(blk).includes(n)) || !/is-used[^>]*>classifier first \(the rule in use\)[^]*in use/.test(blk)) bad.push(`${c}/${e.rec_id}: variant names`);
+    if (Object.values(UVN).some((n) => mv.includes(n))) bad.push(`${c}/${e.rec_id}: rules in Mechanic`);
+  }
+  pcheck("App-8.7: Developer names the rule variants as the dashboard does and marks the rule in use", !bad.length, bad.slice(0, 4).join("; "));
+  // App-8.7 item 15: nominal (from the file name) and measured speed, labelled the same on the cards and in Experiment details
+  const i10 = unseenFile.runs.imbalance.examples.find((e) => e.rec_id === "imbalance__10g__34.4064");
+  const det = page("imbalance", i10), cardRun = textOf(renderToString(<UnseenView summary={summary} initialPage={2}
+    initialHistory={[{ hidden: "imbalance", rec_id: i10.rec_id, role: i10.role, res: i10.result }]} />));
+  pcheck("App-8.7: speeds read \"nominal X Hz (from the file name) · measured Y Hz\" on the cards and in Experiment details",
+    speedText(i10.rec_id, i10.result.speed_hz) === `nominal 34.4 Hz (from the file name) · measured ${i10.result.speed_hz.toFixed(1)} Hz`
+    && textOf(det).includes(speedText(i10.rec_id, i10.result.speed_hz)) && textOf(renderToString(<UnseenView summary={summary} initialPage={2} />)).includes("nominal 34.0 Hz (from the file name)")
+    && cardRun.includes(speedText(i10.rec_id, i10.result.speed_hz)) && !/\d Hz(?! \(from the file name\))[^·]*· used/.test(textOf(det)));
   const fail = exOf("imbalance", "honest failure");
   const rev = textOf(page("imbalance", fail));
   // App-8.7 item 2 (choice b): no reveal button; the actual condition is on the result page with the outcome
@@ -655,6 +678,11 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
     { initialLevel: "developer" });
   writeFileSync(join(here, "mobile", "unseen_390.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>${css}</style></head><body><div id="root">${full}</div></body></html>`);
+  // App-8.7 item 16: the link's accessible name starts with its visible text (WCAG 2.5.3), full and compact
+  const lab = (h) => [(h.match(/aria-label="([^"]*)"/) || [])[1], textOf(h).trim()];
+  const [lf, tf] = lab(renderToString(<UnseenLink />)), [lc, tc] = lab(renderToString(<UnseenLink compact />));
+  pcheck("App-8.7: \"Explore an unseen fault\" has an accessible name that starts with its visible text (also the compact link)",
+    tf === "Explore an unseen fault" && lf.startsWith(tf + " — research demonstration") && tc === "Unseen fault" && lc.startsWith(tc + " — "), `${lf} | ${lc}`);
   pcheck("navigation: \"Explore an unseen fault\" in the desktop top bar and the phone header",
     desk.includes('href="#/unseen"') && textOf(desk).includes("Explore an unseen fault") && phone.includes('href="#/unseen"'));
 }
