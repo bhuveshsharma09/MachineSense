@@ -355,6 +355,31 @@ saved history stays available. Escape minimizes (never navigates). The dashboard
 panel; below 1024 px it is a full-width overlay with a visible restore button when minimized. Frontend only; no backend,
 D7 or model change; no dependency.
 
+**App-9 addendum B (26 Oct 2026, before code; slice 2, technician observations and fault status).** Bhuvesh's brief.
+- **Storage (SQLite migration 2):** `observations` (case_id, created_at, updated_at, author, text), `observation_edits`
+  (every change: edited_at, previous text, new text; nothing overwritten without a trace) and `confirmations`, an
+  append-only event log (case_id, created_at, status ∈ confirmed | rejected | withdrawn, fault_class, part, note, author);
+  indexes on case_id. The stored evidence record (`cases.record`, the model verdict) is never written by these paths.
+- **API:** `GET/POST /api/cases/{id}/observations`, `PATCH /api/cases/{id}/observations/{oid}` (an observation of another
+  case is 404, never edited or shown), `GET /api/cases/{id}/fault-status` (the model prediction read from the record and
+  labelled "model prediction", the latest technician event, the full event list), `POST /api/cases/{id}/confirmations`.
+  A confirmation needs a class10 fault class (not normal) and a rig part; it may differ from the model prediction and is
+  recorded as given. Every observation and event carries `actor = {name, verified: false, method: "local-demo"}`: the app
+  has no authentication; the display name is the browser's and is not verified. `actor` is the extension point for an
+  authenticated user later.
+- **Separation:** observations and confirmations never enter the four assistant tools, the evidence record, the report or
+  the review's set of facts in this slice (the assistant does not read them yet; reading them as labelled observations is a
+  later slice with its own prompt version). Kinds are distinct everywhere: "model prediction", "technician observation",
+  "technician-confirmed fault" (or rejected / withdrawn).
+- **UI:** a "Notes & status" view inside the assistant panel (App-9's own component; App-8.2's dashboard and pipeline files
+  are not edited): the model prediction, the technician status, add / edit observations with their history, and the
+  confirmation form, all labelled a local demo action.
+- **Tests:** observations and confirmations stay out of the record, tools and report; cross-case isolation (list, edit,
+  status); edit history; confirmation validation; the record's bytes unchanged after confirming.
+- Outstanding, left to App-8.2 (not edited here): the Mechanic dashboard's location line still lacks "according to the
+  dataset label (model prediction)" (Bhuvesh's decision to restore it), and pipeline healthy-check cards still say
+  "Disagreed: differs …".
+
 ## 7-prev15. Concurrent stage: Stage R10 — frozen ImageNet ResNet-18 embedding as the familiarity score (Q3, development data only)
 
 Question: **does a frozen ImageNet ResNet-18 embedding detect unfamiliar faults better than the CNN-6 embedding, when it
