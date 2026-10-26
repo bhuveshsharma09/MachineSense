@@ -311,6 +311,36 @@ assumption. The curated step text is never rewritten; a separate plain gloss may
 pass before each code commit; screenshots at 1440×900 and 1280×720 plus healthy and further-inspection cases. Commit each
 block group separately with Bhuvesh as sole author; do not push.
 
+## 7-c. Concurrent stage: Stage App-9 — investigation assistant across an investigation (application improvement; D7 frozen)
+
+Declared 26 Oct 2026 before any code, at Bhuvesh's request; runs beside App-8.2 (that section is not moved). Goal: the
+assistant stays useful across a real investigation while model predictions, measured evidence, human observations and
+maintenance guidance stay separate; a predicted fault is never presented as physically confirmed. **D7 is frozen and
+untouched:** `AGENT_PROMPT_VERSION` 8fb7865754455d65, its prompt, tools, review and `scripts/d7_*`, `results/d7/` do not
+change, and `POST /api/cases/{id}/ask` without the new opt-in behaves exactly as D7 used it. No change to `ml/`, models,
+thresholds, rules, the bundle, saved verdicts or reserved data; no new dependency. Slices, each only after the previous
+one passes tests:
+
+1. **Case-scoped follow-ups with evidence re-verification.** Opt-in per request (`{"conversation": true}`), with its own
+   prompt version (`CONVERSATION_PROMPT_VERSION`, a hash of the conversation prompt, the tools and the schemas). Context =
+   the most recent **accepted** turns (review passed or revised, source agent) of the **same case and same conversation**:
+   question and visible answer text only (no claims dump, no tool results, no rejected drafts, no reasoning, no other
+   case), at most 4 turns and 2,400 characters, older turns dropped (recorded on the answer as the ids used). Prior turns
+   are labelled context, not evidence; the review is unchanged and checks only this turn's tool results, so a fact repeated
+   from an earlier answer must be re-fetched. "New conversation" starts a new conversation id for the case; nothing is
+   deleted. SQLite: a `schema_migrations` table, a `conversations` table, `questions.conversation_id` and
+   `questions.mode` columns, an index on (case_id, conversation_id, id).
+2. **Case notes and fault status** (after slice 1): timestamped technician observations with edit history, and a separate
+   confirmation event (fault class, part, note, time) that never changes the stored model verdict; labelled a local demo
+   action (no authentication exists), with an extension point for authenticated users.
+3. **Verified post-confirmation procedures** (after slice 2): a separate, versioned schema; offered only when a human
+   confirmed the fault AND a reviewed applicable entry exists; otherwise "no verified procedure is available". The current
+   inspection library and its provenance rules are unchanged; AI-drafted entries keep their status labels.
+4. **Answer workflow and UI**, **5. tests and an evaluation set** comparing with single-turn behaviour on development cases
+   (no reserved recording; D7 results not modified).
+Honesty rules unchanged (location according to the dataset label; scores are not probabilities of correctness; the review
+stays on for the new behaviour; reasoning never stored or shown).
+
 ## 7-prev15. Concurrent stage: Stage R10 — frozen ImageNet ResNet-18 embedding as the familiarity score (Q3, development data only)
 
 Question: **does a frozen ImageNet ResNet-18 embedding detect unfamiliar faults better than the CNN-6 embedding, when it
