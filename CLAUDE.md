@@ -289,7 +289,78 @@ into `ml/`, the scripts and the app.
 - Figures: matplotlib, labelled axes with units, saved to `results/figures/` when they are report material.
 - Strip outputs on commit (`nbstripout`). Before the final ZIP, run all notebooks and export them to HTML.
 
-## 7. Current stage: Stage App-8 — redesign: diagnosis dashboard, assistant page, pipeline (frontend only)
+## 7. Current stage: Stage R10 — frozen ImageNet ResNet-18 embedding as the familiarity score (Q3, development data only)
+
+Question: **does a frozen ImageNet ResNet-18 embedding detect unfamiliar faults better than the CNN-6 embedding, when it
+replaces the shared-covariance Mahalanobis familiarity score and everything else stays the same?** Why: R8 found that
+withheld vertical misalignment (AUROC < 0.5) and imbalance (≈ 0.59) sit inside known clusters of the CNN-6 embedding under
+every distance. CNN-6 was trained to separate the known classes only, so it had no reason to keep what separates an unseen
+fault; a frozen encoder never saw these classes, so it could not learn to discard that information. **Known risk, stated
+before any result:** the ML-5 frozen probe reached only 0.855 Q2 macro-F1 (normal F1 0.54), so the frozen features may
+place unseen faults near normal. Exploratory, development data only; **no training of any kind** (no adapter, no head, no
+fine-tuning); reserved tests sealed (not read, not scored, not listed; run with `MACHINESENSE_NO_RESERVED_READ=1`); the
+bundle, decision rules, thresholds, `artifacts/bundle/`, `artifacts/final/`, `results/final/`, `metadata.csv` and the app
+unchanged; nothing deployed; no new dependency (the ImageNet weights on disk, sha256 checked with `verify_weights`). D7
+stays paused, waiting for Bhuvesh's `results/d7/scores.csv`. Deliverable: `notebooks/06_research_layer/21_frozen_resnet_familiarity.ipynb`;
+pure code `ml/frozen_embed.py` (tests `tests/test_frozen_embed.py`); script `scripts/38_frozen_embeddings.py`; outputs
+`results/research/r10_frozen_resnet.json`, `results/research/r10_per_run.csv`.
+
+**Stage R10 protocol (declared 26 Oct 2026, before any code; changes only as dated addenda with a reason).**
+1. **Encoder.** torchvision ResNet-18, `IMAGENET1K_V1`, `fc` replaced by identity; eval mode throughout (BatchNorm keeps the
+   ImageNet running statistics), `torch.no_grad()`; output 512-d per input image.
+2. **Input, with no learned adapter** (ML-5's 1×1 adapter was learned, so it is not used); a fixed packing: the cache-C
+   window (6 × 128 orders × 25 frames), normalised exactly as the matching Stage 3C CNN-6 LOCO run normalised it; image
+   U = channels (under_axial, under_radial, under_tangential) as (R, G, B), image O = channels (over_axial, over_radial,
+   over_tangential) as (R, G, B) (the channel order of `configs/base.yaml`); each image bilinear-resized to 224 × 224
+   (`align_corners=False`), then ImageNet mean / std, as in `ResNet18Spectrogram`; window embedding z = concat(f(U), f(O)),
+   1,024-d. Reason: per-bearing packing keeps the axial / radial / tangential split, which carries the misalignment
+   physics; a grey average of the 6 channels would lose it.
+3. **Forward passes.** If the 3C input normalisation depends only on (withheld class, fold), embeddings are computed once
+   per (class, fold) (27 passes) and reused for all 3 seeds; otherwise 81 passes. Which case holds, and the evidence, is
+   recorded below (item 12) and in the notebook.
+4. **Score (arm F).** The same estimator as arm M: `mahalanobis_min` (class centroids + one shared Ledoit–Wolf precision
+   from the within-class residuals of the FIT windows) on the frozen 1,024-d window embeddings; recording score =
+   `recording_mean` over its 9 windows. **No free parameter is added.**
+5. **Everything else from the CNN-6 run:** the top class, MSP and τ_p come from the saved CNN-6 LOCO run of the same seed,
+   class and fold; only the familiarity term changes.
+6. **Data.** The 81 saved LOCO runs (9 withheld classes × 3 outer folds × seeds 42, 43, 44); roles from
+   `results/q1q3/q3_fit_cal_eval_assignment.csv` (`loco_run_ids`): fit, cal, eval, foldk_known, foldk_withheld. The frozen
+   embeddings must align row for row with the saved CNN-6 window table (rec_id, window_idx, role), as `ml.rmd_eval.run_scores`
+   checks; any misalignment stops the stage. **Reproduction check first:** arm M recomputed from the saved CNN-6 embeddings
+   must equal R8's arm M on every run (|Δ maha| ≤ 1e-4 × maha); any mismatch stops the stage.
+7. **Arms.** M (reference, current): CNN-6 embedding, shared Mahalanobis; its decisions must reproduce
+   `ml.loco_eval.decide`'s rule B exactly. F (new): frozen ResNet-18 embedding, shared Mahalanobis, as in items 1–5. No
+   other arm: no per-class covariance, no kNN, no combination with M.
+8. **Evaluation (each seed separately, then the mean over seeds), R8's evaluation (7-prev12 item 4) with R replaced by F.**
+   (1) Threshold-free: per run, AUROC and OSCR (foldk_withheld positive, foldk_known negative, weight 1 per recording, OSCR
+   correctness = CNN-6 top class), `ml.loco_eval.run_metrics` conventions; the macro over the 9 withheld classes per seed,
+   and per class. (2) In the decision rule (the primary result): conf = (msp ≥ τ_p) & (F ≤ τ_s); rule B; class prediction
+   unchanged; τ_s at a **matched known-side rejection count**: arm F's gate rejects exactly as many foldk_known recordings
+   as arm M's gate rejects at τ_d (`matched_u_threshold`; ties within 1e-12 accepted); a count that cannot be reached is
+   reported. Pooled over the 27 runs of a seed, and per withheld class: unknown recall, withheld called healthy (count),
+   known called wrong fault (count). Secondary: τ_s as the 0.975 order statistic over the run's calibration recordings.
+9. **Acceptance bar (as R4, R5, R8):** F **helps** only if, against M at the matched count, unknown recall is at least
+   **+5 percentage points** higher AND **no more withheld recordings are called healthy**, both on **all three seeds**.
+   Readings, in this order and no others: **"helps, confirmed"** when the bar is met; otherwise **"worse"** when the mean
+   change in unknown recall over the seeds is negative; otherwise **"does not help"**.
+10. **Per-class view and the known risk.** Unknown recall by withheld class for M and F (per seed and the seed mean);
+   classes where F is better or worse by ≥ 5 points marked; imbalance, vertical and horizontal misalignment discussed. The
+   known risk, measured (descriptive only, not part of the reading): per withheld class, the share of withheld recordings
+   whose nearest class centroid under F is `normal`, against the same share under M.
+11. **Compute and stop rule.** The first forward pass is timed and the total projected; **above 60 minutes the stage stops
+   and Bhuvesh is asked** (§10); MPS if free, one GPU job at a time (`artifacts/gpu.lock`); CPU acceptable. The arm runs
+   once. No arm is added, the packing and the estimator are not changed and nothing is tuned after results are seen; an
+   idea is recorded here for Bhuvesh, not run. Only a crash fix allows a rerun, recorded here. Stop and ask about: a
+   reproduction or alignment mismatch; a projected run time over 60 minutes; a weights sha256 mismatch or any need to
+   download or install; any need to read reserved data; any wish to add an arm, change the packing or use a learned adapter.
+12. **Addendum (26 Oct 2026, before any code; item 3 resolved from the saved files).** The 3C normalisation depends only on
+   (withheld class, fold): for all 27 (class, fold) pairs `results/loco/cnn6_w-<c>_s<seed>_loco/fold<k>_norm.json` is
+   identical across seeds 42, 43, 44 (sha256 of the sorted JSON), and the saved window tables
+   (`cnn6_w-<c>_s<seed>_loco_fold<k>_logits.parquet`: rec_id, window_idx, role, class10) are identical across the three
+   seeds (181,350 windows per seed). Embeddings are therefore computed **27 times** and reused for every seed; the script
+   re-checks both facts before each pass. The weights `resnet18-f37072fd.pth` verify (sha256 f37072fd…07ec).
+
+## 7-prev14. Previous stage: Stage App-8 — redesign: diagnosis dashboard, assistant page, pipeline (frontend only)
 
 The report page's right-hand panel becomes a button that opens a full **diagnosis dashboard**; the assistant gets its own
 page; the pipeline page is redrawn left to right. Source: the designer's files (`MachineSense Dashboard.dc.html`,
