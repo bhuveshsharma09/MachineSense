@@ -10,12 +10,12 @@ export const ASK_DISABLED = "Available when the investigation assistant is conne
 // Backend channel ids (ml PreprocessConfig.channels). Underhang = inner bearing housing, overhang = outer.
 export const CHANNELS = [
   { id: "tacho", name: "Tachometer", short: "Tach", sensor: "s_tach" },
-  { id: "under_axial", name: "Inner bearing · axial", short: "In · ax", sensor: "s_in", dir: "Axial" },
-  { id: "under_radial", name: "Inner bearing · radial", short: "In · rad", sensor: "s_in", dir: "Radial" },
-  { id: "under_tangential", name: "Inner bearing · tangential", short: "In · tan", sensor: "s_in", dir: "Tangential" },
-  { id: "over_axial", name: "Outer bearing · axial", short: "Out · ax", sensor: "s_out", dir: "Axial" },
-  { id: "over_radial", name: "Outer bearing · radial", short: "Out · rad", sensor: "s_out", dir: "Radial" },
-  { id: "over_tangential", name: "Outer bearing · tangential", short: "Out · tan", sensor: "s_out", dir: "Tangential" },
+  { id: "under_axial", name: "Underhang bearing · axial", short: "Under · ax", sensor: "s_in", dir: "Axial" },
+  { id: "under_radial", name: "Underhang bearing · radial", short: "Under · rad", sensor: "s_in", dir: "Radial" },
+  { id: "under_tangential", name: "Underhang bearing · tangential", short: "Under · tan", sensor: "s_in", dir: "Tangential" },
+  { id: "over_axial", name: "Overhang bearing · axial", short: "Over · ax", sensor: "s_out", dir: "Axial" },
+  { id: "over_radial", name: "Overhang bearing · radial", short: "Over · rad", sensor: "s_out", dir: "Radial" },
+  { id: "over_tangential", name: "Overhang bearing · tangential", short: "Over · tan", sensor: "s_out", dir: "Tangential" },
   { id: "mic", name: "Microphone", short: "Mic", sensor: "s_mic" },
 ];
 export const CH = Object.fromEntries(CHANNELS.map((c) => [c.id, c]));
@@ -29,12 +29,12 @@ export const POS = {
 export const PARTS = [
   { id: "motor", kind: "component", label: "Motor", desc: "Drives the shaft through a flexible coupling.", ch: ["tacho"] },
   { id: "coupling", kind: "component", label: "Coupling", desc: "Connects the motor to the shaft. Horizontal and vertical misalignment are introduced here in the dataset.", ch: ["under_axial", "under_radial"] },
-  { id: "in_brg", kind: "component", label: "Inner bearing housing", desc: "Bearing housing on the motor side of the rotor. Called “underhang” in the MAFAULDA dataset.", ch: UNDER },
+  { id: "in_brg", kind: "component", label: "Underhang bearing housing", desc: "Bearing housing on the motor side of the rotor. Called “underhang” in the MAFAULDA dataset.", ch: UNDER },
   { id: "rotor", kind: "component", label: "Rotor discs", desc: "Discs on the shaft. Test masses fitted here create imbalance in the dataset.", ch: ["under_radial", "over_radial"] },
   { id: "shaft", kind: "component", label: "Shaft", desc: "Carries the rotor discs between the two bearing housings.", ch: ["tacho"] },
-  { id: "out_brg", kind: "component", label: "Outer bearing housing", desc: "Bearing housing on the far side of the rotor. Called “overhang” in the MAFAULDA dataset.", ch: OVER },
-  { id: "s_in", kind: "sensor", pos: "approx", label: "Accelerometer", full: "Accelerometer · inner bearing", desc: "Triaxial accelerometer: axial, radial and tangential channels.", ch: UNDER },
-  { id: "s_out", kind: "sensor", pos: "approx", label: "Accelerometer", full: "Accelerometer · outer bearing", desc: "Triaxial accelerometer: axial, radial and tangential channels.", ch: OVER },
+  { id: "out_brg", kind: "component", label: "Overhang bearing housing", desc: "Bearing housing on the far side of the rotor. Called “overhang” in the MAFAULDA dataset.", ch: OVER },
+  { id: "s_in", kind: "sensor", pos: "approx", label: "Accelerometer", full: "Accelerometer · underhang bearing", desc: "Triaxial accelerometer: axial, radial and tangential channels.", ch: UNDER },
+  { id: "s_out", kind: "sensor", pos: "approx", label: "Accelerometer", full: "Accelerometer · overhang bearing", desc: "Triaxial accelerometer: axial, radial and tangential channels.", ch: OVER },
   { id: "s_tach", kind: "sensor", pos: "illus", label: "Tachometer", full: "Tachometer", desc: "Optical once-per-revolution pulse sensor; used to measure shaft speed.", ch: ["tacho"] },
   { id: "s_mic", kind: "sensor", pos: "illus", label: "Microphone", full: "Microphone", desc: "Records sound near the rotor.", ch: ["mic"] },
 ];
@@ -49,7 +49,7 @@ export function partsForClass(cls) {
   if (cls.endsWith("misalignment")) return ["coupling", "shaft"];
   return [];
 }
-export const PART_NAME = { in_brg: "inner bearing housing", out_brg: "outer bearing housing", rotor: "rotor discs", coupling: "coupling", shaft: "shaft" };
+export const PART_NAME = { in_brg: "underhang bearing housing", out_brg: "overhang bearing housing", rotor: "rotor discs", coupling: "coupling", shaft: "shaft" };
 
 export const CLASS_LABEL = {
   normal: "Normal", imbalance: "Imbalance", horizontal_misalignment: "Horizontal misalignment",

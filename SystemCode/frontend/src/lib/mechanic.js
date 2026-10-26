@@ -1,5 +1,6 @@
 // Mechanic-level wording (Stage App-3), mirroring backend/explain/plain.py: plain words, no percentages, no raw scores.
 // Everything is derived from the evidence record, the check assessment and the measured channel evidence.
+import { healthyCheckPhrase } from "./decisionSummary.js";
 
 export const LIMITATION = "Research demonstration; not validated on real machines.";
 export const IN_SAMPLE = "This recording was used to build the model, so the result is not evidence of accuracy.";
@@ -15,7 +16,7 @@ export const FAULT_PLAIN = {
 export function guidanceItems(report) {
   return report?.sections?.find((s) => s.n === "04")?.items ?? null;
 }
-export const PART_PLAIN = { in_brg: "Inner bearing housing", out_brg: "Outer bearing housing", rotor: "Rotor discs", coupling: "Coupling", shaft: "Shaft" };
+export const PART_PLAIN = { in_brg: "Underhang bearing housing", out_brg: "Overhang bearing housing", rotor: "Rotor discs", coupling: "Coupling", shaft: "Shaft" };
 
 // Mechanic-friendly labels with the technical term in brackets
 export const MEASURE_LABEL = {
@@ -25,9 +26,9 @@ export const MEASURE_LABEL = {
   env_ftf1: "Repeated impacts, cage rate (envelope spectrum)",
 };
 export const CHANNEL_LABEL = {
-  tacho: "Speed sensor (tachometer)", under_axial: "Inner bearing, along the shaft (axial)", under_radial: "Inner bearing, radial",
-  under_tangential: "Inner bearing, sideways (tangential)", over_axial: "Outer bearing, along the shaft (axial)",
-  over_radial: "Outer bearing, radial", over_tangential: "Outer bearing, sideways (tangential)", mic: "Microphone",
+  tacho: "Speed sensor (tachometer)", under_axial: "Underhang bearing, along the shaft (axial)", under_radial: "Underhang bearing, radial",
+  under_tangential: "Underhang bearing, sideways (tangential)", over_axial: "Overhang bearing, along the shaft (axial)",
+  over_radial: "Overhang bearing, radial", over_tangential: "Overhang bearing, sideways (tangential)", mic: "Microphone",
 };
 export const REFERENCE_LABEL = "Compared with a healthy example (reference ratio)";
 export const DIFFERENCE_NOTE = "Different from a healthy example is not the same as a confirmed fault.";
@@ -91,12 +92,9 @@ export function warnings(record) {
 export function supporting(record, assessment) {
   if (!assessment) return null;
   const d = record.diagnosis;
-  const by = Object.fromEntries(assessment.checks.map((c) => [c.key, c]));
-  const baseOk = by.ae.passed && by.b1s.passed;
-  const base = d.decision === "healthy"
-    ? (baseOk ? "Both healthy-baseline checks agree it looks like the healthy recordings" : "One or both healthy-baseline checks see a difference from the healthy recordings")
-    : (baseOk ? "The healthy-baseline checks do not see a difference from the healthy recordings" : "The healthy-baseline checks also see a difference from the healthy recordings");
-  return `${base}; the secondary model ${d.top_class === d.lr_secondary.top_class ? "agrees." : "points to a different condition."}`;
+  const base = healthyCheckPhrase(assessment.checks, d.decision);
+  const plain = base === "Unlike the healthy recordings" ? "Both healthy checks find this recording unlike the healthy recordings" : base;
+  return `${plain}. A second, simpler model ${d.top_class === d.lr_secondary.top_class ? "reaches the same answer." : "points to a different condition."}`;
 }
 
 export const rpm = (hz) => Math.round(60 * hz).toLocaleString("en-US");

@@ -47,8 +47,8 @@ const screens = {
   "poor quality": [done(poor, { initialUi: { sel: "s_tach" } }), ["Warnings · measured speed and signal quality", "glitched tacho intervals", "glitched pulse intervals · measured"]],
   // ---- App-3 Mechanic view
   "mechanic · known fault": [mech(knownFault), ["Mechanic", "Developer", "Possible bearing cage fault",
-    "Outer bearing housing — according to the dataset label (model prediction)", "Why it was flagged", "template explanation",
-    "Supporting checks", "the secondary model agrees", "What to inspect next", "(source: bearing-defect-frequencies; Citation not yet checked against the full text)",
+    "Overhang bearing housing — according to the dataset label (model prediction)", "Why it was flagged", "template explanation",
+    "Supporting checks", "A second, simpler model reaches the same answer", "What to inspect next", "(source: bearing-defect-frequencies; Citation not yet checked against the full text)",
     "Research demonstration; not validated on real machines.", "not evidence of accuracy", "View investigation activity",
     "Reading details"], ["Checks against calibrated thresholds", "CNN-6 · main model", "Investigation agents"]],
   "rig part card": [mech(knownFault, { initialUi: { sel: "out_brg" } }), ["What this part does", "What was observed", "View signal",
@@ -421,7 +421,7 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
     textOf(dSpec).includes("Computed now for this view · not part of the saved diagnosis") && dSpec.includes("<path") &&
     textOf(dRec).includes("Saved evidence · part of the evidence record") && !/computed now/i.test(textOf(dRec)) && dRec.includes("<path"));
   pcheck("drawer preview: channel choice defaults to under_radial and names units from the response",
-    dPrep.includes('aria-checked="true"') && textOf(dPrep).includes("Inner bearing, radial") && textOf(dPrep).includes("time (s)") &&
+    dPrep.includes('aria-checked="true"') && textOf(dPrep).includes("Underhang bearing, radial") && textOf(dPrep).includes("time (s)") &&
     textOf(dSpec).includes("order (multiples of the measured shaft speed"));
   const idle = drawerOf(renderToString(<PipelineView trace={fxKnown} initialMode="case" initialSelected="preparation" initialSize={DESK} />));
   pcheck("before loading: an explicit load button, no chart", textOf(idle).includes("Load signal preview (computed now from the stored recording)") && !sections(idle, "computed").some((x) => x.includes("<path")));
@@ -574,9 +574,18 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
 // honesty lines are on the page; the designer's sample values never appear; the Mechanic view shows no score or threshold.
 import { DashboardView } from "../src/components/Dashboard.jsx";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
+import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
 import { guidanceSteps } from "../src/lib/dashboard.js";
 import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarnings } from "../src/lib/model.js";
 {
+  const cases = [knownFault, unknown, caution, plainHealthy];
+  pcheck("App-8.1 shared decision summary uses the saved checks for each outcome", cases.every((f) => {
+    const d = f.record.diagnosis;
+    const s = decisionSummary({ topClass: d.top_class, decision: d.decision, caution: d.caution, checks: f.report.assessment.checks });
+    const c = Object.fromEntries(f.report.assessment.checks.map((x) => [x.key, x.passed]));
+    return s.checks.msp === c.msp && s.checks.maha === c.maha && s.checks.ae === c.ae && s.checks.b1s === c.b1s
+      && s.healthy === healthyCheckPhrase(f.report.assessment.checks, d.decision) && s.lines.length === 3;
+  }));
   const SAMPLE = ["6.82", "0.9981", "0.9412", "GL-BRG", "c_8f3a21", "36.454", "Sam Okafor", "xp-prompt v3", "7e2d9a1", "look_up_guidance"];
   const fx = { knownFault, unknown, caution, poor, healthy, disagree, narrow, plainHealthy };
   const dash = (f, view, extra = {}) => renderToString(<DashboardView caseId={f.record.case_id} record={f.record} report={f.report} channels={f.channels}
@@ -622,7 +631,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
   const developerFinding = developerFault.match(/<section[^>]*aria-label="Finding"[\s\S]*?<\/section>/)?.[0] || "";
   pcheck("App-8 dashboard: fault finding, location and rig action; evidence and checks follow in the requested order",
     mechanicFault.includes("Faulty") && mechanicFault.includes("Suggested location")
-    && mechanicFaultText.includes("Show outer bearing housing on the rig")
+    && mechanicFaultText.includes("Show overhang bearing housing on the rig")
     && mechanicFault.indexOf('aria-label="Finding"') < mechanicFault.indexOf('aria-label="Evidence"')
     && mechanicFault.indexOf('aria-label="Interactive test rig"') < mechanicFault.indexOf('aria-label="Suggested checks"')
     && mechanicFault.indexOf('aria-label="Suggested checks"') < mechanicFault.indexOf('aria-label="Explore measurements"'));

@@ -200,8 +200,8 @@ export function createRig(container, opts = {}) {
     anchor(id, g, [0, 0.2, 0.04]);
     return g;
   }
-  makeBearing('in_brg', 'Inner bearing', -0.1, 's_in');
-  makeBearing('out_brg', 'Outer bearing', 0.3, 's_out');
+  makeBearing('in_brg', 'Underhang bearing', -0.1, 's_in');
+  makeBearing('out_brg', 'Overhang bearing', 0.3, 's_out');
 
   // Rotor discs
   const rotor = grp('rotor', 'Rotor discs', root);
