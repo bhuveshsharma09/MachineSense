@@ -351,6 +351,15 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         event = eng.store.add_status_event(case_id, _now(), actor(body.get("author")), st, fc, part, note)
         return {"event": event, **status(rec, eng.store.status_events(case_id))}
 
+    @app.get("/api/cases/{case_id}/procedures")
+    def procedures(case_id: str, request: Request):
+        """App-9 addendum C: post-confirmation procedures, offered only through the gate (a recorded technician
+        confirmation AND a reviewed entry for that fault and part); otherwise "No verified procedure is available."."""
+        from backend.casenotes import procedure_gate
+        eng = engine(request)
+        _need(eng, case_id)
+        return procedure_gate(eng.store, case_id)
+
     @app.get("/api/cases/{case_id}/report")
     def report(case_id: str, request: Request):
         eng = engine(request)

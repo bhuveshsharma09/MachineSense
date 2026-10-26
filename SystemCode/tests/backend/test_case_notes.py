@@ -143,3 +143,26 @@ def test_migration_2_on_a_fresh_and_an_existing_database(tmp_path):
         assert [r[0] for r in c.execute("SELECT version FROM schema_migrations ORDER BY version")] == [1, 2]
         names = {r[0] for r in c.execute("SELECT name FROM sqlite_master WHERE type IN ('table', 'index')")}
     assert {"observations", "observation_edits", "confirmations", "observations_case", "confirmations_case"} <= names
+
+
+def test_procedure_endpoint_is_gated_by_the_latest_technician_event(ctx, tmp_path, monkeypatch):
+    import yaml
+    app, _ = ctx
+    a = case(app)
+    g = app.get(f"/api/cases/{a['case_id']}/procedures").json()
+    assert g["open"] is False and g["message"] == "No verified procedure is available." and g["schema_version"] == "procedure-1"
+    synthetic = {"schema_version": "procedure-1", "id": "synthetic-uh-outer", "version": "1.0", "title": "SYNTHETIC",
+                 "machine": "test rig", "parts": ["in_brg"], "fault_classes": ["underhang_outer"], "prerequisites": [],
+                 "safety_stop": ["SYNTHETIC stop"], "steps": ["SYNTHETIC step"], "source": "SYNTHETIC", "source_url": None,
+                 "licence": "test", "verification": "reviewed", "reviewer": "Test", "reviewed_on": "2026-10-26"}
+    (tmp_path / "synthetic-uh-outer.yaml").write_text(yaml.safe_dump(synthetic))
+    monkeypatch.setenv("MACHINESENSE_PROCEDURES_DIR", str(tmp_path))
+    assert app.get(f"/api/cases/{a['case_id']}/procedures").json()["open"] is False  # no confirmation yet
+    app.post(f"/api/cases/{a['case_id']}/confirmations", json={"status": "confirmed", "fault_class": "underhang_outer", "part": "in_brg"})
+    g = app.get(f"/api/cases/{a['case_id']}/procedures").json()
+    assert g["open"] is True and [p["id"] for p in g["procedures"]] == ["synthetic-uh-outer"]
+    b = case(app, OTHER)  # another case: its own (absent) status decides
+    assert app.get(f"/api/cases/{b['case_id']}/procedures").json()["open"] is False
+    app.post(f"/api/cases/{a['case_id']}/confirmations", json={"status": "withdrawn"})
+    g = app.get(f"/api/cases/{a['case_id']}/procedures").json()
+    assert g["open"] is False and "withdrawn" in g["reason"] and g["procedures"] == []

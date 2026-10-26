@@ -129,3 +129,9 @@ def agent_timeout_s() -> float:
 def agent_review() -> bool:
     """The D7 switch: off = the review still runs and its findings are stored, but the model's answer is shown as is."""
     return (os.environ.get("MACHINESENSE_AGENT_REVIEW") or "true").strip().lower() not in ("0", "false", "no", "off")
+
+
+def procedures_dir() -> Path:
+    """App-9 addendum C: post-confirmation procedure entries (schema procedure-1); tests point this at a temporary folder."""
+    from ml.procedures import PROCEDURES_DIR
+    return _p("MACHINESENSE_PROCEDURES_DIR", PROCEDURES_DIR)

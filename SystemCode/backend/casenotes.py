@@ -68,3 +68,10 @@ def fault_status(record: dict, events: list[dict]) -> dict:
                            "agrees_with_model": (latest["fault_class"] == d.get("fault_class"))
                            if latest and latest["status"] == "confirmed" else None},
             "events": events, "parts": PARTS, "fault_classes": list(FAULT_CLASSES), "local_demo": LOCAL_DEMO}
+
+
+def procedure_gate(store, case_id: str) -> dict:
+    """The backend-enforced procedure gate for a case (ml.procedures.gate over its technician events)."""
+    from backend.settings import procedures_dir
+    from ml.procedures import SCHEMA_VERSION, gate, load_procedures
+    return {"case_id": case_id, "schema_version": SCHEMA_VERSION, **gate(store.status_events(case_id), load_procedures(procedures_dir()))}
