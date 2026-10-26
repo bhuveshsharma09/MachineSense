@@ -10,7 +10,7 @@ import {
 import { Svg, bandPath, linePath, rangeMax } from "./Charts.jsx";
 import { AssistantIcon } from "./AgentChat.jsx";
 import { usePanelView } from "./Aside.jsx";
-import Scene, { markerFor } from "./Scene.jsx";
+import Scene from "./Scene.jsx";
 import { Logo } from "./TopBar.jsx";
 import "../redesign.css";
 
@@ -24,6 +24,8 @@ export const VKIND = {
   caution: { color: K.amberT, dot: K.amber, bg: al(K.amber, 0.18) },
   healthy: { color: K.greenT, dot: K.green, bg: al(K.green, 0.14) },
 };
+const MECHANIC_FAULT_COLOR = "oklch(0.49 0.19 27)";
+const MECHANIC_FAULT_DOT = "oklch(0.61 0.21 27)";
 
 export function initials(name) {
   return (name || "Guest").trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase() || "G";
@@ -66,10 +68,11 @@ export function useCaseData(caseId, { withExplanation = true } = {}) {
   return [st, () => setRegen((n) => n + 1)];
 }
 
-export default function Dashboard({ caseId }) {
+export default function Dashboard({ caseId, assistantOpen = false, AssistantComponent }) {
   const [st, regenerate] = useCaseData(caseId);
   if (st.status !== "ok") return <PageState message={st.status === "loading" ? "Loading the case…" : st.message} />;
-  return <DashboardView {...st} caseId={caseId} onRegenerate={regenerate} />;
+  return <DashboardView {...st} caseId={caseId} onRegenerate={regenerate}
+    assistantOpen={assistantOpen} AssistantComponent={AssistantComponent} />;
 }
 
 export function PageState({ message }) {
@@ -98,14 +101,13 @@ export function Header({ caseId, record, view, onView, back, title, userName }) 
   return (
     <header className="rd-header">
       <a href="#/" className="rd-brand" aria-label="MachineSense home"><Logo /><span>MachineSense</span></a>
-      <span className="rd-pill-outline">Research demo</span>
       <a className="rd-back" href={back.href}><span aria-hidden="true">‹</span>{back.label}</a>
       <div className="rd-header-mid">
         {title || <div className="rd-case-pill">
           <span className="rd-dot" style={{ background: s.dot, boxShadow: "0 0 0 4px " + al(s.dot, 0.18) }} />
-          <span className="rd-case-id">Case {caseId.slice(0, 8)}</span>
+          {!mechanic && <span className="rd-case-id">Case {caseId.slice(0, 8)}</span>}
           {!mechanic && <span className="mono rd-case-file">{record.input?.rec_id || "uploaded recording"}</span>}
-          <span className="rd-chip" style={{ background: s.bg, color: s.color }}>{mechanic && v.kind === "fault" ? "Familiar pattern" : v.chip}</span>
+          <span className="rd-chip" style={{ background: s.bg, color: s.color }}>{mechanic && v.kind === "fault" ? "Faulty" : v.chip}</span>
         </div>}
       </div>
       {onView && <Seg label="Reading level" value={view} onChange={onView} options={[["mechanic", "Mechanic"], ["developer", "Developer"]]} />}
@@ -138,14 +140,37 @@ function Card({ area, title, kicker, kickerColor, children, label, className = "
 const Tick = ({ ok }) => <span className={"rd-tick" + (ok ? "" : " is-warn")} aria-hidden="true">{ok ? "✓" : "!"}</span>;
 
 export function DashboardView({ caseId, record, report, channels, signals, activity, explanation, onRegenerate,
-  initialView, initialWidth, initialSel = null }) {
+  initialView, initialWidth, initialSel = null, assistantOpen = false, AssistantComponent }) {
   const [view, setView] = usePanelView(initialView);
   const dev = view === "developer";
   const width = useWidth(initialWidth);
-  const narrow = width < DASH_NARROW;
+  const narrow = width < DASH_NARROW || (assistantOpen && width < 1400);
   const [ui, setUi] = useState({ sel: initialSel, hover: null, exploded: false, labels: false, resetTick: 0, ch: null, sp: "order", allSteps: false, lim: false, measure: "channels" });
   const set = (p) => setUi((u) => ({ ...u, ...p }));
   const userName = useRef(readName()).current;
+  const assistantPanel = useRef(null);
+  const dashboardHref = `#/case/${encodeURIComponent(caseId)}/dashboard`;
+  useEffect(() => {
+    if (!assistantOpen) return undefined;
+    const previousFocus = document.activeElement;
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") window.location.hash = dashboardHref;
+    };
+    document.addEventListener("keydown", onKeyDown);
+    assistantPanel.current?.querySelector('input[aria-label="Ask about this recording"]')?.focus();
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [assistantOpen, dashboardHref]);
+
+  const assistantDrawer = assistantOpen && AssistantComponent && <aside ref={assistantPanel} className="as-panel" role="complementary" aria-label="Investigation assistant">
+    <div className="as-panel-head">
+      <div><span className="rd-kicker">This investigation</span><h2>Ask the assistant</h2></div>
+      <a className="as-panel-close" href={dashboardHref} aria-label="Close the assistant panel" title="Close assistant">×</a>
+    </div>
+    <AssistantComponent panel caseId={caseId} record={record} report={report} channels={channels} />
+  </aside>;
 
   const d = record.diagnosis, v = verdict(record), vs = VKIND[v.kind];
   const flags = D.qualityFlags(record);
@@ -170,6 +195,8 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
   if (!dev) {
     const e = explanation?.status === "ready" ? explanation.data : null;
     const hasFaultArea = d.decision === "known_fault" && loc.fault.length > 0;
+    const showChecks = d.decision !== "healthy";
+    const mechanicSceneState = hasFaultArea ? sceneState : { ...sceneState, cand: [] };
     const firstStep = ui.allSteps ? steps : steps.slice(0, 1);
     const guidanceNotes = [...new Set(steps.map((s) => s.flag).filter(Boolean))];
     const evidenceChannel = rows.filter((r) => r.comparable && r.beyond && r.metric === "order_2x")
@@ -180,73 +207,72 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
     const measuredOptions = measuredPart.ch.filter((c) => signals?.channels?.[c]);
     const quality = D.qualityChecks(record);
     return (
-      <div className={"rd-root rd-mechanic" + (narrow ? " is-narrow" : "")}>
+      <div className={"rd-root rd-mechanic" + (narrow ? " is-narrow" : "") + (assistantOpen ? " has-assistant" : "")}>
         <Header caseId={caseId} record={record} view={view} onView={setView} userName={userName}
-          back={{ href: `#/case/${encodeURIComponent(caseId)}`, label: "Back to rig view" }} />
+          back={{ href: "#/", label: "Back to home" }} />
         <main className="rd-m-main">
-          <div className={"rd-m-stage" + (hasFaultArea ? " has-part" : " no-part") + (narrow ? " no-rig" : "")}>
+          <div className={"rd-m-stage" + (narrow ? " no-rig" : "")}>
             <Card label="Finding" className="rd-m-finding">
-              <span className="rd-verdict" style={{ color: vs.color }}><span className="rd-dot" style={{ background: vs.dot }} />
-                {v.kind === "fault" ? "Matches a familiar fault pattern" : v.chip}</span>
+              <span className="rd-verdict" style={{ color: v.kind === "fault" ? MECHANIC_FAULT_COLOR : vs.color }}><span className="rd-dot" style={{ background: v.kind === "fault" ? MECHANIC_FAULT_DOT : vs.dot }} />
+                {v.kind === "fault" ? "Faulty" : v.chip}</span>
               <h1 className="rd-m-title">{M.finding(record)}</h1>
               {d.caution && <span className="rd-sub">A healthy-baseline check disagrees; consider a recheck.</span>}
-              {mloc.parts.length > 0 && <div className="rd-m-location">
-                <span className="rd-kicker">{mloc.kind === "candidate" ? "Possible places to inspect" : "Where to inspect"}</span>
+              {hasFaultArea && mloc.parts.length > 0 && <div className="rd-m-location">
+                <span className="rd-kicker">Suggested location</span>
                 <strong>{mloc.parts.map((p) => M.PART_PLAIN[p]).join(" and ")}</strong>
                 <span className="rd-sub-s">Mapped from the model’s predicted class on this test rig; the sensors do not pinpoint the fault.</span>
               </div>}
+              {hasFaultArea && mloc.parts.length > 0 && <button className="rd-dark-btn" onClick={() => select(mloc.parts[0])}>Show {M.PART_PLAIN[mloc.parts[0]].toLowerCase()} on the rig</button>}
               <div className="rd-m-quality">
                 {warn.length ? <div className="rd-warn" role="alert">{M.warnings(record).map((w) => <div key={w}><Tick ok={false} />{w}</div>)}</div>
                   : <span className="rd-ok"><Tick ok />No signal-quality warnings detected.</span>}
                 {warn.length > 0 && <details><summary>Signal quality details</summary><div className="rd-checklist">{quality.map((q) => <div key={q.text}><Tick ok={q.ok} />{q.text}</div>)}</div></details>}
               </div>
-              {record.source === "dataset" && <span className="rd-in-sample">{IN_SAMPLE_NOTICE}</span>}
-              <span className="rd-note">{M.LIMITATION}</span>
             </Card>
 
-            {hasFaultArea && <PartCard area="part" className="rd-m-part" partId={partId} record={record} rows={rows} sceneState={sceneState} dev={false} />}
-
-            <Card title="Evidence behind this result" label="Evidence behind this result" className="rd-m-evidence">
+            <Card title="Evidence" label="Evidence" className="rd-m-evidence">
               {e ? <>
                 <span className="rd-chip rd-m-source">{e.badge}</span>
                 <ul className="rd-bullets">{e.text.why_flagged.slice(0, 2).map((x) => <li key={x}>{x}</li>)}</ul>
               </> : <p className="rd-muted">{explanation?.status === "error" ? "The explanation is unavailable. Review the measured channels below." : "Preparing the explanation…"}</p>}
               <div className="rd-box"><span className="rd-kicker">Healthy-baseline check</span><span>{M.supporting(record, report?.assessment) || "Checking…"}</span></div>
-              <span className="rd-note">{e?.source === "llm" ? "The AI-written summary" : "This summary"} describes stored evidence; it does not confirm a physical fault.</span>
             </Card>
 
-            <Card title="Suggested checks" label="Suggested checks" className="rd-m-next">
-              {!report ? <p className="rd-muted">Suggested checks appear with the report.</p> : <>
-                <ol className="rd-steps">{firstStep.map((s, i) => <li key={i} className={s.src ? "" : "is-plain"}>
-                  {s.src && <span className="rd-step-n">{i + 1}</span>}
-                  <div className="rd-col" style={{ gap: 6 }}><span className="rd-step-t">{s.text}</span>
-                    {s.src && <span className="mono rd-src" title={s.title}>source: {s.src}</span>}
-                  </div>
-                </li>)}</ol>
-                {steps.length > 1 && <button className="rd-ghost" aria-expanded={ui.allSteps} onClick={() => set({ allSteps: !ui.allSteps })}>
-                  {ui.allSteps ? "Show only the first check" : `Show ${steps.length - 1} more checks`}</button>}
-                {guidanceNotes.length > 0 && <span className="rd-note">Guidance status: {guidanceNotes.join(" · ")}</span>}
-              </>}
-            </Card>
           {!narrow && <section className="rd-rig rd-m-rig" aria-label="Interactive test rig">
-            <Scene state={sceneState} insets={{ top: 66, right: 20, bottom: 46, left: 20 }} onSelect={select}
+            <Scene state={mechanicSceneState} insets={{ top: 66, right: 20, bottom: 46, left: 20 }} zoomOut={0.92} onSelect={select}
               onHover={(id) => { if (id !== ui.hover) set({ hover: id }); }} />
-            <div className="rd-rig-top"><div className="rd-rig-title"><span className="rd-kicker">Test rig · illustrative</span><span>Select a part or sensor to inspect it</span></div>
+            <div className="rd-rig-top"><div className="rd-rig-title"><span className="rd-kicker">Test rig · illustrative</span><span>Select a part or sensor for a closer look</span></div>
               <div className="rd-rig-btns">
                 <button className="rd-btn" onClick={() => set({ sel: null, resetTick: ui.resetTick + 1 })}>Reset view</button>
                 <button className={"rd-btn" + (ui.exploded ? " is-on" : "")} aria-pressed={ui.exploded} onClick={() => set({ exploded: !ui.exploded })}>Exploded view</button>
                 <button className="rd-btn" aria-pressed={ui.labels} onClick={() => set({ labels: !ui.labels })}>{ui.labels ? "Labels: all" : "Labels: minimal"}</button>
               </div>
             </div>
-            <div className="rd-rig-legend"><span><i className="lg-fault" />Model-mapped inspection area</span><span><i className="lg-change" />Measured change</span>
+            <div className="rd-rig-legend">{hasFaultArea && <span><i className="lg-fault" />Model-mapped inspection area</span>}<span><i className="lg-change" />Measured change</span>
               <span><i className="lg-flag" />Signal-quality warning</span><span className="rd-rig-note">Highlights do not confirm a fault.</span></div>
           </section>}
           </div>
 
+          {showChecks && <Card title="Suggested checks" kicker="From curated guidance" label="Suggested checks" className={"rd-m-next" + (ui.allSteps ? " is-expanded" : "")}>
+            {!report ? <p className="rd-muted">Suggested checks appear with the report.</p> : <>
+              <ol className="rd-steps">{firstStep.map((s, i) => <li key={i} className={s.src ? "" : "is-plain"}>
+                {s.src && <span className="rd-step-n">{i + 1}</span>}
+                <div className="rd-col" style={{ gap: 6 }}><span className="rd-step-t">{s.text}</span>
+                  {s.src && <span className="mono rd-src" title={s.title}>source: {s.src}</span>}
+                </div>
+              </li>)}</ol>
+              {steps.length > 1 && <button className="rd-ghost" aria-expanded={ui.allSteps} onClick={() => set({ allSteps: !ui.allSteps })}>
+                {ui.allSteps ? "Show only the first check" : `Show ${steps.length - 1} more checks`}</button>}
+              {guidanceNotes.length > 0 && <span className="rd-note">Guidance status: {guidanceNotes.join(" · ")}</span>}
+            </>}
+          </Card>}
+
           <section className="rd-m-measure" aria-label="Explore measurements">
             <div className="rd-m-measure-head"><div><span className="rd-kicker">Explore measurements</span>
-              <h2>Compare this recording with a healthy example</h2>
-              <p>{channels ? `${rows.filter((r) => r.beyond).length} of ${rows.length} vibration and sound channels differ from the typical healthy range. The tachometer measures shaft speed.` : "Loading measured comparisons…"}</p></div>
+              <h2>{ui.measure === "channels" ? "Compare this recording with a healthy example" : ui.measure === "spectrum" ? "Inspect the frequency pattern" : "Inspect the signal over time"}</h2>
+              <p>{ui.measure === "channels" ? (channels ? `${rows.filter((r) => r.beyond).length} of ${rows.length} vibration and sound channels differ from the typical healthy range. The tachometer measures shaft speed.` : "Loading measured comparisons…")
+                : ui.measure === "spectrum" ? "This chart shows the selected channel from this recording. A matched healthy spectrum is not stored with this case."
+                  : "This half-second excerpt can reveal repeated impacts, spikes or clipping, but cannot identify a fault on its own."}</p></div>
               <Seg label="Measurement view" value={ui.measure} onChange={(measure) => set({ measure })}
                 options={[["channels", "Sensors"], ["spectrum", "Spectrum"], ["waveform", "Waveform"]]} />
             </div>
@@ -264,26 +290,24 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
               <div><span>Case</span><span className="mono">{caseId.slice(0, 12)}…</span></div>
             </div>
           </details>
-          <footer className="rd-footer"><span>{SCORES_NOTE}</span>
-            {limits.length > 0 && <details><summary>Research limitations</summary><ul>{limits.map((l) => <li key={l}>{l}</li>)}</ul></details>}
-          </footer>
         </main>
-        <a className="rd-fab" href={href("assistant")} aria-label="Open the investigation assistant" title="Investigation assistant"><AssistantIcon size={58} /></a>
+        {!assistantOpen && <a className="rd-fab" href={href("assistant")} aria-label="Open the investigation assistant" title="Investigation assistant"><AssistantIcon size={58} /></a>}
+        {assistantDrawer}
       </div>
     );
   }
 
   const areas = dev
-    ? ["fd rig gg", "pt rig dq", "cd ch ch", "sp sp wf", "dc dc dc", "why nx nx", "xp rp rp", "rd ac ac", "tc tc tc", "lim lim lim"]
+    ? ["fd rig gg", "cd rig dq", "ch ch ch", "sp sp wf", "dc dc dc", "why nx nx", "xp rp rp", "rd ac ac", "tc tc tc", "lim lim lim"]
     : [];
   const narrowAreas = dev ? ["fd", "gg", "dq", "cd", "ch", "sp", "wf", "dc", "why", "nx", "xp", "rp", "rd", "ac", "tc", "lim"] : [];
   const gridStyle = narrow ? { gridTemplateColumns: "minmax(0,1fr)", gridTemplateAreas: narrowAreas.map((a) => `"${a}"`).join(" ") }
     : { gridTemplateColumns: "minmax(300px,340px) minmax(0,1fr) minmax(300px,340px)", gridTemplateAreas: areas.map((a) => `"${a}"`).join(" ") };
 
   return (
-    <div className={"rd-root" + (narrow ? " is-narrow" : "")}>
+    <div className={"rd-root" + (narrow ? " is-narrow" : "") + (assistantOpen ? " has-assistant" : "")}>
       <Header caseId={caseId} record={record} view={view} onView={setView} userName={userName}
-        back={{ href: `#/case/${encodeURIComponent(caseId)}`, label: "Back to rig view" }} />
+        back={{ href: "#/", label: "Back to home" }} />
       <main className="rd-grid" style={gridStyle}>
         {!narrow && <section className="rd-rig" style={{ gridArea: "rig" }} aria-label="3D rig">
           <Scene state={sceneState} insets={{ top: 84, right: 24, bottom: 56, left: 24 }} onSelect={select}
@@ -326,14 +350,11 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
             </div>
             <span className="rd-note">{d.top_class === d.lr_secondary.top_class ? "Both rank the same class first. " : "They rank different classes first. "}{SCORES_NOTE}</span>
           </> : <p className="rd-p">{M.supporting(record, report?.assessment) || "Checking…"}</p>}
-          {record.source === "dataset" && <span className="rd-in-sample">{IN_SAMPLE_NOTICE}</span>}
           {warn.length ? <div className="rd-warn" role="alert">{(dev ? warn : M.warnings(record)).map((w) => <div key={w}><Tick ok={false} />{w}</div>)}</div>
             : <div className="rd-ok"><Tick ok />No signal-quality warnings detected.</div>}
         </Card>
 
         <Gauge record={record} dev={dev} />
-
-        {!narrow && <PartCard partId={partId} record={record} rows={rows} sceneState={sceneState} dev={dev} />}
 
         <Card area="dq" title="Signal quality" kicker="Measured">
           <div className="rd-big-line"><span className="rd-title-l">{record.signal_quality.warnings.length ? `${record.signal_quality.warnings.length} warning${record.signal_quality.warnings.length > 1 ? "s" : ""}` : "No warnings"}</span>
@@ -449,7 +470,8 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
           {ui.lim && <ul>{limits.map((l) => <li key={l}>{l}</li>)}</ul>}
         </footer>
       </main>
-      <a className="rd-fab" href={href("assistant")} aria-label="Open the investigation assistant" title="Investigation assistant"><AssistantIcon size={58} /></a>
+      {!assistantOpen && <a className="rd-fab" href={href("assistant")} aria-label="Open the investigation assistant" title="Investigation assistant"><AssistantIcon size={58} /></a>}
+      {assistantDrawer}
     </div>
   );
 }
@@ -479,7 +501,7 @@ function Gauge({ record, dev }) {
   );
 }
 
-// An isolated, slowly turning 3-D view of one part (rig/rigScene.js with `isolate`); nothing to pick.
+// An isolated 3-D view of one part for the assistant context (rig/rigScene.js with `isolate`).
 export function PartView({ partId, sceneState, height = 216, children }) {
   const ref = useRef(null), rig = useRef(null);
   const [failed, setFailed] = useState(false);
@@ -503,25 +525,6 @@ export function PartView({ partId, sceneState, height = 216, children }) {
       {failed && <span className="rd-iso-fail rd-sub-s">3D view unavailable</span>}
       {children}
     </div>
-  );
-}
-
-function PartCard({ partId, record, rows, sceneState, dev, area = "pt", className = "" }) {
-  const part = PART[partId], m = markerFor(part, sceneState);
-  const tag = m.tag ? { text: m.tag, color: m.tagColor, bg: al(m.fill, 0.14) }
-    : { text: "Nothing flagged", color: K.ink3, bg: "oklch(0.23 0.006 260 / 0.06)" };
-  const facts = D.partFacts(partId, record, rows, dev);
-  return (
-    <Card area={area} label="Part view" className={className}>
-      <div className="rd-col" style={{ gap: 6, alignItems: "flex-start" }}><h2>{part.full || part.label}</h2>
-        <span className="rd-chip" style={{ color: tag.color, background: tag.bg, height: 24, fontWeight: 400, fontSize: 11.5, whiteSpace: "normal" }}>{tag.text}</span></div>
-      <PartView partId={partId} sceneState={sceneState}>
-        <div className="rd-iso-facts">{facts.map((f, i) => <div key={f.k} style={{ textAlign: i ? "right" : "left" }}><span>{f.k}</span><b>{f.v}</b></div>)}</div>
-        <span className="rd-iso-hint rd-kicker">Drag to rotate</span>
-      </PartView>
-      <p className="rd-p-s">{part.desc}</p>
-      <span className="rd-sub-s">Select a part or sensor on the rig to show it here.</span>
-    </Card>
   );
 }
 
@@ -622,7 +625,7 @@ function WaveformCard({ signals, chId }) {
         {[0, el.dur / 2, el.dur].map((t) => <span key={t} className="mono rd-xtick" style={{ left: (t / el.dur) * 100 + "%" }}>{(el.w.t0_s + t).toFixed(2)} s</span>)}
         <span className="mono rd-ytick" style={{ top: -6 }}>+{f3(el.m)}</span><span className="mono rd-ytick" style={{ bottom: -6 }}>−{f3(el.m)}</span>
       </div>}
-      <span className="rd-note">Minimum and maximum per time bucket of the stored, cleaned signal.</span>
+      <span className="rd-note">Minimum and maximum per time bucket of the stored, cleaned signal. Repeated pulses or isolated spikes may suggest impacts or signal quality problems; this trace alone cannot name a fault.</span>
     </Card>
   );
 }

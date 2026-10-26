@@ -124,5 +124,19 @@ const B = { kind: "dataset", rec_id: "B", label: "B" };
   console.log("✓ reopened upload without its stored array: not re-runnable");
 }
 
+// 6. The app navigates as soon as diagnosis is stored, without rendering the intermediate report page.
+{
+  const log = [];
+  const api = mockApi({ A: 5 }, log);
+  api.onCase = (id) => { log.push(`dashboard ${id}`); return true; };
+  api.getActivity = () => { log.push("intermediate activity"); throw new Error("intermediate page loaded"); };
+  const s = createSession(api);
+  s.select(A);
+  await s.run();
+  check(log.some((x) => x.startsWith("dashboard case-A-")) && !log.includes("intermediate activity") && s.get().record === null,
+    "start investigation: dashboard navigation precedes any intermediate report load");
+  console.log("✓ start investigation: opens the dashboard directly");
+}
+
 if (failures) { console.error(`${failures} race check(s) failed`); process.exit(1); }
 console.log("all race checks passed");

@@ -4,7 +4,7 @@ import {
   getReport, getShowcase, getSignals, postExplanation, rerunCase,
 } from "./api.js";
 import { createSession } from "./lib/session.js";
-import Assistant from "./components/Assistant.jsx";
+import { AssistantView } from "./components/Assistant.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 import Pipeline from "./components/Pipeline.jsx";
 import Unseen from "./components/Unseen.jsx";
@@ -14,9 +14,9 @@ import Workspace from "./components/Workspace.jsx";
 const NAME_KEY = "ms_display_name";
 const readName = () => { try { return localStorage.getItem(NAME_KEY) || ""; } catch { return ""; } };
 
-// Hash routes: #/ ; #/case/<case_id> (reopens a stored case) ; #/diagnose/<rec_id> (selects and runs a recording) ;
+// Hash routes: #/ ; #/case/<case_id>/dashboard (opens a stored case) ; #/diagnose/<rec_id> (selects and runs a recording) ;
 // #/case/<case_id>/pipeline (App-4.2: the pipeline architecture, drawn from that case's trace; no inference) ;
-// #/case/<case_id>/dashboard and #/case/<case_id>/assistant (App-8: the diagnosis dashboard and the assistant page) ;
+// #/case/<case_id>/assistant (the dashboard with its assistant panel open). Bare #/case/<id> links redirect to the dashboard.
 // #/unseen (App-6: "Explore an unseen fault", a leave-one-class-out research demonstration).
 // Optional query for linking to a view: ?sel=<part>&ch=<channel>&view=spectrum|envelope|waveform&tab=activity|report&static=1
 function query() {
@@ -37,21 +37,26 @@ function Capture() {
 }
 
 const isUnseen = () => /^#\/unseen\/?$/.test(window.location.hash);
-const casePage = () => { const m = /^#\/case\/([^/]+)\/(pipeline|dashboard|assistant)\/?$/.exec(window.location.hash); return m ? { id: decodeURIComponent(m[1]), page: m[2] } : null; };
+const casePage = () => { const m = /^#\/case\/([^/]+)(?:\/(pipeline|dashboard|assistant))?\/?$/.exec(window.location.hash); return m ? { id: decodeURIComponent(m[1]), page: m[2] || "dashboard" } : null; };
+const canonicalizeCaseHash = () => {
+  const m = /^#\/case\/([^/]+)\/?$/.exec(window.location.hash);
+  if (m) window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#/case/${m[1]}/dashboard`);
+};
 
 export default function App() {
   const [page, setPage] = useState(casePage);
   const [unseen, setUnseen] = useState(isUnseen);
   useEffect(() => {
-    const on = () => { setPage(casePage()); setUnseen(isUnseen()); window.scrollTo?.(0, 0); };
+    canonicalizeCaseHash();
+    const on = () => { canonicalizeCaseHash(); setPage(casePage()); setUnseen(isUnseen()); window.scrollTo?.(0, 0); };
     window.addEventListener("hashchange", on);
     return () => window.removeEventListener("hashchange", on);
   }, []);
   if (useRef(query()).current.capture) return <Capture />;
   if (unseen) return <Unseen />;
   if (page?.page === "pipeline") return <Pipeline key={page.id} caseId={page.id} />;
-  if (page?.page === "dashboard") return <Dashboard key={page.id} caseId={page.id} />;
-  if (page?.page === "assistant") return <Assistant key={page.id} caseId={page.id} />;
+  if (page?.page === "dashboard" || page?.page === "assistant") return <Dashboard key={page.id} caseId={page.id}
+    assistantOpen={page.page === "assistant"} AssistantComponent={AssistantView} />;
   return <Main />;
 }
 
@@ -71,7 +76,7 @@ function Main() {
     session.current = createSession({
       diagnoseRecording, diagnoseUpload, rerunCase, getCase, getCaseMeta, getActivity, getReport, getChannels, getSignals,
       getExplanation, postExplanation,
-      onCase: (id) => { window.location.hash = `#/case/${encodeURIComponent(id)}/dashboard`; },
+      onCase: (id) => { window.location.hash = `#/case/${encodeURIComponent(id)}/dashboard`; return true; },
     }, setS);
   }
   const st = s || session.current.get();
@@ -81,8 +86,7 @@ function Main() {
     getRecordings().then(setRecordings).catch(() => {});
     getShowcase().then((x) => setShowcase(x.showcase || [])).catch(() => {});
     const [, kind, id] = window.location.hash.replace(/^#/, "").split("/");
-    if (kind === "case" && id) session.current.open(id);
-    else if (kind === "diagnose" && id) {
+    if (kind === "diagnose" && id) {
       const r = decodeURIComponent(id);
       session.current.select({ kind: "dataset", rec_id: r, label: r });
       session.current.run();

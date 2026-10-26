@@ -178,7 +178,7 @@ export function PipelineView({ trace, caseId, initialLevel, initialSelected = nu
             <button key={k} role="radio" aria-checked={level === k} className={level === k ? "on" : ""} onClick={() => setLevel(k)}>{lab}</button>
           ))}
         </div>
-        {caseId && <a className="ctl pl-link" href={`#/case/${encodeURIComponent(caseId)}`}>← Back to the case</a>}
+        {caseId && <a className="ctl pl-link" href={`#/case/${encodeURIComponent(caseId)}/dashboard`}>← Back to the case</a>}
       </header>
 
 

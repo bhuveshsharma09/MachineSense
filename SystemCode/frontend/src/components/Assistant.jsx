@@ -40,7 +40,7 @@ export function contextRows(record, report, channels) {
   ];
 }
 
-export function AssistantView({ caseId, record, report, channels, initialEntries = null, initialPart = null, ask = askQuestion, load = getQuestions }) {
+export function AssistantView({ caseId, record, report, channels, initialEntries = null, initialPart = null, ask = askQuestion, load = getQuestions, panel = false }) {
   const [entries, setEntries] = useState(initialEntries || []);
   const [draft, setDraft] = useState("");
   const [open, setOpen] = useState({});
@@ -73,11 +73,11 @@ export function AssistantView({ caseId, record, report, channels, initialEntries
   const href = `#/case/${encodeURIComponent(caseId)}/dashboard`;
 
   return (
-    <div className="rd-root as-root">
-      <Header caseId={caseId} record={record} back={{ href, label: "Back to dashboard" }}
-        title={<span className="as-title">Investigation assistant</span>} userName={(() => { try { return localStorage.getItem("ms_display_name") || ""; } catch { return ""; } })()} />
+    <div className={panel ? "as-panel-content" : "rd-root as-root"}>
+      {!panel && <Header caseId={caseId} record={record} back={{ href, label: "Back to dashboard" }}
+        title={<span className="as-title">Investigation assistant</span>} userName={(() => { try { return localStorage.getItem("ms_display_name") || ""; } catch { return ""; } })()} />}
       <div className="as-grid">
-        <aside className="as-aside" aria-label="Context from the dashboard">
+        {!panel && <aside className="as-aside" aria-label="Context from the dashboard">
           <section className="rd-card">
             <div className="rd-card-head"><span className="rd-kicker">Context from the dashboard</span>
               <span className="rd-verdict" style={{ color: vs.color, fontSize: 12 }}><span className="rd-dot" style={{ background: vs.dot }} />{v.chip}</span></div>
@@ -101,13 +101,13 @@ export function AssistantView({ caseId, record, report, channels, initialEntries
             <div className="rd-row-wrap" style={{ gap: 6 }}>{TOOLS.map((t) => <span key={t} className="mono as-tool">{t}</span>)}</div>
             <span className="rd-note">{M.LIMITATION}</span>
           </section>
-        </aside>
+        </aside>}
 
         <main className="as-main" aria-label="Conversation">
           <div ref={scroll} className="as-scroll" aria-live="polite">
             <div className="as-inner">
               <div className="rd-stack-6">
-                <span className="rd-kicker">Investigation assistant</span>
+                {!panel && <span className="rd-kicker">Investigation assistant</span>}
                 <h1 className="as-h1">Ask about this recording</h1>
                 <p className="rd-p" style={{ fontSize: 14, maxWidth: 560 }}>Answers come from the case record and the guidance library, and are checked against the case record before they are shown.</p>
               </div>

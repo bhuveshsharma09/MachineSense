@@ -300,7 +300,7 @@ import { fitView, INSET, LEGIBLE } from "../src/components/PipelineCanvas.jsx";
     labelled(sel).every((id) => /(^|>)decision\./.test(id)) && labelled(sel).length <= decisionEdges.length, JSON.stringify(labelled(sel)));
   const back = renderToString(<PipelineView trace={traceFx} caseId={traceFx.case_id} initialSize={DESK} />);
   pcheck("back link to the case in the header (navigation only; the id is not shown as text)",
-    back.includes(`href="#/case/${traceFx.case_id}"`) && !textOf(back).includes(traceFx.case_id));
+    back.includes(`href="#/case/${traceFx.case_id}/dashboard"`) && !textOf(back).includes(traceFx.case_id));
   const panelProps = { record: knownFault.record, status: "done", report: knownFault.report, activity: knownFault.activity, onView: () => {} };
   const devPanel = renderToString(<PanelContent {...panelProps} view="developer" />);
   const mechPanel = renderToString(<PanelContent {...panelProps} view="mechanic" />);
@@ -586,18 +586,20 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
   for (const [n, f] of Object.entries(fx)) for (const view of ["mechanic", "developer"]) {
     let h; try { h = dash(f, view); } catch (e) { bad.push(`${n}/${view}: threw ${e.message}`); continue; }
     const t = textOf(h);
-    const need = ["Research demonstration; not validated on real machines.", SN, "Sensor channels vs a healthy recording",
-      ...(view === "mechanic" ? ["Evidence behind this result", "Suggested checks", "Explore measurements",
+    const need = ["Sensor channels vs a healthy recording",
+      ...(view === "mechanic" ? ["Evidence", "Explore measurements", "Back to home",
+        ...(f.record.diagnosis.decision === "healthy" ? [] : ["Suggested checks"]),
         ...(shownWarnings(f.record).length ? [] : ["No signal-quality warnings detected."])]
-        : ["What to inspect next", "No healthy-reference spectrum is stored with the case.", "This is not a measure of damage severity."]),
-      ...(f.record.source === "dataset" ? [INS] : []),
+        : ["Research demonstration; not validated on real machines.", SN, "What to inspect next", "No healthy-reference spectrum is stored with the case.", "This is not a measure of damage severity."]),
+      ...(f.record.source === "dataset" && view === "developer" ? [INS] : []),
       ...(f.record.diagnosis.decision === "known_fault" ? [view === "mechanic" ? "Mapped from the model’s predicted class" : "According to the dataset label (model prediction)"] : [])];
     const miss = need.filter((x) => !t.includes(x));
     const forb = [...never, ...SAMPLE].filter((x) => t.toLowerCase().includes(x.toLowerCase()));
     if (view === "mechanic") {
       const d = f.record.diagnosis;
-      forb.push(...["τ_", "MSP", "Mahalanobis", fmtC(d.scores.b1s), fmtC(d.thresholds.tau_b), "Traceability", "Decision checks"].filter((x) => t.includes(x)));
-      const ordered = ["Possible", "Evidence behind this result", "Suggested checks", "Explore measurements"];
+      forb.push(...["τ_", "MSP", "Mahalanobis", fmtC(d.scores.b1s), fmtC(d.thresholds.tau_b), "Traceability", "Decision checks",
+        "Research demonstration; not validated on real machines.", INS, SN].filter((x) => t.includes(x)));
+      const ordered = ["Possible", "Evidence", "Suggested checks", "Explore measurements"];
       if (f.record.diagnosis.decision === "known_fault" && ordered.some((x, i) => i > 0 && t.indexOf(x) < t.indexOf(ordered[i - 1])))
         miss.push("mechanic section order");
     } else {
@@ -612,12 +614,36 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
     steps.length > 0 && steps.every((x) => x.src && knownFault.report.sections.find((s) => s.n === "04").items.some((it) => it.text.startsWith(x.text)))
     && tk.includes("source: bearing-defect-frequencies") && tk.includes("Citation not yet checked against the full text"));
   const hp = textOf(dash(plainHealthy, "mechanic"));
-  pcheck("App-8 dashboard: a healthy verdict offers no inspection step and no suggested location",
-    hp.includes("No inspection steps are offered for a healthy verdict.") && !hp.includes("Suggested location"));
-  pcheck("App-8 dashboard: Mechanic links to the rig and assistant; Developer also links to the pipeline",
-    dash(knownFault, "mechanic").includes(`href="#/case/${knownFault.record.case_id}"`)
+  pcheck("App-8 dashboard: a healthy verdict hides suggested checks and fault location",
+    !hp.includes("Suggested checks") && !hp.includes("Suggested location"));
+  const mechanicFault = dash(knownFault, "mechanic");
+  const mechanicFaultText = textOf(mechanicFault);
+  const developerFault = dash(knownFault, "developer");
+  const developerFinding = developerFault.match(/<section[^>]*aria-label="Finding"[\s\S]*?<\/section>/)?.[0] || "";
+  pcheck("App-8 dashboard: fault finding, location and rig action; evidence and checks follow in the requested order",
+    mechanicFault.includes("Faulty") && mechanicFault.includes("Suggested location")
+    && mechanicFaultText.includes("Show outer bearing housing on the rig")
+    && mechanicFault.indexOf('aria-label="Finding"') < mechanicFault.indexOf('aria-label="Evidence"')
+    && mechanicFault.indexOf('aria-label="Interactive test rig"') < mechanicFault.indexOf('aria-label="Suggested checks"')
+    && mechanicFault.indexOf('aria-label="Suggested checks"') < mechanicFault.indexOf('aria-label="Explore measurements"'));
+  pcheck("App-8 dashboard: no demo badge or in-sample line in the Developer finding; both views link home",
+    !mechanicFault.includes("Research demo</span>") && !developerFault.includes("Research demo</span>")
+    && !developerFinding.includes(INS) && developerFault.includes('Back to home</a>'));
+  pcheck("Dashboard uses the main rig without a separate part card in either view",
+    ["mechanic", "developer"].every((view) =>
+      [knownFault, plainHealthy, unknown].every((fx) =>
+        !dash(fx, view).includes('aria-label="Part view"')
+        && !dash(fx, view, { initialSel: "rotor" }).includes('aria-label="Part view"'))));
+  pcheck("App-8 dashboard: Mechanic links home and to the assistant; Developer links to the pipeline",
+    dash(knownFault, "mechanic").includes('Back to home</a>')
     && dash(knownFault, "mechanic").includes(`href="#/case/${knownFault.record.case_id}/assistant"`)
     && dash(knownFault, "developer").includes(`href="#/case/${knownFault.record.case_id}/pipeline"`));
+  const withAssistant = dash(knownFault, "mechanic", { assistantOpen: true, AssistantComponent: AssistantView });
+  pcheck("Assistant opens beside the dashboard with a close link and no duplicate context column",
+    withAssistant.includes('aria-label="Finding"') && withAssistant.includes('aria-label="Investigation assistant"')
+    && withAssistant.includes('aria-label="Conversation"') && withAssistant.includes("Why was this recording flagged?")
+    && withAssistant.includes(`href="#/case/${knownFault.record.case_id}/dashboard"`)
+    && !withAssistant.includes('class="as-aside"'));
   const narrowHtml = dash(knownFault, "developer", { initialWidth: 390 });
   pcheck("App-8 dashboard: below 1024 px one column without the 3-D rig", narrowHtml.includes("is-narrow") && !narrowHtml.includes("Rotor test rig · illustrative"));
   writeFileSync(join(here, "mobile", "dashboard_390.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">

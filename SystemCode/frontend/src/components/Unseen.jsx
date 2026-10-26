@@ -119,7 +119,6 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
     <div className="un-root">
       <header className="glass un-header">
         <a className="pl-brand ms-brand" href="#/" aria-label="MachineSense home"><Logo /><span style={{ fontSize: 17, fontWeight: 500 }}>MachineSense</span></a>
-        <span className="pill-outline mono">Research demonstration</span>
         <a className="pl-link un-back" href="#/">← Back to the app</a>
         <div style={{ flex: 1 }} />
         <div role="radiogroup" aria-label="Reading level" className="seg">

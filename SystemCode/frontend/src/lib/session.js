@@ -87,16 +87,18 @@ export function createSession(api, onChange = () => {}) {
         : input.kind === "upload" ? await api.diagnoseUpload(input.file, { ...opts, uploadId: input.uploadId })
         : await api.rerunCase(input.caseId, opts);
       if (!live() || res.requestId !== requestId || res.inputId !== inputKey(input)) return;  // stale: drop it
+      // The app navigates straight to the case dashboard; it loads its own stored evidence.
+      // Controllers without a navigation callback retain the report-page flow.
+      if (api.onCase?.(res.record.case_id) === true) return;
       set({ record: res.record });
       await follow(res.record, my, signal);
-      if (live()) api.onCase?.(res.record.case_id);
     } catch (e) {
       if (!live() || isAbort(e)) return;
       set({ error: errorInfo(e), status: "error", runningFor: null });
     }
   }
 
-  // Reopen a stored case (#/case/<id>): an uploaded case becomes a "stored" input that "Run again" re-runs on the server
+  // Reopen a stored case: an uploaded case becomes a "stored" input that "Run again" re-runs on the server
   // (disabled if the stored array is gone); a dataset case becomes its recording.
   async function open(caseId) {
     abort();

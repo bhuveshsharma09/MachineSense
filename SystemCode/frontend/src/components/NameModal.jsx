@@ -13,7 +13,6 @@ export default function NameModal({ initial, onSave }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Logo size={26} />
           <span style={{ fontSize: 17, fontWeight: 500 }}>MachineSense</span>
-          <span className="mono kicker" style={{ marginLeft: "auto" }}>Research demo</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <h1 style={{ margin: 0, fontSize: 30, fontWeight: 300, letterSpacing: "-0.022em", lineHeight: 1.12 }}>Investigate a machine recording</h1>
