@@ -4,12 +4,14 @@ export function Logo({ size = 22 }) {
   return <img src="/icon-64.png" width={size} height={size} alt="" aria-hidden="true" style={{ display: "block", flex: "none" }} />;
 }
 
+// Stage App-8.7 item 16: the accessible name starts with the visible text (WCAG 2.5.3 "label in name")
 export function UnseenLink({ style, compact }) {
-  return <a className="un-nav" href="#/unseen" style={style}
-    title="Research demonstration: a model trained without one fault class meets a recording of that class">
+  const text = compact ? "Unseen fault" : "Explore an unseen fault";
+  const label = `${text} — research demonstration: a model trained without one fault class meets a recording of that class`;
+  return <a className="un-nav" href="#/unseen" style={style} aria-label={label} title={label}>
     <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" strokeWidth="1.4" strokeDasharray="3 2" />
       <path d="M8 5.2v3.4M8 10.6v.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
-    {compact ? "Unseen fault" : "Explore an unseen fault"}
+    {text}
   </a>;
 }
 

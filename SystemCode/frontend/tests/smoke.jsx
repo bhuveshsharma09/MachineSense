@@ -526,7 +526,8 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
 // must equal the backend's value for that example, the required copy must be on the page itself, and the steps stay hidden
 // until revealed.
 import unseenFile from "../../backend/unseen.json";
-import { UnseenView, pair, verdictText } from "../src/components/Unseen.jsx";
+import { UnseenView, LIMITS_NOTE, VARIANT_NAMES as UVN, cautionText, rateLine, rolesText, speedText, verdictText } from "../src/components/Unseen.jsx";
+import { fmtCheck as fmtU } from "../src/lib/model.js";
 import { UnseenLink } from "../src/components/TopBar.jsx";
 {
   const summary = { ...unseenFile, built: true, live: { available: false, reason: "saved" },
@@ -545,27 +546,123 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
   pcheck("unseen page: defaults to imbalance with the required copy, and lists the nine learned classes and the hidden one",
     t0.includes("This experimental model was trained without imbalance recordings.") && /Imbalance\s*— never seen/.test(t0)
     && (start.match(/<li>/g) || []).length === 9);
-  pcheck("unseen page: nothing is shown before Run investigation (no verdict, no reveal)", !start.includes('data-v="verdict"') && !t0.includes("Reveal actual condition"));
+  pcheck("unseen page: nothing is shown before Run investigation (no verdict, no actual condition)", !start.includes('data-v="verdict"') && !start.includes('data-v="truth"'));
   let bad = [];
   for (const [c, r] of Object.entries(unseenFile.runs)) for (const e of r.examples) for (const level of ["mechanic", "developer"]) {
     const h = page(c, e, { initialLevel: level }), t = textOf(h), res = e.result;
-    const conf = pair(res.checks.confidence.value, res.checks.confidence.threshold, 100, " %", 1);
-    if (res.checks.confidence.value < 1 && /^100\.0*\s%/.test(conf[0])) bad.push(`${c}/${e.rec_id}: a probability below 1 shown as 100 %`);
-    const fam = pair(res.checks.familiarity.value, res.checks.familiarity.threshold);
-    if (!t.includes(conf[0]) || !t.includes(conf[1]) || !t.includes(fam[0]) || !t.includes(fam[1])) bad.push(`${c}/${e.rec_id}: values`);
+    // App-8.7 items 6, 7, 10: Developer shows the dashboard's check format; Mechanic shows no score, limit or percentage
+    const nums = ["confidence", "familiarity"].flatMap((k) => [fmtU(res.checks[k].value), fmtU(res.checks[k].threshold)]);
+    const before = t.replace(/Experiment details.*$/, "");
+    if (level === "developer" && !nums.every((x) => t.includes(x))) bad.push(`${c}/${e.rec_id}: values`);
+    if (level === "mechanic" && (nums.some((x) => before.includes(x)) || /\d\.\d+\s?%/.test(before) || /\d\.\d{3,}/.test(before))) bad.push(`${c}/${e.rec_id}: numbers in Mechanic`);
+    if (/100\.0*\s?%|1\.0{4,}/.test(t)) bad.push(`${c}/${e.rec_id}: a score shown as its maximum`);
     if (!t.includes(verdictText(res.decision))) bad.push(`${c}/${e.rec_id}: verdict`);
     const passTxt = [...h.matchAll(/class="un-chip (ok|bad)"/g)].map((m) => m[1]);
     if (passTxt.join() !== [res.checks.confidence.passed ? "ok" : "bad", res.checks.familiarity.passed ? "ok" : "bad"].join()) bad.push(`${c}/${e.rec_id}: pass/fail`);
     if (res.decision.decision === "unknown" && !t.includes(unseenFile.further_inspection)) bad.push(`${c}/${e.rec_id}: further-inspection copy`);
-    if (level === "mechanic" && /MSP|Mahalanobis|τ_/.test(t.replace(/Experiment details.*$/, ""))) bad.push(`${c}/${e.rec_id}: technical names in Mechanic view`);
+    if (level === "mechanic" && /MSP|Mahalanobis|τ_|AE-6|B1s|b1s|B_with_caution/.test(before)) bad.push(`${c}/${e.rec_id}: technical names in Mechanic view`);
     if (level === "developer" && !(t.includes("MSP") && t.includes("Mahalanobis"))) bad.push(`${c}/${e.rec_id}: developer names missing`);
-    if (t.includes("Actual condition")) bad.push(`${c}/${e.rec_id}: truth shown before Reveal`);
+    // App-8.7 items 1 and 2: both roles stated (never the main model's role alone), the actual condition shown without a reveal
+    if (!t.includes(rolesText(res)) || /used for model training|\d Hz · used for/.test(t)) bad.push(`${c}/${e.rec_id}: roles`);
+    if (res.role === "withheld" && !t.includes("This experimental model: never saw this class.")) bad.push(`${c}/${e.rec_id}: hidden-class role`);
+    if (!h.includes('data-v="truth"') || !t.includes("Actual condition (dataset label)") || /Reveal/.test(t)) bad.push(`${c}/${e.rec_id}: actual condition`);
   }
   pcheck("unseen page: every curated example shows the backend's values, pass/fail and verdict; Mechanic has no technical names", !bad.length, bad.slice(0, 5).join("; "));
+  // App-8.7 item 5: on step 3 each row's mark shows its state (failed is a cross, never a tick); items 9, 11 below
+  bad = [];
+  for (const [c, r] of Object.entries(unseenFile.runs)) for (const e of r.examples) for (const level of ["mechanic", "developer"]) {
+    const h = page(c, e, { initialPage: 3, initialLevel: level }), res = e.result, ch = res.checks;
+    const state = (s) => (h.match(new RegExp(`data-step="${s}"[^]*?uw-run-mark[^"]*" data-state="(\\w+)"[^>]*>([^<]*)<`)) || []).slice(1);
+    const want = { confidence: ch.confidence.passed ? "pass" : "fail", familiarity: ch.familiarity.passed ? "pass" : "fail",
+      checks: ch.confidence.passed && ch.familiarity.passed ? "pass" : "fail", label: "info", verdict: "info" };
+    for (const [s, w] of Object.entries(want)) { const [st, ico] = state(s);
+      if (st !== w || ico !== { pass: "✓", fail: "✗", info: "•" }[w]) bad.push(`${c}/${e.rec_id}/${level}: ${s} mark ${st} ${ico}`); }
+    if (/data-state="fail"[^>]*>✓/.test(h)) bad.push(`${c}/${e.rec_id}: a failed check with a tick`);
+    if (!textOf(h).includes(LIMITS_NOTE) || !textOf(page(c, e, { initialLevel: level })).includes(LIMITS_NOTE)) bad.push(`${c}/${e.rec_id}: limits note`);
+    // item 9: the healthy-machine row exactly when the proposed label is healthy; not applicable unless the verdict is healthy
+    const hrow = h.includes('data-step="healthy"'), p4 = page(c, e, { initialLevel: level });
+    if (hrow !== (res.proposed_label === "normal") || p4.includes('data-v="healthy-node"') !== hrow) bad.push(`${c}/${e.rec_id}: healthy row`);
+    if (hrow) for (const k of ["ae", "b1s"]) {
+      const w = res.decision.decision !== "healthy" ? "na" : ch[k].passed ? "pass" : "fail";
+      if (!h.includes(`data-hc="${k}" data-state="${w}"`)) bad.push(`${c}/${e.rec_id}: ${k} state`);
+    }
+  }
+  pcheck("App-8.7: step 3 marks show each row's state (✓ passed, ✗ failed, • information), the limits note, and the healthy-machine checks when the proposed label is healthy",
+    !bad.length, bad.slice(0, 5).join("; "));
+  const hm15 = unseenFile.runs.horizontal_misalignment.examples.find((e) => e.rec_id === "horizontal-misalignment__1.5mm__25.8048");
+  const hmM = textOf(page("horizontal_misalignment", hm15, { initialLevel: "mechanic" })), hmD = textOf(page("horizontal_misalignment", hm15, { initialLevel: "developer" }));
+  const hm3 = page("horizontal_misalignment", hm15, { initialPage: 3, initialLevel: "mechanic" });
+  pcheck("App-8.7: a healthy verdict with a caution: plain caution in Mechanic, the technical text in Developer, the failing healthy check marked",
+    hmM.includes("One of the two healthy-machine checks disagrees, so this healthy result carries a caution.") && !/b1s|B1s|AE-6/.test(hmM.replace(/Experiment details.*$/, ""))
+    && hmD.includes(cautionText("b1s_disagrees", "developer", unseenFile.gates_note)) && hm3.includes('data-hc="b1s" data-state="fail"')
+    && hm3.includes('data-hc="ae" data-state="pass"') && textOf(hm3).includes("Healthy-machine checks (caution only)"));
+  const hm10 = unseenFile.runs.horizontal_misalignment.examples.find((e) => e.rec_id === "horizontal-misalignment__1.0mm__23.7568");
+  const hm10p = page("horizontal_misalignment", hm10, { initialPage: 3 });
+  pcheck("App-8.7: proposed healthy but not accepted: the healthy-machine checks are marked not applicable (–)",
+    hm10p.includes('data-hc="ae" data-state="na"') && hm10p.includes('data-hc="b1s" data-state="na"') && textOf(hm10p).includes("Not applied: the verdict is not healthy"));
+  // App-8.7 item 12: the run history names the hidden fault of every run and can be cleared
+  const hist = [["imbalance", "imbalance__6g__33.9968"], ["horizontal_misalignment", "horizontal-misalignment__1.5mm__25.8048"], ["overhang_cage", "overhang__cage_fault__20g__29.696"]]
+    .map(([hc, id]) => { const ex = unseenFile.runs[hc].examples.find((x) => x.rec_id === id); return { hidden: hc, rec_id: id, role: ex.role, res: ex.result }; });
+  const hh = page("imbalance", exOf("imbalance", "successful rejection"), { initialHistory: hist });
+  const rows = [...hh.matchAll(/data-v="hidden">([^<]*)</g)].map((m) => m[1]);
+  pcheck("App-8.7: \"Your runs\" has a Hidden fault column for every run and a Clear runs control",
+    textOf(hh).includes("Hidden fault") && rows.join() === hist.map((x) => human(x.hidden)).join() && textOf(hh).includes("Clear runs"), rows.join());
+  // App-8.7 item 13: wording for a healthy familiar recording and for an accepted healthy verdict
+  const hmCards = textOf(renderToString(<UnseenView summary={summary} initialHidden="horizontal_misalignment" initialPage={2} />));
+  pcheck("App-8.7: \"A healthy recording (a condition this model learned).\" and \"The decision rule accepted the healthy label.\"",
+    hmCards.includes("A healthy recording (a condition this model learned).") && !hmCards.includes("A recording of normal")
+    && hmM.includes("The decision rule accepted the healthy label.") && !hmM.includes("accepted a learned condition"));
+  // App-8.7 item 14: Developer lists the rule variants under the dashboard's names, the one in use marked; no raw rule line
+  bad = [];
+  for (const [c, r] of Object.entries(unseenFile.runs)) for (const e of r.examples) {
+    const dv = page(c, e, { initialLevel: "developer" }), mv = textOf(page(c, e, { initialLevel: "mechanic" })), td = textOf(dv);
+    const blk = (dv.match(/data-v="rules">([^]*?)<\/div>/) || [])[1] || "";
+    if (/rule B_with_caution;|A: (unknown|healthy)/.test(td)) bad.push(`${c}/${e.rec_id}: raw rule line`);
+    if (!Object.values(UVN).every((n) => textOf(blk).includes(n)) || !/is-used[^>]*>classifier first \(the rule in use\)[^]*in use/.test(blk)) bad.push(`${c}/${e.rec_id}: variant names`);
+    if (Object.values(UVN).some((n) => mv.includes(n))) bad.push(`${c}/${e.rec_id}: rules in Mechanic`);
+  }
+  pcheck("App-8.7: Developer names the rule variants as the dashboard does and marks the rule in use", !bad.length, bad.slice(0, 4).join("; "));
+  // App-8.7 item 15: nominal (from the file name) and measured speed, labelled the same on the cards and in Experiment details
+  const i10 = unseenFile.runs.imbalance.examples.find((e) => e.rec_id === "imbalance__10g__34.4064");
+  const det = page("imbalance", i10), cardRun = textOf(renderToString(<UnseenView summary={summary} initialPage={2}
+    initialHistory={[{ hidden: "imbalance", rec_id: i10.rec_id, role: i10.role, res: i10.result }]} />));
+  pcheck("App-8.7: speeds read \"nominal X Hz (from the file name) · measured Y Hz\" on the cards and in Experiment details",
+    speedText(i10.rec_id, i10.result.speed_hz) === `nominal 34.4 Hz (from the file name) · measured ${i10.result.speed_hz.toFixed(1)} Hz`
+    && textOf(det).includes(speedText(i10.rec_id, i10.result.speed_hz)) && textOf(renderToString(<UnseenView summary={summary} initialPage={2} />)).includes("nominal 34.0 Hz (from the file name)")
+    && cardRun.includes(speedText(i10.rec_id, i10.result.speed_hz)) && !/\d Hz(?! \(from the file name\))[^·]*· used/.test(textOf(det)));
   const fail = exOf("imbalance", "honest failure");
-  const rev = textOf(page("imbalance", fail, { initialRevealed: true }));
-  pcheck("unseen page: Reveal actual condition shows the true label, marked hidden during fitting, and names the honest failure",
-    rev.includes("Actual condition (dataset label)") && rev.includes("Hidden from this model during fitting") && rev.includes("honest failure"));
+  const rev = textOf(page("imbalance", fail));
+  // App-8.7 item 2 (choice b): no reveal button; the actual condition is on the result page with the outcome
+  pcheck("unseen page: the result shows the true label directly, marked hidden during fitting, and names the honest failure",
+    rev.includes("Actual condition (dataset label)") && rev.includes("Hidden from this model during fitting") && rev.includes("honest failure")
+    && !rev.includes("Reveal actual condition"));
+  // App-8.7 item 1: the imbalance 10 g run of the user test says both roles
+  const ten = textOf(page("imbalance", unseenFile.runs.imbalance.examples.find((e) => e.rec_id === "imbalance__10g__34.4064")));
+  pcheck("App-8.7: Experiment details give the main model's role and the experimental model's (never saw the hidden class)",
+    ten.includes("Main model: used for training. This experimental model: never saw this class.") && !ten.includes("used for model training"));
+  const fam = unseenFile.runs.imbalance.examples.find((e) => e.role === "familiar");
+  pcheck("App-8.7: a familiar example was used for training by both models",
+    textOf(page("imbalance", fam)).includes("Main model: used for training. This experimental model: used for training."));
+  // App-8.7 item 3: on step 3 with every row shown, the rail says "Ready" for step 4 (not the verdict) until step 4 is opened
+  const on3 = textOf(page("imbalance", fail, { initialPage: 3 })), on4 = textOf(page("imbalance", fail));
+  const rail = (t) => t.slice(t.indexOf("Hide a fault"), t.indexOf("About this demonstration"));
+  pcheck("App-8.7: the step rail shows \"Ready\" for step 4 on step 3 and the verdict only once step 4 is open",
+    rail(on3).includes("Ready") && !rail(on3).includes(verdictText(fail.result.decision)) && rail(on4).includes(verdictText(fail.result.decision)),
+    rail(on3));
+  // App-8.7 item 4: every hidden fault's result page carries its failure-rate line, equal to the Experiment details counts
+  bad = [];
+  for (const [c, r] of Object.entries(unseenFile.runs)) {
+    const k = r.counts, t = textOf(page(c, r.examples[0]));
+    const line = rateLine(k);
+    if (!t.includes(line)) bad.push(`${c}: line missing`);
+    if (!t.includes(`${k.withheld_recordings} eligible recordings: ${k.rejected} not accepted, ${k.accepted_as_a_wrong_fault} accepted as a wrong fault, ${k.accepted_as_healthy} accepted as healthy`)) bad.push(`${c}: details`);
+    const m = line.match(/stopped (\d+) of (\d+) eligible development recordings \((\d+) %\)\. (\d+) got a wrong familiar label; (\d+) w/);
+    if (!m || +m[1] !== k.rejected || +m[2] !== k.withheld_recordings || +m[4] !== k.accepted_as_a_wrong_fault || +m[5] !== k.accepted_as_healthy
+      || +m[1] + +m[4] + +m[5] !== +m[2] || (+m[3] === 100) !== (k.rejected === k.withheld_recordings)) bad.push(`${c}: numbers`);
+  }
+  pcheck("App-8.7: every hidden fault's result shows the share of eligible development recordings the checks stopped (= Experiment details)",
+    !bad.length && rateLine(unseenFile.runs.imbalance.counts) === "For this hidden fault, the checks stopped 33 of 144 eligible development recordings (23 %). 111 got a wrong familiar label; 0 were called healthy.",
+    bad.join("; "));
   // App-8.5: the wizard's page 3 reveals the real result row by row (at step 2 the confidence row is shown, familiarity and the
   // verdict not yet, and no result page); page 4 is reached only after every row is shown
   const partial = page("imbalance", fail, { initialStep: 1 });
@@ -590,9 +687,14 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
   const desk = renderToString(<Workspace {...P} {...base} />), phone = renderToString(<Workspace {...P} {...base} initialViewport={MOBILE} />);
   // for tests/mobile-width.mjs: the page at 390 px, fully revealed (the widest state)
   const full = page("horizontal_misalignment", exOf("horizontal_misalignment", "honest failure", "called healthy"),
-    { initialRevealed: true, initialLevel: "developer" });
+    { initialLevel: "developer" });
   writeFileSync(join(here, "mobile", "unseen_390.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>${css}</style></head><body><div id="root">${full}</div></body></html>`);
+  // App-8.7 item 16: the link's accessible name starts with its visible text (WCAG 2.5.3), full and compact
+  const lab = (h) => [(h.match(/aria-label="([^"]*)"/) || [])[1], textOf(h).trim()];
+  const [lf, tf] = lab(renderToString(<UnseenLink />)), [lc, tc] = lab(renderToString(<UnseenLink compact />));
+  pcheck("App-8.7: \"Explore an unseen fault\" has an accessible name that starts with its visible text (also the compact link)",
+    tf === "Explore an unseen fault" && lf.startsWith(tf + " — research demonstration") && tc === "Unseen fault" && lc.startsWith(tc + " — "), `${lf} | ${lc}`);
   pcheck("navigation: \"Explore an unseen fault\" in the desktop top bar and the phone header",
     desk.includes('href="#/unseen"') && textOf(desk).includes("Explore an unseen fault") && phone.includes('href="#/unseen"'));
 }

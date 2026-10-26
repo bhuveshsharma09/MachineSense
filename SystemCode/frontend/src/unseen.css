@@ -93,7 +93,15 @@
 .uw-run-row b { font-weight: 500; }
 .uw-run-mark { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 12px; }
 .uw-run-mark.is-wait { border-color: oklch(0.54 0.21 277 / 0.4); border-top-color: var(--violet); animation: uw-spin 0.9s linear infinite; }
-.uw-run-mark.is-done { border-color: var(--ink); background: var(--ink); color: var(--paper); animation: none; }
+/* App-8.7 item 5: the mark shows the row's state, not "done" */
+.uw-run-mark.is-pass, .uw-ico.is-pass { border-color: var(--greenT); background: oklch(0.64 0.11 160 / 0.16); color: var(--greenT); }
+.uw-run-mark.is-fail, .uw-ico.is-fail { border-color: var(--orangeT); background: oklch(0.66 0.19 42 / 0.14); color: var(--orangeT); font-weight: 600; }
+.uw-run-mark.is-na, .uw-ico.is-na { border-color: var(--line); background: transparent; color: var(--ink3); }
+.uw-run-mark.is-info { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.uw-run-mark:not(.is-wait) { animation: none; }
+.uw-hc { display: flex; flex-direction: column; gap: 4px; }
+.uw-hc > span { display: flex; align-items: center; gap: 6px; }
+.uw-ico { width: 16px; height: 16px; flex: none; border-radius: 50%; border: 1.5px solid; display: grid; place-items: center; font-size: 10px; font-style: normal; }
 .uw-run-res { font-size: 15px; }
 @keyframes uw-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .uw-run-mark.is-wait { animation: none; } }
@@ -113,7 +121,6 @@
 .uw-verdict p { margin: 0; font-size: 13.5px; color: oklch(0.88 0.008 260); }
 .uw-truth { border: 1.5px dashed var(--line); background: oklch(0.23 0.006 260 / 0.025); }
 .uw-truth p { margin: 0; color: var(--ink2); }
-.uw-truth .un-reveal { width: auto; align-self: flex-start; padding: 0 18px; margin-top: 4px; }
 .uw-truth.is-open { border-style: solid; background: var(--paper); }
 .uw-truth-name { font-size: 20px; font-weight: 400; }
 .uw-outcome { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; padding: 10px 12px; border-radius: 12px; font-size: 13px; }
@@ -122,6 +129,9 @@
 .uw-outcome.is-bad { background: oklch(0.66 0.19 42 / 0.1); }
 .uw-outcome.is-bad b { color: var(--orangeT); }
 .uw-outcome b { font-weight: 500; }
+.uw-rules { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+.uw-rules .is-used { color: var(--paper); }
+.uw-rate { margin: 0; padding: 12px 16px; border-radius: 14px; border-left: 3px solid var(--violet); background: oklch(0.23 0.006 260 / 0.035); font-size: 13.5px; }
 .uw-res-mid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr); gap: 14px; }
 .uw-proposed { display: flex; flex-direction: column; gap: 6px; padding: 18px; border-radius: 20px; background: oklch(0.23 0.006 260 / 0.035); }
 .uw-proposed h3 { margin: 0; font-size: 20px; font-weight: 400; }
@@ -138,13 +148,18 @@
 .uw-thr { position: absolute; top: 0; width: 2px; height: 16px; margin-left: -1px; background: var(--ink); }
 .uw-dot { position: absolute; top: 3px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--violet); }
 .uw-dot.is-bad { background: oklch(0.66 0.19 42); }
+.uw-scale-box { display: flex; flex-direction: column; gap: 3px; }
+.uw-scale-box.is-small { max-width: 280px; margin-top: 4px; }
+.uw-ends { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--ink3); }
 .uw-measure { display: flex; flex-wrap: wrap; gap: 8px 20px; }
 .uw-measure span { display: flex; flex-direction: column; gap: 2px; }
 .uw-measure em { font-style: normal; font-size: 11.5px; color: var(--ink3); }
 .uw-measure b { font-weight: 400; font-size: 15px; }
 .uw-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .uw-history { display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 20px; border: 1px solid var(--line); }
-.uw-hrow { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.2fr) 90px 90px minmax(0, 1.3fr); gap: 10px; padding: 8px 6px;
+.uw-hbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.uw-ghost.uw-clear { height: 30px; padding: 0 12px; font-size: 12.5px; }
+.uw-hrow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1.1fr) 80px 80px minmax(0, 1.3fr); gap: 10px; padding: 8px 6px;
   border: 0; border-radius: 10px; background: transparent; text-align: left; font: inherit; font-size: 12.5px; color: inherit; cursor: pointer; }
 .uw-hrow:hover { background: oklch(0.23 0.006 260 / 0.04); }
 .uw-hrow span { overflow-wrap: anywhere; }
