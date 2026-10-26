@@ -391,6 +391,65 @@ copied), applied without committing the concurrent session's uncommitted edits. 
    used). Frontend suite passes on 55c5bec plus this change in a clean worktree; screenshots at 1440 and 390 px against a
    scratch backend (LLM disabled).
 
+## 7-g. Stage App-8.6 — fixes from the 26 Oct user test (dashboard, Mechanic and Developer views)
+
+Declared 26 Oct 2026 before any code, from Bhuvesh's brief (titled "App-8.4" there; renamed because App-8.4 is the
+Mechanic redesign, f9e0765). On 26 Oct the dashboard was user-tested on seven development recordings (normal__24.576,
+normal__13.1072, normal__20.2752, imbalance__30g__19.456, underhang__cage_fault__6g__35.0208,
+vertical-misalignment__0.51mm__24.9856, imbalance__10g__13.9264); the measured data was correct, the problems are
+presentation, wording and inconsistent states. These seven are the manual check set. No other session has uncommitted work
+(git status: only the untracked PROJECT_STATUS.md).
+
+**Boundaries.** No change to `ml/`, models, thresholds, the decision rule, the bundle, saved verdicts or evidence records;
+no reserved recording read, scored, listed or shown. **D7 frozen:** `AGENT_PROMPT_VERSION` 8fb7865754455d65, the agent
+prompt, tools, review, `scripts/d7_*`, `results/d7/` and the assistant panel unchanged. Consequences: `guard.FORBIDDEN`,
+`backend.report.location` and `guidance_items` (all read by the agent's tools or review) are not changed; jargon and
+guidance filtering live in explanation-only code or the frontend. Every honesty statement keeps its meaning. No new
+dependency. Commits by Bhuvesh only; not pushed.
+
+**Items (the brief's numbering) and how each is done.**
+A. Correctness and honesty. (1) **Bhuvesh's decision (26 Oct, asked because §7 ML-4 and §12d call the rule a provisional
+research setting):** the rule line becomes "Rule in use: B_with_caution (frozen 28 Sep 2026 before the final evaluation)"
+in `backend/checks.py` (RULE_LINE / tooltip), the report, the engine's activity detail, the pipeline decision panel and the
+frontend fallbacks; the saved records' limitation sentence ("provisional demo default (B_with_caution), not a final rule
+selection") is rewritten at display time by `clean_text` / `cleanText` to the same statement; the App-8 test ban on the
+internal name is lifted for this one line; `ml/arbitrator.py`'s docstring is not edited (ml/ is out of scope). §7 ML-4 and
+§12d are annotated. (2) bearing verdicts open Spectrum on the radial channel of the predicted bearing with Envelope; (3) the
+spectrum footnote follows the view; (4) the calibration-speed warning on every verdict, worded "Shaft speed is outside the
+calibrated range (lo–hi Hz). The healthy checks are less reliable at this speed." with lo / hi from the record's
+`calibration_normal_speed_range_hz`; (5) an out-of-range healthy verdict gets the amber chip "Healthy — speed not
+calibrated" (display only); (6) channel values beyond ×8 / ÷8 drawn at the edge with an overflow marker and the value.
+B. Clarity. (7) one sensor vocabulary in the explanation prompt glossary and template (Underhang / Overhang bearing, axial,
+radial, tangential); (8) no model jargon in the explanation: plain check names in the model's DATA, a prompt rule, and an
+explanation-only jargon check in `backend/explain/guard.py` (`check_jargon`; the shared FORBIDDEN is unchanged), with a
+test; (9) every quoted change carries "× higher / lower than the healthy reference" (prompt rule, template, and a guard check
+that a sentence quoting a factor states a direction); the comparison is with one healthy recording; (10) Machine panel
+default: no model location → the most-changed sensor beyond typical variation, else "The model did not name a location.";
+(11) a healthy verdict with changed sensors gets "N of 7 sensors differ from a healthy recording at a similar speed.
+Consider repeating the reading."; (12) further-inspection verdicts show the calibrated range next to the shaft speed (the
+curated step text is not edited); (13) bearing guidance steps filtered / annotated in the Mechanic view only (display; the
+report's section 04 and the agent's `lookup_guidance` are unchanged); (14) the citation note shown once; (15) "Possible
+fault" chip for a known fault in both views; (16) the in-sample line once; (17) the limitation sentence given to the model
+reads "This is a research demonstration. It is not validated on real machines." and the prompt asks for it verbatim.
+The explanation `PROMPT_VERSION` changes (recorded after implementation); stored explanations keep their old version.
+C. Navigation. (18) section anchors scroll below the sticky bars (offset from their measured height); (19) scroll-spy from
+the scroll position (the last section whose top is above the bars), not IntersectionObserver; (20) a text filter on the
+start dialog's recording list (showcase cases first, groups by fault kept); (21) showcase entries show the class and the
+measured speed, with the file id after it.
+D. Developer view. (22) report check margins: "passed by X (Y % of the threshold)" / "failed by X (Y % of the threshold)",
+1 decimal; (23) the trace's physics-feature count from the bundle's feature dictionary (142) instead of a not-recorded note;
+(24) plain pipeline step names in the Developer view with the technical name in small mono text (a display mapping by
+block id; the trace is unchanged); (25) plain feature names in the Models card (the report's `feature_label`, ported) with the
+code in small mono text; (26) `/api/cases/{id}/signals` adds the healthy reference recording's order spectrum (the
+development training recording the channel comparison already uses; `ml.inference.load_recording`, which refuses reserved
+ids), overlaid grey in the Order view with its id and speed; the Envelope view says the reference is shown for the order
+spectrum only; (27) CNN attribution collapsed behind "Show exploratory attribution", caveat kept; (28) the template cites the
+largest increase beyond typical variation first and a decrease only when nothing increased.
+
+**Checks.** Backend `MACHINESENSE_REQUIRE_BUNDLE=1 MACHINESENSE_NO_RESERVED_READ=1 python -m pytest -p no:warnings`;
+frontend `npm test`; new tests for items 1, 4, 5, 6, 8, 9, 10, 11, 14, 22 and 28 at least; `AGENT_PROMPT_VERSION` printed and
+equal to 8fb7865754455d65; the seven recordings opened in both views in a browser. One commit per group (A, B, C, D).
+
 ## 7-f. Stage App-8.5 — "Explore an unseen fault" page redesign (frontend only)
 
 Declared 26 Oct 2026 before any code, at Bhuvesh's request ("update unseen fault page": the designer's
