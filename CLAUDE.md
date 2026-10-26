@@ -395,6 +395,24 @@ pure code `ml/frozen_embed.py` (tests `tests/test_frozen_embed.py`); script `scr
    cell timeout (projected ≈ 50 min of scoring, under the one-hour line); the run sha is recorded as dirty if unrelated
    uncommitted frontend files are present.
 
+14. **Result (26 Oct 2026; arm F run once after addendum 13; notebook 21 executed at c10a380-dirty, the dirt being
+   unrelated uncommitted frontend files; embeddings 338 s on MPS, 27 passes; scoring 3,252 s; notebook 54 min).**
+   Reproduction exact: arm M equals the saved 3C Mahalanobis (max |Δ| 0) and R8's per-run arm-M results (max |Δ| 3.6e-15),
+   and its decisions equal `decide`'s rule B on every recording; embeddings aligned on all 81 runs. Macro AUROC M / F per
+   seed: 42 0.877 / 0.864, 43 0.877 / 0.864, 44 0.868 / 0.864 (F is the same on every seed: one embedding per (class,
+   fold)); macro OSCR mean 0.865 / 0.853. **Matched count** (reached in all 81 runs), unknown recall M → F: 42 61.2 % →
+   59.8 % (−1.4), 43 63.3 % → 59.6 % (−3.7), 44 63.4 % → 60.7 % (−2.7) of 779 withheld recordings per seed; withheld called
+   healthy 19 → 33, 17 → 40, 24 → 43; known called wrong fault 7 → 8, 4 → 8, 7 → 10. **Reading: "worse"** (mean change
+   −2.6 points). Calibrated τ_s (secondary): F 64.2 / 61.5 / 62.0 % recall with 1,058 / 1,064 / 1,149 known rejections
+   (M 875 / 930 / 927) and 32 / 40 / 43 withheld called healthy. Per class (seed mean, matched): F better by ≥ 5 points
+   on overhang ball (+9.7); worse on horizontal misalignment (74.9 → 53.0 %, AUROC 0.954 → 0.790), overhang cage (−6.5)
+   and underhang ball (−5.2); imbalance 4.9 → 5.6 % and vertical misalignment 16.0 → 14.4 % although their AUROC rises
+   (0.586 → 0.715, 0.469 → 0.670). Known risk: share of withheld recordings nearest to the normal centroid M → F, mean
+   over classes 12.9 % → 16.3 %; overhang outer 8.6 % → 58.1 %, horizontal misalignment 79.5 % → 69.9 %. **Surprise
+   (not acted on):** F ranks withheld imbalance and vertical misalignment better threshold-free, yet that does not carry
+   into recall at the matched threshold. Outputs: `results/research/r10_frozen_resnet.json`, `r10_per_run.csv`, figures
+   `results/figures/r10_packing.png`, `r10_auroc_per_class.png`, `r10_recall_per_class.png`.
+
 ## 7-prev14. Previous stage: Stage App-8 — redesign: diagnosis dashboard, assistant page, pipeline (frontend only)
 
 The report page's right-hand panel becomes a button that opens a full **diagnosis dashboard**; the assistant gets its own
