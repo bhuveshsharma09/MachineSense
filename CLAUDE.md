@@ -450,6 +450,59 @@ largest increase beyond typical variation first and a decrease only when nothing
 frontend `npm test`; new tests for items 1, 4, 5, 6, 8, 9, 10, 11, 14, 22 and 28 at least; `AGENT_PROMPT_VERSION` printed and
 equal to 8fb7865754455d65; the seven recordings opened in both views in a browser. One commit per group (A, B, C, D).
 
+## 7-h. Stage App-8.7 — fixes from the 26 Oct user test of the "Explore an unseen fault" page (frontend only)
+
+Declared 26 Oct 2026 before any code, from Bhuvesh's brief (titled "App-8.5" there; renamed because App-8.5 is the wizard
+redesign, eda4482, and App-8.6 the dashboard fixes). On 26 Oct `#/unseen` was user-tested in both views on seven runs
+(hidden imbalance: imbalance__6g__33.9968, imbalance__10g__34.4064, familiar vertical-misalignment__0.51mm__19.456; hidden
+horizontal misalignment: horizontal-misalignment__1.0mm__23.7568, __0.5mm__12.288, __1.5mm__25.8048; hidden overhang cage:
+overhang__cage_fault__20g__29.696); the results were correct, the problems are one wrong statement, a reveal that reveals
+nothing, a hidden failure rate and wording. These seven are the manual check set. Work happens in the `app-8-5` worktree;
+the main checkout holds another session's uncommitted App-8.6 edits (overlap: `frontend/tests/smoke.jsx` only, where this
+stage edits only the unseen-page block); nothing of that session is touched or committed.
+
+**Boundaries.** Presentation only: `frontend/src/components/Unseen.jsx`, `frontend/src/unseen.css`, the `UnseenLink` of
+`frontend/src/components/TopBar.jsx`, and the unseen block of `frontend/tests/smoke.jsx`. No change to `ml/`, the LOCO models,
+thresholds, the decision rule, the bundle, `backend/unseen.py`, `backend/unseen.json` or the eligible set; every result on
+the page stays the same. No reserved recording read, scored, listed or shown. D7 frozen (`AGENT_PROMPT_VERSION`
+8fb7865754455d65; the assistant untouched). Every honesty statement keeps its meaning. No dependency. Commits by Bhuvesh only.
+
+**Items and how each is done.**
+A. Correctness. (1) Experiment details shows both roles: "Main model: used for training" (or "threshold calibration") and,
+for the experimental model, "never saw this class" (hidden-fault recording) or, for a familiar example, "used for training"
+(its fit set is closed train within the development pool minus the hidden class, §12a; familiar examples are never its
+calibration recordings by the eligibility predicate). Derived from the role and the backend's `used_for`. (2) **Choice (b),
+the brief's default:** the "Reveal actual condition" button is removed and the actual condition (dataset label) is shown
+directly, because step 1 must name the hidden fault, so every hidden-fault card already gives it away; the App-6 / App-8.5
+checks that forbade "Actual condition" before Reveal are replaced by a check that it is shown with the outcome. Cards still
+do not reveal the outcome category before a run. (3) The step rail shows "Ready" for step 4 until the user opens step 4.
+(4) The result card always carries, for the current hidden fault, "For this hidden fault, the checks stopped X of N eligible
+development recordings (P %). W got a wrong familiar label; H were called healthy." from the same `counts` as Experiment
+details (no new computation).
+B. Clarity. (5) Step 3 marks: passed ✓, failed ✗, not applicable – (distinct colours; labels and the verdict row get a
+neutral dot). (6) Mechanic: confidence as passed / failed and a value-vs-limit bar without numbers; Developer: values in the
+dashboard's check format (`fmtCheck`, `backend.checks._num`: 6 decimals in [0, 1], never 1; 4 below 10; else 2), e.g.
+0.995618 vs 0.997563 (chosen over 4 decimals so that a value and its limit do not round to the same text); `pair` is retired.
+(7) Mechanic familiarity: a bar from "close to learned patterns" to "far from learned patterns" with the limit marked; numbers
+in Developer only. (8) Mechanic caution text: "One of the two healthy-machine checks disagrees, so this healthy result carries a
+caution."; the technical text (b1s / AE-6 / gates note) in Developer. (9) A "Healthy-machine checks (caution only)" row in
+step 3 and in "How this decision works", shown when the proposed label is healthy, with each check's state (passed / failed;
+not applicable when the verdict is not healthy). (10) One fixed format per view (item 6). (11) Near the checks: "Each
+experimental model has its own limits, calibrated without the hidden fault." (12) "Your runs" gains a "Hidden fault" column
+and a "Clear runs" control.
+C. Wording and Developer view. (13) "A healthy recording (a condition this model learned)."; a healthy verdict reads "The
+decision rule accepted the healthy label." (14) The rule line uses the dashboard's variant names (`backend.checks.VARIANT_NAMES`:
+classifier first, with an autoencoder override / classifier first (the rule in use) / strict: healthy also needs the
+autoencoder check / strict: healthy also needs the speed-aware check) and marks the one in use. (15) "nominal X Hz (from the
+file name) · measured Y Hz" in the cards (measured once that recording has been run in this visit) and in Experiment
+details. (16) `UnseenLink`'s accessible name starts with its visible text ("Explore an unseen fault — research demonstration:
+…"; the compact label likewise).
+
+**Checks.** Backend `MACHINESENSE_REQUIRE_BUNDLE=1 MACHINESENSE_NO_RESERVED_READ=1 python -m pytest -p no:warnings`; frontend
+`npm test`; new tests for items 1, 3, 4 (every hidden fault, equal to the Experiment details counts), 5, 6, 9, 12 and 16 at
+least; the seven runs re-checked in both views (same proposed label, checks and verdict); `AGENT_PROMPT_VERSION` printed and
+equal to 8fb7865754455d65. One commit per group (A, B, C), then a result line here.
+
 ## 7-f. Stage App-8.5 — "Explore an unseen fault" page redesign (frontend only)
 
 Declared 26 Oct 2026 before any code, at Bhuvesh's request ("update unseen fault page": the designer's
