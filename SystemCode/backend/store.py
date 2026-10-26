@@ -102,6 +102,56 @@ class CaseStore:
         return [{"id": r[0], "case_id": case_id, "created_at": r[1], "conversation_id": conversation_id, **json.loads(r[2])}
                 for r in rows]
 
+    # ---------------------------------------------------------------------- App-9 slice 2: observations and status
+    def add_observation(self, case_id: str, at: str, actor: dict, text: str) -> dict:
+        with self._conn() as c:
+            oid = int(c.execute("INSERT INTO observations (case_id, created_at, updated_at, actor, text) VALUES (?, ?, ?, ?, ?)",
+                                (case_id, at, at, json.dumps(actor), text)).lastrowid)
+        return self.observation(case_id, oid)
+
+    def edit_observation(self, case_id: str, oid: int, at: str, actor: dict, text: str) -> dict | None:
+        """Change an observation's text, keeping the previous text in observation_edits. None if the observation does not
+        exist for THIS case (another case's observation is never edited)."""
+        with self._conn() as c:
+            row = c.execute("SELECT text FROM observations WHERE id = ? AND case_id = ?", (oid, case_id)).fetchone()
+            if row is None:
+                return None
+            c.execute("INSERT INTO observation_edits (observation_id, edited_at, actor, previous_text, new_text) VALUES (?, ?, ?, ?, ?)",
+                      (oid, at, json.dumps(actor), row[0], text))
+            c.execute("UPDATE observations SET text = ?, updated_at = ? WHERE id = ? AND case_id = ?", (text, at, oid, case_id))
+        return self.observation(case_id, oid)
+
+    def observation(self, case_id: str, oid: int) -> dict | None:
+        return next((o for o in self.observations(case_id) if o["id"] == oid), None)
+
+    def observations(self, case_id: str) -> list[dict]:
+        """The case's observations, oldest first, each with its edit history (oldest first)."""
+        with self._conn() as c:
+            rows = c.execute("SELECT id, created_at, updated_at, actor, text FROM observations WHERE case_id = ? ORDER BY id",
+                             (case_id,)).fetchall()
+            edits = c.execute("SELECT e.observation_id, e.edited_at, e.actor, e.previous_text, e.new_text FROM observation_edits e "
+                              "JOIN observations o ON o.id = e.observation_id WHERE o.case_id = ? ORDER BY e.id", (case_id,)).fetchall()
+        hist = {}
+        for oid, at, actor, prev, new in edits:
+            hist.setdefault(oid, []).append({"edited_at": at, "actor": json.loads(actor), "previous_text": prev, "new_text": new})
+        return [{"id": r[0], "case_id": case_id, "kind": "technician_observation", "created_at": r[1], "updated_at": r[2],
+                 "actor": json.loads(r[3]), "text": r[4], "edits": hist.get(r[0], [])} for r in rows]
+
+    def add_status_event(self, case_id: str, at: str, actor: dict, status: str, fault_class: str | None, part: str | None,
+                         note: str) -> dict:
+        """Append one technician fault-status event (confirmed / rejected / withdrawn); earlier events are never changed."""
+        with self._conn() as c:
+            eid = int(c.execute("INSERT INTO confirmations (case_id, created_at, status, fault_class, part, note, actor) "
+                                "VALUES (?, ?, ?, ?, ?, ?, ?)", (case_id, at, status, fault_class, part, note, json.dumps(actor))).lastrowid)
+        return next(e for e in self.status_events(case_id) if e["id"] == eid)
+
+    def status_events(self, case_id: str) -> list[dict]:
+        with self._conn() as c:
+            rows = c.execute("SELECT id, created_at, status, fault_class, part, note, actor FROM confirmations WHERE case_id = ? "
+                             "ORDER BY id", (case_id,)).fetchall()
+        return [{"id": r[0], "case_id": case_id, "created_at": r[1], "status": r[2], "fault_class": r[3], "part": r[4],
+                 "note": r[5], "actor": json.loads(r[6])} for r in rows]
+
     def recent(self, limit: int = 20) -> list[dict]:
         with self._conn() as c:
             rows = c.execute("SELECT case_id, created_at, source, rec_id, rerun_of FROM cases ORDER BY created_at DESC "
@@ -118,6 +168,17 @@ MIGRATIONS = {
         "ALTER TABLE questions ADD COLUMN mode TEXT NOT NULL DEFAULT 'single'",
         "CREATE INDEX IF NOT EXISTS questions_case_conv ON questions (case_id, conversation_id, id)",
         "CREATE INDEX IF NOT EXISTS conversations_case ON conversations (case_id, id)"],
+    # App-9 slice 2: technician observations (with every edit kept) and an append-only fault-status event log. These are
+    # human records beside the case; the evidence record (cases.record) is never written by them.
+    2: ["""CREATE TABLE IF NOT EXISTS observations (id INTEGER PRIMARY KEY AUTOINCREMENT, case_id TEXT NOT NULL,
+            created_at TEXT NOT NULL, updated_at TEXT NOT NULL, actor TEXT NOT NULL, text TEXT NOT NULL)""",
+        """CREATE TABLE IF NOT EXISTS observation_edits (id INTEGER PRIMARY KEY AUTOINCREMENT, observation_id INTEGER NOT NULL,
+            edited_at TEXT NOT NULL, actor TEXT NOT NULL, previous_text TEXT NOT NULL, new_text TEXT NOT NULL)""",
+        """CREATE TABLE IF NOT EXISTS confirmations (id INTEGER PRIMARY KEY AUTOINCREMENT, case_id TEXT NOT NULL,
+            created_at TEXT NOT NULL, status TEXT NOT NULL, fault_class TEXT, part TEXT, note TEXT NOT NULL, actor TEXT NOT NULL)""",
+        "CREATE INDEX IF NOT EXISTS observations_case ON observations (case_id, id)",
+        "CREATE INDEX IF NOT EXISTS observation_edits_obs ON observation_edits (observation_id, id)",
+        "CREATE INDEX IF NOT EXISTS confirmations_case ON confirmations (case_id, id)"],
 }
 
 

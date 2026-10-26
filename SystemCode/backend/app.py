@@ -282,6 +282,75 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
                 "current_conversation_id": eng.store.conversation(case_id),
                 "conversation": [t["id"] for t in eng.store.turns(case_id, eng.store.conversation(case_id))]}
 
+    # ------------------------------------------------------------- App-9 slice 2: technician observations and status
+    # Human records beside the case: they never change the evidence record, the tools or the report (addendum B).
+    def _now() -> str:
+        from datetime import datetime, timezone
+        return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+    async def _body(request: Request) -> dict:
+        try:
+            body = await request.json()
+        except ValueError:
+            body = None
+        if not isinstance(body, dict):
+            raise HTTPException(422, "send a JSON object")
+        return body
+
+    @app.get("/api/cases/{case_id}/observations")
+    def observations(case_id: str, request: Request):
+        from backend.casenotes import LOCAL_DEMO
+        eng = engine(request)
+        _need(eng, case_id)
+        return {"case_id": case_id, "observations": eng.store.observations(case_id), "local_demo": LOCAL_DEMO}
+
+    @app.post("/api/cases/{case_id}/observations")
+    async def add_observation(case_id: str, request: Request):
+        from backend.casenotes import Invalid, actor, observation_text
+        eng = engine(request)
+        _need(eng, case_id)
+        body = await _body(request)
+        try:
+            text = observation_text(body.get("text"))
+        except Invalid as e:
+            raise HTTPException(422, str(e)) from e
+        return eng.store.add_observation(case_id, _now(), actor(body.get("author")), text)
+
+    @app.patch("/api/cases/{case_id}/observations/{oid}")
+    async def edit_observation(case_id: str, oid: int, request: Request):
+        from backend.casenotes import Invalid, actor, observation_text
+        eng = engine(request)
+        _need(eng, case_id)
+        body = await _body(request)
+        try:
+            text = observation_text(body.get("text"))
+        except Invalid as e:
+            raise HTTPException(422, str(e)) from e
+        out = eng.store.edit_observation(case_id, oid, _now(), actor(body.get("author")), text)
+        if out is None:
+            raise HTTPException(404, f"no observation {oid} for case {case_id}")
+        return out
+
+    @app.get("/api/cases/{case_id}/fault-status")
+    def fault_status(case_id: str, request: Request):
+        from backend.casenotes import fault_status as status
+        eng = engine(request)
+        rec = _need(eng, case_id)["record"]
+        return status(rec, eng.store.status_events(case_id))
+
+    @app.post("/api/cases/{case_id}/confirmations")
+    async def add_confirmation(case_id: str, request: Request):
+        from backend.casenotes import Invalid, actor, fault_status as status, status_event
+        eng = engine(request)
+        rec = _need(eng, case_id)["record"]
+        body = await _body(request)
+        try:
+            st, fc, part, note = status_event(body)
+        except Invalid as e:
+            raise HTTPException(422, str(e)) from e
+        event = eng.store.add_status_event(case_id, _now(), actor(body.get("author")), st, fc, part, note)
+        return {"event": event, **status(rec, eng.store.status_events(case_id))}
+
     @app.get("/api/cases/{case_id}/report")
     def report(case_id: str, request: Request):
         eng = engine(request)

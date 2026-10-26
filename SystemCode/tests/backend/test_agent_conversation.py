@@ -184,7 +184,7 @@ def test_migration_upgrades_an_app7_database_in_place(tmp_path):
     s = CaseStore(db)
     CaseStore(db)  # idempotent
     with sqlite3.connect(db) as c:
-        assert [r[0] for r in c.execute("SELECT version FROM schema_migrations")] == [1]
+        assert [r[0] for r in c.execute("SELECT version FROM schema_migrations ORDER BY version")] == [1, 2]
         assert c.execute("SELECT conversation_id, mode FROM questions").fetchall() == [(0, "single")]
         assert {r[1] for r in c.execute("PRAGMA index_list(questions)")} >= {"questions_case_conv"}
     assert s.questions("c1")[0]["question"] == "old" and s.turns("c1", 0) == [] and s.conversation("c1") == 0
