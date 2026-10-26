@@ -335,6 +335,16 @@ presentation only: no backend, model, threshold, rule, bundle, saved case, assis
 3. **Tests:** smoke checks that the Developer view renders all seven sections for every fixture, shows the rule in use
    and "caution only" for the healthy checks, carries the honesty lines, uses no design sample value, and that the
    Mechanic view is unchanged; both suites pass before the commit; a real-browser screenshot check.
+4. **Result (26 Oct 2026).** Built as declared. The finding keeps the Mechanic title and `aria-label="Finding"`; the
+   in-sample notice moved to the page footer (an existing check keeps it out of the finding). The App-8.2 checks of the
+   old Developer layout (finding summary block, five-step strip) are replaced by one App-8.3 check over the 8 fixtures:
+   seven sections in order, the same finding title as Mechanic, the rule in use with every check and variant, no design
+   sample rule text, the pipeline link and the mapped-location caveat. The Signal-quality panel counts the warnings shown
+   in the verdict; the calibration-speed note is listed as applying to a healthy verdict only. CSS prefix `dvw-` (`dv-` and
+   `dx-` are already used in `index.css`). Frontend suite passes on HEAD plus this change (clean worktree); screenshots at
+   1440 and 390 px against a scratch backend (LLM disabled). **Open, not resolved here:** the concurrent session's
+   uncommitted `smoke.jsx` forbids "Traceability" and "Research limitations" in the Developer view; this stage keeps both
+   (as declared and as HEAD requires). Bhuvesh decides when that session commits.
 
 ## 7-c. Concurrent stage: Stage App-9 — investigation assistant across an investigation (application improvement; D7 frozen)
 

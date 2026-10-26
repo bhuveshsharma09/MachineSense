@@ -13,6 +13,7 @@ import { usePanelView } from "./Aside.jsx";
 import Scene from "./Scene.jsx";
 import { Logo } from "./TopBar.jsx";
 import { AskButton } from "./AssistantDock.jsx";
+import DeveloperView from "./DeveloperView.jsx";
 import "../redesign.css";
 
 // Stage App-8: #/case/<id>/dashboard — the whole diagnosis of one stored case on one page (layout "A · Rig stage").
@@ -322,6 +323,10 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
   const narrowAreas = dev ? ["hero", "sum", "fd", "gg", "dq", "cd", "ch", "sp", "wf", "dc", "why", "nx", "xp", "rp", "rd", "ac", "tc", "lim"] : [];
   const gridStyle = narrow ? { gridTemplateColumns: "minmax(0,1fr)", gridTemplateAreas: narrowAreas.map((a) => `"${a}"`).join(" ") }
     : { gridTemplateColumns: "minmax(300px,340px) minmax(0,1fr) minmax(300px,340px)", gridTemplateAreas: areas.map((a) => `"${a}"`).join(" ") };
+
+  if (dev) return <DeveloperView caseId={caseId} record={record} report={report} channels={channels} signals={signals} activity={activity}
+    explanation={explanation} onRegenerate={onRegenerate} view={view} onView={changeView} userName={userName} assistantOpen={assistantOpen}
+    narrow={narrow} initialSel={initialSel} />;
 
   return (
     <div className={"rd-root" + (narrow ? " is-narrow" : "") + (assistantOpen ? " has-assistant" : "")}>

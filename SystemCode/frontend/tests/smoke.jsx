@@ -643,32 +643,28 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
   const mechanicFaultText = textOf(mechanicFault);
   const developerFault = dash(knownFault, "developer");
   const developerFinding = developerFault.match(/<section[^>]*aria-label="Finding"[\s\S]*?<\/section>/)?.[0] || "";
-  pcheck("Developer starts with the same finding summary as Mechanic", [knownFault, plainHealthy, unknown].every((f) => {
-    const mechanic = dash(f, "mechanic");
-    const developer = dash(f, "developer");
-    const title = (html) => html.match(/<h1 class="rd-m-title">([^<]+)<\/h1>/)?.[1];
-    return title(mechanic) && title(mechanic) === title(developer)
-      && developer.indexOf('aria-label="Finding"') < developer.indexOf('aria-label="Why does it say this?"')
-      && developer.includes('class="rd-m-finding-evidence"')
-      && developer.includes('aria-label="Model output"');
-  }));
-  pcheck("Dashboard: fault finding and full-width rig precede checks and measurements",
-    mechanicFault.includes("Faulty") && mechanicFault.includes("Known fault · model prediction")
-    && mechanicFaultText.includes("Show overhang bearing housing on the rig")
-    && !mechanicFault.includes('aria-label="Why does it say this?"')
-    && !mechanicFault.includes('aria-label="Which sensors changed?"')
-    && mechanicFault.indexOf('aria-label="Finding"') < mechanicFault.indexOf('aria-label="Interactive test rig"')
-    && mechanicFault.indexOf('aria-label="Interactive test rig"') < mechanicFault.indexOf('aria-label="Suggested checks"')
-    && mechanicFault.indexOf('aria-label="Suggested checks"') < mechanicFault.indexOf('aria-label="Explore measurements"'));
-  pcheck("Developer keeps the five-step decision strip; Mechanic omits it", [knownFault, unknown, caution, plainHealthy].every((f) => {
-    const html = dash(f, "developer");
-    const strip = html.match(/<section[^>]*aria-label="Why does it say this\?"[\s\S]*?<\/section>/)?.[0] || "";
-    const d = f.record.diagnosis;
+  // App-8.3: the Developer view is one page of seven numbered sections under a jump bar, on the case's real data
+  const SEVEN = ["verdict", "machine", "data", "models", "decision", "pipeline", "report"];
+  const title = (html) => html.match(/<h1 class="rd-m-title">([^<]+)<\/h1>/)?.[1];
+  const devBad = [];
+  for (const [n, f] of Object.entries(fx)) {
+    const html = dash(f, "developer"), t = textOf(html), d = f.record.diagnosis;
     const s = decisionSummary({ topClass: d.top_class, decision: d.decision, caution: d.caution, checks: f.report.assessment.checks });
-    return (strip.match(/<li class=/g) || []).length === 5 && strip.includes(s.confidence) && strip.includes(s.healthy)
-      && strip.includes(s.outcome) && strip.includes("See the full pipeline")
-      && !dash(f, "mechanic").includes('aria-label="Why does it say this?"');
-  }) && dash(knownFault, "developer").includes(`href="#/case/${knownFault.record.case_id}/pipeline">See the full pipeline</a>`));
+    const ids = SEVEN.map((id) => html.indexOf(`id="dvw-${id}"`));
+    const errs = [];
+    if (ids.some((x, i) => x < 0 || (i > 0 && x < ids[i - 1]))) errs.push("seven sections in order");
+    if (!["01", "07", "Verdict", "Machine", "Data", "Models", "Decision", "Pipeline", "Report"].every((x) => html.includes(x))) errs.push("jump bar");
+    if (title(html) !== title(dash(f, "mechanic"))) errs.push("same finding title as Mechanic");
+    if (!t.includes("Rule in use · classifier first") || !t.includes("caution only") || !t.includes(s.outcome)) errs.push("rule in use");
+    if ((html.match(/class="dvw-check"/g) || []).length !== f.report.assessment.checks.length) errs.push("one card per check");
+    if (!f.report.assessment.variants.every((v) => t.includes(v.name))) errs.push("alternative rules");
+    if (t.includes("4 of 4 checks support") || /Rule A · used/.test(t) || t.includes("B_with_caution")) errs.push("design sample rule text");
+    if (!t.includes("Full pipeline diagram") || !html.includes(`href="#/case/${f.record.case_id}/pipeline"`)) errs.push("pipeline link");
+    if (d.decision === "known_fault" && !t.includes("Mapped from the model's predicted class on this test rig; the sensors do not pinpoint the fault.")) errs.push("mapped caveat");
+    if (errs.length) devBad.push(`${n}: ${errs.join(", ")}`);
+  }
+  pcheck(`App-8.3 Developer: ${Object.keys(fx).length} fixtures render seven sections, the Mechanic finding title, the rule in use and every check and variant`,
+    !devBad.length, devBad.join("\n"));
   const mapped = (src) => {
     const report = { ...knownFault.report, sections: knownFault.report.sections.map((s) => s.n !== "04" ? s : { ...s, items: [
       { tag: "Guidance", text: `Check the 2× to 1× ratio. (source: ${src}; AI-drafted, not yet checked against a published source)`,
