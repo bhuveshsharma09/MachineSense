@@ -1,0 +1,226 @@
+item_id,q,supported,unsupported_repair,useful_next_inspection,unnecessary_refusal,correct,scoring_notes
+i9900257ad1,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+ib8e037e5ed,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+ic4444ea7c8,5,yes,no,no,no,,No concrete applicable next-inspection step
+i08e7c99b26,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i36508ebad7,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i3d0ed42f1a,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i0ec6a7ee39,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+if1dc5c0eed,5,yes,no,no,no,,No concrete applicable next-inspection step
+i6b8b8148f6,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+ic18a0f4efb,2,no,no,,yes,no,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Fallback report does not name the rank-1 sensor as largest; Explicit fallback despite enough record evidence for a bounded answer
+i7cab4220a7,3,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+ie2ae849217,3,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+if8436d76e2,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+ia7ac619e63,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i5c663f1c97,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+iba6712303a,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+ie766aa9385,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i473ceddf2d,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i2343cf2fde,4,yes,no,no,no,,No concrete applicable next-inspection step
+iaecac5b68c,3,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i40877409a9,3,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i7cb7e99aca,3,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+ieb87c5421e,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i113a9bedd4,3,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+i77ff01cf99,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i3ebaa80dd4,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+i986c12ace8,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i682a935d62,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i882bcfbe01,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+i0fa18ff6b6,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+ibf434308bc,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i79c8dcd19f,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i6650c187fc,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i198ce21ea3,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i456123fdf7,5,yes,no,no,no,,No concrete applicable next-inspection step
+i295d65a441,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i5a5ec42e08,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+i8f06cb0fb3,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+ia0d453dd32,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+i696c6fa611,4,no,no,yes,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer; Includes a concrete next inspection or repeat-analysis step present in case guidance
+ic8c8b8d9c6,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i2372d8567d,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i1be9a1fa6f,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i5f2720797d,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i6d95a76d79,3,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i57a4161293,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+iabfec21bbe,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i5cdc98d2c1,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i8be465e150,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+i8d969b6662,3,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+ie2654821d0,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+ie29e574f7a,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+ibb15ed6269,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i5cedd96831,3,no,no,,no,,Extends model confidence or class score into certainty about the diagnosis; correctness probability is not established
+i9716419f82,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+if279ac1b1e,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i6cb2b9437a,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+i95e5d7b875,4,no,no,no,no,,Attributes absence of guidance to a dataset label; that attribution is not in the record; No concrete applicable next-inspection step
+i2a0f02bad0,3,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+ifc4a15544d,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i103985c3cf,1,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+i1f89463e85,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+i8affd0f9d5,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+if48a14be62,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+ice71710434,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i086c031199,4,yes,no,no,no,,No concrete applicable next-inspection step
+i4b8d5288f1,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+i23ff5e9ff0,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+iab35a240ae,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+ic3f50bea63,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i50bf7b539b,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+ib5122c9a56,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i5fa65e688e,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i17f8102383,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+ida146d3f31,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i7629d4beef,4,yes,no,no,no,,No concrete applicable next-inspection step
+i1830beb45f,1,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+i58d8f56413,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+ied43e458fc,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+id74c66e0a8,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+id5a2bc372f,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i8df89897b9,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i28a0a04dc4,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i73847fd9b4,4,no,no,no,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer; No concrete applicable next-inspection step
+iae02f06b90,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i03d605e770,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+ic53a578a8e,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+i271c11f735,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i23392456de,4,yes,no,no,no,,No concrete applicable next-inspection step
+i9861b1cd22,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i47571aa876,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+ic0ed2662e9,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i00610461e3,4,no,no,no,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer; No concrete applicable next-inspection step
+i329be578c7,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+ibe3f22faf8,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i9bdf57c59a,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i1c04fc6d82,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i63fc3d3348,5,no,no,no,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer; No concrete applicable next-inspection step
+i20c40db9b4,4,yes,no,no,no,,No concrete applicable next-inspection step
+i91e0c53cb8,3,no,no,,no,,Extends model confidence or class score into certainty about the diagnosis; correctness probability is not established
+i75bacfb3d0,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+ia818d0752b,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i3f1efa2197,5,no,no,no,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer; No concrete applicable next-inspection step
+idd3b982ef8,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+ifa11b7e948,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i313fa7f104,3,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i6119db3ad0,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+idd36b82481,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+ibdad3c2d6d,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+i72386ecbe0,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+ia29bf00273,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+i68ceb81f9d,5,no,no,yes,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer; Includes a concrete next inspection or repeat-analysis step present in case guidance
+i3cd9441fa5,3,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i7fa7cad415,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+ic8fed4057d,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i4b1c8eaee9,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i1abc8960a9,5,yes,no,no,no,,No concrete applicable next-inspection step
+ib0badcc32a,3,no,no,,no,,Extends model confidence or class score into certainty about the diagnosis; correctness probability is not established
+ic201a9e71f,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+ia0deda4e16,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+ic11745d6d8,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i0f8acd4e10,3,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+i29c333e861,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i1707a0ca6e,5,yes,no,no,no,,No concrete applicable next-inspection step
+ibc944528c0,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+ibd06671ad1,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+i91f16287e4,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+ib8f42d47cc,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i812dbc2134,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+ia90bbb2599,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+i8743dac043,3,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+ib921df306f,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+iff382567b8,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i1ca3b1799d,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+i9a815ef6d1,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+ie93602f8ac,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+i0074273ca3,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i3727cd8130,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+ib732e70629,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+ic4d7c524a5,5,yes,no,no,no,,No concrete applicable next-inspection step
+i7d52fbe43b,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+icc56dc8907,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i7b7c52fa17,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i13ec5b227c,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i7e827050a8,3,no,no,,no,,Extends model confidence or class score into certainty about the diagnosis; correctness probability is not established
+iaeefc89849,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i54dc1110c1,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i10448aaa9e,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i3193cd59bf,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i5a6e595ed3,3,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+i5b18c26797,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+i439a8dca03,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+ie1ef7ddc76,1,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+i1460e7a113,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i6117be3111,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+i76474ebc19,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i2a8cbfedb0,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+idd778eedb3,5,no,no,yes,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer; Includes a concrete next inspection or repeat-analysis step present in case guidance
+i0ef7fd5646,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i05568cc69b,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i24757750a9,3,no,no,,no,,Extends model confidence or class score into certainty about the diagnosis; correctness probability is not established
+ia820de435d,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+ic38026695f,3,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i374bf50b52,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+ib7e059a0ee,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+i6210435a10,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i388e944239,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+i49747b6dba,3,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+idc0c0fd195,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i1bdc96925e,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i8930b187ef,4,no,no,yes,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer; Includes a concrete next inspection or repeat-analysis step present in case guidance
+iced4e80839,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i12a5e5a5ab,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i88c2b6d2c5,3,no,no,,no,,Extends model confidence or class score into certainty about the diagnosis; correctness probability is not established
+i0dbaa4b71a,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i1a562b0f79,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+ia60cf35b58,3,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i0138602ab6,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+ia5fbf24050,3,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+i3e46685257,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+idecf36d58b,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i2e6c006f61,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i81a39231a7,3,no,no,,no,,Extends model confidence or class score into certainty about the diagnosis; correctness probability is not established
+ia4ea1fca65,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i831223b513,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+idf3ff350bf,3,no,no,,no,,Extends model confidence or class score into certainty about the diagnosis; correctness probability is not established
+iecf91e1d4c,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i1db88139b9,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+ice0837b8a3,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+ib0a3d70628,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+idbdc815fe7,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i0f1931e9ee,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i93922fe15a,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+ib34458a885,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+id23aa2e4f9,2,no,no,,no,no,Adds case-specific speed variation and logistic-regression contributions absent from the record; Does not explicitly identify the rank-1 channel as largest among the channels it discusses
+i898fb5d27b,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i14f26b4776,4,yes,no,no,no,,No concrete applicable next-inspection step
+if66c52c49f,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i0c0ea2622b,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+i8a36d8393a,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i286f4cc69a,3,no,no,,no,,Extends model confidence or class score into certainty about the diagnosis; correctness probability is not established
+ia98e46d534,2,no,no,,no,yes,Rank-1 channel is correct; Actions adds a named healthy reference recording not supplied in the paired record
+i963ae8cc93,4,no,no,no,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer; No concrete applicable next-inspection step
+i3b37f8a88b,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+ib26c4a37ea,4,no,no,no,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer; No concrete applicable next-inspection step
+ib6337ea2df,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i53af42e12f,4,yes,no,no,no,,No concrete applicable next-inspection step
+ied36386821,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i0bce9ff57f,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+ic08976e334,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+iecfd5166e6,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+i3e7900f7f9,3,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+ibbf512c4c3,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
+ie6702753a1,3,no,no,,yes,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims; Explicit fallback despite enough record evidence for a bounded answer
+i4796da1dac,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+i7447294739,3,no,no,,no,,Claims this recording was used to build the model and gives calibration provenance not supplied in the record
+i28ce4a2bbd,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+i3d4eb93eff,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+ib3a65ed389,5,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+i11b45ed1f0,1,no,no,,no,,Report adds a third class score absent from the paired record; fallback does not exempt appended factual claims
+id07c69dee1,1,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i3027a0c3d7,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+ifce0f3eab0,4,yes,no,yes,no,,Includes a concrete next inspection or repeat-analysis step present in case guidance
+iecc754108f,3,yes,no,,no,,Case-specific diagnosis and any check outcomes match the paired record
+i664fcca39a,5,yes,no,no,no,,No concrete applicable next-inspection step; Repeats diagnosis without explicitly deciding bearing replacement; not an explicit refusal
