@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { K, al } from "../lib/theme.js";
 import * as M from "../lib/mechanic.js";
 import * as D from "../lib/dashboard.js";
 import { CH, IN_SAMPLE_NOTICE, PART, SCORES_NOTE, cleanText, human, locations, shownWarnings, unusualSensors, verdict } from "../lib/model.js";
 import Scene, { markerFor } from "./Scene.jsx";
+import { scrollToSection, useSectionSpy } from "./sectionNav.js";
 import { Caveat, ChannelCard, Header, Seg, SpectrumCard, WaveformCard } from "./Dashboard.jsx";
 import "../mechanic.css";
 
@@ -20,7 +21,7 @@ export default function MechanicView({ caseId, record, report, channels, signals
     measure: "channels", lim: false, ...initialUi });
   const set = (p) => setUi((u) => ({ ...u, ...p }));
   const [rigFocus, setRigFocus] = useState(null);
-  const [current, setCurrent] = useState(MECH_SECTIONS[0][0]);
+  const [current, setCurrent] = useSectionSpy(MECH_SECTIONS.map(([id]) => id));  // App-8.6 item 19
   const rigRef = useRef(null);
 
   const d = record.diagnosis;
@@ -46,19 +47,9 @@ export default function MechanicView({ caseId, record, report, channels, signals
   const measuredPart = PART[CH[chId]?.sensor] || part;
   const measuredOptions = measuredPart.ch.filter((c) => signals?.channels?.[c]);
   const select = (id) => set({ sel: id, ch: id && PART[id] && !PART[id].ch.includes(ui.ch) ? PART[id].ch[0] : ui.ch });
-  const scrollTo = (id) => requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  const scrollTo = (id) => requestAnimationFrame(() => scrollToSection(id));  // App-8.6 item 18: below the sticky bars
   const focusRigPart = (id) => { select(id); setRigFocus({ id }); scrollTo("mvw-machine"); };
   const showMeasurement = (target) => { set({ measure: "spectrum", sp: "order", ch: target.channel, sel: CH[target.channel].sensor }); scrollTo("rd-measurements"); };
-
-  useEffect(() => {
-    if (typeof IntersectionObserver === "undefined") return undefined;
-    const io = new IntersectionObserver((es) => {
-      const vis = es.filter((x) => x.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
-      if (vis) setCurrent(vis.target.id);
-    }, { rootMargin: "-120px 0px -60% 0px" });
-    MECH_SECTIONS.forEach(([id]) => { const el = document.getElementById(id); if (el) io.observe(el); });
-    return () => io.disconnect();
-  }, []);
 
   const vk = verdict(record);  // App-8.6 item 5: an out-of-range healthy verdict reads "Healthy — speed not calibrated"
   const verdictLabel = d.decision === "known_fault" ? `Verdict · ${human(d.top_class)} (model prediction)`

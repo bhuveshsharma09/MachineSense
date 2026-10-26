@@ -2,7 +2,8 @@
 // recorded real API responses (tests/fixtures, made by tests/make_fixtures.py). No browser and no new dependency.
 import { renderToString } from "react-dom/server";
 import Workspace from "../src/components/Workspace.jsx";
-import InvestigationDialog from "../src/components/InvestigationDialog.jsx";
+import InvestigationDialog, { filterRecordings, showcaseLabel } from "../src/components/InvestigationDialog.jsx";
+import { recordingTitle } from "../src/lib/model.js";
 import { qualityFlags, unusualSensors } from "../src/lib/model.js";
 import common from "./fixtures/common.json";
 import knownFault from "./fixtures/known_fault.json";
@@ -166,6 +167,15 @@ for (const [name, f] of Object.entries({ knownFault, unknown, caution, poor, hea
   const btn = html.match(/<button[^>]*class="start-btn"[^>]*>/)?.[0] || "";
   if (!/disabled=""/.test(btn) || !html.includes("re-upload the file to run again")) { failed++; console.error("✗ unavailable stored upload was not blocked"); }
   else console.log("✓ unavailable stored upload blocked in the investigation dialog");
+  // App-8.6 items 20–21: a word filter over the list; showcase entries show the class and measured speed, the id after
+  const recs = common.recordings, sc = common.showcase.showcase.find((s) => recs.some((r) => r.rec_id === s.rec_id));
+  const r0 = recs.find((r) => r.rec_id === sc.rec_id);
+  const bear = filterRecordings(recs, "overhang cage"), none = filterRecordings(recs, "zzz-no-such");
+  const ok = html.includes('aria-label="Filter the recordings"') && bear.length > 0 && bear.every((r) => r.class10 === "overhang_cage")
+    && none.length === 0 && filterRecordings(recs, "").length === recs.length
+    && showcaseLabel(sc, recs) === `${sc.state} · ${recordingTitle(r0)} · ${r0.speed_hz.toFixed(1)} Hz (${sc.rec_id})` && html.includes(`${r0.speed_hz.toFixed(1)} Hz (${sc.rec_id})`);
+  if (!ok) { failed++; console.error("✗ App-8.6 items 20–21: recording filter and showcase labels"); }
+  else console.log("✓ App-8.6 items 20–21: the recording list filters by fault, setting or speed; showcase entries show class and measured speed");
 }
 
 // Small screens (App-2a.3): the stacked layout at 390 px, and no horizontal scroll (document width ≤ viewport width).
@@ -593,7 +603,7 @@ import { STAGES } from "../src/lib/pipelineLayout.js";
 import { valueOf } from "../src/lib/pipelineCase.js";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
-import { BEARING_NOTE, bearingSpectrum, channelRows as channelRows86, defaultPart as defaultPart86, guidanceSteps, overflow as overflow86, showMeTarget } from "../src/lib/dashboard.js";
+import { BEARING_NOTE, activeSection, bearingSpectrum, channelRows as channelRows86, defaultPart as defaultPart86, guidanceSteps, overflow as overflow86, showMeTarget } from "../src/lib/dashboard.js";
 import { ENVELOPE_GLOSS, JARGON_WORDS, fitBearingSteps } from "../src/lib/mechanic.js";
 import { locations } from "../src/lib/model.js";
 import { CALIBRATION_SPEED_WARNING as CAL_SPEED, cleanText as cleanText86, verdict as verdict86 } from "../src/lib/model.js";
@@ -779,6 +789,10 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
       fit.hidden > 0 && !kt.includes("inner-race line") && kt.includes("about other bearing fault types") && kt.includes(ENVELOPE_GLOSS));
     pcheck("App-8.6 item 14: the citation note appears once in the Mechanic step list",
       (kt.match(/Citation not yet checked against the full text/g) || []).length === 1);
+    pcheck("App-8.6 item 19: the active section is the last one whose top reached the sticky bars; the last one at the page end",
+      activeSection([{ id: "a", top: -400 }, { id: "b", top: 90 }, { id: "c", top: 700 }], 120) === "b"
+      && activeSection([{ id: "a", top: 300 }, { id: "b", top: 900 }], 120) === "a"
+      && activeSection([{ id: "a", top: -900 }, { id: "b", top: -200 }, { id: "c", top: 400 }], 120, true) === "c");
     pcheck("App-8.6 item 15: a known fault reads \"Possible fault\" in both views' badge, never \"Faulty\"",
       kt.includes("Possible fault") && !kt.includes("Faulty") && textOf(dash(knownFault, "developer")).includes("Possible fault"));
   }

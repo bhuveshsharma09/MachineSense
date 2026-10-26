@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { K, TAG, al } from "../lib/theme.js";
 import * as M from "../lib/mechanic.js";
 import * as D from "../lib/dashboard.js";
@@ -7,6 +7,7 @@ import { CH, IN_SAMPLE_NOTICE, PART, RULE_LINE, SCORES_NOTE, cleanText, fmtScore
   unusualSensors, verdictTitle } from "../lib/model.js";
 import { Svg, bandPath, linePath, rangeMax } from "./Charts.jsx";
 import Scene, { markerFor } from "./Scene.jsx";
+import { scrollToSection, useSectionSpy } from "./sectionNav.js";
 import { Header } from "./Dashboard.jsx";
 import DevPipeline from "./DevPipeline.jsx";
 import "../developer.css";
@@ -46,7 +47,9 @@ export default function DeveloperView({ caseId, record, report, channels, signal
   const [rig, setRig] = useState({ exploded: false, labels: false, resetTick: 0 });
   const [ch, setCh] = useState(() => D.bearingSpectrum(record)?.ch || null);
   const [sp, setSp] = useState(() => D.bearingSpectrum(record)?.sp || "order");
-  const [current, setCurrent] = useState("verdict");
+  const [spy, setSpy] = useSectionSpy(SECTIONS.map(([id]) => `dvw-${id}`));  // App-8.6 item 19
+  const current = (spy || "dvw-verdict").replace("dvw-", "");
+  const setCurrent = (id) => setSpy(`dvw-${id}`);
   const machineRef = useRef(null);
 
   const d = record.diagnosis;
@@ -69,19 +72,8 @@ export default function DeveloperView({ caseId, record, report, channels, signal
   const variants = report?.assessment?.variants || [];
   const agree = variants.filter((x) => x.verdict === variants.find((v) => /in use/.test(v.name))?.verdict).length;
   const select = (id) => { setSel(id); if (id && PART[id] && !PART[id].ch.includes(ch)) setCh(PART[id].ch[0]); };
-  const showOnRig = (id) => { select(id); machineRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" }); };
-
-  // the jump bar follows the section in view
-  useEffect(() => {
-    if (typeof IntersectionObserver === "undefined") return undefined;
-    const io = new IntersectionObserver((es) => {
-      const vis = es.filter((x) => x.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
-      if (vis) setCurrent(vis.target.id.replace("dvw-", ""));
-    }, { rootMargin: "-120px 0px -60% 0px" });
-    SECTIONS.forEach(([id]) => { const el = document.getElementById(`dvw-${id}`); if (el) io.observe(el); });
-    return () => io.disconnect();
-  }, []);
-  const jump = (id) => { setCurrent(id); document.getElementById(`dvw-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  const showOnRig = (id) => { select(id); scrollToSection("dvw-machine"); };
+  const jump = (id) => { setCurrent(id); scrollToSection(`dvw-${id}`); };  // App-8.6 item 18: below the sticky bars
 
   const lrTop = d.lr_secondary?.top_class;
   const keyNums = [

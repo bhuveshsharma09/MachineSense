@@ -171,3 +171,13 @@ export function bearingSpectrum(record) {
 
 export const checkExpr = (c) => `${c.value_text} ${c.relation} ${c.threshold_text}`;
 export { fmtCheck };
+
+// App-8.6 item 19: the active section is the last one whose top has reached the bottom of the sticky bars (tops in
+// viewport pixels, `offset` = the bars' height); at the end of the page the last section.
+export function activeSection(sections, offset, atBottom = false) {
+  if (!sections.length) return null;
+  if (atBottom) return sections[sections.length - 1].id;
+  let cur = sections[0].id;
+  for (const s of sections) if (s.top - offset <= 8) cur = s.id;
+  return cur;
+}

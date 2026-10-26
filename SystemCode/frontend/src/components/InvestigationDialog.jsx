@@ -1,10 +1,24 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { human, recordingTitle } from "../lib/model.js";
 import { groupRecordings } from "./TopBar.jsx";
+
+// App-8.6 items 20–21: the recording list's label, a word filter (every word must match the class, setting, speed or id),
+// and a showcase entry labelled like the rest of the list with its file id after it
+export const recLabel = (r) => `${recordingTitle(r)} · ${r.speed_hz.toFixed(1)} Hz · ${r.used_for}`;
+export function filterRecordings(recordings, q) {
+  const words = String(q || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return recordings || [];
+  return (recordings || []).filter((r) => words.every((w) => `${human(r.class10)} ${recLabel(r)} ${r.rec_id}`.toLowerCase().includes(w)));
+}
+export function showcaseLabel(s, recordings) {
+  const r = (recordings || []).find((x) => x.rec_id === s.rec_id);
+  return r ? `${s.state} · ${recordingTitle(r)} · ${r.speed_hz.toFixed(1)} Hz (${s.rec_id})` : `${s.state} · ${s.rec_id}`;
+}
 
 export default function InvestigationDialog({ open, recordings, showcase, selection, upload, onPick, onFile,
   onClearUpload, onStart, onClose, status, error, runningFor }) {
   const ref = useRef(null);
+  const [q, setQ] = useState("");  // App-8.6 item 20: filter by fault, setting or speed
   const close = useRef(onClose);
   close.current = onClose;
   useEffect(() => {
@@ -15,7 +29,12 @@ export default function InvestigationDialog({ open, recordings, showcase, select
     return () => window.removeEventListener("keydown", onKey);
   }, [open, status]);
   if (!open) return null;
-  const groups = groupRecordings(recordings);
+  const words = q.trim().split(/\s+/).filter(Boolean);
+  const filtered = filterRecordings(recordings, q);
+  const groups = groupRecordings(filtered);
+  const showLabel = (s) => showcaseLabel(s, recordings);
+  const shown = (showcase || []).filter((s) => !words.length || words.every((w) => showLabel(s).toLowerCase().includes(w.toLowerCase())));
+  const nMatch = filtered.length;
   const running = status === "running";
   const blocked = upload?.stored && upload.canRerun === false;
   const canStart = !!(selection || upload) && !running && !blocked;
@@ -30,12 +49,17 @@ export default function InvestigationDialog({ open, recordings, showcase, select
         <div className="progress"><div /></div>
       </div> : <>
         <p className="invest-intro">Select a development recording or upload a five-second CSV. The results will open in the dashboard.</p>
+        <label className="invest-field">Find a recording
+          <input type="search" className="rec-select invest-filter" value={q} onChange={(e) => setQ(e.target.value)}
+            placeholder="Filter by fault, setting or speed, e.g. bearing 20g or 35 Hz" aria-label="Filter the recordings" />
+          {words.length > 0 && <small className="invest-count">{`${nMatch} recording${nMatch === 1 ? "" : "s"} match`}</small>}
+        </label>
         <label className="invest-field">Development recording
           <select value={selection?.rec_id || ""} onChange={(e) => onPick(e.target.value)} aria-label="Development recording" className="rec-select">
             <option value="">Select a recording…</option>
-            {showcase?.length > 0 && <optgroup label="Examples">{showcase.map((s) => <option key={s.state + s.rec_id} value={s.rec_id}>{s.state} · {s.rec_id}</option>)}</optgroup>}
+            {shown.length > 0 && <optgroup label="Examples">{shown.map((s) => <option key={s.state + s.rec_id} value={s.rec_id}>{showLabel(s)}</option>)}</optgroup>}
             {Object.entries(groups).map(([cls, rs]) => <optgroup key={cls} label={human(cls) + ` (${rs.length})`}>
-              {rs.map((r) => <option key={r.rec_id} value={r.rec_id}>{recordingTitle(r)} · {r.speed_hz.toFixed(1)} Hz · {r.used_for}</option>)}
+              {rs.map((r) => <option key={r.rec_id} value={r.rec_id}>{recLabel(r)}</option>)}
             </optgroup>)}
           </select>
         </label>
