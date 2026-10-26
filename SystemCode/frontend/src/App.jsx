@@ -71,7 +71,7 @@ function Main() {
     session.current = createSession({
       diagnoseRecording, diagnoseUpload, rerunCase, getCase, getCaseMeta, getActivity, getReport, getChannels, getSignals,
       getExplanation, postExplanation,
-      onCase: (id) => window.history.replaceState(null, "", window.location.search + `#/case/${id}`),
+      onCase: (id) => { window.location.hash = `#/case/${encodeURIComponent(id)}/dashboard`; },
     }, setS);
   }
   const st = s || session.current.get();

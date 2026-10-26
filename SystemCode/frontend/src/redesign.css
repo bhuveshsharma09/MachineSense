@@ -201,6 +201,8 @@ button.rd-ch-row:hover { background: oklch(0.23 0.006 260 / 0.03); }
 .rd-div span { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
 .rd-dashed { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 12px; border: 1px dashed oklch(0.23 0.006 260 / 0.2); }
 .rd-report { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 22px; }
+.rd-report-details summary { cursor: pointer; font-size: 13px; font-weight: 500; }
+.rd-report-details .rd-report { padding-top: 16px; }
 .rd-report-t { font-size: 12.5px; line-height: 1.45; color: oklch(0.30 0.007 260); text-wrap: pretty; }
 
 .rd-footer { display: flex; flex-direction: column; gap: 8px; padding: 4px 6px 0; font-size: 12px; color: oklch(0.40 0.008 260); }
@@ -218,6 +220,60 @@ button.rd-ch-row:hover { background: oklch(0.23 0.006 260 / 0.03); }
 .rd-root.is-narrow .rd-ch-row .rd-ch-track { grid-column: 1 / -1; grid-row: 2; }
 .rd-root.is-narrow .rd-report, .rd-root.is-narrow .rd-checks, .rd-root.is-narrow .rd-kv-3 { grid-template-columns: minmax(0, 1fr); }
 .rd-root.is-narrow .rd-pill-outline { display: none; }
+.rd-mechanic.is-narrow .rd-header { gap: 7px; padding: 8px 12px; }
+.rd-mechanic.is-narrow .rd-header-mid, .rd-mechanic.is-narrow .rd-avatar { display: none; }
+.rd-mechanic.is-narrow .rd-back { padding: 0 10px; }
+.rd-mechanic.is-narrow .rd-ask { height: 34px; padding: 0 11px; }
+
+/* Mechanic reading: a central rig with the finding and fault-area view to its left, evidence and checks to its right. */
+.rd-m-main { max-width: 1500px; margin: 0 auto; padding: 18px 24px 88px; display: flex; flex-direction: column; gap: 16px; }
+.rd-m-stage { display: grid; grid-template-columns: minmax(270px, 310px) minmax(0, 1fr) minmax(290px, 340px);
+  grid-template-areas: "finding rig evidence" "part rig checks"; grid-template-rows: auto 1fr; gap: 16px; align-items: start; }
+.rd-m-stage.no-part { grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  grid-template-areas: "finding rig" "evidence rig" "checks rig"; grid-template-rows: auto auto 1fr; }
+.rd-m-stage .rd-card { gap: 14px; }
+.rd-m-finding { grid-area: finding; }
+.rd-m-evidence { grid-area: evidence; }
+.rd-m-next { grid-area: checks; }
+.rd-m-part .rd-iso { margin: 0 -2px; }
+.rd-m-title { margin: 0; font-size: clamp(27px, 2.5vw, 36px); line-height: 1.08; letter-spacing: -0.03em; font-weight: 500; text-wrap: balance; }
+.rd-m-location { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border-radius: 15px; background: oklch(0.66 0.19 42 / 0.07); }
+.rd-m-location strong { font-size: 16px; font-weight: 600; }
+.rd-m-quality { display: flex; flex-direction: column; gap: 8px; }
+.rd-m-quality details { font-size: 12.5px; }
+.rd-m-quality .rd-checklist { padding-top: 10px; }
+.rd-m-source { align-self: flex-start; height: 24px; color: oklch(0.44 0.15 277); background: oklch(0.54 0.21 277 / 0.09); font-size: 11px; }
+.rd-m-evidence .rd-box { margin-top: auto; }
+.rd-m-next .rd-steps li { padding: 13px; }
+.rd-m-next .rd-ghost { margin-top: auto; }
+.rd-m-rig { grid-area: rig; width: 100%; height: 100%; min-height: 720px; background: oklch(0.99 0.002 85 / 0.45); }
+.rd-m-rig .rd-rig-title { font-size: 17px; }
+.rd-m-measure { display: flex; flex-direction: column; gap: 14px; padding: 22px; border-radius: 24px; background: oklch(0.995 0.002 85); box-shadow: 0 1px 2px oklch(0.3 0.01 260 / 0.05); }
+.rd-m-measure-head { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.rd-m-measure-head h2 { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
+.rd-m-measure-head p { margin: 5px 0 0; color: oklch(0.43 0.008 260); font-size: 13px; }
+.rd-m-measure > .rd-card { padding: 0; box-shadow: none; border-radius: 0; }
+.rd-m-details { padding: 16px 20px; border-radius: 16px; background: oklch(0.995 0.002 85); }
+.rd-m-details .rd-kv { margin-top: 10px; }
+.rd-m-main summary, .rd-m-quality summary { cursor: pointer; font-weight: 500; }
+.rd-m-main .rd-footer { padding: 0 4px; }
+.rd-m-main .rd-footer details ul { padding-top: 8px; }
+@media (max-width: 1320px) {
+  .rd-m-stage.has-part { grid-template-columns: minmax(270px, 340px) minmax(0, 1fr);
+    grid-template-areas: "finding rig" "part rig" "evidence checks"; grid-template-rows: auto auto auto; }
+}
+@media (max-width: 1023px) {
+  .rd-m-stage.no-rig { grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: "finding evidence" "part checks"; grid-template-rows: auto auto; }
+  .rd-m-stage.no-rig.no-part { grid-template-areas: "finding evidence" "checks checks"; }
+}
+@media (max-width: 760px) {
+  .rd-m-main { padding: 12px 16px 88px; }
+  .rd-m-stage.no-rig { grid-template-columns: minmax(0, 1fr); grid-template-areas: "finding" "part" "evidence" "checks"; }
+  .rd-m-stage.no-rig.no-part { grid-template-areas: "finding" "evidence" "checks"; }
+  .rd-m-measure-head { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .rd-m-measure-head .rd-seg { max-width: 100%; }
+}
 
 /* assistant page */
 .as-root { height: 100vh; min-height: 640px; display: flex; flex-direction: column; overflow: hidden; }

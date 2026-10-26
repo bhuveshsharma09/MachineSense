@@ -575,7 +575,7 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
 import { DashboardView } from "../src/components/Dashboard.jsx";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { guidanceSteps } from "../src/lib/dashboard.js";
-import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN } from "../src/lib/model.js";
+import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarnings } from "../src/lib/model.js";
 {
   const SAMPLE = ["6.82", "0.9981", "0.9412", "GL-BRG", "c_8f3a21", "36.454", "Sam Okafor", "xp-prompt v3", "7e2d9a1", "look_up_guidance"];
   const fx = { knownFault, unknown, caution, poor, healthy, disagree, narrow, plainHealthy };
@@ -586,14 +586,20 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN } from "..
   for (const [n, f] of Object.entries(fx)) for (const view of ["mechanic", "developer"]) {
     let h; try { h = dash(f, view); } catch (e) { bad.push(`${n}/${view}: threw ${e.message}`); continue; }
     const t = textOf(h);
-    const need = ["Research demonstration; not validated on real machines.", SN, "Sensor channels vs a healthy recording", "What to inspect next",
-      "No healthy-reference spectrum is stored with the case.", "Earlier cases are separate dataset recordings", "This is not a measure of damage severity.",
-      ...(f.record.source === "dataset" ? [INS] : []), ...(f.record.diagnosis.decision === "known_fault" ? ["According to the dataset label (model prediction)"] : [])];
+    const need = ["Research demonstration; not validated on real machines.", SN, "Sensor channels vs a healthy recording",
+      ...(view === "mechanic" ? ["Evidence behind this result", "Suggested checks", "Explore measurements",
+        ...(shownWarnings(f.record).length ? [] : ["No signal-quality warnings detected."])]
+        : ["What to inspect next", "No healthy-reference spectrum is stored with the case.", "This is not a measure of damage severity."]),
+      ...(f.record.source === "dataset" ? [INS] : []),
+      ...(f.record.diagnosis.decision === "known_fault" ? [view === "mechanic" ? "Mapped from the model’s predicted class" : "According to the dataset label (model prediction)"] : [])];
     const miss = need.filter((x) => !t.includes(x));
     const forb = [...never, ...SAMPLE].filter((x) => t.toLowerCase().includes(x.toLowerCase()));
     if (view === "mechanic") {
       const d = f.record.diagnosis;
       forb.push(...["τ_", "MSP", "Mahalanobis", fmtC(d.scores.b1s), fmtC(d.thresholds.tau_b), "Traceability", "Decision checks"].filter((x) => t.includes(x)));
+      const ordered = ["Possible", "Evidence behind this result", "Suggested checks", "Explore measurements"];
+      if (f.record.diagnosis.decision === "known_fault" && ordered.some((x, i) => i > 0 && t.indexOf(x) < t.indexOf(ordered[i - 1])))
+        miss.push("mechanic section order");
     } else {
       miss.push(...["Decision checks", "only add a caution to a healthy verdict", "Traceability", "CNN attribution · exploratory", "Not evidence of location"].filter((x) => !t.includes(x)));
     }
@@ -608,9 +614,10 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN } from "..
   const hp = textOf(dash(plainHealthy, "mechanic"));
   pcheck("App-8 dashboard: a healthy verdict offers no inspection step and no suggested location",
     hp.includes("No inspection steps are offered for a healthy verdict.") && !hp.includes("Suggested location"));
-  pcheck("App-8 dashboard: links back to the report page, to the assistant page and to the pipeline",
-    ["dashboard", "assistant", "pipeline"].every((p) => p === "dashboard" ? dash(knownFault, "mechanic").includes(`href="#/case/${knownFault.record.case_id}"`)
-      : dash(knownFault, "mechanic").includes(`href="#/case/${knownFault.record.case_id}/${p}"`)));
+  pcheck("App-8 dashboard: Mechanic links to the rig and assistant; Developer also links to the pipeline",
+    dash(knownFault, "mechanic").includes(`href="#/case/${knownFault.record.case_id}"`)
+    && dash(knownFault, "mechanic").includes(`href="#/case/${knownFault.record.case_id}/assistant"`)
+    && dash(knownFault, "developer").includes(`href="#/case/${knownFault.record.case_id}/pipeline"`));
   const narrowHtml = dash(knownFault, "developer", { initialWidth: 390 });
   pcheck("App-8 dashboard: below 1024 px one column without the 3-D rig", narrowHtml.includes("is-narrow") && !narrowHtml.includes("Rotor test rig · illustrative"));
   writeFileSync(join(here, "mobile", "dashboard_390.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
