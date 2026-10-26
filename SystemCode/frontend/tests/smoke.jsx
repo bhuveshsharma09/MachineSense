@@ -551,11 +551,23 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
   const rev = textOf(page("imbalance", fail, { initialRevealed: true }));
   pcheck("unseen page: Reveal actual condition shows the true label, marked hidden during fitting, and names the honest failure",
     rev.includes("Actual condition (dataset label)") && rev.includes("Hidden from this model during fitting") && rev.includes("honest failure"));
+  // App-8.5: the wizard's page 3 reveals the real result row by row (at step 2 the confidence row is shown, familiarity and the
+  // verdict not yet, and no result page); page 4 is reached only after every row is shown
   const partial = page("imbalance", fail, { initialStep: 1 });
-  pcheck("unseen page: steps are revealed one at a time (at step 2 the confidence card is shown, familiarity and the verdict not yet)",
-    /class="un-card un-check is-shown" aria-hidden="false" data-check="MSP/.test(partial)
-    && /class="un-card un-check" aria-hidden="true" data-check="Mahalanobis/.test(partial)
-    && partial.includes('class="un-card glass-strong un-verdict"'));
+  const row = (s, on) => new RegExp(`data-step="${s}" class="uw-run-row${on ? " is-shown" : ""}"`).test(partial);
+  pcheck("unseen page: steps are revealed one at a time (at step 2 the confidence row is shown, familiarity and the verdict not yet)",
+    row("label", true) && row("confidence", true) && row("familiarity", false) && row("verdict", false) && !partial.includes('data-v="verdict"')
+    && textOf(partial).includes("Step 3 of 4"));
+  const wiz = textOf(start);
+  pcheck("unseen page: the wizard opens on step 1 with the four steps, the nine faults in their groups and the About box",
+    wiz.includes("Step 1 of 4") && ["Hide a fault", "Choose a recording", "Run the checks", "See the result", "Rotor", "Alignment",
+      "Underhang bearing", "Overhang bearing", "Next: choose a recording", "Research demonstration; not validated on real machines."].every((x) => wiz.includes(x))
+    && (start.match(/class="uw-fault[ "]/g) || []).length === 9, JSON.stringify([...["Step 1 of 4", "Hide a fault", "Choose a recording", "Run the checks", "See the result", "Rotor", "Alignment",
+      "Underhang bearing", "Overhang bearing", "Next: choose a recording", "Research demonstration; not validated on real machines."].filter((x) => !wiz.includes(x))]));
+  const cards = textOf(renderToString(<UnseenView summary={summary} initialPage={2} />));
+  pcheck("unseen page: recording cards do not reveal whether the example is a rejection or an honest failure before it is run",
+    cards.includes("Step 2 of 4") && !/successful rejection|honest failure|failure_kind|called healthy/i.test(cards)
+    && unseenFile.runs.imbalance.examples.every((e) => cards.includes(e.rec_id)));
   const ob = textOf(renderToString(<UnseenView summary={summary} initialHidden="overhang_ball" />));
   pcheck("unseen page: a class without an honest failure says so, with the reason, instead of substituting one",
     ob.includes("No honest failure among the eligible recordings: every one of the 69 eligible withheld recordings was rejected"));

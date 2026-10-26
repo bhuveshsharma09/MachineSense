@@ -416,6 +416,12 @@ predicate, the LOCO models, scoring, thresholds and verdicts are unchanged; rese
    Mechanic view names no MSP, Mahalanobis or τ; "Research demonstration; not validated on real machines.".
 3. **Tests:** the App-6 smoke checks keep their data and copy assertions; the structural ones change to the wizard (the
    step reveal on page 3, the result on page 4); both suites pass; screenshots at 1440 and 390 px.
+4. **Result (26 Oct 2026).** Built as declared, on the real `/api/unseen` data (scratch backend, saved values). The App-6
+   data, copy and Mechanic-naming checks pass unchanged; the step-reveal check now reads the page-3 rows; new checks: the
+   wizard opens on step 1 with the nine faults in their four groups and the About box, and the recording cards reveal no
+   category before a run. The unrevealed card's label reads "What the recording really was" (the App-6 check forbids
+   "Actual condition" before Reveal). The page's "This visit's runs" list lives in memory only. Frontend suite passes (229
+   checks, including the 390 px width check).
 
 ## 7-c. Concurrent stage: Stage App-9 — investigation assistant across an investigation (application improvement; D7 frozen)
 
