@@ -356,6 +356,34 @@ presentation only: no backend, model, threshold, rule, bundle, saved case, assis
    on 4 trace fixtures every step card and stage is drawn, every value carries a resolvable trace path, four decision
    cells and the verdict, no "B_with_caution". Frontend suite passes on ed8f354 plus this change; screenshots 1440 / 390 px.
 
+## 7-e. Concurrent stage: Stage App-8.4 — Mechanic view redesign (frontend only)
+
+Declared 26 Oct 2026 before any code, at Bhuvesh's request ("update mech view now": the designer's
+`MachineSense Mechanic.dc.html`, walkthrough (4)). Same pattern as App-8.3: frontend presentation only; no backend, model,
+threshold, rule, bundle, saved case, assistant or D7 change; no dependency. New files `frontend/src/components/
+MechanicView.jsx` and `frontend/src/mechanic.css`; `Dashboard.jsx` gains only one import, one early return for the
+Mechanic view and `export` on the existing `ChannelCard`, `SpectrumCard`, `WaveformCard` and `Caveat` (reused, not
+copied), applied without committing the concurrent session's uncommitted edits. The Developer view is unchanged.
+1. **Layout.** A sticky jump bar and four numbered sections: 01 Verdict (finding, the model-mapped part with its caveat and
+   "Show … on the rig", signal quality, the evidence bullets, the healthy-baseline check, the uncertainty lines), 02 Machine
+   (the 3-D rig with a part inspector: tag, plain description, related channels marked Changed / Typical), 03 Sensors (the
+   channels vs a healthy recording, marked Changed / Typical; the existing Spectrum and Waveform views stay as tabs there,
+   because App-8.2's two declared "Show me" mappings open a spectrum), 04 What to check (the curated steps as numbered
+   cards, the source title and the verification note per step, the safety line). A footer carries "Research
+   demonstration; not validated on real machines.", the scores line and the research limitations (the design shows them;
+   App-8.2 had left them out of Mechanic; adding them weakens nothing).
+2. **Kept from App-8 / 8.2 (not the design's version):** the Mechanic view shows no score, threshold or percentage; the
+   location keeps "According to the dataset label (model prediction)" beside "Mapped from the model’s predicted class on
+   this test rig; the sensors do not pinpoint the fault." (Bhuvesh's decision to restore it); raw guidance ids are not shown
+   in Mechanic (the entry title is shown, the id in the hover); "Show me" only for App-8.2's two declared mappings, opening
+   their spectrum in section 03 (the design's rig-jump and its bearing-step "Show me" are not used); a healthy verdict shows
+   no suggested checks and no fault location; further inspection names no candidate area as a next action; the design's
+   sample values, ids and "AI-written" claims are not used (the explanation's own badge is shown).
+3. **Tests:** the App-8.2 Mechanic order check changes to the new order (Finding → rig → measurements → suggested checks);
+   new smoke checks: four sections in order for every fixture, no score / threshold / percentage, the location wording, the
+   honesty footer, Changed / Typical only, the declared Show me only; both suites pass; real-browser screenshots at
+   1440 and 390 px.
+
 ## 7-c. Concurrent stage: Stage App-9 — investigation assistant across an investigation (application improvement; D7 frozen)
 
 Declared 26 Oct 2026 before any code, at Bhuvesh's request; runs beside App-8.2 (that section is not moved). Goal: the
