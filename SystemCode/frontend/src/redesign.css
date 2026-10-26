@@ -229,7 +229,7 @@ button.rd-ch-row:hover { background: oklch(0.23 0.006 260 / 0.03); }
 .rd-m-answer, .rd-m-finding-evidence { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; }
 .rd-m-finding-evidence { border-left: 1px solid oklch(0.23 0.006 260 / 0.08); padding-left: 26px; }
 .rd-m-finding-evidence .rd-box { width: 100%; }
-.rd-m-category { align-self: flex-start; font-size: 15px; font-weight: 600; }
+.rd-m-category { align-self: flex-start; font-size: 12.5px; font-weight: 500; }
 .rd-m-next-line { margin: 0; font-size: 15px; font-weight: 500; }
 .rd-m-speed { font-size: 13px; color: oklch(0.40 0.008 260); }
 .rd-m-label { font-size: 12.5px; font-weight: 500; color: oklch(0.48 0.008 260); }

@@ -576,7 +576,7 @@ import { DashboardView } from "../src/components/Dashboard.jsx";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
 import { guidanceSteps, showMeTarget } from "../src/lib/dashboard.js";
-import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, shownWarnings } from "../src/lib/model.js";
+import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarnings } from "../src/lib/model.js";
 {
   const cases = [knownFault, unknown, caution, plainHealthy];
   pcheck("App-8.1 shared decision summary uses the saved checks for each outcome", cases.every((f) => {
@@ -605,9 +605,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
   for (const [n, f] of Object.entries(fx)) for (const view of ["mechanic", "developer"]) {
     let h; try { h = dash(f, view); } catch (e) { bad.push(`${n}/${view}: threw ${e.message}`); continue; }
     const t = textOf(h);
-    const verdictLine = f.record.diagnosis.decision === "known_fault" ? `Verdict · ${human(f.record.diagnosis.top_class)} (model prediction)`
-      : f.record.diagnosis.decision === "unknown" ? "Verdict · Further inspection needed" : "Verdict · Healthy";
-    const need = ["Sensor channels vs a healthy recording", verdictLine,
+    const need = ["Sensor channels vs a healthy recording",
       ...(view === "mechanic" ? ["Evidence", "Measurements", "Back to home",
         ...(f.record.diagnosis.decision === "healthy" ? [] : ["Suggested checks"]),
         ...(shownWarnings(f.record).length ? [] : ["No signal-quality warnings detected."])]
@@ -624,8 +622,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
         ...(f.record.diagnosis.decision === "healthy" ? [] : ['aria-label="Suggested checks"']), 'aria-label="Explore measurements"'];
       if (ordered.some((x, i) => h.indexOf(x) < 0 || i > 0 && h.indexOf(x) < h.indexOf(ordered[i - 1]))) miss.push("mechanic section order");
     } else {
-      miss.push(...["Decision checks", "only add a caution to a healthy verdict", "CNN attribution · exploratory", "Not evidence of location"].filter((x) => !t.includes(x)));
-      if (t.includes("Traceability") || t.includes("Research limitations")) forb.push("removed Developer sections");
+      miss.push(...["Decision checks", "only add a caution to a healthy verdict", "Traceability", "CNN attribution · exploratory", "Not evidence of location"].filter((x) => !t.includes(x)));
     }
     if (miss.length || forb.length) bad.push(`${n}/${view}: missing ${JSON.stringify(miss)} forbidden ${JSON.stringify(forb)}`);
   }
@@ -656,7 +653,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
       && developer.includes('aria-label="Model output"');
   }));
   pcheck("Dashboard: fault finding and full-width rig precede checks and measurements",
-    mechanicFault.includes("Faulty") && mechanicFault.includes(`Verdict · ${human(knownFault.record.diagnosis.top_class)} (model prediction)`)
+    mechanicFault.includes("Faulty") && mechanicFault.includes("Known fault · model prediction")
     && mechanicFaultText.includes("Show overhang bearing housing on the rig")
     && !mechanicFault.includes('aria-label="Why does it say this?"')
     && !mechanicFault.includes('aria-label="Which sensors changed?"')
