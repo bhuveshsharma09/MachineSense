@@ -371,7 +371,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
             </div>
           </div>
           <div className="rd-rig-legend">
-            <span><i className="lg-sel" />Selected</span><span><i className="lg-fault" />Predicted location · model</span>
+            <span><i className="lg-sel" />Selected</span>{loc.fault.length > 0 && <span><i className="lg-fault" />Predicted location · model</span>}
             <span><i className="lg-change" />Measured change</span><span><i className="lg-flag" />Inspect · quality flag</span>
             <span className="rd-rig-note">Highlights suggest where to inspect; they do not confirm a fault.</span>
           </div>

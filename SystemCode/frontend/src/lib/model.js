@@ -3,7 +3,7 @@
 
 export const CALIBRATION_SPEED_WARNING =
   "healthy thresholds were not calibrated at this speed; a healthy verdict is less reliable";
-export const IN_SAMPLE_NOTICE = "This recording was used to build the model; the result is not evidence of accuracy.";
+export const IN_SAMPLE_NOTICE = "This development recording was used for training or threshold calibration; its result is not an independent accuracy test.";
 export const SCORES_NOTE = "Model scores are not the probability that the diagnosis is correct.";
 export const ASK_DISABLED = "Available when the investigation assistant is connected";
 // Stage App-8.6 item 1 (Bhuvesh, 26 Oct 2026): the rule was frozen on 28 Sep 2026 before the final evaluation.
@@ -73,10 +73,7 @@ export function locations(record) {
   if (!record) return { fault: [], cand: [] };
   const d = record.diagnosis;
   if (d.decision === "known_fault") return { fault: partsForClass(d.fault_class), cand: [] };
-  if (d.decision === "unknown") {
-    const cand = [...new Set(topClasses(d.class10_probabilities, 2).flatMap(partsForClass))];
-    return { fault: [], cand };
-  }
+  // A rejected class is not a fault-location recommendation. Keep its ranking in Models only.
   return { fault: [], cand: [] };
 }
 

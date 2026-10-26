@@ -169,9 +169,8 @@ def build_sections(r: dict, channels: dict | None = None, evidence_names=()) -> 
     if d["decision"] == "known_fault":
         s1.append(it("Model", f"Location according to the dataset label: {location(d['fault_class'])}."))
     elif d["decision"] == "unknown":
-        cands = [c for c, _ in probs[:2] if c != "normal"]
-        s1.append(it("Model", "The classifier's checks did not pass; candidate locations from the two most probable classes: "
-                     + ("; ".join(f"{location(c)} ({_name(c)})" for c in cands) or "none (normal ranks in the top two)") + "."))
+        s1.append(it("Model", "The classifier's checks did not accept a known condition. No fault location is suggested; "
+                     "inspect the measured readings before choosing an area."))
     s1.append(it("Model", f"Most probable classes (CNN-6 scores): {_classes(d)}. "
                           "Model scores are not the probability that the diagnosis is correct."))
     s2 = [it("Model", check_text(c)) for c in a["checks"]]
@@ -208,11 +207,11 @@ def build_sections(r: dict, channels: dict | None = None, evidence_names=()) -> 
                               f"{_name(d['lr_secondary']['top_class'])} first."))
     s3 += [it("Measured", f"Warning: {calibration_warning(r) if 'not calibrated' in w else w}.") for w in q["warnings"]]
     if r["source"] == "dataset":
-        s3.append(it("Missing", "This recording was used to build the model; the result is not evidence of accuracy."))
+        s3.append(it("Model", "This development recording was used for training or threshold calibration; its result is not an independent accuracy test."))
     s3 += [it("Missing", "No maintenance history, operating context or repeat recording is available."),
-           it("Missing", "The healthy baseline is calibrated on 5 healthy recordings from one folder.")]
+           it("Model", "The healthy baseline is calibrated on 5 healthy recordings from one folder.")]
     s4 = guidance_items(r, evidence_names)
     return [{"n": "01", "title": "What the readings suggest", "items": s1},
             {"n": "02", "title": "Supporting evidence", "items": s2},
-            {"n": "03", "title": "Conflicting or missing evidence", "items": s3},
+            {"n": "03", "title": "Uncertainty and missing context", "items": s3},
             {"n": "04", "title": "What to inspect next", "items": s4}]

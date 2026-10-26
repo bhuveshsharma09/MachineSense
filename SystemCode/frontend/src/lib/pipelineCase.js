@@ -129,10 +129,10 @@ export function caseLine(trace, id, level) {
         : [passed(trace, "maha") ? "The pattern looks familiar to the model" : "The pattern is unfamiliar to the model"];
     case "ae6":
       return dev ? [R(`${o}.ae_error`, "check"), " vs limit ", R(`${o}.tau_e`, "check"), " · ", R(`${checkIndex(trace, "ae")}.status`, "text")]
-        : [passed(trace, "ae") ? "Agreed: looks like the healthy recordings" : "Disagreed: differs from the healthy recordings"];
+        : [passed(trace, "ae") ? "Looks like the healthy recordings" : "Differs from the healthy recordings"];
     case "b1s":
       return dev ? [R(`${o}.b1s`, "check"), " vs limit ", R(`${o}.tau_b`, "check"), " · ", R(`${checkIndex(trace, "b1s")}.status`, "text")]
-        : [passed(trace, "b1s") ? "Agreed: looks like the healthy recordings at this speed" : "Disagreed: differs from the healthy recordings at this speed"];
+        : [passed(trace, "b1s") ? "Looks like the healthy recordings at this speed" : "Differs from the healthy recordings at this speed"];
     case "lr":
       return [dev ? "" : "Second opinion: ", R(`${o}.top_class`, "cls"), " · not an input to the decision"].filter((x) => x !== "");
     case "decision":

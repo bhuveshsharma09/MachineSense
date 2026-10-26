@@ -38,7 +38,7 @@ const screens = {
     "Conflicting or missing evidence", "What to inspect next", "source: bearing-defect-frequencies",
     "Citation not yet checked against the full text", "curated guidance library"], ["guidance library not yet connected"]],
   "known fault, activity tab": [done(knownFault, { tab: "activity" }), ["Bundle verified", "deterministic step", "Planned"]],
-  "further inspection (no banner)": [done(unknown), ["Further inspection needed", "Candidate locations", "fail"], ["Checks disagree"]],
+  "further inspection (no banner)": [done(unknown), ["Further inspection needed", "fail"], ["Checks disagree"]],
   "caution with a narrow margin (no banner)": [done(caution), ["Healthy — caution", "Narrowly above the speed-aware baseline (B1s) threshold",
     "above healthy limit — caution", "the difference comes from a narrow margin"], ["Checks disagree"]],
   "checks disagree (rule variants, not narrow)": [done(disagree), ["Checks disagree — recheck recommended.", "alternative decision rules reach different verdicts"]],
@@ -50,7 +50,7 @@ const screens = {
   "mechanic · known fault": [mech(knownFault), ["Mechanic", "Developer", "Possible bearing cage fault",
     "Overhang bearing housing — according to the dataset label (model prediction)", "Why it was flagged", "template explanation",
     "Supporting checks", "A second, simpler model reaches the same answer", "What to inspect next", "(source: bearing-defect-frequencies; Citation not yet checked against the full text)",
-    "Research demonstration; not validated on real machines.", "not evidence of accuracy", "View investigation activity",
+    "Research demonstration; not validated on real machines.", "not an independent accuracy test", "View investigation activity",
     "Reading details"], ["Checks against calibrated thresholds", "CNN-6 · main model", "Investigation agents"]],
   "rig part card": [mech(knownFault, { initialUi: { sel: "out_brg" } }), ["What this part does", "What was observed", "View signal",
     "compared with a healthy example"], ["Excess kurt."]],
@@ -60,7 +60,7 @@ const screens = {
     badge: "AI-written explanation of the evidence", text: { ...knownFault.explanation.text, finding: "The pattern resembles a cage fault." } } } }),
     ["AI-written explanation of the evidence", "The pattern resembles a cage fault."]],
   "mechanic · healthy with caution": [mech(caution), ["No fault detected — a check disagrees; repeat the reading or inspect further"]],
-  "mechanic · unknown": [mech(unknown), ["Further inspection needed", "Candidate parts:"]],
+  "mechanic · unknown": [mech(unknown), ["Further inspection needed"], ["Candidate parts:"]],
   "mechanic · signal quality": [mech(poor), ["Warnings that affect this result", "The speed sensor signal had glitches.", "The rotation speed was not steady"]],
   "mechanic · plain healthy": [mech(plainHealthy), ["No fault detected in this recording"]],
   "reading details drawer": [done(knownFault, { initialUi: { drawer: true } }), ["Rotation speed", "Overall vibration level (RMS)",
@@ -702,13 +702,13 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
 // App-8: the dashboard and the assistant page, from the same recorded responses. Every fixture in both views renders; the
 // honesty lines are on the page; the designer's sample values never appear; the Mechanic view shows no score or threshold.
 import { DashboardView } from "../src/components/Dashboard.jsx";
-import DeveloperView from "../src/components/DeveloperView.jsx";
+import DeveloperView, { displayReportSections } from "../src/components/DeveloperView.jsx";
 import { STAGES } from "../src/lib/pipelineLayout.js";
 import { valueOf } from "../src/lib/pipelineCase.js";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
 import { BEARING_NOTE, activeSection, bearingSpectrum, featureLabel as featureLabel86, channelRows as channelRows86, defaultPart as defaultPart86, guidanceSteps, overflow as overflow86, showMeTarget } from "../src/lib/dashboard.js";
-import { ENVELOPE_GLOSS, JARGON_WORDS, fitBearingSteps } from "../src/lib/mechanic.js";
+import { ENVELOPE_GLOSS, JARGON_WORDS, fitBearingSteps, notInSample, plainExplain, sensorNames } from "../src/lib/mechanic.js";
 import { locations } from "../src/lib/model.js";
 import { CALIBRATION_SPEED_WARNING as CAL_SPEED, cleanText as cleanText86, verdict as verdict86 } from "../src/lib/model.js";
 import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, shownWarnings } from "../src/lib/model.js";
@@ -873,9 +873,24 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
     jar.explanation.text.uncertainty = ["This recording was used to build the model, so the result is not evidence of accuracy.", "One check is close to its limit."];
     const mh = dash(jar, "mechanic"), ev = textOf(mh.match(/aria-label="Evidence"[\s\S]*?<\/section>/)?.[0] || "");
     pcheck("App-8.6 item 8: the Mechanic view rewrites model jargon in a stored explanation; the Developer view keeps it",
-      ev.includes("the model is sure of its match") && !JARGON_WORDS.test(ev) && textOf(dash(jar, "developer")).includes("classifier confidence (MSP)"));
+      ev.includes("The confidence check passed and the pattern-match check passed.") && !JARGON_WORDS.test(ev)
+      && !ev.includes("The the") && textOf(dash(jar, "developer")).includes("classifier confidence (MSP)"));
     pcheck("App-8.6 item 16: the in-sample statement appears once on the Mechanic verdict card",
-      (textOf(mh).match(/used to build the model/g) || []).length === 1);
+      (textOf(mh).match(/not an independent accuracy test/g) || []).length === 1);
+    pcheck("Rejected classes never become suggested rig locations in either dashboard view",
+      locations(unknown.record).fault.length === 0 && locations(unknown.record).cand.length === 0
+      && !textOf(dash(unknown, "developer").match(/aria-label="Finding"[\s\S]*?<\/section>/)?.[0] || "").includes("Show rotor discs on the rig"));
+    pcheck("Older explanations keep natural check wording and canonical sensor and axis names",
+      plainExplain("The classifier confidence (MSP) check failed its check.") === "The model's confidence check did not pass."
+      && sensorNames("The inner bearing sensor, sideways, is high.") === "The underhang bearing, tangential sensor is high."
+      && !notInSample(INS));
+    const oldReport = displayReportSections(unknown.report, unknown.record);
+    pcheck("Previously saved reports do not suggest a rejected class location or mislabel provenance",
+      oldReport[0].items.some((x) => x.text.includes("No fault location is suggested"))
+      && !oldReport[0].items.some((x) => /candidate locations/i.test(x.text))
+      && oldReport[2].title === "Uncertainty and missing context"
+      && oldReport[2].items.some((x) => x.text === INS && x.tag === "Model")
+      && oldReport[2].items.some((x) => /healthy baseline is calibrated/i.test(x.text) && x.tag === "Model"));
     const ut = textOf(dash(unknown, "mechanic")), urows = channelRows86(unknown.channels);
     const top = defaultPart86(null, unknown.record, locations(unknown.record), urows);
     pcheck("App-8.6 item 10: with no model location the Machine panel selects the most-changed sensor; with none changed it says so",

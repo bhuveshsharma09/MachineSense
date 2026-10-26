@@ -190,7 +190,7 @@ export function DecisionPanel({ trace, block, level, geom }) {
         );
       })}
       <div className={"pl-dec-verdict" + (trace ? " is-" + (d === "known_fault" ? "fault" : d === "unknown" ? "further" : "healthy") : "")}
-        style={{ bottom: 42, height: geom.VERDICT }}>
+        style={{ bottom: geom.FOOTER, height: geom.VERDICT }}>
         <div className="pl-dec-vhead"><span className="mono kicker">{trace ? "Verdict" : "Possible outcomes"}</span>
           {trace && <span className="pl-dec-pips">{DEC_KEYS.map((k) => { const i = idx(k); const ok = i >= 0 && valueOf(at(trace, `${P}.output.checks.${i}.passed`));
             return <i key={k} className={ok ? "is-ok" : k === "ae" || k === "b1s" ? "is-info" : "is-warn"} />; })}</span>}</div>

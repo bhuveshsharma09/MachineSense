@@ -114,7 +114,7 @@ export default function MechanicView({ caseId, record, report, channels, signals
         {/* 02 Machine */}
         <section id="mvw-machine" className="mvw-sec">
           <div className="mvw-sec-head"><span className="mvw-n">02</span><h2>Machine</h2>
-            <span className="mvw-sub">Where the model points and where the signal changed. Select a part or sensor to see its readings.</span></div>
+            <span className="mvw-sub">{hasFaultArea ? "See the model's suggested area and measured changes. " : "Explore the measured changes; no fault area was identified. "}Select a part or sensor to see its readings.</span></div>
           <div className={"mvw-machine" + (narrow ? " is-narrow" : "")}>
             <div ref={rigRef} className="rd-rig mvw-rig" aria-label="Interactive test rig" role="region">
               <Scene state={sceneState} insets={{ top: 62, right: 20, bottom: 50, left: 20 }} zoomOut={0.92} wheelZoomRequiresModifier focusOnSelect={false}
@@ -137,7 +137,7 @@ export default function MechanicView({ caseId, record, report, channels, signals
                   {marker.tag || (partChanged ? "Change beyond typical healthy variation · measured" : "Nothing flagged")}</span>
                 <b className="mvw-insp-name">{M.PART_PLAIN[part.id] || part.full || part.label}</b>
                 <p>{part.desc}</p>
-              </> : <><b className="mvw-insp-name">No location</b><p>{D.NO_LOCATION} No sensor differs beyond typical healthy variation.</p></>}
+              </> : <><b className="mvw-insp-name">No fault location flagged</b><p>{D.NO_LOCATION} No sensor differs beyond typical healthy variation.</p></>}
               {related.length > 0 && <div className="mvw-col">
                 <span className="rd-m-label">Related channels</span>
                 {related.map((r) => <button key={r.id} type="button" className={"mvw-insp-ch" + (r.id === chId ? " on" : "")}
@@ -145,7 +145,7 @@ export default function MechanicView({ caseId, record, report, channels, signals
                   <span><i style={{ background: r.beyond ? K.lime : "oklch(0.23 0.006 260 / 0.2)", border: r.beyond ? "1.5px solid " + K.ink : "none" }} />{r.name}</span>
                   <em style={{ color: r.beyond ? K.limeT : K.ink2 }}>{!r.comparable ? "No comparable reading" : r.beyond ? "Changed" : "Typical"}</em></button>)}
               </div>}
-              <span className="mvw-insp-hint">{ui.sel ? "Selected on the rig. Its readings are below." : "Showing the predicted location or a changed sensor. Select a part or sensor on the rig."}</span>
+              <span className="mvw-insp-hint">{ui.sel ? "Selected on the rig. Its readings are below." : hasFaultArea ? "Showing the predicted location. Select a part or sensor on the rig." : "Showing a changed sensor. Select a part or sensor on the rig."}</span>
             </aside>
           </div>
         </section>
@@ -165,11 +165,11 @@ export default function MechanicView({ caseId, record, report, channels, signals
         {/* 04 What to check */}
         <section id="rd-suggested-checks" tabIndex={-1} className="mvw-sec" aria-label={showChecks ? "Suggested checks" : "What to check"}>
           <div className="mvw-sec-head"><span className="mvw-n">04</span><h2>What to check</h2>
-            <span className="mvw-sub">Steps from the curated guidance library, in order.</span></div>
+            <span className="mvw-sub">Suggested steps from the project guidance library; source status is shown below.</span></div>
           <div className="mvw-checks">
             {!showChecks ? <p className="mvw-healthy">{healthyLine || "No inspection steps are offered for a healthy verdict."}</p>
               : !report ? <p className="rd-muted">Suggested checks appear with the report.</p> : <>
-                <div className="mvw-col"><h3>Suggested checks</h3><span className="mvw-sub">From curated guidance · for {M.finding(record).replace(/^./, (c) => c.toLowerCase())}</span></div>
+                <div className="mvw-col"><h3>Suggested checks</h3><span className="mvw-sub">Project guidance for {M.finding(record).replace(/^./, (c) => c.toLowerCase())}</span></div>
                 {notes.map((n) => <Caveat key={n}>{`${n} (applies to the steps from that source).`}</Caveat>)}
                 <ol className="mvw-steps">{fitted.steps.map((s) => { const i = s.i, show = D.showMeTarget(s, i);
                   return <li key={i}>

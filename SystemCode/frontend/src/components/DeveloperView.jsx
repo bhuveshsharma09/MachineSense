@@ -3,7 +3,7 @@ import { K, TAG, al } from "../lib/theme.js";
 import * as M from "../lib/mechanic.js";
 import * as D from "../lib/dashboard.js";
 import { decisionSummary } from "../lib/decisionSummary.js";
-import { CH, IN_SAMPLE_NOTICE, PART, RULE_LINE, SCORES_NOTE, cleanText, fmtScore, human, locations, shownWarnings,
+import { CH, IN_SAMPLE_NOTICE, PART, RULE_LINE, SCORES_NOTE, fmtScore, human, locations, shownWarnings,
   unusualSensors, verdictTitle } from "../lib/model.js";
 import { Svg, bandPath, linePath, rangeMax } from "./Charts.jsx";
 import Scene, { markerFor } from "./Scene.jsx";
@@ -21,6 +21,28 @@ export const SECTIONS = [["verdict", "Verdict"], ["machine", "Machine"], ["data"
 const PRIMARY = { msp: "Confidence", maha: "Familiarity", ae: "Healthy pattern", b1s: "Healthy at this speed" };
 const TECH = { msp: "MSP · CNN-6", maha: "Mahalanobis distance", ae: "autoencoder error", b1s: "B1s speed-aware baseline" };
 const f3 = (v) => (v == null || !Number.isFinite(v) ? "—" : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 1 ? v.toFixed(2) : v.toFixed(4));
+
+// Saved cases keep their original fixed report. Adapt older wording when the current verdict rejected every known
+// condition, so those ranked classes cannot be mistaken for accepted fault locations.
+export function displayReportSections(report, record) {
+  if (!report?.sections) return [];
+  return report.sections.map((section) => ({
+    ...section,
+    title: section.n === "03" ? "Uncertainty and missing context" : section.title,
+    items: section.items.map((item) => {
+      if (record.diagnosis.decision === "unknown" && /candidate locations from the two most probable classes/i.test(item.text)) {
+        return { ...item, text: "The classifier's checks did not accept a known condition. No fault location is suggested; inspect the measured readings before choosing an area." };
+      }
+      if (record.source === "dataset" && /This recording was used to build the model; the result is not evidence of accuracy/i.test(item.text)) {
+        return { ...item, tag: "Model", text: IN_SAMPLE_NOTICE };
+      }
+      if (/The healthy baseline is calibrated on 5 healthy recordings from one folder/i.test(item.text)) {
+        return { ...item, tag: "Model" };
+      }
+      return item;
+    }),
+  }));
+}
 
 function Section({ id, n, title, sub, children, wide = false, anchor }) {
   return (
@@ -114,7 +136,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
             <h2 className="dvw-h">Evidence</h2>
             {e ? <>
               <span className="dvw-caveat">{e.badge}</span>
-              <ul className="dvw-bullets">{e.text.why_flagged.map((x) => <li key={x}>{x}</li>)}</ul>
+              <ul className="dvw-bullets">{e.text.why_flagged.map((x) => <li key={x}>{M.sensorNames(x)}</li>)}</ul>
               {e.text.uncertainty?.filter(M.notInSample).length > 0 && <div className="dvw-unc"><span className="dvw-kick-s">Uncertainty</span>{e.text.uncertainty.filter(M.notInSample).map((x) => <div key={x}>{x}</div>)}</div>}
             </> : <p className="dvw-muted">{explanation?.status === "error" ? "The explanation could not be prepared; the report below still applies." : "Preparing explanation…"}</p>}
             <div className="dvw-box"><b>Healthy-baseline check</b><span>{M.supporting(record, report?.assessment) || "Checking…"}</span></div>
@@ -122,7 +144,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
         </section>
 
         {/* 02 Machine */}
-        {!narrow && <div ref={machineRef}><Section id="machine" n="02" title="Machine" sub="Where the model points and where the signal changed. Select a part to filter the data below.">
+        {!narrow && <div ref={machineRef}><Section id="machine" n="02" title="Machine" sub="Explore the rig and measured sensor changes. A model location appears only for an accepted known fault.">
           <div className="dvw-machine">
             <Scene state={sceneState} insets={{ top: 60, right: 360, bottom: 52, left: 20 }} onSelect={select}
               onHover={(id) => { if (id !== hover) setHover(id); }} />
@@ -132,7 +154,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
               <button type="button" aria-pressed={rig.labels} onClick={() => setRig((r) => ({ ...r, labels: !r.labels }))}>{rig.labels ? "Labels: all" : "Labels: minimal"}</button>
             </div>
             <Inspector part={partId ? part : null} sceneState={sceneState} rows={rows} sel={sel} chId={chId} onChannel={(c) => setCh(c)} />
-            <div className="dvw-rig-legend"><span><i className="lg-sel" />Selected</span><span><i className="lg-fault" />Predicted location · model</span>
+            <div className="dvw-rig-legend"><span><i className="lg-sel" />Selected</span>{loc.fault.length > 0 && <span><i className="lg-fault" />Predicted location · model</span>}
               <span><i className="lg-change" />Measured change</span><span><i className="lg-flag" />Inspect · quality flag</span>
               <span className="dvw-rig-note">Highlights suggest where to inspect; they do not confirm a fault.</span></div>
           </div>
@@ -212,27 +234,17 @@ export default function DeveloperView({ caseId, record, report, channels, signal
         {/* 07 Report */}
         <Section id="report" n="07" anchor="rd-fixed-report" title="Report" sub="Fixed template from the evidence record; no language model.">
           <div className="dvw-grid2">
-            {report ? report.sections.map((sec) => (
+            {report ? displayReportSections(report, record).map((sec) => (
               <Panel key={sec.n} title={`${sec.n} · ${sec.title}`}>
                 {sec.items.map((it, i) => <div key={i} className="dvw-item" title={it.hover}>
                   <span className="tag" style={{ color: TAG[it.tag].c, background: TAG[it.tag].b }}>{it.tag}</span><span>{it.text}</span></div>)}
               </Panel>)) : <p className="dvw-muted">Loading the report…</p>}
-            <Panel title="Traceability" span={2}>
-              <div className="dvw-kv dvw-kv3">{[
-                ["Recording", record.input?.rec_id || "uploaded recording"], ["Case", record.case_id], ["Created", record.created_at],
-                ["Bundle manifest sha256", record.provenance.manifest_sha256.slice(0, 16) + "…"], ["Bundle git sha", String(record.provenance.bundle_git_sha).slice(0, 12)],
-                ["Preprocess config sha256", record.provenance.preprocess_config_sha256.slice(0, 16) + "…"], ["Split hash", record.provenance.split_hash.slice(0, 16) + "…"],
-                ["Schema version", record.provenance.schema_version], ["Diagnosis time", `${Math.round(record.timing_ms?.total || 0)} ms`],
-              ].map(([k, v]) => <div key={k}><span>{k}</span><b className="mono" title={v}>{v}</b></div>)}</div>
-            </Panel>
           </div>
         </Section>
 
         <footer className="dvw-foot">
           {record.source === "dataset" && <span className="dvw-insample">{IN_SAMPLE_NOTICE}</span>}
           <b>{M.LIMITATION}</b><span>{SCORES_NOTE}</span>
-          {(record.limitations || []).length > 0 && <details><summary>Research limitations</summary>
-            <ul>{record.limitations.map(cleanText).map((l) => <li key={l}>{l}</li>)}</ul></details>}
         </footer>
       </main>
     </div>
@@ -242,7 +254,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
 const pct = (v) => `${Math.max(0, Math.min(1, v || 0)) * 100}%`;
 
 function Inspector({ part, sceneState, rows, sel, chId, onChannel }) {
-  if (!part) return <aside className="dvw-insp" aria-label="Selected part"><b className="dvw-insp-name">No location</b>
+  if (!part) return <aside className="dvw-insp" aria-label="Selected part"><b className="dvw-insp-name">No fault location flagged</b>
     <p>{`${D.NO_LOCATION} No sensor differs beyond typical healthy variation.`}</p>
     <span className="dvw-muted dvw-insp-hint">Select a part or sensor on the rig.</span></aside>;
   const m = markerFor(part, sceneState);
@@ -260,7 +272,7 @@ function Inspector({ part, sceneState, rows, sel, chId, onChannel }) {
           <span><i style={{ background: r.beyond ? K.lime : "oklch(0.23 0.006 260 / 0.2)" }} />{r.name}</span>
           <b className="mono">{r.comparable ? `${D.METRIC_NAME[r.metric] || r.metric} ${D.changeText(r)}` : "no comparable metric"}</b></button>)}
       </div>}
-      <span className="dvw-muted dvw-insp-hint">{sel ? "Selected on the rig. The data below follows this part." : "Showing the model's location (or a changed sensor). Select a part or sensor on the rig."}</span>
+      <span className="dvw-muted dvw-insp-hint">{sel ? "Selected on the rig. The data below follows this part." : sceneState.fault.length ? "Showing the model's location. Select a part or sensor on the rig." : "Showing a changed sensor. Select a part or sensor on the rig."}</span>
     </aside>
   );
 }

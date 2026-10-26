@@ -146,7 +146,24 @@ def test_report_sections_are_tagged(client, case):
     items = [i for s in rep["sections"] for i in s["items"]]
     assert {i["tag"] for i in items} <= {"Measured", "Model", "Guidance", "Missing"}
     assert all(i.get("cite") and f"source: {i['cite']}" in i["text"] for i in items if i["tag"] == "Guidance")
-    assert any("not evidence of accuracy" in i["text"] for i in items)
+    assert any("not an independent accuracy test" in i["text"] for i in items)
+    uncertainty = rep["sections"][2]
+    assert uncertainty["title"] == "Uncertainty and missing context"
+    assert [i["tag"] for i in uncertainty["items"] if "threshold calibration" in i["text"]] == ["Model"]
+
+
+def test_rejected_class_has_no_suggested_fault_location(case):
+    from copy import deepcopy
+    from backend.explain.plain import location as explanation_location
+    from backend.report import build_sections
+
+    rejected = deepcopy(case)
+    rejected["diagnosis"]["decision"] = "unknown"
+    rejected["diagnosis"]["fault_class"] = None
+    finding = build_sections(rejected)[0]
+    assert explanation_location(rejected) == {"kind": "none", "parts": [], "text": None}
+    assert any("No fault location is suggested" in item["text"] for item in finding["items"])
+    assert not any("candidate location" in item["text"].lower() for item in finding["items"])
 
 
 def test_required_mode_fails_when_the_bundle_is_missing(tmp_path):

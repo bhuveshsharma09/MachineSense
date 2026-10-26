@@ -4,7 +4,7 @@ import { healthyCheckPhrase } from "./decisionSummary.js";
 import { calibrationWarning } from "./model.js";
 
 export const LIMITATION = "Research demonstration; not validated on real machines.";
-export const IN_SAMPLE = "This recording was used to build the model, so the result is not evidence of accuracy.";
+export const IN_SAMPLE = "This development recording was used for training or threshold calibration; its result is not an independent accuracy test.";
 
 export const FAULT_PLAIN = {
   imbalance: "imbalance", horizontal_misalignment: "horizontal misalignment", vertical_misalignment: "vertical misalignment",
@@ -56,12 +56,6 @@ export function location(record) {
     const parts = partsFor(d.fault_class);
     return { kind: "predicted", parts, text: parts.map((p) => PART_PLAIN[p]).join(" and ") + " — according to the dataset label (model prediction)" };
   }
-  if (d.decision === "unknown") {
-    const top = Object.entries(d.class10_probabilities).sort((a, b) => b[1] - a[1]).slice(0, 2);
-    const parts = [...new Set(top.flatMap(([c]) => partsFor(c)))];
-    return { kind: "candidate", parts, text: parts.length ? "Candidate parts: " + parts.map((p) => PART_PLAIN[p].toLowerCase()).join(", ")
-      + " — from the two most likely fault types (model prediction)" : "No candidate part: the most likely types include normal operation" };
-  }
   return { kind: "none", parts: [], text: null };
 }
 
@@ -103,18 +97,36 @@ export const speedText = (hz) => `Rotation speed ${rpm(hz)} rpm (shaft speed ${h
 // App-8.6 item 8: a Mechanic-view rewrite of model jargon in a stored explanation (explanations written before the
 // prompt and guard change may still use it); the Developer view keeps the technical names.
 const JARGON = [
-  [/classifier confidence(?: \(MSP\))?(?: check)?/gi, "the check that the model is sure of its match"],
-  [/\bMSP\b/g, "how sure the model is"],
-  [/familiarity(?: \(Mahalanobis distance\))?(?: check)?/gi, "the check that the recording looks like ones the model has seen"],
-  [/Mahalanobis distance/gi, "likeness to recordings the model has seen"],
-  [/speed-aware baseline(?: \(B1s\))?(?: check)?/gi, "the check that the recording looks like a healthy machine at this speed"],
-  [/autoencoder(?: error)?(?: check)?/gi, "the check that the recording looks like a healthy machine"],
+  [/\bclassifier confidence(?: \(MSP\))?(?=\W|$)/gi, "confidence"],
+  [/\bMSP\b/g, "confidence score"],
+  [/\bfamiliarity(?: \(Mahalanobis distance\))?(?=\W|$)/gi, "pattern-match"],
+  [/\bMahalanobis distance\b/gi, "pattern distance"],
+  [/\bspeed-aware baseline(?: \(B1s\))? check(?=\W|$)/gi, "speed-matched healthy-pattern check"],
+  [/\bspeed-aware baseline(?: \(B1s\))?(?=\W|$)/gi, "speed-matched healthy-pattern score"],
+  [/\bautoencoder error\b/gi, "healthy-pattern score"],
+  [/\bautoencoder\b/gi, "healthy-pattern check"],
 ];
-export const plainExplain = (t) => JARGON.reduce((s, [re, by]) => s.replace(re, by), String(t || ""));
+// Older saved explanations can predate the canonical sensor names. Keep the measured axis and bearing side intact.
+export function sensorNames(t) {
+  return String(t || "")
+    .replace(/\b(?:inner|underhang) bearing sensor,?\s*radial\b,?/gi, "underhang bearing, radial sensor")
+    .replace(/\b(?:outer|overhang) bearing sensor,?\s*radial\b,?/gi, "overhang bearing, radial sensor")
+    .replace(/\b(?:inner|underhang) bearing sensor,?\s*(?:sideways|tangential)\b,?/gi, "underhang bearing, tangential sensor")
+    .replace(/\b(?:outer|overhang) bearing sensor,?\s*(?:sideways|tangential)\b,?/gi, "overhang bearing, tangential sensor")
+    .replace(/\b(?:inner|underhang) bearing sensor,?\s*(?:along the shaft|axial)\b,?/gi, "underhang bearing, axial sensor")
+    .replace(/\b(?:outer|overhang) bearing sensor,?\s*(?:along the shaft|axial)\b,?/gi, "overhang bearing, axial sensor")
+    .replace(/\binner bearing sensor\b/gi, "underhang bearing sensor")
+    .replace(/\bouter bearing sensor\b/gi, "overhang bearing sensor");
+}
+export const plainExplain = (t) => JARGON.reduce((s, [re, by]) => s.replace(re, by), sensorNames(t))
+  .replace(/\b(the)\s+the\b/gi, "$1")
+  .replace(/\bthe confidence (?:check )?failed its check\b/gi, (m) => `${m[0] === "T" ? "The" : "the"} model's confidence check did not pass`)
+  .replace(/\bthe confidence (?:check )?passed its check\b/gi, (m) => `${m[0] === "T" ? "The" : "the"} model's confidence check passed`)
+  .replace(/\bcheck (passed|failed) its check\b/gi, "check $1");
 export const JARGON_WORDS = /classifier confidence|familiarity|autoencoder|speed-aware baseline|\bMSP\b|Mahalanobis/i;
 
 // App-8.6 item 16: the in-sample statement is shown once (the verdict card already carries it)
-export const notInSample = (line) => !/used to build the model/i.test(line);
+export const notInSample = (line) => !/used (?:to build the model|for training or threshold calibration)/i.test(line);
 
 // App-8.6 item 13: bearing steps that name only other bearing fault types are left out of the Mechanic view for a bearing
 // verdict (display only: the report's section 04 and the assistant keep every step); analyst terms get a short gloss.

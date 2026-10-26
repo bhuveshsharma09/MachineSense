@@ -27,8 +27,8 @@ export const GEOM = {
 };
 
 // The decision panel: four check rows, each with its input port, and the verdict box with the output port.
-export const DEC = { W: 256, HEAD: 92, ROW: 52, ROW_GAP: 6, VERDICT: 96, PAD: 14 };
-DEC.H = DEC.HEAD + 4 * DEC.ROW + 3 * DEC.ROW_GAP + 12 + DEC.VERDICT + 30;
+export const DEC = { W: 256, HEAD: 84, ROW: 51, ROW_GAP: 6, VERDICT: 140, FOOTER: 64, PAD: 14 };
+DEC.H = DEC.HEAD + 4 * DEC.ROW + 3 * DEC.ROW_GAP + 12 + DEC.VERDICT + DEC.FOOTER;
 
 export const STAGES = [
   { title: "Recording", desc: "The raw sensor file", arch: "A 5-second, 8-channel file", w: 184, ids: ["input", "validation"] },
@@ -155,7 +155,7 @@ export function layoutPipeline(trace, { warn = (m) => console.warn(m), extraHeig
         continue;
       }
       if (n.id === "decision" && side === "right") {
-        xs.forEach((x) => { ports[`${n.id}.${x.p.id}`] = { ...x.p, node: n.id, side, dir: x.dir, y: n.y + n.h - 42 - DEC.VERDICT / 2 }; });
+        xs.forEach((x) => { ports[`${n.id}.${x.p.id}`] = { ...x.p, node: n.id, side, dir: x.dir, y: n.y + n.h - DEC.FOOTER - DEC.VERDICT / 2 }; });
         continue;
       }
       if (side === "left") {

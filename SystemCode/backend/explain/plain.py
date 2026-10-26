@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import re
 
-IN_SAMPLE = "This recording was used to build the model, so the result is not evidence of accuracy."
+IN_SAMPLE = "This development recording was used for training or threshold calibration; its result is not an independent accuracy test."
 LIMITATION = "Research demonstration; not validated on real machines."
 
 FAULT_PLAIN = {
@@ -73,13 +73,6 @@ def location(record: dict) -> dict:
         parts = parts_for(d["fault_class"])
         return {"kind": "predicted", "parts": parts,
                 "text": " and ".join(PART_PLAIN[p] for p in parts) + " — according to the dataset label (model prediction)"}
-    if d["decision"] == "unknown":
-        top = sorted(d["class10_probabilities"].items(), key=lambda kv: -kv[1])[:2]
-        parts = list(dict.fromkeys(p for c, _ in top for p in parts_for(c)))
-        return {"kind": "candidate", "parts": parts,
-                "text": ("Candidate parts: " + ", ".join(PART_PLAIN[p].lower() for p in parts)
-                         + " — from the two most likely fault types (model prediction)") if parts else
-                        "No candidate part: the most likely types include normal operation"}
     return {"kind": "none", "parts": [], "text": None}
 
 
