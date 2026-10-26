@@ -606,7 +606,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
     let h; try { h = dash(f, view); } catch (e) { bad.push(`${n}/${view}: threw ${e.message}`); continue; }
     const t = textOf(h);
     const need = ["Sensor channels vs a healthy recording",
-      ...(view === "mechanic" ? ["Evidence", "Why does it say this?", "Measurements", "Back to home",
+      ...(view === "mechanic" ? ["Evidence", "Measurements", "Back to home",
         ...(f.record.diagnosis.decision === "healthy" ? [] : ["Suggested checks"]),
         ...(shownWarnings(f.record).length ? [] : ["No signal-quality warnings detected."])]
         : ["Research demonstration; not validated on real machines.", SN, "What to inspect next", "No healthy-reference spectrum is stored with the case.", "This is not a measure of damage severity."]),
@@ -618,7 +618,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
       const d = f.record.diagnosis;
       forb.push(...["τ_", "MSP", "Mahalanobis", fmtC(d.scores.b1s), fmtC(d.thresholds.tau_b), "Traceability", "Decision checks",
         "Research demonstration; not validated on real machines.", INS, SN].filter((x) => t.includes(x)));
-      const ordered = ['aria-label="Finding"', 'aria-label="Why does it say this?"', 'aria-label="Which sensors changed?"',
+      const ordered = ['aria-label="Finding"', 'aria-label="Interactive test rig"',
         ...(f.record.diagnosis.decision === "healthy" ? [] : ['aria-label="Suggested checks"']), 'aria-label="Explore measurements"'];
       if (ordered.some((x, i) => h.indexOf(x) < 0 || i > 0 && h.indexOf(x) < h.indexOf(ordered[i - 1]))) miss.push("mechanic section order");
     } else {
@@ -643,19 +643,31 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
   const mechanicFaultText = textOf(mechanicFault);
   const developerFault = dash(knownFault, "developer");
   const developerFinding = developerFault.match(/<section[^>]*aria-label="Finding"[\s\S]*?<\/section>/)?.[0] || "";
-  pcheck("App-8 dashboard: fault finding, location and rig action; reasoning and checks follow in the requested order",
+  pcheck("Developer starts with the same finding summary as Mechanic", [knownFault, plainHealthy, unknown].every((f) => {
+    const mechanic = dash(f, "mechanic");
+    const developer = dash(f, "developer");
+    const title = (html) => html.match(/<h1 class="rd-m-title">([^<]+)<\/h1>/)?.[1];
+    return title(mechanic) && title(mechanic) === title(developer)
+      && developer.indexOf('aria-label="Finding"') < developer.indexOf('aria-label="Why does it say this?"')
+      && developer.includes('class="rd-m-finding-evidence"')
+      && developer.includes('aria-label="Model output"');
+  }));
+  pcheck("Dashboard: fault finding and full-width rig precede checks and measurements",
     mechanicFault.includes("Faulty") && mechanicFault.includes("Known fault · model prediction")
     && mechanicFaultText.includes("Show overhang bearing housing on the rig")
-    && mechanicFault.indexOf('aria-label="Finding"') < mechanicFault.indexOf('aria-label="Why does it say this?"')
+    && !mechanicFault.includes('aria-label="Why does it say this?"')
+    && !mechanicFault.includes('aria-label="Which sensors changed?"')
+    && mechanicFault.indexOf('aria-label="Finding"') < mechanicFault.indexOf('aria-label="Interactive test rig"')
     && mechanicFault.indexOf('aria-label="Interactive test rig"') < mechanicFault.indexOf('aria-label="Suggested checks"')
     && mechanicFault.indexOf('aria-label="Suggested checks"') < mechanicFault.indexOf('aria-label="Explore measurements"'));
-  pcheck("App-8.2 why strip has five plain steps from the saved checks for every verdict", [knownFault, unknown, caution, plainHealthy].every((f) => {
-    const html = dash(f, "mechanic");
+  pcheck("Developer keeps the five-step decision strip; Mechanic omits it", [knownFault, unknown, caution, plainHealthy].every((f) => {
+    const html = dash(f, "developer");
     const strip = html.match(/<section[^>]*aria-label="Why does it say this\?"[\s\S]*?<\/section>/)?.[0] || "";
     const d = f.record.diagnosis;
     const s = decisionSummary({ topClass: d.top_class, decision: d.decision, caution: d.caution, checks: f.report.assessment.checks });
     return (strip.match(/<li class=/g) || []).length === 5 && strip.includes(s.confidence) && strip.includes(s.healthy)
-      && strip.includes(s.outcome) && !/\d/.test(textOf(strip)) && !strip.includes("See the full pipeline");
+      && strip.includes(s.outcome) && strip.includes("See the full pipeline")
+      && !dash(f, "mechanic").includes('aria-label="Why does it say this?"');
   }) && dash(knownFault, "developer").includes(`href="#/case/${knownFault.record.case_id}/pipeline">See the full pipeline</a>`));
   const mapped = (src) => {
     const report = { ...knownFault.report, sections: knownFault.report.sections.map((s) => s.n !== "04" ? s : { ...s, items: [
@@ -704,7 +716,8 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, shownWarn
     && withAssistant.includes(`href="#/case/${knownFault.record.case_id}/dashboard"`)
     && !withAssistant.includes('class="as-aside"'));
   const narrowHtml = dash(knownFault, "developer", { initialWidth: 390 });
-  pcheck("App-8 dashboard: below 1024 px one column without the 3-D rig", narrowHtml.includes("is-narrow") && !narrowHtml.includes("Rotor test rig · illustrative"));
+  pcheck("App-8 dashboard: below 1024 px Developer stays one column without the 3-D rig", narrowHtml.includes("is-narrow") && !narrowHtml.includes("Rotor test rig · illustrative"));
+  pcheck("Mechanic keeps its full-width rig at narrow widths", dash(knownFault, "mechanic", { initialWidth: 390 }).includes('aria-label="Interactive test rig"'));
   writeFileSync(join(here, "mobile", "dashboard_390.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>${css}</style></head><body><div id="root">${narrowHtml}</div></body></html>`);
 

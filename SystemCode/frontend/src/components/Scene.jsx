@@ -50,7 +50,7 @@ export function Marker({ m, onClick, onEnter, onLeave, style }) {
   );
 }
 
-export default function Scene({ state, onSelect, onHover, inspector, forceStatic = false, captureMode = false, insets = INSETS, zoomOut = 1, wheelZoomRequiresModifier = false, focusOnSelect = true }) {
+export default function Scene({ state, onSelect, onHover, inspector, forceStatic = false, captureMode = false, insets = INSETS, zoomOut = 1, wheelZoomRequiresModifier = false, focusOnSelect = true, focusRequest = null }) {
   const sceneRef = useRef(null), overlayRef = useRef(null), rig = useRef(null);
   const [mode, setMode] = useState(forceStatic ? "static" : "loading");
   const [anchors, setAnchors] = useState(null);
@@ -93,6 +93,7 @@ export default function Scene({ state, onSelect, onHover, inspector, forceStatic
   });
 
   useEffect(() => { if (state.resetTick && rig.current) rig.current.resetView(); }, [state.resetTick]);
+  useEffect(() => { if (mode === "3d" && focusRequest?.id) rig.current?.focusPart(focusRequest.id); }, [focusRequest, mode]);
 
   const markers = PARTS.map((h) => markerFor(h, state));
   const handlers = (m) => ({

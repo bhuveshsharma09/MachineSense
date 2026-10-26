@@ -470,6 +470,7 @@ export function createRig(container, opts = {}) {
       if (st.sel !== prevSel && opts.focusOnSelect !== false) { if (st.sel) focus(st.sel); else resetView(); }
       apply();
     },
+    focusPart(id) { focus(id); },
     resetView() { resetView(); },
     dispose() {
       renderer.setAnimationLoop(null); ro.disconnect();

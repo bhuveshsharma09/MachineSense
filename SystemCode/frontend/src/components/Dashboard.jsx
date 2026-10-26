@@ -16,7 +16,7 @@ import "../redesign.css";
 
 // Stage App-8: #/case/<id>/dashboard — the whole diagnosis of one stored case on one page (layout "A · Rig stage").
 // Every value comes from that case's API responses; nothing is re-run.
-export const DASH_NARROW = 1024;  // below this width: one column, no 3-D views
+export const DASH_NARROW = 1024;  // below this width: one column; Developer omits the 3-D rig
 
 export const VKIND = {
   fault: { color: K.orangeT, dot: K.orange, bg: al(K.orange, 0.12) },
@@ -155,9 +155,41 @@ function WhyStrip({ summary, warnings, caseId, developer = false }) {
   </section>;
 }
 
+function FindingSummary({ area, record, report, explanation, loc, mloc, warnings, onShowPart }) {
+  const d = record.diagnosis;
+  const e = explanation?.status === "ready" ? explanation.data : null;
+  const hasFaultArea = d.decision === "known_fault" && loc.fault.length > 0;
+  return <Card area={area} label="Finding" className="rd-m-finding">
+    <div className="rd-m-finding-content"><div className="rd-m-answer">
+      {hasFaultArea && <span className="rd-m-category" style={{ color: MECHANIC_FAULT_COLOR }}>Known fault · model prediction</span>}
+      <h1 className="rd-m-title">{M.finding(record)}</h1>
+      {d.caution && <span className="rd-sub">A healthy-baseline check disagrees; consider a recheck.</span>}
+      {hasFaultArea && mloc.parts.length > 0 && <p className="rd-m-next-line">Start with the {mloc.parts.map((p) => M.PART_PLAIN[p].toLowerCase()).join(" and ")}.</p>}
+      {d.decision === "unknown" && <p className="rd-m-next-line">The checks did not support a known condition; inspect the readings before choosing a fault area.</p>}
+      <span className="rd-m-speed">Shaft speed {record.signal_quality.shaft_speed_hz.toFixed(1)} Hz ({Math.round(record.physics.shaft_speed_rpm).toLocaleString("en-US")} rpm)</span>
+      {hasFaultArea && mloc.parts.length > 0 && <div className="rd-m-location">
+        <strong>{mloc.parts.map((p) => M.PART_PLAIN[p]).join(" and ")}</strong>
+        <Caveat>Mapped from the model’s predicted class on this test rig; the sensors do not pinpoint the fault.</Caveat>
+        {onShowPart && <button className="rd-dark-btn" onClick={() => onShowPart(mloc.parts[0])}>Show {M.PART_PLAIN[mloc.parts[0]].toLowerCase()} on the rig</button>}
+      </div>}
+      <div className="rd-m-quality">
+        {warnings.length ? <div className="rd-warn" role="alert">{M.warnings(record).map((w) => <div key={w}><Tick ok={false} />{w}</div>)}</div>
+          : <span className="rd-ok"><Tick ok />No signal-quality warnings detected.</span>}
+        {warnings.length > 0 && <details><summary>Signal quality details</summary><div className="rd-checklist">{D.qualityChecks(record).map((q) => <div key={q.text}><Tick ok={q.ok} />{q.text}</div>)}</div></details>}
+      </div>
+    </div><div className="rd-m-finding-evidence" aria-label="Evidence">
+      <h2>Evidence</h2>
+      {e ? <><Caveat>{e.badge}</Caveat><ul className="rd-bullets">{e.text.why_flagged.slice(0, 2).map((x) => <li key={x}>{x}</li>)}</ul></>
+        : <p className="rd-muted">{explanation?.status === "error" ? "The explanation is unavailable. Review the measured channels below." : "Preparing the explanation…"}</p>}
+      <div className="rd-box"><span className="rd-m-label">Healthy-baseline check</span><span>{M.supporting(record, report?.assessment) || "Checking…"}</span></div>
+    </div></div>
+  </Card>;
+}
+
 export function DashboardView({ caseId, record, report, channels, signals, activity, explanation, onRegenerate,
   initialView, initialWidth, initialSel = null, initialUi = {}, assistantOpen = false, AssistantComponent }) {
   const [view, setView] = usePanelView(initialView);
+  const changeView = (next) => { setRigFocus(null); setView(next); };
   const dev = view === "developer";
   const width = useWidth(initialWidth);
   const narrow = width < DASH_NARROW || (assistantOpen && width < 1400);
@@ -165,6 +197,8 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
   const set = (p) => setUi((u) => ({ ...u, ...p }));
   const zoomHintSeen = useRef(false);
   const zoomHintTimer = useRef(null);
+  const rigSection = useRef(null);
+  const [rigFocus, setRigFocus] = useState(null);
   useEffect(() => () => clearTimeout(zoomHintTimer.current), []);
   const userName = useRef(readName()).current;
   const assistantPanel = useRef(null);
@@ -191,7 +225,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
     <AssistantComponent panel caseId={caseId} record={record} report={report} channels={channels} />
   </aside>;
 
-  const d = record.diagnosis, v = verdict(record), vs = VKIND[v.kind];
+  const d = record.diagnosis;
   const flags = D.qualityFlags(record);
   const loc = locations(record);
   const unusual = unusualSensors(channels, flags);
@@ -202,19 +236,23 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
   const chOptions = part.ch.filter((c) => signals?.channels?.[c]);
   const chId = chOptions.includes(ui.ch) ? ui.ch : chOptions[0] || part.ch[0];
   const select = (id) => set({ sel: id, ch: id && PART[id] && !PART[id].ch.includes(ui.ch) ? PART[id].ch[0] : ui.ch });
+  const focusRigPart = (id) => {
+    select(id);
+    setRigFocus({ id });
+    requestAnimationFrame(() => rigSection.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
 
   const mloc = M.location(record);
   const steps = D.guidanceSteps(M.guidanceItems(report));
   const shown = ui.allSteps ? steps : steps.slice(0, 3);
   const checks = report?.assessment?.checks;
   const warn = shownWarnings(record);
+  const hasFaultArea = d.decision === "known_fault" && loc.fault.length > 0;
   const summary = decisionSummary({ topClass: d.top_class, decision: d.decision, caution: d.caution, checks });
   const limits = (record.limitations || []).map(cleanText);
   const href = (p) => `#/case/${encodeURIComponent(caseId)}/${p}`;
 
   if (!dev) {
-    const e = explanation?.status === "ready" ? explanation.data : null;
-    const hasFaultArea = d.decision === "known_fault" && loc.fault.length > 0;
     const showChecks = d.decision !== "healthy";
     const mechanicSceneState = hasFaultArea ? sceneState : { ...sceneState, cand: [] };
     const guidanceNotes = [...new Set(steps.map((s) => s.flag).filter(Boolean))];
@@ -224,7 +262,6 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
     const measuredChId = ui.ch || evidenceChannel || chId;
     const measuredPart = PART[CH[measuredChId]?.sensor] || part;
     const measuredOptions = measuredPart.ch.filter((c) => signals?.channels?.[c]);
-    const quality = D.qualityChecks(record);
     const showZoomHint = () => {
       if (zoomHintSeen.current) return;
       zoomHintSeen.current = true;
@@ -237,40 +274,13 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
     };
     return (
       <div className={"rd-root rd-mechanic" + (narrow ? " is-narrow" : "") + (assistantOpen ? " has-assistant" : "")}>
-        <Header caseId={caseId} record={record} view={view} onView={setView} userName={userName}
+        <Header caseId={caseId} record={record} view={view} onView={changeView} userName={userName}
           back={{ href: "#/", label: "Back to home" }} />
         <main className="rd-m-main">
-          <Card label="Finding" className="rd-m-finding">
-            <div className="rd-m-finding-content"><div className="rd-m-answer">
-              {d.decision === "known_fault" && <span className="rd-m-category" style={{ color: MECHANIC_FAULT_COLOR }}>Known fault · model prediction</span>}
-              <h1 className="rd-m-title">{M.finding(record)}</h1>
-              {d.caution && <span className="rd-sub">A healthy-baseline check disagrees; consider a recheck.</span>}
-              {hasFaultArea && mloc.parts.length > 0 && <p className="rd-m-next-line">Start with the {mloc.parts.map((p) => M.PART_PLAIN[p].toLowerCase()).join(" and ")}.</p>}
-              {d.decision === "unknown" && <p className="rd-m-next-line">The checks did not support a known condition; inspect the readings before choosing a fault area.</p>}
-              <span className="rd-m-speed">Shaft speed {record.signal_quality.shaft_speed_hz.toFixed(1)} Hz ({Math.round(record.physics.shaft_speed_rpm).toLocaleString("en-US")} rpm)</span>
-              {hasFaultArea && mloc.parts.length > 0 && <div className="rd-m-location">
-                <strong>{mloc.parts.map((p) => M.PART_PLAIN[p]).join(" and ")}</strong>
-                <Caveat>Mapped from the model’s predicted class on this test rig; the sensors do not pinpoint the fault.</Caveat>
-                <button className="rd-dark-btn" onClick={() => select(mloc.parts[0])}>Show {M.PART_PLAIN[mloc.parts[0]].toLowerCase()} on the rig</button>
-              </div>}
-              <div className="rd-m-quality">
-                {warn.length ? <div className="rd-warn" role="alert">{M.warnings(record).map((w) => <div key={w}><Tick ok={false} />{w}</div>)}</div>
-                  : <span className="rd-ok"><Tick ok />No signal-quality warnings detected.</span>}
-                {warn.length > 0 && <details><summary>Signal quality details</summary><div className="rd-checklist">{quality.map((q) => <div key={q.text}><Tick ok={q.ok} />{q.text}</div>)}</div></details>}
-              </div>
-            </div><div className="rd-m-finding-evidence" aria-label="Evidence">
-              <h2>Evidence</h2>
-              {e ? <><Caveat>{e.badge}</Caveat><ul className="rd-bullets">{e.text.why_flagged.slice(0, 2).map((x) => <li key={x}>{x}</li>)}</ul></>
-                : <p className="rd-muted">{explanation?.status === "error" ? "The explanation is unavailable. Review the measured channels below." : "Preparing the explanation…"}</p>}
-              <div className="rd-box"><span className="rd-m-label">Healthy-baseline check</span><span>{M.supporting(record, report?.assessment) || "Checking…"}</span></div>
-            </div></div>
-          </Card>
+          <FindingSummary record={record} report={report} explanation={explanation} loc={loc} mloc={mloc} warnings={warn} onShowPart={focusRigPart} />
 
-          <WhyStrip summary={summary} warnings={warn} caseId={caseId} />
-
-          <div className={"rd-m-stage" + (narrow ? " no-rig" : "")}>
-          {!narrow && <section className="rd-rig rd-m-rig" aria-label="Interactive test rig" onMouseEnter={showZoomHint}>
-            <Scene state={mechanicSceneState} insets={{ top: 66, right: 20, bottom: 46, left: 20 }} zoomOut={0.92} wheelZoomRequiresModifier focusOnSelect={false} onSelect={select}
+          <section ref={rigSection} className="rd-rig rd-m-rig" aria-label="Interactive test rig" onMouseEnter={showZoomHint}>
+            <Scene state={mechanicSceneState} insets={{ top: 66, right: 20, bottom: 46, left: 20 }} zoomOut={0.92} wheelZoomRequiresModifier focusOnSelect={false} focusRequest={rigFocus} onSelect={select}
               onHover={(id) => { if (id !== ui.hover) set({ hover: id }); }} />
             <div className="rd-rig-top"><div className="rd-rig-title"><Caveat>Test rig (illustrative)</Caveat><span>Select a part or sensor for a closer look</span></div>
               <div className="rd-rig-btns">
@@ -282,15 +292,7 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
             <div className="rd-rig-legend">{hasFaultArea && <span><i className="lg-fault" />Model-mapped inspection area</span>}<span><i className="lg-change" />Measured change</span>
               <span><i className="lg-flag" />Signal-quality warning</span><Caveat>Highlights do not confirm a fault.</Caveat></div>
             {ui.zoomHint && <span className="rd-m-zoom-hint">Hold Ctrl (⌘) and scroll to zoom</span>}
-          </section>}
-          <Card title={`Which sensors changed? (${rows.filter((r) => r.beyond).length} of ${rows.length})`} label="Which sensors changed?" className="rd-m-sensors">
-            {!channels ? <p className="rd-muted">Loading measured comparisons…</p> : rows.some((r) => r.beyond) ? <div className="rd-m-sensor-list">
-              {rows.filter((r) => r.beyond).map((r) => <button key={r.id} className={ui.sel === r.sensor ? "is-on" : ""}
-                onClick={() => set({ sel: r.sensor, ch: r.id })}><span>{r.name}</span><strong>{r.id === "mic" ? r.direction === "up" ? "Louder" : "Quieter" : r.direction === "up" ? "Higher" : "Lower"}</strong></button>)}
-            </div> : <p className="rd-p">No channels changed beyond typical healthy variation.</p>}
-            <Caveat>They show where the signal changed, not the fault location.</Caveat>
-          </Card>
-          </div>
+          </section>
 
           {showChecks && <Card title="Suggested checks" label="Suggested checks" className="rd-m-next">
             <span className="rd-m-label">From curated guidance</span>
@@ -337,20 +339,21 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
   }
 
   const areas = dev
-    ? ["sum sum sum", "fd rig gg", "cd rig dq", "ch ch ch", "sp sp wf", "dc dc dc", "why nx nx", "xp rp rp", "rd ac ac", "tc tc tc", "lim lim lim"]
+    ? ["hero hero hero", "sum sum sum", "fd rig gg", "cd rig dq", "ch ch ch", "sp sp wf", "dc dc dc", "why nx nx", "xp rp rp", "rd ac ac", "tc tc tc", "lim lim lim"]
     : [];
-  const narrowAreas = dev ? ["sum", "fd", "gg", "dq", "cd", "ch", "sp", "wf", "dc", "why", "nx", "xp", "rp", "rd", "ac", "tc", "lim"] : [];
+  const narrowAreas = dev ? ["hero", "sum", "fd", "gg", "dq", "cd", "ch", "sp", "wf", "dc", "why", "nx", "xp", "rp", "rd", "ac", "tc", "lim"] : [];
   const gridStyle = narrow ? { gridTemplateColumns: "minmax(0,1fr)", gridTemplateAreas: narrowAreas.map((a) => `"${a}"`).join(" ") }
     : { gridTemplateColumns: "minmax(300px,340px) minmax(0,1fr) minmax(300px,340px)", gridTemplateAreas: areas.map((a) => `"${a}"`).join(" ") };
 
   return (
     <div className={"rd-root" + (narrow ? " is-narrow" : "") + (assistantOpen ? " has-assistant" : "")}>
-      <Header caseId={caseId} record={record} view={view} onView={setView} userName={userName}
+      <Header caseId={caseId} record={record} view={view} onView={changeView} userName={userName}
         back={{ href: "#/", label: "Back to home" }} />
       <main className="rd-grid" style={gridStyle}>
+        <FindingSummary area="hero" record={record} report={report} explanation={explanation} loc={loc} mloc={mloc} warnings={warn} onShowPart={narrow ? null : focusRigPart} />
         <WhyStrip summary={summary} warnings={warn} caseId={caseId} developer />
-        {!narrow && <section className="rd-rig" style={{ gridArea: "rig" }} aria-label="3D rig">
-          <Scene state={sceneState} insets={{ top: 84, right: 24, bottom: 56, left: 24 }} onSelect={select}
+        {!narrow && <section ref={rigSection} className="rd-rig" style={{ gridArea: "rig" }} aria-label="3D rig">
+          <Scene state={sceneState} insets={{ top: 84, right: 24, bottom: 56, left: 24 }} focusRequest={rigFocus} onSelect={select}
             onHover={(id) => { if (id !== ui.hover) set({ hover: id }); }} />
           <div className="rd-rig-top">
             <div className="rd-rig-title"><span className="rd-kicker">Rotor test rig · illustrative</span>
@@ -368,30 +371,17 @@ export function DashboardView({ caseId, record, report, channels, signals, activ
           </div>
         </section>}
 
-        <Card area="fd" label="Finding">
-          <div className="rd-card-head">
-            <span className="rd-verdict" style={{ color: vs.color }}><span className="rd-dot" style={{ background: vs.dot, boxShadow: "0 0 0 4px " + al(vs.dot, 0.18) }} />{v.chip}</span>
-            <span className="rd-kicker">Finding</span>
-          </div>
-          <div className="rd-stack-4">
-            <span className="rd-title-xl">{dev ? verdictTitle(record) : M.finding(record)}</span>
-            {d.caution && <span className="rd-sub">A healthy-baseline check disagrees; consider a recheck.</span>}
-          </div>
+        <Card area="fd" title="Model output" kicker="Model">
           {mloc.parts.length > 0 && <div className="rd-loc" style={mloc.kind === "candidate" ? { background: al(K.amber, 0.14) } : undefined}>
             <span className="rd-kicker" style={{ color: mloc.kind === "candidate" ? K.amberT : K.orangeT }}>{mloc.kind === "candidate" ? "Candidate locations" : "Suggested location"}</span>
             <span className="rd-loc-name">{mloc.parts.map((p) => M.PART_PLAIN[p]).join(" and ")}</span>
             <span className="rd-sub-s">{mloc.kind === "candidate" ? "From the two most likely fault types (model prediction)" : "According to the dataset label (model prediction)"}</span>
           </div>}
-          {mloc.parts.length > 0 && <button className="rd-dark-btn" onClick={() => select(mloc.parts[0])}>Show {M.PART_PLAIN[mloc.parts[0]].toLowerCase()} on the rig</button>}
-          {dev ? <>
-            <div className="rd-models">
-              <span className="mono rd-muted">CNN-6</span><span>{human(d.top_class)}</span><span className="mono">MSP {fmtScore(d.scores.msp)}</span>
-              <span className="mono rd-muted">LR</span><span>{human(d.lr_secondary.top_class)}</span><span className="mono">{fmtScore(d.lr_secondary.probabilities[d.lr_secondary.top_class])}</span>
-            </div>
-            <span className="rd-note">{d.top_class === d.lr_secondary.top_class ? "Both rank the same class first. " : "They rank different classes first. "}{SCORES_NOTE}</span>
-          </> : <p className="rd-p">{M.supporting(record, report?.assessment) || "Checking…"}</p>}
-          {warn.length ? <div className="rd-warn" role="alert">{(dev ? warn : M.warnings(record)).map((w) => <div key={w}><Tick ok={false} />{w}</div>)}</div>
-            : <div className="rd-ok"><Tick ok />No signal-quality warnings detected.</div>}
+          <div className="rd-models">
+            <span className="mono rd-muted">CNN-6</span><span>{human(d.top_class)}</span><span className="mono">MSP {fmtScore(d.scores.msp)}</span>
+            <span className="mono rd-muted">LR</span><span>{human(d.lr_secondary.top_class)}</span><span className="mono">{fmtScore(d.lr_secondary.probabilities[d.lr_secondary.top_class])}</span>
+          </div>
+          <span className="rd-note">{d.top_class === d.lr_secondary.top_class ? "Both rank the same class first. " : "They rank different classes first. "}{SCORES_NOTE}</span>
         </Card>
 
         <Gauge record={record} dev={dev} />
