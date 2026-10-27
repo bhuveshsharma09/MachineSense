@@ -9,7 +9,7 @@ import pytest
 
 from ml.config import load_config
 from ml.final import final_dir, verify_final
-from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR, require_bundle
+from ml.paths import DEFAULT_CONFIG, SYSTEM_CODE_DIR
 from ml.splits import FAULT_CLASSES, development_pool, folder_proxy
 
 spec = importlib.util.spec_from_file_location("final_eval", SYSTEM_CODE_DIR / "scripts" / "30_final_eval.py")
@@ -18,10 +18,9 @@ spec.loader.exec_module(F1)
 
 
 def _need_final():
-    if not (final_dir() / "manifest.json").exists():
-        if require_bundle():
-            pytest.fail("MACHINESENSE_REQUIRE_BUNDLE=1: artifacts/final/ is missing", pytrace=False)
-        pytest.skip("artifacts/final/ not built")
+    """artifacts/final/ is gitignored (76 MB): skipped in a clone, required under MACHINESENSE_REQUIRE_FULL_DATA=1."""
+    from tests.conftest import need_full_data
+    need_full_data(final_dir() / "manifest.json")
 
 
 def _meta_pool():

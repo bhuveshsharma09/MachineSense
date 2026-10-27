@@ -8,6 +8,10 @@ import pandas as pd
 import pytest
 
 from ml.paths import SYSTEM_CODE_DIR, results_dir
+from tests.conftest import need_full_data
+
+SAVED = (results_dir() / "scores" / "cnn6ae6_s42_loco_decisions.parquet",
+         results_dir() / "scores" / "specialists_w-imbalance_s42_loco_fold0_errors.parquet")  # gitignored saved scores
 
 
 def script(name):
@@ -41,6 +45,7 @@ def test_default_seed_is_42_and_keeps_every_seed42_path(s34):
 
 def test_default_reproduces_the_seed42_run_plan(s34):
     """Every saved seed-42 run used the plan run_plan gives now: the same specialists and the same fit recordings."""
+    need_full_data(*SAVED)
     from ml.specialists import run_plan
     from ml.splits import FAULT_CLASSES
     cfg, meta, pool, assignment = s34.setup()
@@ -55,6 +60,7 @@ def test_default_reproduces_the_seed42_run_plan(s34):
 
 
 def test_calibration_reproduces_the_seed42_thresholds(s34):
+    need_full_data(*SAVED)
     t = s34.calibrated_thresholds(42).set_index(["withheld", "outer_fold"])
     saved = pd.read_csv(results_dir() / "loco" / "decision_thresholds.csv").set_index(["withheld", "outer_fold"]).loc[t.index]
     for q in ("tau_p", "tau_d", "tau_e"):
@@ -62,6 +68,7 @@ def test_calibration_reproduces_the_seed42_thresholds(s34):
 
 
 def test_seed42_r5_numbers_reproduce_after_the_change():
+    need_full_data(*SAVED)
     saved = json.loads((results_dir() / "research" / "r5_decision_design.json").read_text())
     res = script("35_decision_design.py").compute(42, ("R4", "E1"))
     for name in ("R4", "E1"):

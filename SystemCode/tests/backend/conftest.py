@@ -2,7 +2,7 @@
 recordings. Without the bundle the bundle-dependent tests are skipped, unless MACHINESENSE_REQUIRE_BUNDLE=1: then they FAIL
 when the bundle is missing or does not verify (use this mode before every commit). Without the full raw recordings
 (data/raw_npy; e.g. a fresh clone with only the demo pack) the tests that need them are skipped, unless
-MACHINESENSE_REQUIRE_RAW=1; the demo-pack tests (test_demo_pack.py) need the bundle only."""
+MACHINESENSE_REQUIRE_FULL_DATA=1; the demo-pack tests (test_demo_pack.py) need the bundle only."""
 import os
 
 import pandas as pd
@@ -21,9 +21,9 @@ def _unavailable(reason: str):
 
 
 def raw_unavailable(reason: str):
-    """The full raw recordings are missing: skip (a demo-pack clone), or FAIL under MACHINESENSE_REQUIRE_RAW=1."""
-    if os.environ.get("MACHINESENSE_REQUIRE_RAW", "") == "1":
-        pytest.fail(f"MACHINESENSE_REQUIRE_RAW=1: {reason}", pytrace=False)
+    """The full raw recordings are missing: skip (a demo-pack clone), or FAIL under MACHINESENSE_REQUIRE_FULL_DATA=1."""
+    if os.environ.get("MACHINESENSE_REQUIRE_FULL_DATA", "") == "1":
+        pytest.fail(f"MACHINESENSE_REQUIRE_FULL_DATA=1: {reason}", pytrace=False)
     pytest.skip(reason)
 
 

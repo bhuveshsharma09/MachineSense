@@ -68,7 +68,8 @@ def test_every_shipped_recording_is_in_the_development_pool_and_not_reserved(bun
 def test_demo_pack_is_used_only_when_the_full_data_are_missing(tmp_path, monkeypatch):
     import ml.paths
     from backend.settings import use_demo_pack
-    monkeypatch.delenv(DATA_DIR_ENV, raising=False)
+    monkeypatch.setenv(DATA_DIR_ENV, "unset")  # recorded, so use_demo_pack's own setting is undone after the test
+    monkeypatch.delenv(DATA_DIR_ENV)
     monkeypatch.setattr(ml.paths, "SYSTEM_CODE_DIR", tmp_path)  # a checkout whose data/raw_npy is missing
     assert use_demo_pack() is True and os.environ[DATA_DIR_ENV] == str(demo_dir())
     monkeypatch.delenv(DATA_DIR_ENV)

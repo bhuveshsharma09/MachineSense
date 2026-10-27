@@ -22,6 +22,7 @@ Every path is an environment variable with a default relative to `SystemCode/` (
 | raw development recordings | fixed by `ml.paths.data_dir()` | `SystemCode/data/raw_npy` |
 | demo pack (used only when `data/raw_npy` is absent) | `MACHINESENSE_DEMO_DIR` | `SystemCode/demo` |
 | fail (not skip) tests without the bundle | `MACHINESENSE_REQUIRE_BUNDLE=1` | off |
+| fail (not skip) tests without the full local data (raw recordings, gitignored research outputs) | `MACHINESENSE_REQUIRE_FULL_DATA=1` | off |
 
 `SystemCode/backend/data/` is gitignored, except `reserved_fingerprints.json` and `healthy_variation.json` (committed so
 a clone without the raw recordings starts). The app lives on `main` (merged from `app-skeleton`), so one checkout holds
