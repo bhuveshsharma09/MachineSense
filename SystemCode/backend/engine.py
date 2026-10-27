@@ -15,9 +15,9 @@ from backend import timing
 from backend.checks import fmt_score
 from backend.guard import ReservedGuard, build_index, reserved_rec_ids
 from backend.schemas import EvidenceRecord
-from backend.settings import bundle_dir, cases_db, guard_index, raw_dir, uploads_dir, variation_file
+from backend.settings import bundle_dir, cases_db, demo_manifest, demo_mode, guard_index, raw_dir, uploads_dir, variation_file
 from backend.store import CaseStore
-from ml.inference import InputError, ReservedRecordingError, _metadata, diagnose  # noqa: F401 (errors re-exported)
+from ml.inference import InputError, ReservedRecordingError, _metadata, check_rec_id, diagnose  # noqa: F401 (re-exported)
 from ml.splits import development_pool
 
 RESERVED_UPLOAD = "this appears to be a reserved test recording"
@@ -45,6 +45,17 @@ class StoredUploadMissing(RuntimeError):
 
 class ReservedUploadError(ValueError):
     """An upload that matches a reserved test recording's fingerprint (best-effort guard)."""
+
+
+class RecordingNotAvailable(LookupError):
+    """A development recording whose raw file is not in this installation (e.g. a demo-pack clone)."""
+
+
+def not_available(rec_id: str) -> str:
+    if demo_mode():
+        return (f"{rec_id} is not in the demo pack, which holds 5 development recordings; add the full MAFAULDA data to "
+                "use the others (see HOW_TO_RUN.md)")
+    return f"the raw file of {rec_id} is not in this installation's data folder"
 
 
 def parse_upload(data: bytes, cfg) -> np.ndarray:
@@ -116,7 +127,8 @@ class Engine:
                 "rule_status": self.bundle.rule.get("status"), "train_speed_range_hz": m.data["train_speed_range_hz"],
                 "calibration_normal_speed_range_hz": m.data["calibration_normal_speed_range_hz"],
                 "test_eligibility": m.test_eligibility, "limitations": m.limitations,
-                "upload_guard": {"reserved_recordings_indexed": len(self.guard.index)}}
+                "upload_guard": {"reserved_recordings_indexed": len(self.guard.index)},
+                "data": {"mode": "demo-pack" if demo_mode() else "full", "recordings_available": len(self.recordings())}}
 
     def pool(self):
         cfg = self.bundle.config
@@ -124,8 +136,13 @@ class Engine:
                                 cfg.development.reserved_columns)
 
     def recordings(self) -> list[dict]:
-        """Development-pool recordings only (reserved-test recordings are never listed), with what they were used for."""
+        """Development-pool recordings only (reserved-test recordings are never listed), with what they were used for;
+        only those whose raw file is on disk, and in demo-pack mode only the pack's demo recordings."""
         pool = self.pool().sort_values(["class10", "severity", "fr_measured_hz"])
+        pool = pool[[(raw_dir() / f"{r}.npy").exists() for r in pool.rec_id]]
+        demo = demo_manifest()
+        if demo is not None:
+            pool = pool[pool.rec_id.isin([d["rec_id"] for d in demo["recordings"]])]
         used = {"train": "model training", "val": "threshold calibration"}
         return [{"rec_id": r.rec_id, "class10": r.class10, "severity": float(r.severity),
                  "severity_unit": "mm" if "misalignment" in r.class10 else ("g" if r.class10 != "normal" else ""),
@@ -138,9 +155,11 @@ class Engine:
             return None
         rec = c["record"]
         stored = bool(c["array_path"]) and Path(c["array_path"]).exists()
-        can = rec["source"] == "dataset" or stored
+        on_disk = rec["source"] == "dataset" and (raw_dir() / f"{rec['input']['rec_id']}.npy").exists()
+        can = on_disk or stored
+        note = None if can else not_available(rec["input"]["rec_id"]) if rec["source"] == "dataset" else RERUN_MISSING
         return {"case_id": case_id, "source": rec["source"], "rec_id": rec["input"]["rec_id"], "rerun_of": c["rerun_of"],
-                "can_rerun": can, "rerun_note": None if can else RERUN_MISSING}
+                "can_rerun": can, "rerun_note": note}
 
     def rerun(self, case_id: str) -> dict:
         """Re-run diagnose() on a stored case as a NEW case linked to it: a dataset case by its rec_id, an upload on its
@@ -158,6 +177,10 @@ class Engine:
     def diagnose(self, rec_id: str | None = None, array: np.ndarray | None = None, healthy_rule: str | None = None,
                  nominal_speed_hz: float | None = None, rerun_of: str | None = None) -> dict:
         source = "dataset" if rec_id is not None else "upload"
+        if rec_id is not None:
+            check_rec_id(rec_id)  # unknown and reserved rec_ids are refused first, as before
+            if not (raw_dir() / f"{rec_id}.npy").exists():
+                raise RecordingNotAvailable(not_available(rec_id))
         if array is not None:
             hit = self.guard.match(array)
             if hit is not None:
@@ -210,7 +233,7 @@ class Engine:
 
     def channels(self, case_id: str) -> dict | None:
         """The measured channel evidence of a case (one builder for the report's channel view and the assistant's
-        get_evidence tool); None when the case or its signal is not available."""
+        get_evidence tool); None when the case, its signal or its healthy reference is not available."""
         from backend.evidence import channel_evidence
         from ml.inference import _metadata
         got = self.case_array(case_id)
@@ -218,8 +241,11 @@ class Engine:
             return None
         x, fr, rec_id = got
         d = self.case(case_id)["diagnosis"]
-        return channel_evidence(x, fr, self.bundle.config, _metadata().reset_index(), rec_id, self.variation,
-                                d["decision"], d["caution"])
+        try:
+            return channel_evidence(x, fr, self.bundle.config, _metadata().reset_index(), rec_id, self.variation,
+                                    d["decision"], d["caution"])
+        except FileNotFoundError:  # the healthy reference recording is not in this installation (and not precomputed)
+            return None
 
     def case_array(self, case_id: str) -> tuple[np.ndarray, float, str | None] | None:
         """(raw array, measured speed, rec_id) for the evidence views: dataset recordings from raw_npy (the same loader as
@@ -231,6 +257,8 @@ class Engine:
         rec = c["record"]
         fr = float(rec["signal_quality"]["shaft_speed_hz"])
         if rec["source"] == "dataset":
+            if not (raw_dir() / f"{rec['input']['rec_id']}.npy").exists():
+                return None
             x, _ = load_recording(rec["input"]["rec_id"])
             return x, fr, rec["input"]["rec_id"]
         if not c["array_path"] or not Path(c["array_path"]).exists():

@@ -1,6 +1,10 @@
 """Backend tests need the approved bundle (MACHINESENSE_BUNDLE_DIR, see backend/README.md) and the raw development
-recordings. Without them the bundle-dependent tests are skipped, unless MACHINESENSE_REQUIRE_BUNDLE=1: then they FAIL
-when the bundle is missing or does not verify (use this mode before every commit)."""
+recordings. Without the bundle the bundle-dependent tests are skipped, unless MACHINESENSE_REQUIRE_BUNDLE=1: then they FAIL
+when the bundle is missing or does not verify (use this mode before every commit). Without the full raw recordings
+(data/raw_npy; e.g. a fresh clone with only the demo pack) the tests that need them are skipped, unless
+MACHINESENSE_REQUIRE_RAW=1; the demo-pack tests (test_demo_pack.py) need the bundle only."""
+import os
+
 import pandas as pd
 import pytest
 
@@ -16,13 +20,26 @@ def _unavailable(reason: str):
     pytest.skip(reason)
 
 
+def raw_unavailable(reason: str):
+    """The full raw recordings are missing: skip (a demo-pack clone), or FAIL under MACHINESENSE_REQUIRE_RAW=1."""
+    if os.environ.get("MACHINESENSE_REQUIRE_RAW", "") == "1":
+        pytest.fail(f"MACHINESENSE_REQUIRE_RAW=1: {reason}", pytrace=False)
+    pytest.skip(reason)
+
+
 @pytest.fixture(scope="session")
-def bundle_path():
+def bundle_path(bundle_only):
+    if not (data_dir() / "raw_npy").exists():
+        raw_unavailable(f"the full development recordings are not at {data_dir() / 'raw_npy'} (demo-pack clone)")
+    return bundle_only
+
+
+@pytest.fixture(scope="session")
+def bundle_only():
+    """The approved bundle, verified; no raw recordings needed."""
     d = bundle_dir()
     if not (d / "manifest.json").exists():
         _unavailable(f"approved bundle not found at {d} (set MACHINESENSE_BUNDLE_DIR)")
-    if not (data_dir() / "raw_npy").exists():
-        _unavailable(f"raw development recordings not found at {data_dir() / 'raw_npy'}")
     if require_bundle():
         from ml.bundle import load_bundle
         try:

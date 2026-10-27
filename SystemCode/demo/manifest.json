@@ -1,0 +1,166 @@
+{
+ "note": "Demo pack: 5 development recordings (closed validation split, used for threshold calibration, so their verdicts are in-sample) and the healthy training recordings their channel evidence is compared with. They are not test data; reserved test recordings are never shipped.",
+ "bundle_manifest_sha256": "521cc746208940e04b3ffb2b33c583772c989ae8cdc59f6ace4f51b7e3c3b0e9",
+ "config_sha256": "ba2f775e17a664ce76142232e781319e0b0b55216cb73c45779c7c292de5d653",
+ "recordings": [
+  {
+   "rec_id": "normal__24.576",
+   "why": "healthy",
+   "class10": "normal",
+   "speed_hz": 24.10507381419242,
+   "split_closed": "val",
+   "split_severity": "val",
+   "split_speed_block": "val",
+   "used_for": "threshold calibration",
+   "expected": {
+    "decision": "healthy",
+    "display_label": "healthy",
+    "top_class": "normal",
+    "caution": null
+   },
+   "healthy_reference": "normal__25.6",
+   "sha256": "9dfa3c33e70a787bbd3b8f31c1bf9653a7d3e64673815f57b2b446b173a827c2"
+  },
+  {
+   "rec_id": "imbalance__30g__19.456",
+   "why": "known fault: imbalance",
+   "class10": "imbalance",
+   "speed_hz": 19.043142847881754,
+   "split_closed": "val",
+   "split_severity": "val",
+   "split_speed_block": "val",
+   "used_for": "threshold calibration",
+   "expected": {
+    "decision": "known_fault",
+    "display_label": "known fault: imbalance",
+    "top_class": "imbalance",
+    "caution": null
+   },
+   "healthy_reference": "normal__20.2752",
+   "sha256": "43710ca8ae9586ab86a18026319f305d6e2738c86f7befd244f0cda288c089d0"
+  },
+  {
+   "rec_id": "underhang__cage_fault__6g__35.0208",
+   "why": "known fault: bearing (envelope view)",
+   "class10": "underhang_cage",
+   "speed_hz": 34.230715019229606,
+   "split_closed": "val",
+   "split_severity": "val",
+   "split_speed_block": "val",
+   "used_for": "threshold calibration",
+   "expected": {
+    "decision": "known_fault",
+    "display_label": "known fault: underhang cage",
+    "top_class": "underhang_cage",
+    "caution": null
+   },
+   "healthy_reference": "normal__35.4304",
+   "sha256": "822cdc4169c1ab57e03a1d38e90f60a1e9ffba354971eae912a01c567f519012"
+  },
+  {
+   "rec_id": "imbalance__10g__13.9264",
+   "why": "further inspection needed",
+   "class10": "imbalance",
+   "speed_hz": 13.578849912560436,
+   "split_closed": "val",
+   "split_severity": "val",
+   "split_speed_block": "val",
+   "used_for": "threshold calibration",
+   "expected": {
+    "decision": "unknown",
+    "display_label": "further inspection needed",
+    "top_class": "imbalance",
+    "caution": null
+   },
+   "healthy_reference": "normal__14.336",
+   "sha256": "51bcb2a10a65bf5338284f52bb041cb5ace39badece1c789aa476d9390d54c5a"
+  },
+  {
+   "rec_id": "horizontal-misalignment__1.0mm__24.9856",
+   "why": "known fault: horizontal misalignment",
+   "class10": "horizontal_misalignment",
+   "speed_hz": 24.37845025587299,
+   "split_closed": "val",
+   "split_severity": "val",
+   "split_speed_block": "val",
+   "used_for": "threshold calibration",
+   "expected": {
+    "decision": "known_fault",
+    "display_label": "known fault: horizontal misalignment",
+    "top_class": "horizontal_misalignment",
+    "caution": null
+   },
+   "healthy_reference": "normal__25.6",
+   "sha256": "e8e0fda3255ff3f30263c56db0875e27b7feb6183fe1653e969fdfd86cb1b129"
+  }
+ ],
+ "healthy_references": [
+  {
+   "rec_id": "normal__14.336",
+   "class10": "normal",
+   "used_for": "model training (healthy)",
+   "split_closed": "train",
+   "reference_for": [
+    "imbalance__10g__13.9264"
+   ],
+   "sha256": "728741b022d70754ee390b3fd3b82c07710eae96bd93ca88c13be2ac600045f2"
+  },
+  {
+   "rec_id": "normal__20.2752",
+   "class10": "normal",
+   "used_for": "model training (healthy)",
+   "split_closed": "train",
+   "reference_for": [
+    "imbalance__30g__19.456"
+   ],
+   "sha256": "72e72751b35d1c8efab4031074db2c787f4c21b534d67f633b122bc21bc45eb5"
+  },
+  {
+   "rec_id": "normal__25.6",
+   "class10": "normal",
+   "used_for": "model training (healthy)",
+   "split_closed": "train",
+   "reference_for": [
+    "normal__24.576",
+    "horizontal-misalignment__1.0mm__24.9856"
+   ],
+   "sha256": "a618707edbf328f1d385affca7b45e434aa35aff6dc38763ba75be6dd9cc523e"
+  },
+  {
+   "rec_id": "normal__35.4304",
+   "class10": "normal",
+   "used_for": "model training (healthy)",
+   "split_closed": "train",
+   "reference_for": [
+    "underhang__cage_fault__6g__35.0208"
+   ],
+   "sha256": "99943a0c656e167f75f33482aaf72cf343962973c8ea61848dd37ec4ad41e6f9"
+  }
+ ],
+ "healthy_reference_values": {
+  "file": "healthy_reference_values.json",
+  "recordings": [
+   "normal__13.1072",
+   "normal__14.336",
+   "normal__15.1552",
+   "normal__16.1792",
+   "normal__20.2752",
+   "normal__21.7088",
+   "normal__22.3232",
+   "normal__23.552",
+   "normal__25.6",
+   "normal__26.624",
+   "normal__27.4432",
+   "normal__28.8768",
+   "normal__29.4912",
+   "normal__30.72",
+   "normal__31.744",
+   "normal__32.9728",
+   "normal__33.5872",
+   "normal__35.4304",
+   "normal__37.6832",
+   "normal__40.3456"
+  ],
+  "sha256": "995d0cef7386b1bdaed917e02f66cfdc666af6ea2cd08c7517fc305e28f2c91b"
+ }
+}

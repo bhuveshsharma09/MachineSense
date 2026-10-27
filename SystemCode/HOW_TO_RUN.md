@@ -66,7 +66,8 @@ mlflow ui --backend-store-uri sqlite:///mlruns.db --port 5000
 
 ## 6. Running the app
 
-From `SystemCode/` with the venv active (details, endpoints and settings: `backend/README.md`):
+From `SystemCode/` with the venv active (details, endpoints and settings: `backend/README.md`). Without
+`data/raw_npy/` the app runs on the committed demo pack (the root `README.md`, "Quick start"):
 
 ```bash
 uvicorn backend.app:create_app --factory --port 8000   # the API; verifies the model bundle at start, refuses on mismatch

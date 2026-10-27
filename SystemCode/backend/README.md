@@ -20,16 +20,20 @@ Every path is an environment variable with a default relative to `SystemCode/` (
 | unseen-fault sweep cache (App-6) | `MACHINESENSE_UNSEEN_SWEEP` | `SystemCode/backend/data/unseen_sweep.json` |
 | typical healthy variation (built on first start) | `MACHINESENSE_VARIATION` | `SystemCode/backend/data/healthy_variation.json` |
 | raw development recordings | fixed by `ml.paths.data_dir()` | `SystemCode/data/raw_npy` |
+| demo pack (used only when `data/raw_npy` is absent) | `MACHINESENSE_DEMO_DIR` | `SystemCode/demo` |
 | fail (not skip) tests without the bundle | `MACHINESENSE_REQUIRE_BUNDLE=1` | off |
 
-`SystemCode/backend/data/` is gitignored. The app lives on `main` (merged from `app-skeleton`), so one checkout holds
+`SystemCode/backend/data/` is gitignored, except `reserved_fingerprints.json` and `healthy_variation.json` (committed so
+a clone without the raw recordings starts). The app lives on `main` (merged from `app-skeleton`), so one checkout holds
 the code, the bundle and the data: with the defaults above, no environment variable and no data links are needed.
 
 ## Setup (one checkout)
-What must exist in `SystemCode/` before the first start (none of it is committed):
-- `artifacts/bundle/`: the approved bundle (rebuild order in CLAUDE.md §7; never rebuilt by the app);
-- `data/raw_npy/`: the converted recordings (`scripts/00_convert.py`), read for dataset recordings and to build the
-  reserved-fingerprint index;
+What must exist in `SystemCode/` before the first start:
+- `artifacts/bundle/`: the approved bundle (committed; rebuild order in CLAUDE.md §7; never rebuilt by the app);
+- `data/raw_npy/`: the converted recordings (`scripts/00_convert.py`), read for dataset recordings. Without it (a fresh
+  clone) the app runs in **demo-pack mode**: it reads `demo/raw_npy/` (5 development recordings and their healthy
+  references, `demo/README.md`), `GET /api/recordings` and the showcase list only those 5, another rec_id gets a 404
+  that says it is not in the demo pack, and channel evidence uses the pack's precomputed healthy reference values;
 - `.venv/` with `requirements.txt`, and Node 18+ for the frontend.
 The frontend needs no internet connection: its fonts are self-hosted (`frontend/src/fonts/`, SIL OFL 1.1).
 

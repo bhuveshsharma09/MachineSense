@@ -21,6 +21,7 @@ MULTIPLICITY_NOTE = ("each recording is compared on ~20 channel × metric values
                      "one 95th-percentile band by chance")
 HEALTHY_NOTE = "within what the healthy checks accept"
 KURTOSIS_NOTE = "excess kurtosis (Fisher; normal ≈ 0)"
+REFERENCE_VALUES = "healthy_reference_values.json"  # in the demo pack (scripts/40_demo_pack.py)
 
 
 def _metrics(ch: str) -> dict[str, str]:
@@ -54,8 +55,29 @@ def _features_for_rec(rec_id: str, cfg_json: str) -> pd.DataFrame:
     return recording_features(x, fr, Config.model_validate_json(cfg_json).preprocess)
 
 
+@lru_cache(maxsize=4)
+def _precomputed(cfg_sha: str) -> dict:
+    """channel_values of the healthy training recordings, precomputed for the demo pack (a clone without their raw
+    recordings); used only if they were computed with the same configuration."""
+    import json
+
+    from backend.settings import demo_dir
+    p = demo_dir() / REFERENCE_VALUES
+    if not p.exists():
+        return {}
+    d = json.loads(p.read_text())
+    return d["values"] if d.get("config_sha256") == cfg_sha else {}
+
+
 def training_values(rec_id: str, cfg) -> dict[str, dict[str, float]]:
-    """channel_values of a development-pool recording (cached)."""
+    """channel_values of a development-pool recording (cached); when its raw recording is not on disk, the demo pack's
+    precomputed values (the same numbers; tests/backend/test_demo_pack.py)."""
+    from backend.settings import raw_dir
+    from ml.config import config_sha256
+    if not (raw_dir() / f"{rec_id}.npy").exists():
+        v = _precomputed(config_sha256(cfg)).get(rec_id)
+        if v is not None:
+            return {ch: dict(m) for ch, m in v.items()}
     return channel_values(_features_for_rec(rec_id, cfg.model_dump_json()))
 
 

@@ -11,6 +11,7 @@
 | unseen-fault sweep cache (gitignored) | MACHINESENSE_UNSEEN_SWEEP | SystemCode/backend/data/unseen_sweep.json |
 | typical healthy variation (built from training normals) | MACHINESENSE_VARIATION | SystemCode/backend/data/healthy_variation.json |
 | raw development recordings | (fixed by ml.paths.data_dir) | SystemCode/data/raw_npy |
+| demo pack (used when data/raw_npy is absent) | MACHINESENSE_DEMO_DIR | SystemCode/demo |
 | require the bundle in tests | MACHINESENSE_REQUIRE_BUNDLE=1 | off |
 | LLM endpoint / model / timeout / on-off (App-3) | MACHINESENSE_LLM_BASE_URL / _MODEL / _TIMEOUT_S / _ENABLED | http://localhost:1234/v1 / google/gemma-4-e4b / 20 / true |
 | LLM API key (optional; read from SystemCode/.env only) | MACHINESENSE_LLM_API_KEY in .env | none |
@@ -69,6 +70,33 @@ def variation_file() -> Path:
 def raw_dir() -> Path:
     """Raw development recordings (read by ml.inference.load_recording; not configurable without changing ml/)."""
     return data_dir() / "raw_npy"
+
+
+def demo_dir() -> Path:
+    """The committed demo pack: demo/raw_npy (5 development recordings and their healthy references), manifest.json and
+    the precomputed healthy reference values (scripts/40_demo_pack.py)."""
+    return _p("MACHINESENSE_DEMO_DIR", SYSTEM_CODE_DIR / "demo")
+
+
+def use_demo_pack() -> bool:
+    """Demo-pack mode, for a fresh clone without MAFAULDA: when MACHINESENSE_DATA_DIR is unset, SystemCode/data/raw_npy is
+    missing and the demo pack is present, the data directory points at the demo pack (ml.inference.load_recording reads
+    <data dir>/raw_npy). Whenever data/raw_npy exists the full data stay the default. Returns whether the mode is on."""
+    from ml.paths import DATA_DIR_ENV
+    if not os.environ.get(DATA_DIR_ENV) and not raw_dir().exists() and (demo_dir() / "raw_npy").is_dir():
+        os.environ[DATA_DIR_ENV] = str(demo_dir())
+    return demo_mode()
+
+
+def demo_mode() -> bool:
+    return data_dir().resolve() == demo_dir().resolve()
+
+
+def demo_manifest() -> dict | None:
+    """The demo pack's manifest in demo-pack mode, else None."""
+    import json
+    p = demo_dir() / "manifest.json"
+    return json.loads(p.read_text()) if demo_mode() and p.exists() else None
 
 
 def require_bundle() -> bool:

@@ -10,11 +10,14 @@ from functools import lru_cache
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-from backend.engine import (Engine, InputError, ReservedRecordingError, ReservedUploadError, StoredUploadMissing,
-                            UploadError, parse_upload)
+from backend.engine import (Engine, InputError, RecordingNotAvailable, ReservedRecordingError, ReservedUploadError,
+                            StoredUploadMissing, UploadError, parse_upload)
 from backend.checks import assessment
 from backend.report import build_report, build_sections, guidance_items
-from backend.settings import showcase_file
+from backend.settings import demo_manifest, raw_dir, showcase_file, use_demo_pack
+
+EVIDENCE_MISSING = ("channel evidence is not available: the healthy reference recording it is compared with is not in "
+                    "this installation")
 
 
 def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_transport=None, unseen_path=None,
@@ -23,6 +26,7 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
     final_directory: the App-6 curated file and the leave-one-class-out models (tests point them elsewhere)."""
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        use_demo_pack()  # a clone without data/raw_npy reads the committed demo pack (backend/settings.py)
         # raises BundleIntegrityError → the server does not start
         app.state.engine = Engine(bundle_directory, cases_path=cases_path, guard_path=guard_path)
         app.state.llm_transport = llm_transport
@@ -42,7 +46,10 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         if got is None:
             raise HTTPException(404, f"no stored signal for case {case_id}")
         if kind == "channels":
-            return eng.channels(case_id)
+            ev = eng.channels(case_id)
+            if ev is None:
+                raise HTTPException(404, EVIDENCE_MISSING)
+            return ev
         x, fr, _ = got
         out = signals(x, fr, eng.bundle.config)
         return {**out, "reference": _reference_spectrum(eng, case_id)}
@@ -74,15 +81,20 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
 
     @app.get("/api/recordings")
     def recordings(request: Request):
+        demo = demo_manifest()
         return {"recordings": engine(request).recordings(),
-                "note": "development-pool recordings only; reserved-test recordings are never listed"}
+                "note": "development-pool recordings only; reserved-test recordings are never listed",
+                "data_mode": "demo-pack" if demo else "full", **({"demo_note": demo["note"]} if demo else {})}
 
     @app.get("/api/showcase")
-    def showcase():
+    def showcase(request: Request):
         p = showcase_file()
         if not p.exists():
             return {"showcase": [], "states_without_a_development_recording": [], "note": "showcase not built"}
-        return json.loads(p.read_text())
+        out = json.loads(p.read_text())
+        # only examples that can be run here (in a demo-pack clone: the demo recordings)
+        listed = {r["rec_id"] for r in engine(request).recordings()}
+        return {**out, "showcase": [s for s in out["showcase"] if s["rec_id"] in listed]}
 
     def unseen_service(request: Request):
         from backend.unseen import UnseenService
@@ -135,6 +147,8 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
             return _echo(rec, rid or body.get("request_id"), str(body["rec_id"]))
         except (ReservedRecordingError, ReservedUploadError) as e:
             raise HTTPException(403, str(e)) from e
+        except RecordingNotAvailable as e:
+            raise HTTPException(404, str(e)) from e
         except UploadError as e:
             raise HTTPException(422, str(e)) from e
         except InputError as e:
@@ -172,7 +186,7 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
             rec = eng.rerun(case_id)
         except KeyError as e:
             raise HTTPException(404, f"no case {case_id}") from e
-        except StoredUploadMissing as e:
+        except (StoredUploadMissing, RecordingNotAvailable) as e:
             raise HTTPException(409, str(e)) from e
         except (ReservedRecordingError, ReservedUploadError) as e:
             raise HTTPException(403, str(e)) from e
@@ -208,7 +222,7 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
                                       llm_timeout_s)
         eng = engine(request)
         rec = _need(eng, case_id)["record"]
-        ch = _evidence(eng, case_id, "channels") if eng.case_array(case_id) is not None else None
+        ch = eng.channels(case_id)
         provider = OpenAICompatibleProvider(llm_base_url(), llm_model(), llm_timeout_s(), llm_api_key(),
                                             transport=request.app.state.llm_transport)
         out = explain_case(rec, assessment(rec), ch, user_fields, provider, enabled=llm_enabled(), log_path=explanations_log(),
@@ -225,7 +239,7 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
             raise HTTPException(404, "no explanation yet; POST to generate one")
         # App-8.8 item 1: stored explanations are served with every measured comparison checked against the record
         from backend.explain.evidence import reviewed
-        return reviewed(e, _evidence(eng, case_id, "channels") if eng.case_array(case_id) is not None else None)
+        return reviewed(e, eng.channels(case_id))
 
     @app.post("/api/cases/{case_id}/explanation")
     async def post_explanation(case_id: str, request: Request):
@@ -383,7 +397,7 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
     def report(case_id: str, request: Request):
         eng = engine(request)
         rec = _need(eng, case_id)["record"]
-        ch = _evidence(eng, case_id, "channels") if eng.case_array(case_id) is not None else None
+        ch = eng.channels(case_id)
         return JSONResponse({"case_id": case_id, "format": "markdown", "report": build_report(rec),
                              "sections": build_sections(rec, ch, eng.bundle.feature_dictionary.index),
                              "assessment": assessment(rec),
