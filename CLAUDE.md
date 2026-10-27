@@ -498,6 +498,19 @@ on new text; frontend: trace refetch key, fit-to-screen bounds, one warning, sho
 backend and frontend suites; the live API (the user's backend restarted on the new code) compared with the UI for the
 representative cases at desktop and 390 px. Committed locally, not pushed.
 
+**Result (27 Oct 2026; 1ff764f, f2955d7).** All 8 items done. Backend 622 passed, 2 skipped; frontend 270 checks;
+`AGENT_PROMPT_VERSION` 8fb7865754455d65 (unchanged; the explanation `PROMPT_VERSION` c576ca4477e3ae80 is aeb0584's, not
+changed here). The user's backend on port 8000 (started 26 Oct, before App-8.6) was restarted on the new code with its
+previous setting `MACHINESENSE_NO_RESERVED_READ=1`. Live API vs UI (Vite 5173 → 8000, 1440 × 900 and 390 × 844): the stored
+explanations of c102b558 / 58980a3f / d0c5dae4 are served with 2 / 1 / 2 sentences restated from the record (2.9× lower and
+1.8× higher; 3.3× lower and 1.7× higher; 5.7× lower and 6.2× higher), equal to their /channels factors and directions, and
+the Mechanic and Developer views show those sentences; edde3aa4 needed none. A fresh case (normal__27.4432) opened in the
+Developer view showed "Written explanation · Not run" before its explanation existed and "Completed" after, equal to its
+/trace. Full-screen pipeline at 1745 × 738: stage headings visible with a pan hint; Fit to screen shows every step. Further
+inspection: one warning in the Developer verdict card (the fixed report's own section 03 also lists it, as a report line);
+unseen familiar comparison: "Group statistic · all 144 eligible imbalance recordings · not this recording" below the result,
+values equal to /api/unseen; phone: the first fault choice on the first screen, the caveat after the step.
+
 ## 7-h. Stage App-8.7 — fixes from the 26 Oct user test of the "Explore an unseen fault" page (frontend only)
 
 Declared 26 Oct 2026 before any code, from Bhuvesh's brief (titled "App-8.5" there; renamed because App-8.5 is the wizard
