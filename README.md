@@ -38,7 +38,7 @@ A diagnosis runs on a CPU in about one second.
 MachineSense is a research demonstration. It is not validated on real machines.
 
 <p align="center">
-  <img src="Miscellaneous/images/fig01_at_a_glance.png" alt="MachineSense at a glance" width="100%" />
+  <img src="Miscellaneous/images/system_overview.png" alt="MachineSense overview: recording, diagnosis pipeline, Mechanic view and optional investigation assistant" width="100%" />
 </p>
 
 ---
