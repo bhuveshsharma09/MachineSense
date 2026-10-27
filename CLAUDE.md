@@ -450,7 +450,6 @@ largest increase beyond typical variation first and a decrease only when nothing
 frontend `npm test`; new tests for items 1, 4, 5, 6, 8, 9, 10, 11, 14, 22 and 28 at least; `AGENT_PROMPT_VERSION` printed and
 equal to 8fb7865754455d65; the seven recordings opened in both views in a browser. One commit per group (A, B, C, D).
 
-<<<<<<< HEAD
 **Result (26 Oct 2026).** All 28 items done (A 336a901, B 134314a, C c912383, D 668ba67). Backend 612 passed, 2 skipped (the
 reserved-signal tests); frontend `npm test` 248 checks; `AGENT_PROMPT_VERSION` 8fb7865754455d65 (unchanged); explanation
 `PROMPT_VERSION` f154953912c969cc → 32cdea4284bfee3f. Manual check: the seven recordings diagnosed on a scratch backend
@@ -460,56 +459,6 @@ item 9's factor-with-direction appear in the Mechanic view (App-8.4's no-factor 
 which stay out); item 13 hides one inner-race step for the cage verdict and says so, the report and the assistant keep
 every step; item 23 adds a `bundle` source to the trace (`bundle:feature_dictionary.rows`) and the App-4 source test
 resolves it independently; item 26's reference overlay is the order spectrum only (the envelope view says so).
-=======
-## 7-i. Stage App-8.8 — fixes from the 27 Oct browser audit (dashboards, pipeline, unseen-fault page)
-
-Declared 27 Oct 2026 before any code, from Bhuvesh's brief. No other session has uncommitted work (git status: only the
-untracked PROJECT_STATUS.md). The assistant panel is out of scope; D7 frozen (`AGENT_PROMPT_VERSION` 8fb7865754455d65, the
-agent prompt, tools and review unchanged); no change to model decisions, measured values, thresholds, saved records or the
-unseen-fault statistics (`backend/unseen.json` and the API values unchanged); reserved data sealed; no dependency.
-Representative live cases: healthy edde3aa4…, healthy with caution 58980a3f…, known fault c102b558…, further inspection
-d0c5dae4…; unseen run imbalance / imbalance__6g__33.9968 (withheld) vs vertical-misalignment__0.51mm__19.456 (familiar).
-1. **Direction and magnitude in the written evidence, for saved and new explanations.** The stored explanations of these cases
-   (prompt f154953912c969cc) say "2× was detected on the outer bearing sensor" for a channel 2.85× lower than its reference.
-   A code step `backend/explain/evidence.py` checks every "why" sentence against the case's measured channel evidence: a
-   sentence that names a sensor (old or new vocabulary) or quotes a change factor of a measured channel must state that
-   channel's direction (and, when it quotes one, its factor) correctly; otherwise it is replaced by the code-built statement
-   for each referenced channel (`plain.change_sentence`: measure, sensor, factor, higher / lower than the healthy reference),
-   taken from the record only, never from the fault label. Applied when an explanation is generated and when a stored one
-   is read (`GET /api/cases/{id}/explanation`); the stored text is not rewritten; the response lists each replacement
-   (`corrections`), and the Developer view says how many sentences were replaced from the measured record.
-2. **Embedded pipeline status.** Section 06 refetches the trace when the case's explanation changes (it fetched once, before
-   the explanation existed); the full-screen pipeline refetches while its explanation step is "not run".
-3. **Full-screen pipeline at short desktop viewports (≈ 1745 × 738).** The fit insets are measured from the real header and
-   the floating legend; the initial and Reset views stay at the readable scale, top-aligned so the stage headings show, with
-   panning; "Fit to screen" fits the whole graph (it may go below the readable scale, with a hint to zoom in). The phone step
-   list is unchanged.
-4. **One calibration-speed warning** in the Developer view, worded for the verdict at hand (healthy: the healthy verdict is less
-   certain; known fault / further inspection: the healthy checks only add a caution and do not decide this verdict); the
-   "healthy verdict only" note is removed.
-5. **Short healthy-with-caution heading** ("No fault detected — one check disagrees") with one short supporting line.
-6. **Changed channels vs highlighted sensors**: one sentence beside the rig legend in both views.
-7. **Unseen familiar comparison**: the hidden-fault group statistic moves out of the current-result area into its own block
-   labelled with its scope (all eligible recordings of the hidden fault; not this recording); values unchanged.
-8. **Unseen page on a phone**: the first choice comes right after the title; the research caveat follows the step, still
-   shown in full.
-**Checks.** Focused regression tests (backend: the evidence correction on the stored texts of the representative cases and
-on new text; frontend: trace refetch key, fit-to-screen bounds, one warning, short caution heading, group-statistic scope);
-backend and frontend suites; the live API (the user's backend restarted on the new code) compared with the UI for the
-representative cases at desktop and 390 px. Committed locally, not pushed.
-
-**Result (27 Oct 2026; 1ff764f, f2955d7).** All 8 items done. Backend 622 passed, 2 skipped; frontend 270 checks;
-`AGENT_PROMPT_VERSION` 8fb7865754455d65 (unchanged; the explanation `PROMPT_VERSION` c576ca4477e3ae80 is aeb0584's, not
-changed here). The user's backend on port 8000 (started 26 Oct, before App-8.6) was restarted on the new code with its
-previous setting `MACHINESENSE_NO_RESERVED_READ=1`. Live API vs UI (Vite 5173 → 8000, 1440 × 900 and 390 × 844): the stored
-explanations of c102b558 / 58980a3f / d0c5dae4 are served with 2 / 1 / 2 sentences restated from the record (2.9× lower and
-1.8× higher; 3.3× lower and 1.7× higher; 5.7× lower and 6.2× higher), equal to their /channels factors and directions, and
-the Mechanic and Developer views show those sentences; edde3aa4 needed none. A fresh case (normal__27.4432) opened in the
-Developer view showed "Written explanation · Not run" before its explanation existed and "Completed" after, equal to its
-/trace. Full-screen pipeline at 1745 × 738: stage headings visible with a pan hint; Fit to screen shows every step. Further
-inspection: one warning in the Developer verdict card (the fixed report's own section 03 also lists it, as a report line);
-unseen familiar comparison: "Group statistic · all 144 eligible imbalance recordings · not this recording" below the result,
-values equal to /api/unseen; phone: the first fault choice on the first screen, the caveat after the step.
 
 ## 7-h. Stage App-8.7 — fixes from the 26 Oct user test of the "Explore an unseen fault" page (frontend only)
 
@@ -573,7 +522,56 @@ underhang ball 76 / 77 (99 %), underhang cage 72 / 72, underhang outer 73 / 73, 
 the reveal and of `pair` replaced one for one), 390 px width, race, request and dock checks pass; backend 606 passed, 2
 skipped (the reserved-signal tests); `AGENT_PROMPT_VERSION` 8fb7865754455d65. Also fixed: the single-failure sentence began
 in lower case. Screenshots at 1440, 1280 and 390 px.
->>>>>>> app-8-5
+
+## 7-i. Stage App-8.8 — fixes from the 27 Oct browser audit (dashboards, pipeline, unseen-fault page)
+
+Declared 27 Oct 2026 before any code, from Bhuvesh's brief. No other session has uncommitted work (git status: only the
+untracked PROJECT_STATUS.md). The assistant panel is out of scope; D7 frozen (`AGENT_PROMPT_VERSION` 8fb7865754455d65, the
+agent prompt, tools and review unchanged); no change to model decisions, measured values, thresholds, saved records or the
+unseen-fault statistics (`backend/unseen.json` and the API values unchanged); reserved data sealed; no dependency.
+Representative live cases: healthy edde3aa4…, healthy with caution 58980a3f…, known fault c102b558…, further inspection
+d0c5dae4…; unseen run imbalance / imbalance__6g__33.9968 (withheld) vs vertical-misalignment__0.51mm__19.456 (familiar).
+1. **Direction and magnitude in the written evidence, for saved and new explanations.** The stored explanations of these cases
+   (prompt f154953912c969cc) say "2× was detected on the outer bearing sensor" for a channel 2.85× lower than its reference.
+   A code step `backend/explain/evidence.py` checks every "why" sentence against the case's measured channel evidence: a
+   sentence that names a sensor (old or new vocabulary) or quotes a change factor of a measured channel must state that
+   channel's direction (and, when it quotes one, its factor) correctly; otherwise it is replaced by the code-built statement
+   for each referenced channel (`plain.change_sentence`: measure, sensor, factor, higher / lower than the healthy reference),
+   taken from the record only, never from the fault label. Applied when an explanation is generated and when a stored one
+   is read (`GET /api/cases/{id}/explanation`); the stored text is not rewritten; the response lists each replacement
+   (`corrections`), and the Developer view says how many sentences were replaced from the measured record.
+2. **Embedded pipeline status.** Section 06 refetches the trace when the case's explanation changes (it fetched once, before
+   the explanation existed); the full-screen pipeline refetches while its explanation step is "not run".
+3. **Full-screen pipeline at short desktop viewports (≈ 1745 × 738).** The fit insets are measured from the real header and
+   the floating legend; the initial and Reset views stay at the readable scale, top-aligned so the stage headings show, with
+   panning; "Fit to screen" fits the whole graph (it may go below the readable scale, with a hint to zoom in). The phone step
+   list is unchanged.
+4. **One calibration-speed warning** in the Developer view, worded for the verdict at hand (healthy: the healthy verdict is less
+   certain; known fault / further inspection: the healthy checks only add a caution and do not decide this verdict); the
+   "healthy verdict only" note is removed.
+5. **Short healthy-with-caution heading** ("No fault detected — one check disagrees") with one short supporting line.
+6. **Changed channels vs highlighted sensors**: one sentence beside the rig legend in both views.
+7. **Unseen familiar comparison**: the hidden-fault group statistic moves out of the current-result area into its own block
+   labelled with its scope (all eligible recordings of the hidden fault; not this recording); values unchanged.
+8. **Unseen page on a phone**: the first choice comes right after the title; the research caveat follows the step, still
+   shown in full.
+**Checks.** Focused regression tests (backend: the evidence correction on the stored texts of the representative cases and
+on new text; frontend: trace refetch key, fit-to-screen bounds, one warning, short caution heading, group-statistic scope);
+backend and frontend suites; the live API (the user's backend restarted on the new code) compared with the UI for the
+representative cases at desktop and 390 px. Committed locally, not pushed.
+
+**Result (27 Oct 2026; 1ff764f, f2955d7).** All 8 items done. Backend 622 passed, 2 skipped; frontend 270 checks;
+`AGENT_PROMPT_VERSION` 8fb7865754455d65 (unchanged; the explanation `PROMPT_VERSION` c576ca4477e3ae80 is aeb0584's, not
+changed here). The user's backend on port 8000 (started 26 Oct, before App-8.6) was restarted on the new code with its
+previous setting `MACHINESENSE_NO_RESERVED_READ=1`. Live API vs UI (Vite 5173 → 8000, 1440 × 900 and 390 × 844): the stored
+explanations of c102b558 / 58980a3f / d0c5dae4 are served with 2 / 1 / 2 sentences restated from the record (2.9× lower and
+1.8× higher; 3.3× lower and 1.7× higher; 5.7× lower and 6.2× higher), equal to their /channels factors and directions, and
+the Mechanic and Developer views show those sentences; edde3aa4 needed none. A fresh case (normal__27.4432) opened in the
+Developer view showed "Written explanation · Not run" before its explanation existed and "Completed" after, equal to its
+/trace. Full-screen pipeline at 1745 × 738: stage headings visible with a pan hint; Fit to screen shows every step. Further
+inspection: one warning in the Developer verdict card (the fixed report's own section 03 also lists it, as a report line);
+unseen familiar comparison: "Group statistic · all 144 eligible imbalance recordings · not this recording" below the result,
+values equal to /api/unseen; phone: the first fault choice on the first screen, the caveat after the step.
 
 ## 7-f. Stage App-8.5 — "Explore an unseen fault" page redesign (frontend only)
 
