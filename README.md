@@ -1,71 +1,85 @@
-# MachineSense
+## SECTION 1 : PROJECT TITLE
 
-Multi-sensor fault diagnosis for rotating machinery, built on the MAFAULDA dataset.
-NUS-ISS Pattern Recognition Systems practice module (MTech AI Systems).
-Research demonstration. Not validated on real machines.
+<p align="center">
+  <img src="Miscellaneous/images/banner.png" alt="MachineSense: NUS-ISS Pattern Recognition Systems practice module, Bhuvesh Kumar (A0243823H)" width="100%" />
+</p>
 
-## Quick start
+## MachineSense: Multi-Sensor Fault Diagnosis for Rotating Machinery
 
-You can run the app from a fresh clone. You do not need to download MAFAULDA.
-The repository includes the trained model bundle and a demo pack of 5 recordings.
+NUS-ISS Pattern Recognition Systems (PRS) Practice Module, Group 01, Bhuvesh Kumar (A0243823H)
 
-### Requirements
+---
 
-- Python 3.12
-- Node 22 (with npm)
-- About 3 GB of free disk space for the Python packages
-- Git
+## SECTION 2 : EXECUTIVE SUMMARY
 
-### 1. Clone and install
+MachineSense analyses a five-second, eight-channel recording from the MAFAULDA test rig.
+The channels are a tachometer, two three-axis accelerometers and a microphone.
+It answers three questions.
+Is the machine healthy (Q1)?
+Which of ten known conditions does the recording resemble (Q2)?
+Could it be a fault the models have not seen (Q3)?
 
-```bash
-git clone https://github.com/bhuveshsharma09/MachineSense.git
-cd MachineSense/SystemCode
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-pip install -e .
-```
+A web app shows the result and its evidence in a Mechanic view and a Developer view.
+An optional investigation assistant runs on a local language model.
+It is a ReAct agent with read-only tools, and code checks every answer against the case record before it is shown.
+It answers follow-up questions about a diagnosis.
 
-On Linux or Windows, install the CPU-only PyTorch first. Otherwise pip downloads large CUDA packages.
-Run this before `pip install -r requirements.txt`:
+The main contribution is a careful evaluation.
+Recordings were split before any windows were made.
+Development folds were grouped by folder.
+The reserved tests were opened once, after the models, thresholds and decision rule were frozen.
 
-```bash
-pip install torch==2.14.0 torchvision==0.29.0 --index-url https://download.pytorch.org/whl/cpu
-```
+Results on the sealed tests:
+- **Q2:** ten-class macro-F1 0.916 (95 % interval 0.845 to 0.972) on 290 recordings.
+- **Q3:** 925 of 1,123 unfamiliar-fault recordings (82.4 %) were sent for further inspection.
+- **Q1:** no fault recording was called healthy. But 5 of 7 and 19 of 20 healthy recordings were also not called plainly healthy.
 
-On Windows, activate the venv with `.venv\Scripts\activate`.
-On macOS, LightGBM needs the OpenMP runtime: `brew install libomp`. The app itself does not use LightGBM.
+A diagnosis runs on a CPU in about one second.
+MachineSense is a research demonstration. It is not validated on real machines.
 
-### 2. Start the backend
+<p align="center">
+  <img src="Miscellaneous/images/fig01_at_a_glance.png" alt="MachineSense at a glance" width="100%" />
+</p>
 
-In `SystemCode/`, with the venv active:
+---
 
-```bash
-uvicorn backend.app:create_app --factory --host 127.0.0.1 --port 8000
-```
+## SECTION 3 : PROJECT CONTRIBUTION
 
-At startup the backend checks the SHA-256 of every file in the model bundle. It refuses to start if one does not match.
-Check it at http://127.0.0.1:8000/api/health. You should see `"bundle_verified": true` and `"mode": "demo-pack"`.
+| Official Full Name | Student ID | Work Items (Who Did What) | Email |
+| --- | --- | --- | --- |
+| Bhuvesh Kumar | A0243823H | Problem framing and evaluation protocol; data audit, splits and pipeline; physics features and order spectrograms; CNN-6, healthy-only detectors (AE-6, B1s) and open-set checks; decision rule; research stages R0 to R10; FastAPI backend and React app; explanation layer and investigation assistant; D7 and App-9 evaluations; report, slides and video | [bhuvesh@u.nus.edu](mailto:bhuvesh@u.nus.edu) |
 
-### 3. Start the frontend
+This is an individual project. AI tools were used as assistants, as described in the report's "Use of AI tools" section.
 
-In a second terminal:
+---
 
-```bash
-cd MachineSense/SystemCode/frontend
-npm ci
-npm run dev
-```
+## SECTION 4 : VIDEO OF SYSTEM MODELLING & USE CASE DEMO
 
-### 4. Open the app
+**Video:** [Video/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Video.mp4](Video/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Video.mp4) (to be added)
 
-Open http://localhost:5173.
-Enter a display name. Then choose **Start investigation**.
-The 5 demo recordings are listed:
+GitHub rejects files over 100 MB. If the video is larger, it will be linked here instead.
 
-| Recording | What the app shows |
+---
+
+## SECTION 5 : USER GUIDE
+
+`Refer to appendix <Installation and User Guide> in project report at Github Folder: ProjectReport`
+
+- The standalone User Guide PDF is in [UserGuide/](UserGuide/).
+- The same content is the "Installation and User Guide" appendix of the report in [ProjectReport/](ProjectReport/).
+- Full run instructions are in [SystemCode/HOW_TO_RUN.md](SystemCode/HOW_TO_RUN.md).
+
+Quick start, in brief (you do not need the MAFAULDA dataset):
+1. **Clone:** `git clone https://github.com/bhuveshsharma09/MachineSense.git`
+2. **Install:** in `MachineSense/SystemCode`, create a Python 3.12 venv, then run `pip install -r requirements.txt` and `pip install -e .`
+3. **Start the backend:** `uvicorn backend.app:create_app --factory --host 127.0.0.1 --port 8000`
+4. **Start the frontend:** in `SystemCode/frontend`, run `npm ci` and `npm run dev` (Node 22)
+5. **Open** http://localhost:5173
+
+No login is needed. The app asks only for a display name, kept in your browser.
+Choose **Start investigation** and pick one of the 5 demo recordings:
+
+| Recording | Verdict the app shows |
 | --- | --- |
 | `normal__24.576` | healthy |
 | `imbalance__30g__19.456` | known fault: imbalance |
@@ -73,47 +87,23 @@ The 5 demo recordings are listed:
 | `underhang__cage_fault__6g__35.0208` | known fault: underhang cage (see the envelope view) |
 | `imbalance__10g__13.9264` | further inspection needed |
 
-You can also upload a CSV in the MAFAULDA format. It must have no header, 8 columns and 250,000 rows (5 s at 50 kHz).
-The **Explore an unseen fault** page works from saved results.
-
-### About the demo recordings
-
 The demo recordings are development recordings, not test data.
-They come from the closed validation split, which set the decision thresholds.
-So their verdicts are in-sample.
-The reserved test recordings are never shipped, listed or read by the app.
-The pack also holds the 4 healthy training recordings that the evidence view compares against.
-Details are in `SystemCode/demo/manifest.json`. The pack is rebuilt with `scripts/40_demo_pack.py`.
 
-### Optional: written explanations and the assistant
+---
 
-The app works without a language model. Without one it shows template explanations, and the assistant shows the fixed report.
-For AI-written explanations and the investigation assistant, install [LM Studio](https://lmstudio.ai).
-Load the model `google/gemma-4-e4b` and start its local server on port 1234.
-The backend finds it at `http://localhost:1234/v1`. No API key is needed.
+## SECTION 6 : PROJECT REPORT
 
-### Optional: the full dataset
+`Refer to project report at Github Folder: ProjectReport`
 
-The full dataset is needed to reproduce training and the evaluation, and to diagnose every development recording.
-1. Download MAFAULDA from Kaggle: [mafaulda-full](https://www.kaggle.com/datasets/vuxuancu/mafaulda-full).
-2. Unpack it so that `mafaulda/` sits next to `SystemCode/` (the folder that holds `normal/`, `imbalance/`, and so on).
-3. Convert it: `python scripts/00_convert.py` (in `SystemCode/`). This writes `SystemCode/data/raw_npy/`.
+**Report:** [ProjectReport/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Report.pdf](ProjectReport/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Report.pdf) (to be added)
 
-When `SystemCode/data/raw_npy/` exists, the app uses the full data instead of the demo pack.
-See `SystemCode/HOW_TO_RUN.md` for training, notebooks and experiment tracking.
+---
 
-### Tests
+## SECTION 7 : MISCELLANEOUS
 
-In `SystemCode/`, with the venv active:
+`Refer to Github Folder: Miscellaneous`
 
-```bash
-MACHINESENSE_REQUIRE_BUNDLE=1 python -m pytest tests -q
-cd frontend && npm test
-```
+- **[Miscellaneous/images/](Miscellaneous/images/)**: screenshots and figures used in the report and slides.
+- **Dataset:** MAFAULDA, from Kaggle ([mafaulda-full](https://www.kaggle.com/datasets/vuxuancu/mafaulda-full)). It is not included in this repository, and the demo does not need it.
 
-In a clone without the full dataset, tests that need it are skipped. The demo-pack tests still run.
-
-## Repository layout
-
-- `SystemCode/`: code, model bundle, demo pack, notebooks, results and tests. See `SystemCode/HOW_TO_RUN.md`.
-- `CLAUDE.md`: the project's working rules and stage log.
+**This Pattern Recognition Systems (PRS) Practice Module is part of the NUS-ISS MTech in Artificial Intelligence Systems.**
