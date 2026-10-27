@@ -95,7 +95,7 @@ The backend finds it at `http://localhost:1234/v1`. No API key is needed.
 ### Optional: the full dataset
 
 The full dataset is needed to reproduce training and the evaluation, and to diagnose every development recording.
-1. Download MAFAULDA from Kaggle: [Machinery Fault Dataset](https://www.kaggle.com/datasets/uysalserkan/fault-induction-motor-dataset).
+1. Download MAFAULDA from Kaggle: [mafaulda-full](https://www.kaggle.com/datasets/vuxuancu/mafaulda-full).
 2. Unpack it so that `mafaulda/` sits next to `SystemCode/` (the folder that holds `normal/`, `imbalance/`, and so on).
 3. Convert it: `python scripts/00_convert.py` (in `SystemCode/`). This writes `SystemCode/data/raw_npy/`.
 
