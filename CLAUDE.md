@@ -461,6 +461,43 @@ which stay out); item 13 hides one inner-race step for the cage verdict and says
 every step; item 23 adds a `bundle` source to the trace (`bundle:feature_dictionary.rows`) and the App-4 source test
 resolves it independently; item 26's reference overlay is the order spectrum only (the envelope view says so).
 =======
+## 7-i. Stage App-8.8 — fixes from the 27 Oct browser audit (dashboards, pipeline, unseen-fault page)
+
+Declared 27 Oct 2026 before any code, from Bhuvesh's brief. No other session has uncommitted work (git status: only the
+untracked PROJECT_STATUS.md). The assistant panel is out of scope; D7 frozen (`AGENT_PROMPT_VERSION` 8fb7865754455d65, the
+agent prompt, tools and review unchanged); no change to model decisions, measured values, thresholds, saved records or the
+unseen-fault statistics (`backend/unseen.json` and the API values unchanged); reserved data sealed; no dependency.
+Representative live cases: healthy edde3aa4…, healthy with caution 58980a3f…, known fault c102b558…, further inspection
+d0c5dae4…; unseen run imbalance / imbalance__6g__33.9968 (withheld) vs vertical-misalignment__0.51mm__19.456 (familiar).
+1. **Direction and magnitude in the written evidence, for saved and new explanations.** The stored explanations of these cases
+   (prompt f154953912c969cc) say "2× was detected on the outer bearing sensor" for a channel 2.85× lower than its reference.
+   A code step `backend/explain/evidence.py` checks every "why" sentence against the case's measured channel evidence: a
+   sentence that names a sensor (old or new vocabulary) or quotes a change factor of a measured channel must state that
+   channel's direction (and, when it quotes one, its factor) correctly; otherwise it is replaced by the code-built statement
+   for each referenced channel (`plain.change_sentence`: measure, sensor, factor, higher / lower than the healthy reference),
+   taken from the record only, never from the fault label. Applied when an explanation is generated and when a stored one
+   is read (`GET /api/cases/{id}/explanation`); the stored text is not rewritten; the response lists each replacement
+   (`corrections`), and the Developer view says how many sentences were replaced from the measured record.
+2. **Embedded pipeline status.** Section 06 refetches the trace when the case's explanation changes (it fetched once, before
+   the explanation existed); the full-screen pipeline refetches while its explanation step is "not run".
+3. **Full-screen pipeline at short desktop viewports (≈ 1745 × 738).** The fit insets are measured from the real header and
+   the floating legend; the initial and Reset views stay at the readable scale, top-aligned so the stage headings show, with
+   panning; "Fit to screen" fits the whole graph (it may go below the readable scale, with a hint to zoom in). The phone step
+   list is unchanged.
+4. **One calibration-speed warning** in the Developer view, worded for the verdict at hand (healthy: the healthy verdict is less
+   certain; known fault / further inspection: the healthy checks only add a caution and do not decide this verdict); the
+   "healthy verdict only" note is removed.
+5. **Short healthy-with-caution heading** ("No fault detected — one check disagrees") with one short supporting line.
+6. **Changed channels vs highlighted sensors**: one sentence beside the rig legend in both views.
+7. **Unseen familiar comparison**: the hidden-fault group statistic moves out of the current-result area into its own block
+   labelled with its scope (all eligible recordings of the hidden fault; not this recording); values unchanged.
+8. **Unseen page on a phone**: the first choice comes right after the title; the research caveat follows the step, still
+   shown in full.
+**Checks.** Focused regression tests (backend: the evidence correction on the stored texts of the representative cases and
+on new text; frontend: trace refetch key, fit-to-screen bounds, one warning, short caution heading, group-statistic scope);
+backend and frontend suites; the live API (the user's backend restarted on the new code) compared with the UI for the
+representative cases at desktop and 390 px. Committed locally, not pushed.
+
 ## 7-h. Stage App-8.7 — fixes from the 26 Oct user test of the "Explore an unseen fault" page (frontend only)
 
 Declared 26 Oct 2026 before any code, from Bhuvesh's brief (titled "App-8.5" there; renamed because App-8.5 is the wizard
