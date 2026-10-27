@@ -118,8 +118,10 @@ def test_confirmation_wording_must_match_the_status_fetched_this_turn(app):
 
 def test_numbers_inside_note_text_are_not_tool_numbers(app):
     a = new_case(app)
-    app.post(f"/api/cases/{a}/observations", json={"text": "Rumble after 17 minutes."})
-    ans = obj("The technician noted a rumble after 17 minutes.", refs=("notes.observations.0.text",))
+    # 75 cannot be a number the notes tool returns itself (its timestamps hold a day <= 31, an hour <= 23, a minute <= 59 and
+    # the year; its counts stay small), so the test does not depend on the time of day it runs at
+    app.post(f"/api/cases/{a}/observations", json={"text": "Rumble after 75 minutes."})
+    ans = obj("The technician noted a rumble after 75 minutes.", refs=("notes.observations.0.text",))
     assert "numbers" in checks(review(ans, [notes(app, a)], mode="conversation")[1])
     assert review(obj("The technician noted a rumble.", refs=("notes.observations.0.text",)), [notes(app, a)], mode="conversation")[1] == []
 
