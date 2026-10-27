@@ -1,0 +1,139 @@
+{
+ "method": {
+  "recordings": "healthy training recordings (closed train ∩ development pool); never calibration or reserved recordings",
+  "pairs": "all pairs with measured speeds within ±3 Hz",
+  "statistic": "95th percentile of max(ratio, 1/ratio) over the pairs",
+  "min_amplitude_v": 0.005,
+  "volt_metrics": [
+   "rms",
+   "order_1x",
+   "order_2x"
+  ],
+  "not_ratioed": [
+   "kurtosis"
+  ],
+  "min_amplitude_reason": "median healthy over-radial 1× amplitude of the training normals"
+ },
+ "n_recordings": 20,
+ "n_pairs": 35,
+ "recordings": [
+  "normal__13.1072",
+  "normal__14.336",
+  "normal__15.1552",
+  "normal__16.1792",
+  "normal__20.2752",
+  "normal__21.7088",
+  "normal__22.3232",
+  "normal__23.552",
+  "normal__25.6",
+  "normal__26.624",
+  "normal__27.4432",
+  "normal__28.8768",
+  "normal__29.4912",
+  "normal__30.72",
+  "normal__31.744",
+  "normal__32.9728",
+  "normal__33.5872",
+  "normal__35.4304",
+  "normal__37.6832",
+  "normal__40.3456"
+ ],
+ "bands": {
+  "under_axial": {
+   "rms": 1.2106924331072217,
+   "kurtosis": null,
+   "order_1x": 1.2535616040310524,
+   "order_2x": 4.885725886705398
+  },
+  "under_radial": {
+   "rms": 1.2823597301742724,
+   "kurtosis": null,
+   "order_1x": 1.9849816760158077,
+   "order_2x": 1.364126293387209,
+   "env_bpfo1": 1.7714344135016153,
+   "env_bpfi1": 1.645268588310499,
+   "env_bsf2": 1.8048368312556198,
+   "env_ftf1": 1.7692903599248253
+  },
+  "under_tangential": {
+   "rms": 1.2852230250347136,
+   "kurtosis": null,
+   "order_1x": 1.791094047560702,
+   "order_2x": 3.414618901982804
+  },
+  "over_axial": {
+   "rms": 1.3486362768155704,
+   "kurtosis": null,
+   "order_1x": 1.4397414987080055,
+   "order_2x": 1.4100653322741217
+  },
+  "over_radial": {
+   "rms": 2.896294482934948,
+   "kurtosis": null,
+   "order_1x": 9.765419851340472,
+   "order_2x": 3.30752406464319,
+   "env_bpfo1": 2.61934851816541,
+   "env_bpfi1": 2.787907462163611,
+   "env_bsf2": 2.068480805001336,
+   "env_ftf1": 1.373676029288495
+  },
+  "over_tangential": {
+   "rms": 2.137469330967771,
+   "kurtosis": null,
+   "order_1x": 2.3268412241526217,
+   "order_2x": 2.249784059291339
+  },
+  "mic": {
+   "rms": 1.172288730937261
+  }
+ },
+ "n_pairs_used": {
+  "under_axial": {
+   "rms": 35,
+   "kurtosis": 0,
+   "order_1x": 35,
+   "order_2x": 35
+  },
+  "under_radial": {
+   "rms": 35,
+   "kurtosis": 0,
+   "order_1x": 35,
+   "order_2x": 35,
+   "env_bpfo1": 35,
+   "env_bpfi1": 35,
+   "env_bsf2": 35,
+   "env_ftf1": 35
+  },
+  "under_tangential": {
+   "rms": 35,
+   "kurtosis": 0,
+   "order_1x": 29,
+   "order_2x": 9
+  },
+  "over_axial": {
+   "rms": 35,
+   "kurtosis": 0,
+   "order_1x": 35,
+   "order_2x": 35
+  },
+  "over_radial": {
+   "rms": 35,
+   "kurtosis": 0,
+   "order_1x": 23,
+   "order_2x": 10,
+   "env_bpfo1": 35,
+   "env_bpfi1": 35,
+   "env_bsf2": 35,
+   "env_ftf1": 35
+  },
+  "over_tangential": {
+   "rms": 35,
+   "kurtosis": 0,
+   "order_1x": 35,
+   "order_2x": 35
+  },
+  "mic": {
+   "rms": 35
+  }
+ }
+}

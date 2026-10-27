@@ -1,0 +1,302 @@
+{
+ "schema_version": "1.0",
+ "created_at": "2026-09-27T09:21:11+00:00",
+ "git_sha": "b482f6c0f49d2c9259e915767a7aaaf3931ab1fc",
+ "unrelated_worktree_changes": [
+  "SystemCode/notebooks/01_data_layer/01_index_audit_splits.ipynb"
+ ],
+ "inference_config_sha256": "ba2f775e17a664ce76142232e781319e0b0b55216cb73c45779c7c292de5d653",
+ "preprocess_config_sha256": "d87f5c86efe4ec56178fe332c2d90ccaab3b9cf875d0dfd2b58fdfb6e9502947",
+ "split_hash": "4a93579360db1058d03fe17a03427e8d9d89ae03b409d9022f0fe0b9395eebe2",
+ "fs_hz": 50000,
+ "channels": [
+  "tacho",
+  "under_axial",
+  "under_radial",
+  "under_tangential",
+  "over_axial",
+  "over_radial",
+  "over_tangential",
+  "mic"
+ ],
+ "class10": [
+  "normal",
+  "imbalance",
+  "horizontal_misalignment",
+  "vertical_misalignment",
+  "underhang_ball",
+  "underhang_cage",
+  "underhang_outer",
+  "overhang_ball",
+  "overhang_cage",
+  "overhang_outer"
+ ],
+ "class6": [
+  "normal",
+  "imbalance",
+  "horizontal_misalignment",
+  "vertical_misalignment",
+  "underhang_bearing",
+  "overhang_bearing"
+ ],
+ "representation": {
+  "candidate": "C_order8rev",
+  "version": "repC-1.0",
+  "cnn_channels": "6 accelerometer order-spectrograms (vibration only)"
+ },
+ "files": [
+  {
+   "name": "cnn6",
+   "file": "cnn6.safetensors",
+   "role": "classifier",
+   "sha256": "fea590a7538e334ca0ec271dc5989dc6cfbfcfeb7440a6da394276e758a35ce9",
+   "description": "ScratchCNN state_dict, 6 vibration channels, 10 classes (Stage 3A architecture)"
+  },
+  {
+   "name": "ae6",
+   "file": "ae6.safetensors",
+   "role": "anomaly",
+   "sha256": "b02505b50162eab23e9bffc655e3bee90b424091d2b5bc768fc3133934d01b83",
+   "description": "FrameAE state_dict, 6 vibration channels (Stage 3B frame-level AE)"
+  },
+  {
+   "name": "mahalanobis",
+   "file": "mahalanobis.safetensors",
+   "role": "openset",
+   "sha256": "c56538c9d3832d416689b2c8ee20df1eff158f4a8a294dfe095fc8e925a8e1c8",
+   "description": "class centroids and shared Ledoit–Wolf precision of CNN-6 train-window embeddings"
+  },
+  {
+   "name": "lr_r1",
+   "file": "lr_r1.joblib",
+   "role": "secondary_classifier",
+   "sha256": "434dc398e75c4fadaa96372a398ccb03ef649c85f215ad32ac30af825aaa1823",
+   "description": "scikit-learn QuantileTransformer + LogisticRegression on capped R1 features"
+  },
+  {
+   "name": "b1s_vib",
+   "file": "b1s_vib.joblib",
+   "role": "healthy_baseline",
+   "sha256": "05975c690d52587a32f09952000b80501867486f653b19979cad964a985bd774",
+   "description": "ml.anomaly.SpeedPoly (B1s) on vibration-only R1 features of train normals"
+  },
+  {
+   "name": "thresholds",
+   "file": "thresholds.json",
+   "role": "thresholds",
+   "sha256": "0176c2ce5c2f6af615ff891d8f9267506be76df4778975bb3f16063efdfb7eb8",
+   "description": "τ_p, τ_d, τ_e, τ_b from the calibration recordings only"
+  },
+  {
+   "name": "normalisation",
+   "file": "normalisation.json",
+   "role": "normalisation",
+   "sha256": "2df548e0150d4dd8a3183a51638d9dce52ee91e25c26b931fc49ae94cf12f242",
+   "description": "per-channel mean/std (norm_stats, development mode)"
+  },
+  {
+   "name": "rule",
+   "file": "rule.json",
+   "role": "rule",
+   "sha256": "ceffac5014e01bdd02f81d8205590d5f76a34113b26d300b4e5121d9a2df4009",
+   "description": "healthy-rule configuration (provisional demo default)"
+  },
+  {
+   "name": "model_config",
+   "file": "model_config.json",
+   "role": "config",
+   "sha256": "adf240c6159a1906c9e6e0212d186ed48dba9230d1de2702353a9570e2783ef9",
+   "description": "architecture and preprocessing settings used for training"
+  },
+  {
+   "name": "inference_config",
+   "file": "inference_config.json",
+   "role": "config",
+   "sha256": "92a74c50577be48e7312b9cfa87c766bbcc56174fe74af4f6338f9fbb2d611b0",
+   "description": "the complete Config used at inference (packaged; the repo's configs/ are not read)"
+  },
+  {
+   "name": "feature_dictionary",
+   "file": "feature_dictionary.csv",
+   "role": "dictionary",
+   "sha256": "548cd3e7158cb23754052fdc1daa684688fbb2358fe7004e4dc2247f8fa18fd6",
+   "description": "R1 feature names, units, definitions and channels"
+  },
+  {
+   "name": "calibration_scores",
+   "file": "calibration_scores.csv",
+   "role": "calibration",
+   "sha256": "34408c3c9a6e28db3b000ba5312e5f71e482ec60fd60b3a3b1c0fcfafa2b7d95",
+   "description": "per-recording scores of the 144 calibration recordings from ml.inference.score_recording (CPU), used to set the thresholds (Stage ML-4.2)"
+  }
+ ],
+ "thresholds": {
+  "tau_p": 0.9988950587656379,
+  "tau_d": 30.042556620744595,
+  "tau_e": 0.24307194628097395,
+  "tau_b": 0.8721431922050334,
+  "acceptance_target": 0.975,
+  "n_calibration": 144,
+  "order_statistic_r": 142,
+  "n_calibration_normals_tau_e": 5,
+  "n_calibration_normals_tau_b": 5,
+  "defining_recordings": {
+   "tau_p": [
+    "overhang__outer_race__20g__18.2272"
+   ],
+   "tau_d": [
+    "overhang__cage_fault__6g__13.1072"
+   ],
+   "tau_e": [
+    "normal__18.432"
+   ],
+   "tau_b": [
+    "normal__18.432"
+   ]
+  },
+  "scoring_path": "ml.inference.score_recording on the CPU (the application's path); repeated runs bit-identical: True",
+  "tolerance": null,
+  "rule": "accept MSP iff ≥ tau_p; accept Mahalanobis iff ≤ tau_d (ties accepted); AE healthy iff ≤ tau_e; B1s healthy iff ≤ tau_b",
+  "previous": {
+   "tau_p": 0.998895059402817,
+   "tau_d": 30.042536981460426,
+   "tau_e": 0.24307193993418308,
+   "tau_b": 0.8721431922050336,
+   "scoring_path": "Stage ML-4 threshold setting: representation cache and feature cache, training device (MPS)",
+   "superseded_by": "Stage ML-4.2 recalibration"
+  }
+ },
+ "rule": {
+  "healthy_rule": "B_with_caution",
+  "variants": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "B_with_caution"
+  ],
+  "status": "provisional demo default, NOT a final rule selection; chosen after the Stage 3D results; the final choice is made later under stated assumptions about fault frequency and costs",
+  "unknown_label": "further inspection needed",
+  "caution_label": "healthy — caution: a healthy-baseline check disagrees; consider a recheck",
+  "cautions": [
+   "b1s_disagrees",
+   "ae_disagrees",
+   "both"
+  ],
+  "rule_comparison": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ]
+ },
+ "data": {
+  "train": "closed train ∩ development pool",
+  "calibration": "closed val ∩ development pool",
+  "train_recordings": 660,
+  "train_normals": 20,
+  "calibration_recordings": 144,
+  "calibration_normals": 5,
+  "tau_e_normals": 5,
+  "tau_b_normals": 5,
+  "train_speed_range_hz": [
+   11.799506048264048,
+   39.7509211317511
+  ],
+  "severities": {
+   "horizontal_misalignment": [
+    0.5,
+    1.0,
+    1.5
+   ],
+   "imbalance": [
+    6.0,
+    10.0,
+    15.0,
+    20.0,
+    25.0,
+    30.0
+   ],
+   "normal": [
+    0.0
+   ],
+   "overhang_ball": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "overhang_cage": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "overhang_outer": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "underhang_ball": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "underhang_cage": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "underhang_outer": [
+    0.0,
+    6.0,
+    20.0
+   ],
+   "vertical_misalignment": [
+    0.51,
+    0.63,
+    1.27,
+    1.4,
+    1.78
+   ]
+  },
+  "calibration_normal_speed_range_hz": [
+   18.077305872077673,
+   38.341546496188045
+  ],
+  "reserved_recordings_used": 0
+ },
+ "test_eligibility": {
+  "basis": "no reserved-test recording (split_closed, split_severity or split_speed_block = test) was used for training, calibration or inference",
+  "q2_closed_set_known_condition": {
+   "eligible": true,
+   "reserved_column": "split_closed"
+  },
+  "q1_healthy_vs_fault": {
+   "eligible": true,
+   "reserved_column": "split_closed"
+  },
+  "severity_extrapolation": {
+   "eligible": true,
+   "reserved_column": "split_severity",
+   "note": "on its declared task"
+  },
+  "speed_block_extrapolation": {
+   "eligible": true,
+   "reserved_column": "split_speed_block",
+   "note": "on its declared task"
+  },
+  "q3_leave_one_class_out_unfamiliar_fault": {
+   "eligible": false,
+   "reserved_columns": "loco_<class>",
+   "reason": "the bundle was trained on all ten classes; the Q3 final evaluation needs the separate LOCO models trained without the withheld class"
+  },
+  "evaluation_rule": "each reserved test is opened once, at the end"
+ },
+ "limitations": [
+  "Research demonstration; development results; not validated for real machines.",
+  "Calibrated on 5 healthy recordings; trained on speeds below 40 Hz and on the development pool only.",
+  "Decision rule is a provisional demo default (B_with_caution), not a final rule selection.",
+  "The tested scores and rules do not consistently distinguish the imbalance / vertical-misalignment pair when one class is withheld. The classifier distinguishes them well when both are represented in training. This does not establish that no representation, training objective or decision method could help.",
+  "Predicted fault location is according to the dataset labels; the classifier does not independently verify the physical sensor mapping. Per-channel reconstruction error is not fault-location evidence.",
+  "Reserved-test eligibility: this bundle may be used for the final Q1 (healthy vs fault), Q2 (closed-set known condition) and severity / speed-block extrapolation tests, since no reserved recording was used; it is NOT eligible for the Q3 leave-one-class-out evaluation, because it was trained on all ten classes."
+ ]
+}

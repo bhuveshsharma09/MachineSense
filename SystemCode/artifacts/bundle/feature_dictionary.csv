@@ -1,0 +1,143 @@
+name,unit,definition,channel
+f_under_axial_rms,V,RMS of the window (DC removed),under_axial
+f_under_axial_peak,V,largest |sample| in the window,under_axial
+f_under_axial_crest,ratio,peak / RMS,under_axial
+f_under_axial_kurtosis,ratio,excess kurtosis (Fisher) of the window,under_axial
+f_under_axial_o0p5,V,"amplitude at 0.5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_axial
+f_under_axial_o1,V,"amplitude at 1× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_axial
+f_under_axial_o2,V,"amplitude at 2× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_axial
+f_under_axial_o3,V,"amplitude at 3× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_axial
+f_under_axial_o4,V,"amplitude at 4× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_axial
+f_under_axial_o5,V,"amplitude at 5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_axial
+f_under_axial_o6,V,"amplitude at 6× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_axial
+f_under_axial_o7,V,"amplitude at 7× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_axial
+f_under_axial_o8,V,"amplitude at 8× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_axial
+f_under_axial_o9,V,"amplitude at 9× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_axial
+f_under_axial_o10,V,"amplitude at 10× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_axial
+f_under_axial_ratio_2x_1x,ratio,2× order amplitude / 1× order amplitude,under_axial
+f_under_radial_rms,V,RMS of the window (DC removed),under_radial
+f_under_radial_peak,V,largest |sample| in the window,under_radial
+f_under_radial_crest,ratio,peak / RMS,under_radial
+f_under_radial_kurtosis,ratio,excess kurtosis (Fisher) of the window,under_radial
+f_under_radial_o0p5,V,"amplitude at 0.5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_under_radial_o1,V,"amplitude at 1× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_under_radial_o2,V,"amplitude at 2× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_under_radial_o3,V,"amplitude at 3× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_under_radial_o4,V,"amplitude at 4× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_under_radial_o5,V,"amplitude at 5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_under_radial_o6,V,"amplitude at 6× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_under_radial_o7,V,"amplitude at 7× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_under_radial_o8,V,"amplitude at 8× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_under_radial_o9,V,"amplitude at 9× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_under_radial_o10,V,"amplitude at 10× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_under_radial_ratio_2x_1x,ratio,2× order amplitude / 1× order amplitude,under_radial
+f_under_tangential_rms,V,RMS of the window (DC removed),under_tangential
+f_under_tangential_peak,V,largest |sample| in the window,under_tangential
+f_under_tangential_crest,ratio,peak / RMS,under_tangential
+f_under_tangential_kurtosis,ratio,excess kurtosis (Fisher) of the window,under_tangential
+f_under_tangential_o0p5,V,"amplitude at 0.5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_tangential
+f_under_tangential_o1,V,"amplitude at 1× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_tangential
+f_under_tangential_o2,V,"amplitude at 2× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_tangential
+f_under_tangential_o3,V,"amplitude at 3× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_tangential
+f_under_tangential_o4,V,"amplitude at 4× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_tangential
+f_under_tangential_o5,V,"amplitude at 5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_tangential
+f_under_tangential_o6,V,"amplitude at 6× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_tangential
+f_under_tangential_o7,V,"amplitude at 7× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_tangential
+f_under_tangential_o8,V,"amplitude at 8× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_tangential
+f_under_tangential_o9,V,"amplitude at 9× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_tangential
+f_under_tangential_o10,V,"amplitude at 10× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_tangential
+f_under_tangential_ratio_2x_1x,ratio,2× order amplitude / 1× order amplitude,under_tangential
+f_over_axial_rms,V,RMS of the window (DC removed),over_axial
+f_over_axial_peak,V,largest |sample| in the window,over_axial
+f_over_axial_crest,ratio,peak / RMS,over_axial
+f_over_axial_kurtosis,ratio,excess kurtosis (Fisher) of the window,over_axial
+f_over_axial_o0p5,V,"amplitude at 0.5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_axial
+f_over_axial_o1,V,"amplitude at 1× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_axial
+f_over_axial_o2,V,"amplitude at 2× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_axial
+f_over_axial_o3,V,"amplitude at 3× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_axial
+f_over_axial_o4,V,"amplitude at 4× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_axial
+f_over_axial_o5,V,"amplitude at 5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_axial
+f_over_axial_o6,V,"amplitude at 6× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_axial
+f_over_axial_o7,V,"amplitude at 7× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_axial
+f_over_axial_o8,V,"amplitude at 8× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_axial
+f_over_axial_o9,V,"amplitude at 9× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_axial
+f_over_axial_o10,V,"amplitude at 10× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_axial
+f_over_axial_ratio_2x_1x,ratio,2× order amplitude / 1× order amplitude,over_axial
+f_over_radial_rms,V,RMS of the window (DC removed),over_radial
+f_over_radial_peak,V,largest |sample| in the window,over_radial
+f_over_radial_crest,ratio,peak / RMS,over_radial
+f_over_radial_kurtosis,ratio,excess kurtosis (Fisher) of the window,over_radial
+f_over_radial_o0p5,V,"amplitude at 0.5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_over_radial_o1,V,"amplitude at 1× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_over_radial_o2,V,"amplitude at 2× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_over_radial_o3,V,"amplitude at 3× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_over_radial_o4,V,"amplitude at 4× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_over_radial_o5,V,"amplitude at 5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_over_radial_o6,V,"amplitude at 6× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_over_radial_o7,V,"amplitude at 7× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_over_radial_o8,V,"amplitude at 8× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_over_radial_o9,V,"amplitude at 9× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_over_radial_o10,V,"amplitude at 10× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_over_radial_ratio_2x_1x,ratio,2× order amplitude / 1× order amplitude,over_radial
+f_over_tangential_rms,V,RMS of the window (DC removed),over_tangential
+f_over_tangential_peak,V,largest |sample| in the window,over_tangential
+f_over_tangential_crest,ratio,peak / RMS,over_tangential
+f_over_tangential_kurtosis,ratio,excess kurtosis (Fisher) of the window,over_tangential
+f_over_tangential_o0p5,V,"amplitude at 0.5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_tangential
+f_over_tangential_o1,V,"amplitude at 1× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_tangential
+f_over_tangential_o2,V,"amplitude at 2× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_tangential
+f_over_tangential_o3,V,"amplitude at 3× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_tangential
+f_over_tangential_o4,V,"amplitude at 4× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_tangential
+f_over_tangential_o5,V,"amplitude at 5× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_tangential
+f_over_tangential_o6,V,"amplitude at 6× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_tangential
+f_over_tangential_o7,V,"amplitude at 7× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_tangential
+f_over_tangential_o8,V,"amplitude at 8× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_tangential
+f_over_tangential_o9,V,"amplitude at 9× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_tangential
+f_over_tangential_o10,V,"amplitude at 10× the window's shaft speed; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_tangential
+f_over_tangential_ratio_2x_1x,ratio,2× order amplitude / 1× order amplitude,over_tangential
+f_under_ratio_axial_radial_1x,ratio,"1× amplitude, axial / radial","under_axial, under_radial"
+f_over_ratio_axial_radial_1x,ratio,"1× amplitude, axial / radial","over_axial, over_radial"
+f_env_under_radial_ftf1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 0.375 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_ftf1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 0.375 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_ftf2,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 0.750 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_ftf2,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 0.750 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_ftf3,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 1.125 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_ftf3,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 1.125 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_ftf4,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 1.500 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_ftf4,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 1.500 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_ftf5,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 1.875 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_ftf5,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 1.875 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bsf2_m1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 3.367 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bsf2_m1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 3.367 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bsf2,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 3.742 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bsf2,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 3.742 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bsf2_p1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 4.117 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bsf2_p1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 4.117 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bpfo1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 2.998 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bpfo1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 2.998 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bpfo2,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 5.996 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bpfo2,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 5.996 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bpfo3,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 8.994 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bpfo3,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 8.994 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bpfi1_m1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 4.002 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bpfi1_m1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 4.002 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bpfi1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 5.002 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bpfi1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 5.002 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bpfi1_p1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 6.002 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bpfi1_p1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 6.002 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bpfi2_m1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 9.004 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bpfi2_m1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 9.004 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bpfi2,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 10.004 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bpfi2,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 10.004 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_env_under_radial_bpfi2_p1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 11.004 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",under_radial
+f_env_over_radial_bpfi2_p1,ratio,"envelope spectrum (1–5 kHz band-pass + Hilbert) at 11.004 orders, divided by its median over 0.2–12 orders; peak within ±max(1.5 bins, 0.5% of the line frequency), Hann window, 4× zero-padding for interpolation",over_radial
+f_mic_rms,V,RMS of the cleaned microphone window,mic
+f_mic_centroid_hz,Hz,"power-weighted mean frequency, 20 Hz–10 kHz",mic
+f_mic_rolloff_hz,Hz,frequency below which 85% of the power lies (same range),mic
+f_mic_logband_20_250,log10 V²,log10 of the power in 20–250 Hz,mic
+f_mic_logband_250_500,log10 V²,log10 of the power in 250–500 Hz,mic
+f_mic_logband_500_1000,log10 V²,log10 of the power in 500–1000 Hz,mic
+f_mic_logband_1000_2000,log10 V²,log10 of the power in 1000–2000 Hz,mic
+f_mic_logband_2000_4000,log10 V²,log10 of the power in 2000–4000 Hz,mic
+f_mic_logband_4000_8000,log10 V²,log10 of the power in 4000–8000 Hz,mic
+f_mic_logband_8000_10000,log10 V²,log10 of the power in 8000–10000 Hz,mic

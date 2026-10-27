@@ -1,0 +1,36 @@
+{
+ "tau_p": 0.9988950587656379,
+ "tau_d": 30.042556620744595,
+ "tau_e": 0.24307194628097395,
+ "tau_b": 0.8721431922050334,
+ "acceptance_target": 0.975,
+ "n_calibration": 144,
+ "order_statistic_r": 142,
+ "n_calibration_normals_tau_e": 5,
+ "n_calibration_normals_tau_b": 5,
+ "defining_recordings": {
+  "tau_p": [
+   "overhang__outer_race__20g__18.2272"
+  ],
+  "tau_d": [
+   "overhang__cage_fault__6g__13.1072"
+  ],
+  "tau_e": [
+   "normal__18.432"
+  ],
+  "tau_b": [
+   "normal__18.432"
+  ]
+ },
+ "scoring_path": "ml.inference.score_recording on the CPU (the application's path); repeated runs bit-identical: True",
+ "tolerance": null,
+ "rule": "accept MSP iff ≥ tau_p; accept Mahalanobis iff ≤ tau_d (ties accepted); AE healthy iff ≤ tau_e; B1s healthy iff ≤ tau_b",
+ "previous": {
+  "tau_p": 0.998895059402817,
+  "tau_d": 30.042536981460426,
+  "tau_e": 0.24307193993418308,
+  "tau_b": 0.8721431922050336,
+  "scoring_path": "Stage ML-4 threshold setting: representation cache and feature cache, training device (MPS)",
+  "superseded_by": "Stage ML-4.2 recalibration"
+ }
+}

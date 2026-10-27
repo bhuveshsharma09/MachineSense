@@ -1,0 +1,101 @@
+{
+ "cnn": {
+  "seed": 42,
+  "widths": [
+   32,
+   64,
+   128,
+   128
+  ],
+  "pool_blocks": 3,
+  "embedding_dim": 128,
+  "dropout": 0.2,
+  "max_params": 1000000,
+  "vibration_channels": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "epochs": 40,
+  "batch_size": 256,
+  "lr": 0.003,
+  "weight_decay": 0.01,
+  "warmup_epochs": 1,
+  "gain_jitter_db": 1.0,
+  "time_shift_frames": 2,
+  "time_mask_frames": 4,
+  "eval_batch_size": 512,
+  "mps_memory_fraction": 0.7,
+  "smoke_epochs": 3,
+  "smoke_fraction": 0.25
+ },
+ "ae": {
+  "seed": 42,
+  "conv_channels": [
+   32,
+   64,
+   64
+  ],
+  "kernel": 5,
+  "bottleneck": 16,
+  "max_params": 500000,
+  "epochs": 150,
+  "batch_size": 256,
+  "w_conv_channels": [
+   16,
+   32,
+   32
+  ],
+  "w_bottleneck": 64,
+  "w_epochs": 400,
+  "w_batch_size": 32,
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "warmup_epochs": 5,
+  "gain_jitter_db": 1.0,
+  "reconstruct": "augmented_input",
+  "eval_batch_size": 2048,
+  "mps_memory_fraction": 0.7
+ },
+ "anomaly": {
+  "b0_features": [
+   "f_under_radial_rms",
+   "f_under_radial_kurtosis",
+   "f_under_radial_crest",
+   "f_over_radial_rms",
+   "f_over_radial_kurtosis",
+   "f_over_radial_crest"
+  ],
+  "b0_quantile": 0.95,
+  "gmm_components": 2,
+  "gmm_covariance": "diag",
+  "pca_variance": 0.9,
+  "ocsvm_nu": 0.05,
+  "iforest_trees": 300,
+  "lof_neighbors": 20,
+  "b1s_degree": 2,
+  "b1s_knn": 2,
+  "false_alarm": 0.05,
+  "mildest": {
+   "imbalance": 6.0,
+   "horizontal_misalignment": 0.5,
+   "vertical_misalignment": 0.51,
+   "bearing": 0.0
+  },
+  "seed": 42
+ },
+ "representation": {
+  "leading_candidate": "C_order8rev",
+  "fallback_candidate": "B_stft32768",
+  "rejected_candidates": [
+   "A_stft8192"
+  ],
+  "frozen": true,
+  "version": "repC-1.0"
+ },
+ "prob_floor": 1e-06,
+ "seed": 42
+}

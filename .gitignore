@@ -10,6 +10,10 @@ SystemCode/data/*
 **/artifacts/**/*.pt
 **/artifacts/**/gpu.lock
 *.safetensors
+# the committed demo pack (5 development recordings + their healthy references; scripts/40_demo_pack.py)
+!SystemCode/demo/raw_npy/*.npy
+# the approved model bundle (about 4 MB) is committed so a fresh clone runs the app; its manifest pins every file's sha256
+!SystemCode/artifacts/bundle/*.safetensors
 
 # --- experiment tracking ---
 mlruns.db
@@ -34,11 +38,14 @@ __pycache__/
 # --- derived model outputs (reproducible with scripts/05_baselines.py) ---
 SystemCode/results/scores/
 
-# --- deployable model bundle (Stage ML-4; weights and joblib files, rebuilt by scripts/14_train_bundle.py) ---
-SystemCode/artifacts/bundle/
+# --- deployable model bundle (Stage ML-4; rebuilt by scripts/14_train_bundle.py): committed since the demo-pack release ---
 
 # --- app runtime state (Stage App-2a): case history, uploaded arrays, reserved-fingerprint index, showcase sweep ---
-SystemCode/backend/data/
+SystemCode/backend/data/*
+# committed: the files the app needs at startup in a clone without the raw recordings (both would otherwise be rebuilt
+# from data/raw_npy): the reserved-recording upload guard (fingerprints only) and the typical healthy variation
+!SystemCode/backend/data/reserved_fingerprints.json
+!SystemCode/backend/data/healthy_variation.json
 # --- design reference: mood-board uploads and a rig photo of unknown licence are never committed ---
 SystemCode/design/prototype_v2/uploads/
 SystemCode/design/prototype_v2/assets/machine.jpg
@@ -58,3 +65,6 @@ SystemCode/frontend/tests/.ssr-audit/
 SystemCode/results/final_dry_run/
 # --- frozen final models (Stage F0; weights, joblib, thresholds; rebuilt by scripts/29_train_final.py) ---
 SystemCode/artifacts/final/
+
+# --- D7 unblinding key: never committed ---
+SystemCode/results/d7/key.json

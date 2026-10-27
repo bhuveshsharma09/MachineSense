@@ -1,0 +1,501 @@
+{
+ "seed": 42,
+ "paths": {
+  "data_root": "../mafaulda",
+  "mlflow_uri": "sqlite:///mlruns.db"
+ },
+ "preprocess": {
+  "fs_hz": 50000,
+  "n_rows": 250000,
+  "n_channels": 8,
+  "channels": [
+   "tacho",
+   "under_axial",
+   "under_radial",
+   "under_tangential",
+   "over_axial",
+   "over_radial",
+   "over_tangential",
+   "mic"
+  ],
+  "measured_speed_ratio": 0.977,
+  "bearing": {
+   "bpfo": 2.998,
+   "bpfi": 5.002,
+   "bsf": 1.871,
+   "ftf": 0.375
+  },
+  "speed": {
+   "hyst_low": 0.3,
+   "hyst_high": 0.7,
+   "min_interval_ratio": 0.5,
+   "interval_tol": 0.05,
+   "min_good_fraction": 0.8,
+   "search_halfwidth": 0.05,
+   "radial_channel": 2,
+   "comb_harmonics": 10,
+   "fft_zero_pad": 8,
+   "min_peak_ratio": 10.0,
+   "order_axis": "window",
+   "window_min_intervals": 3,
+   "confirm_tol": 0.002,
+   "disagree_tol": 0.01
+  },
+  "quality": {
+   "rail_min": 10,
+   "spike_z": 100.0,
+   "dc_abs": 0.2
+  },
+  "mic": {
+   "burst_z": 18.2,
+   "burst_pad": 15
+  },
+  "bandstop": {
+   "enabled": true,
+   "stop_lo_hz": 21870.0,
+   "stop_hi_hz": 22195.0,
+   "transition_hz": 200.0,
+   "numtaps": 1257,
+   "window": [
+    "kaiser",
+    7.8573
+   ]
+  },
+  "lowpass": {
+   "enabled": true,
+   "pass_hz": 9800.0,
+   "stop_hz": 10200.0,
+   "atten_db": 81.0,
+   "numtaps": 639,
+   "window": [
+    "kaiser",
+    7.9675
+   ]
+  },
+  "window": {
+   "win_s": 1.0,
+   "hop_s": 0.5,
+   "n_windows": 9
+  },
+  "features": {
+   "version": "r1cap10-1.0",
+   "order_tol_bins": 1.5,
+   "order_tol_rel": 0.005,
+   "zero_pad": 4,
+   "accel_orders": [
+    0.5,
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    7.0,
+    8.0,
+    9.0,
+    10.0
+   ],
+   "envelope_channels": [
+    "under_radial",
+    "over_radial"
+   ],
+   "envelope_ref_orders": [
+    0.2,
+    12.0
+   ],
+   "mic_max_hz": 10000.0,
+   "mic_rolloff": 0.85,
+   "mic_bands_hz": [
+    [
+     20.0,
+     250.0
+    ],
+    [
+     250.0,
+     500.0
+    ],
+    [
+     500.0,
+     1000.0
+    ],
+    [
+     1000.0,
+     2000.0
+    ],
+    [
+     2000.0,
+     4000.0
+    ],
+    [
+     4000.0,
+     8000.0
+    ],
+    [
+     8000.0,
+     10000.0
+    ]
+   ]
+  },
+  "spectro": {
+   "n_orders": 128,
+   "order_min": 0.5,
+   "order_max": 150.0,
+   "speed_ceiling_hz": 62.0,
+   "eps": 1e-09,
+   "channels": [
+    "under_axial",
+    "under_radial",
+    "under_tangential",
+    "over_axial",
+    "over_radial",
+    "over_tangential"
+   ],
+   "candidates": {
+    "A_stft8192": {
+     "kind": "stft",
+     "frames_per_window": 25,
+     "window": "hann",
+     "win_samples": 8192,
+     "nfft": 16384,
+     "n_revs": 0.0,
+     "samples_per_rev": 0,
+     "zero_pad": 2,
+     "aa_orders": 0.0,
+     "aa_atten_db": 60.0
+    },
+    "B_stft32768": {
+     "kind": "stft",
+     "frames_per_window": 10,
+     "window": "hann",
+     "win_samples": 32768,
+     "nfft": 65536,
+     "n_revs": 0.0,
+     "samples_per_rev": 0,
+     "zero_pad": 2,
+     "aa_orders": 0.0,
+     "aa_atten_db": 60.0
+    },
+    "C_order8rev": {
+     "kind": "order",
+     "frames_per_window": 25,
+     "window": "hann",
+     "win_samples": 0,
+     "nfft": 0,
+     "n_revs": 8.0,
+     "samples_per_rev": 512,
+     "zero_pad": 2,
+     "aa_orders": 205.0,
+     "aa_atten_db": 60.0
+    }
+   },
+   "mel_n": 128,
+   "mel_fmin_hz": 20.0,
+   "mel_fmax_hz": 10000.0,
+   "mel_win_samples": 2048,
+   "mel_nfft": 2048,
+   "mel_eps": 1e-12
+  },
+  "envelope": {
+   "sk": {
+    "widths_hz": [
+     1000.0,
+     2000.0,
+     4000.0,
+     8000.0
+    ],
+    "min_lo_hz": 1000.0
+   },
+   "selection": {
+    "channels": [
+     "under_radial",
+     "over_radial"
+    ],
+    "fault_classes": [
+     "underhang_outer",
+     "overhang_outer"
+    ],
+    "severities": [
+     0.0
+    ],
+    "reference_class": "normal",
+    "min_recordings": 5
+   },
+   "bands_hz": {
+    "under_radial": [
+     9000.0,
+     11000.0
+    ],
+    "over_radial": [
+     13000.0,
+     17000.0
+    ]
+   },
+   "min_band_hz": 2000.0,
+   "bands_provisional": true,
+   "sensors": {
+    "601A01": {
+     "range_3db_hz": [
+      0.27,
+      10000.0
+     ],
+     "resonance_hz": 16000.0,
+     "source": "PCB/IMI 601A01 spec sheet, Revision G, ECN 14824"
+    },
+    "604B31": {
+     "range_3db_hz": [
+      0.5,
+      5000.0
+     ],
+     "resonance_hz": 10000.0,
+     "source": "PCB/IMI 604B31 spec sheet, Revision B, ECN 49214"
+    }
+   },
+   "healthy_band_hz": [
+    1000.0,
+    5000.0
+   ],
+   "primary_band_hz": [
+    1000.0,
+    5000.0
+   ],
+   "max_order": 12.0,
+   "order_step": 0.005
+  },
+  "comb": {
+   "ftf_harmonics": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "bsf_multiple": 2.0,
+   "bsf_ftf_sidebands": [
+    -1,
+    0,
+    1
+   ],
+   "bpfo_harmonics": [
+    1,
+    2,
+    3
+   ],
+   "bpfi_harmonics": [
+    1,
+    2
+   ],
+   "bpfi_shaft_sidebands": [
+    -1,
+    0,
+    1
+   ],
+   "tol_orders": 0.02,
+   "bg_halfwidth_orders": 0.3
+  },
+  "expected_class_counts": {
+   "normal": 49,
+   "imbalance": 333,
+   "horizontal_misalignment": 197,
+   "vertical_misalignment": 301,
+   "underhang_ball": 186,
+   "underhang_cage": 188,
+   "underhang_outer": 184,
+   "overhang_ball": 137,
+   "overhang_cage": 188,
+   "overhang_outer": 188
+  },
+  "expected_total_files": 1951
+ },
+ "baselines": {
+  "seed": 42,
+  "feature_table": "r1cap10",
+  "sensitivity_table": "r1",
+  "sensitivity_config": "variants/r1_bandstop_only.yaml",
+  "class_weight": "balanced",
+  "quantile_n": 1000,
+  "lgbm": {
+   "n_estimators": 400,
+   "learning_rate": 0.05,
+   "num_leaves": 31,
+   "min_child_samples": 20,
+   "subsample": 0.8,
+   "subsample_freq": 1,
+   "colsample_bytree": 0.8,
+   "reg_lambda": 1.0
+  },
+  "rf": {
+   "n_estimators": 500,
+   "max_features": "sqrt",
+   "min_samples_leaf": 2
+  },
+  "svm": {
+   "C": 10.0,
+   "gamma": "scale"
+  },
+  "svm_calibration": {
+   "method": "sigmoid",
+   "n_group_folds": 3
+  },
+  "knn": {
+   "n_neighbors": 15,
+   "weights": "distance"
+  },
+  "logreg": {
+   "C": 1.0,
+   "max_iter": 3000
+  },
+  "ensemble": [
+   "lgbm",
+   "rf",
+   "svm",
+   "knn",
+   "logreg"
+  ],
+  "prob_floor": 1e-06,
+  "n_bootstrap": 2000,
+  "n_permutation_repeats": 5,
+  "leaky_n_folds": 5
+ },
+ "development": {
+  "allowed_closed": [
+   "train",
+   "val"
+  ],
+  "reserved_columns": [
+   "split_severity",
+   "split_speed_block"
+  ],
+  "seed": 42,
+  "min_k": 2,
+  "folds_file": "dev_folds.csv"
+ },
+ "speed_risk": {
+  "group_ii_min_range_pct": 1.0,
+  "clean_max_range_pct": 0.3,
+  "refs_per_recording": 2,
+  "synthetic_per_class": 2,
+  "displace_every": 3,
+  "displace_fraction": 0.4,
+  "offsets_pct": [
+   -2.0,
+   -1.0,
+   -0.5,
+   0.0,
+   0.5,
+   1.0,
+   2.0
+  ],
+  "pass_offsets_pct": [
+   -1.0,
+   1.0
+  ],
+  "max_error_bins": 1.0,
+  "max_width_ratio": 1.5,
+  "seed": 0
+ },
+ "representation": {
+  "leading_candidate": "C_order8rev",
+  "fallback_candidate": "B_stft32768",
+  "rejected_candidates": [
+   "A_stft8192"
+  ],
+  "frozen": true,
+  "version": "repC-1.0"
+ },
+ "anomaly": {
+  "b0_features": [
+   "f_under_radial_rms",
+   "f_under_radial_kurtosis",
+   "f_under_radial_crest",
+   "f_over_radial_rms",
+   "f_over_radial_kurtosis",
+   "f_over_radial_crest"
+  ],
+  "b0_quantile": 0.95,
+  "gmm_components": 2,
+  "gmm_covariance": "diag",
+  "pca_variance": 0.9,
+  "ocsvm_nu": 0.05,
+  "iforest_trees": 300,
+  "lof_neighbors": 20,
+  "b1s_degree": 2,
+  "b1s_knn": 2,
+  "false_alarm": 0.05,
+  "mildest": {
+   "imbalance": 6.0,
+   "horizontal_misalignment": 0.5,
+   "vertical_misalignment": 0.51,
+   "bearing": 0.0
+  },
+  "seed": 42
+ },
+ "openset": {
+  "acceptance": 0.95,
+  "scores": [
+   "msp",
+   "max_logit",
+   "energy"
+  ]
+ },
+ "cnn": {
+  "seed": 42,
+  "widths": [
+   32,
+   64,
+   128,
+   128
+  ],
+  "pool_blocks": 3,
+  "embedding_dim": 128,
+  "dropout": 0.2,
+  "max_params": 1000000,
+  "vibration_channels": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "epochs": 40,
+  "batch_size": 256,
+  "lr": 0.003,
+  "weight_decay": 0.01,
+  "warmup_epochs": 1,
+  "gain_jitter_db": 1.0,
+  "time_shift_frames": 2,
+  "time_mask_frames": 4,
+  "eval_batch_size": 512,
+  "mps_memory_fraction": 0.7,
+  "smoke_epochs": 3,
+  "smoke_fraction": 0.25
+ },
+ "ae": {
+  "seed": 42,
+  "conv_channels": [
+   32,
+   64,
+   64
+  ],
+  "kernel": 5,
+  "bottleneck": 16,
+  "max_params": 500000,
+  "epochs": 150,
+  "batch_size": 256,
+  "w_conv_channels": [
+   16,
+   32,
+   32
+  ],
+  "w_bottleneck": 64,
+  "w_epochs": 400,
+  "w_batch_size": 32,
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "warmup_epochs": 5,
+  "gain_jitter_db": 1.0,
+  "reconstruct": "augmented_input",
+  "eval_batch_size": 2048,
+  "mps_memory_fraction": 0.7
+ }
+}

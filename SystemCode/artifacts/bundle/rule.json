@@ -1,0 +1,24 @@
+{
+ "healthy_rule": "B_with_caution",
+ "variants": [
+  "A",
+  "B",
+  "C",
+  "D",
+  "B_with_caution"
+ ],
+ "status": "provisional demo default, NOT a final rule selection; chosen after the Stage 3D results; the final choice is made later under stated assumptions about fault frequency and costs",
+ "unknown_label": "further inspection needed",
+ "caution_label": "healthy — caution: a healthy-baseline check disagrees; consider a recheck",
+ "cautions": [
+  "b1s_disagrees",
+  "ae_disagrees",
+  "both"
+ ],
+ "rule_comparison": [
+  "A",
+  "B",
+  "C",
+  "D"
+ ]
+}
