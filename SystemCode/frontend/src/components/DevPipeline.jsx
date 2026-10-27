@@ -27,15 +27,16 @@ function leaves(trace, id) {
     && (n.value === null || typeof n.value !== "object")).slice(0, 8).map(([k]) => [k, `${P}.output.${k}`]);
 }
 
-export default function DevPipeline({ caseId, initialTrace = null, fetchTrace = getTrace, initialOpen = [] }) {
+export default function DevPipeline({ caseId, initialTrace = null, fetchTrace = getTrace, initialOpen = [], refreshKey = "" }) {
   const [st, setSt] = useState(initialTrace ? { trace: initialTrace } : { loading: true });
+  // App-8.8 item 2: refetched when the case's explanation appears or changes (the previous trace stays shown meanwhile)
   useEffect(() => {
     if (initialTrace) return undefined;
     const ac = new AbortController();
     fetchTrace(caseId, { signal: ac.signal }).then((trace) => setSt({ trace }))
-      .catch(() => { if (!ac.signal.aborted) setSt({ error: true }); });
+      .catch(() => { if (!ac.signal.aborted) setSt((s) => (s.trace ? s : { error: true })); });
     return () => ac.abort();
-  }, [caseId]);
+  }, [caseId, refreshKey]);
   const href = `#/case/${encodeURIComponent(caseId)}/pipeline`;
   if (!st.trace) return <div className="dvw-pipe"><p className="dvw-muted">{st.error ? "The pipeline trace could not be loaded; the full diagram may still open." : "Loading the pipeline…"}</p>
     <a href={href}>Full-screen diagram ›</a></div>;

@@ -41,7 +41,7 @@ export function finding(record) {
   const d = record.diagnosis;
   if (d.decision === "known_fault") return `Possible ${FAULT_PLAIN[d.fault_class] || d.fault_class.replace(/_/g, " ")}`;
   if (d.decision === "unknown") return "Further inspection needed";
-  if (d.caution) return "No fault detected — a check disagrees; repeat the reading or inspect further";
+  if (d.caution) return "No fault detected — one check disagrees";  // App-8.8 item 5: short; the recheck advice is the next line
   return "No fault detected in this recording";
 }
 

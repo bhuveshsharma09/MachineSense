@@ -78,7 +78,7 @@ export default function MechanicView({ caseId, record, report, channels, signals
           <div className="mvw-col">
             <span className="mvw-verdict-label" style={{ color: verdictColor }}>{verdictLabel}</span>
             <h1 className="rd-m-title">{M.finding(record)}</h1>
-            {d.caution && <span className="rd-sub">A healthy-baseline check disagrees; consider a recheck.</span>}
+            {d.caution && <span className="rd-sub">A healthy-baseline check sees a difference. Repeat the reading to rule it out.</span>}
             {hasFaultArea && mloc.parts.length > 0 && <p className="mvw-next">Start with the {mloc.parts.map((p) => M.PART_PLAIN[p].toLowerCase()).join(" and ")}.</p>}
             {d.decision === "unknown" && <p className="mvw-next">The checks did not support a known condition; inspect the readings before choosing a fault area.</p>}
             {changedLine && <p className="mvw-changed">{changedLine}</p>}
@@ -148,6 +148,7 @@ export default function MechanicView({ caseId, record, report, channels, signals
               <span className="mvw-insp-hint">{ui.sel ? "Selected on the rig. Its readings are below." : hasFaultArea ? "Showing the predicted location. Select a part or sensor on the rig." : "Showing a changed sensor. Select a part or sensor on the rig."}</span>
             </aside>
           </div>
+          {D.rigChannelNote(rows, unusual) && <p className="mvw-rig-channels">{D.rigChannelNote(rows, unusual)}</p>}
         </section>
 
         {/* 03 Sensors */}

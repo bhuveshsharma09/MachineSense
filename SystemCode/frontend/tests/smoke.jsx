@@ -59,7 +59,7 @@ const screens = {
   "mechanic · AI-written explanation": [mech(knownFault, { explanation: { status: "ready", data: { ...knownFault.explanation, source: "llm",
     badge: "AI-written explanation of the evidence", text: { ...knownFault.explanation.text, finding: "The pattern resembles a cage fault." } } } }),
     ["AI-written explanation of the evidence", "The pattern resembles a cage fault."]],
-  "mechanic · healthy with caution": [mech(caution), ["No fault detected — a check disagrees; repeat the reading or inspect further"]],
+  "mechanic · healthy with caution": [mech(caution), ["No fault detected — one check disagrees"]],
   "mechanic · unknown": [mech(unknown), ["Further inspection needed"], ["Candidate parts:"]],
   "mechanic · signal quality": [mech(poor), ["Warnings that affect this result", "The speed sensor signal had glitches.", "The rotation speed was not steady"]],
   "mechanic · plain healthy": [mech(plainHealthy), ["No fault detected in this recording"]],
@@ -291,7 +291,7 @@ const DESK = { w: 1440, h: 900 };
 
 // App-4.2.1: legibility of the rebalanced layout, labels on demand, and the way in and out of the page.
 import { countCrossings, devTitle, edgeThroughBlock, layoutPipeline, titleFits } from "../src/lib/pipelineLayout.js";
-import { fitView, INSET, LEGIBLE } from "../src/components/PipelineCanvas.jsx";
+import { fitView, fitWhole, INSET, LEGIBLE, showsAll } from "../src/components/PipelineCanvas.jsx";
 {
   const L = layoutPipeline(traceFx);
   const through = edgeThroughBlock(L);
@@ -453,6 +453,16 @@ import { PREVIEW_BLOCKS, THUMB_EXTRA } from "../src/components/PipelinePreview.j
   const fc = fitView(Lc.bounds, { w: 1440, h: 900 });
   pcheck(`case mode with thumbnail slots: fit at 1440×900 is ${fc.scale.toFixed(3)} (whole graph) and no edge passes through a block`,
     fc.scale >= LEGIBLE && edgeThroughBlock(Lc).length === 0);
+  // App-8.8 item 3: at 1745×738 with a tall header and a bottom legend, Fit to screen shows every step; the readable view is
+  // top-aligned under the header (the stage headings are never hidden) and the rest is reached by panning
+  {
+    const S = { w: 1745, h: 738 }, top = 140, bottom = 70;
+    const whole = fitWhole(Lc.bounds, S, top, bottom), read = fitView(Lc.bounds, S, top, bottom);
+    const y0 = read.cy - S.h / read.scale / 2;
+    pcheck("App-8.8 item 3: at 1745×738 Fit to screen fits every step inside the measured margins; the readable view starts at the top",
+      showsAll(whole, Lc.bounds, S, top, bottom) && read.scale >= LEGIBLE && !showsAll(read, Lc.bounds, S, top, bottom)
+      && Math.abs((Lc.bounds.y - y0) * read.scale - top) < 1e-6 && showsAll(fitWhole(Lc.bounds, { w: 1440, h: 900 }), Lc.bounds, { w: 1440, h: 900 }));
+  }
   const smallCase = renderToString(<PipelineView trace={fxKnown} initialMode="case" initialLevel="mechanic" initialSelected="preparation" initialSize={MOBILE} initialSignals={sig} initialSaved={savedRec} />);
   writeFileSync(join(here, "mobile", "pipeline_preview_390.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>${css}</style></head><body><div id="root">${smallCase}</div></body></html>`);
@@ -660,6 +670,18 @@ import { UnseenLink } from "../src/components/TopBar.jsx";
     if (!m || +m[1] !== k.rejected || +m[2] !== k.withheld_recordings || +m[4] !== k.accepted_as_a_wrong_fault || +m[5] !== k.accepted_as_healthy
       || +m[1] + +m[4] + +m[5] !== +m[2] || (+m[3] === 100) !== (k.rejected === k.withheld_recordings)) bad.push(`${c}: numbers`);
   }
+  {
+    const fam = unseenFile.runs.imbalance.examples.find((e) => e.role === "familiar"), wh = unseenFile.runs.imbalance.examples.find((e) => e.role === "withheld");
+    const hf = page("imbalance", fam), hw = page("imbalance", wh), tf = textOf(hf);
+    pcheck("App-8.8 item 7: the hidden-fault group statistic is labelled with its scope and placed after the current recording's result",
+      tf.includes("Group statistic · all 144 eligible imbalance recordings · not this recording") && tf.includes("is not part of this count")
+      && hf.indexOf('data-v="rate"') > hf.indexOf('data-v="checks"') && hf.indexOf('data-v="rate"') > hf.indexOf('data-v="truth"')
+      && textOf(hw).includes("This recording is one of them") && tf.includes(rateLine(unseenFile.runs.imbalance.counts)));
+    const s88 = renderToString(<UnseenView summary={summary} initialLevel="mechanic" />), css88 = readFileSync("src/unseen.css", "utf8");
+    pcheck("App-8.8 item 8: on a phone the step comes before the research caveat, which stays in full with a pointer under the title",
+      s88.indexOf('class="uw-about-link"') < s88.indexOf('class="uw-main"') && s88.includes('id="uw-about"') && textOf(s88).includes(unseenFile.simulated)
+      && /\.uw-left \{ display: contents; \}[\s\S]*\.uw-main \{ order: 2; \}[\s\S]*\.uw-about \{ order: 3; \}/.test(css88));
+  }
   pcheck("App-8.7: every hidden fault's result shows the share of eligible development recordings the checks stopped (= Experiment details)",
     !bad.length && rateLine(unseenFile.runs.imbalance.counts) === "For this hidden fault, the checks stopped 33 of 144 eligible development recordings (23 %). 111 got a wrong familiar label; 0 were called healthy.",
     bad.join("; "));
@@ -707,6 +729,8 @@ import { STAGES } from "../src/lib/pipelineLayout.js";
 import { valueOf } from "../src/lib/pipelineCase.js";
 import { AssistantView, TOOLS } from "../src/components/Assistant.jsx";
 import { decisionSummary, healthyCheckPhrase } from "../src/lib/decisionSummary.js";
+import { rigChannelNote as rigChannelNote88 } from "../src/lib/dashboard.js";
+import { explanationNotRun, traceKey as traceKey88 } from "../src/lib/pipelineCase.js";
 import { BEARING_NOTE, activeSection, bearingSpectrum, featureLabel as featureLabel86, channelRows as channelRows86, defaultPart as defaultPart86, guidanceSteps, overflow as overflow86, showMeTarget } from "../src/lib/dashboard.js";
 import { ENVELOPE_GLOSS, JARGON_WORDS, fitBearingSteps, notInSample, plainExplain, sensorNames } from "../src/lib/mechanic.js";
 import { locations } from "../src/lib/model.js";
@@ -850,7 +874,7 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
       bearingSpectrum(knownFault.record)?.ch === "over_radial" && spec.includes("Envelope spectrum") && spec.includes("Overhang bearing · radial")
       && spec.includes(BEARING_NOTE) && !spec.includes("compare the 2× peak with the 1× peak") && bearingSpectrum(unknown.record) === null);
     const um = textOf(dash(unknown, "mechanic")), ud = textOf(dash(unknown, "developer"));
-    const CALW = "Shaft speed is outside the calibrated range (18–38 Hz). The healthy checks are less reliable at this speed.";
+    const CALW = "Shaft speed is outside the calibrated range (18–38 Hz). The healthy checks are less reliable at this speed; they only add a caution and do not decide this verdict.";
     pcheck("App-8.6 item 4: a further-inspection verdict at 13.6 Hz shows the calibration-speed warning in both views",
       unknown.record.diagnosis.decision === "unknown" && um.includes(CALW) && ud.includes(CALW) && !um.includes("No signal-quality warnings detected."));
     const slow = structuredClone(plainHealthy);
@@ -908,6 +932,24 @@ import { fmtCheck as fmtC, IN_SAMPLE_NOTICE as INS, SCORES_NOTE as SN, human, sh
       fit.hidden > 0 && !kt.includes("inner-race line") && kt.includes("about other bearing fault types") && kt.includes(ENVELOPE_GLOSS));
     pcheck("App-8.6 item 14: the citation note appears once in the Mechanic step list",
       (kt.match(/Citation not yet checked against the full text/g) || []).length === 1);
+    // App-8.8 (27 Oct browser audit)
+    pcheck("App-8.8 item 2: the embedded pipeline's refetch key changes when the explanation appears or is regenerated; a not-run step is detected",
+      traceKey88({ status: "loading" }) !== traceKey88({ status: "ready", data: { created_at: "a", source: "llm" } })
+      && traceKey88({ status: "ready", data: { created_at: "a", source: "llm" } }) !== traceKey88({ status: "ready", data: { created_at: "b", source: "llm" } })
+      && explanationNotRun(fxNoExpl) && !explanationNotRun(fxKnown));
+    const ud88 = textOf(dash(unknown, "developer"));
+    pcheck("App-8.8 item 4: one calibration-speed warning in the further-inspection Developer view, worded for this verdict",
+      (ud88.match(/outside the calibrated range/g) || []).length === 1 && !/healthy verdict only/i.test(ud88)
+      && ud88.includes("they only add a caution and do not decide this verdict"));
+    const cm88 = textOf(dash(caution, "mechanic"));
+    pcheck("App-8.8 item 5: the healthy-with-caution heading is short and the recheck advice appears once",
+      cm88.includes("No fault detected — one check disagrees") && (cm88.match(/Repeat the reading to rule it out/g) || []).length === 1
+      && !cm88.includes("repeat the reading or inspect further"));
+    const kr88 = channelRows86(knownFault.channels), ku88 = unusualSensors(knownFault.channels, qualityFlags(knownFault.record));
+    const note88 = rigChannelNote88(kr88, ku88);
+    pcheck("App-8.8 item 6: the rig note relates changed channels to the highlighted sensors (both views)",
+      !!note88 && note88.includes(`${kr88.filter((r) => r.comparable && r.beyond).length} changed channels`) && textOf(dash(knownFault, "mechanic")).includes(note88)
+      && textOf(dash(knownFault, "developer")).includes(note88) && rigChannelNote88([], []) === null);
     pcheck("App-8.6 item 19: the active section is the last one whose top reached the sticky bars; the last one at the page end",
       activeSection([{ id: "a", top: -400 }, { id: "b", top: 90 }, { id: "c", top: 700 }], 120) === "b"
       && activeSection([{ id: "a", top: 300 }, { id: "b", top: 900 }], 120) === "a"

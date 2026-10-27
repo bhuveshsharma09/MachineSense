@@ -5,6 +5,7 @@ import { LayoutError, devCode, layoutPipeline } from "../lib/pipelineLayout.js";
 import { usePanelView } from "./Aside.jsx";
 import PipelineCanvas, { MiniMap, edgeCasing, edgeColour } from "./PipelineCanvas.jsx";
 import { CaseHeading, CaseLine, CaseSection } from "./PipelineCase.jsx";
+import { explanationNotRun } from "../lib/pipelineCase.js";
 import { DEFAULT_CHANNEL, PREVIEW_BLOCKS, PreviewSection, THUMB_EXTRA, Thumb } from "./PipelinePreview.jsx";
 
 // App-4.5: below this width the page is a stacked list of steps (same values, drawer content and labels), not a canvas
@@ -72,6 +73,17 @@ export default function Pipeline({ caseId, initialTrace = null, fetchTrace = get
       .catch((e) => { if (!ac.signal.aborted) setSt({ error: e?.response?.status === 404 ? "No such case." : "The pipeline could not be loaded." }); });
     return () => ac.abort();
   }, [caseId]);
+  // App-8.8 item 2: while the explanation step is "not run" (the dashboard may still be writing it), refetch every 4 s, up
+  // to 2 minutes, so this page and the dashboard's embedded pipeline show the same status
+  const polls = useRef(0);
+  useEffect(() => {
+    if (initialTrace || !explanationNotRun(st.trace) || polls.current >= 30) return undefined;
+    const t = setTimeout(() => {
+      polls.current += 1;
+      fetchTrace(caseId).then((trace) => setSt({ trace })).catch(() => {});
+    }, 4000);
+    return () => clearTimeout(t);
+  }, [st.trace, caseId]);
   if (st.loading) return <EmptyState message="Loading the pipeline…" />;
   if (st.error) return <EmptyState message={st.error} />;
   return <PipelineBoundary><PipelineView trace={st.trace} caseId={caseId} initialMode={initialMode} {...rest} /></PipelineBoundary>;

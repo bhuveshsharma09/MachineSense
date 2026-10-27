@@ -21,21 +21,38 @@ export const edgeColour = (kind, edgeKinds) => PIPE_KIND[kind]?.c || PIPE[edgeKi
 export const edgeTextColour = (kind, edgeKinds) => PIPE_KIND[kind]?.text || PIPE_TEXT[edgeKinds?.[kind]] || edgeColour(kind, edgeKinds);
 export const edgeCasing = (kind, edgeKinds) => PIPE_CASING[edgeKinds?.[kind]] || null;
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-// top: the header's height when it grows (App-4.5: the different-bundle notice adds a line), so fit never hides a block
-const usable = (size, top = INSET.top) => ({ w: Math.max(1, size.w - 2 * INSET.side), h: Math.max(1, size.h - top - INSET.bottom) });
 
 // Fit to screen with a legibility floor: the whole graph when that is legible (scale ≥ LEGIBLE); otherwise (App-8, the
 // graph reads left to right) the height at a legible scale, left-aligned and pannable horizontally; on a screen too short
 // even for that, LEGIBLE and pan both ways.
-export function fitView(bounds, size, top = INSET.top) {
-  const u = usable(size, top);
+export function fitView(bounds, size, top = INSET.top, bottom = INSET.bottom) {
+  const u = { w: Math.max(1, size.w - 2 * INSET.side), h: Math.max(1, size.h - top - bottom) };
   const whole = Math.min(u.w / bounds.w, u.h / bounds.h);
   if (whole >= LEGIBLE) {
     const scale = clamp(whole, ZOOM.min, 1.2);
-    return { cx: bounds.x + bounds.w / 2, cy: bounds.y + bounds.h / 2 - (top - INSET.bottom) / 2 / scale, scale };
+    return { cx: bounds.x + bounds.w / 2, cy: bounds.y + bounds.h / 2 - (top - bottom) / 2 / scale, scale };
   }
   const scale = clamp(Math.max(u.h / bounds.h, LEGIBLE), LEGIBLE, 1.2);
-  return { cx: bounds.x + (size.w / 2 - INSET.side) / scale, cy: bounds.y + bounds.h / 2 - (top - INSET.bottom) / 2 / scale, scale };
+  const cx = bounds.x + (size.w / 2 - INSET.side) / scale;
+  // App-8.8 item 3: when even the height does not fit at the readable scale, align the top (the stage headings) under the
+  // header instead of centring, so nothing at the top is hidden and the rest is reached by panning
+  if (scale * bounds.h > u.h + 1e-6) return { cx, cy: bounds.y + (size.h / 2 - top) / scale, scale };
+  return { cx, cy: bounds.y + bounds.h / 2 - (top - bottom) / 2 / scale, scale };
+}
+
+// App-8.8 item 3: "Fit to screen" shows every step, even below the readable scale (then a hint says how to zoom back in)
+export function fitWhole(bounds, size, top = INSET.top, bottom = INSET.bottom) {
+  const u = { w: Math.max(1, size.w - 2 * INSET.side), h: Math.max(1, size.h - top - bottom) };
+  const scale = clamp(Math.min(u.w / bounds.w, u.h / bounds.h), ZOOM.min, 1.2);
+  return { cx: bounds.x + bounds.w / 2, cy: bounds.y + bounds.h / 2 - (top - bottom) / 2 / scale, scale };
+}
+
+// whether the view shows the whole graph inside the margins
+export function showsAll(view, bounds, size, top = INSET.top, bottom = INSET.bottom) {
+  const x0 = view.cx - size.w / view.scale / 2, y0 = view.cy - size.h / view.scale / 2;
+  const sx = (x) => (x - x0) * view.scale, sy = (y) => (y - y0) * view.scale;
+  return sx(bounds.x) >= INSET.side - 1 && sx(bounds.x + bounds.w) <= size.w - INSET.side + 1
+    && sy(bounds.y) >= top - 1 && sy(bounds.y + bounds.h) <= size.h - bottom + 1;
 }
 
 
@@ -46,6 +63,20 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
   // App-4.3: the page opens at fit to screen (port micro-labels are hidden at that scale, so no text is below ~10px)
   const [view, setView] = useState(() => fitView(layout.bounds, initialSize || { w: 1440, h: 800 }, topInset));
   const fitted = useRef(false);
+  // App-8.8 item 3: the margins come from the real header / controls (top) and the floating legend (bottom)
+  const [insets, setInsets] = useState({ top: topInset, bottom: INSET.bottom });
+  const measure = () => {
+    const el = wrap.current;
+    if (!el || typeof document === "undefined") return { top: topInset, bottom: INSET.bottom };
+    const r = el.getBoundingClientRect();
+    const tops = [".pl-header", ".pl-controls"].map((q) => document.querySelector(q)?.getBoundingClientRect()).filter((b) => b && b.height)
+      .filter((b) => b.top < r.top + r.height / 2).map((b) => b.bottom - r.top + 12);
+    const bots = [".pl-legend", ".pl-minimap-wrap"].map((q) => document.querySelector(q)?.getBoundingClientRect()).filter((b) => b && b.height)
+      .filter((b) => b.top > r.top + r.height / 2).map((b) => r.bottom - b.top + 10);
+    const m = { top: Math.max(topInset, ...tops), bottom: Math.max(INSET.bottom, ...bots) };
+    setInsets(m);
+    return m;
+  };
   const [hover, setHover] = useState(null);
   const drag = useRef(null);
 
@@ -55,7 +86,7 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
     const ro = new ResizeObserver(([e]) => {
       const s = { w: e.contentRect.width, h: e.contentRect.height };
       setSize(s);
-      if (!fitted.current && s.w > 0 && s.h > 0) { fitted.current = true; setView(fitView(layout.bounds, s, topInset)); }  // fit the real size once
+      if (!fitted.current && s.w > 0 && s.h > 0) { fitted.current = true; const m = measure(); setView(fitView(layout.bounds, s, m.top, m.bottom)); }  // fit the real size once
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -74,7 +105,8 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
 
   useImperativeHandle(ref, () => ({
     zoomIn: () => zoomBy(ZOOM.step), zoomOut: () => zoomBy(1 / ZOOM.step),
-    fit: () => setView(fitView(layout.bounds, size, topInset)), reset: () => setView(fitView(layout.bounds, size, topInset)), centreOn,
+    fit: () => { const m = measure(); setView(fitWhole(layout.bounds, size, m.top, m.bottom)); },
+    reset: () => { const m = measure(); setView(fitView(layout.bounds, size, m.top, m.bottom)); }, centreOn,
   }), [layout, size, zoomBy]);
 
   useEffect(() => {  // wheel zoom needs a non-passive listener to stop the page from scrolling
@@ -232,6 +264,8 @@ const PipelineCanvas = forwardRef(function PipelineCanvas({ layout, edgeKinds, l
         })}
         <g className="pl-ports">{Object.entries(layout.ports).map(([k, p]) => portEl(k, p))}</g>
       </svg>
+      {!showsAll(view, layout.bounds, size, insets.top, insets.bottom) ? <p className="pl-fit-hint" role="note" style={{ top: Math.max(8, insets.top - 30) }}>Part of the diagram is outside the view: drag or use the arrow keys to pan, or press Fit to screen to see every step.</p>
+        : view.scale < LEGIBLE ? <p className="pl-fit-hint" role="note" style={{ top: Math.max(8, insets.top - 30) }}>Zoomed out to show every step: press + or Reset for readable labels.</p> : null}
     </div>
   );
 });

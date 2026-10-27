@@ -37,6 +37,10 @@
 .uw-about { display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 20px; background: oklch(0.995 0.002 85 / 0.6);
   border: 1px solid var(--line); font-size: 12.5px; color: var(--ink2); }
 .uw-about p { margin: 0; line-height: 1.5; }
+.uw-about-link { display: none; align-self: flex-start; padding: 0; border: 0; background: none; font: inherit; font-size: 13px; color: var(--violet); cursor: pointer; }
+/* App-8.8 item 7: the hidden-fault group statistic, apart from the current recording's result */
+.uw-group-stat { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 16px; border: 1px dashed var(--line); background: oklch(0.23 0.006 260 / 0.02); }
+.uw-group-stat .uw-rate { margin: 0; padding: 0; border: 0; background: none; font-size: 13.5px; }
 .uw-about b { color: var(--ink); font-weight: 500; }
 
 .uw-main { display: flex; flex-direction: column; gap: 22px; padding: 30px 32px 0; border-radius: 28px; background: var(--paper); min-width: 0;
@@ -198,7 +202,15 @@
   .uw-rail li { flex: none; }
   .uw-rail button { padding: 8px 10px; gap: 8px; }
   .uw-rail .uw-col > span { display: none; }
-  .uw-about { order: 9; }
+  /* App-8.8 item 8: the first choice right after the title; the caveat after the step, still in full */
+  .uw-left { display: contents; }
+  .uw-rail { order: 1; }
+  .uw-main { order: 2; }
+  .uw-about { order: 3; }
+  .uw-title { padding: 10px 16px 12px; gap: 6px; }
+  .uw-title h1 { font-size: 23px; }
+  .uw-title p { font-size: 14px; }
+  .uw-about-link { display: inline; }
   .uw-main { padding: 20px 16px 0; border-radius: 22px; }
   .uw-faults, .uw-recs, .uw-res-top, .uw-checks { grid-template-columns: minmax(0, 1fr); }
   .uw-hrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }

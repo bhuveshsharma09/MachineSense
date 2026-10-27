@@ -10,6 +10,7 @@ import Scene, { markerFor } from "./Scene.jsx";
 import { scrollToSection, useSectionSpy } from "./sectionNav.js";
 import { Header } from "./Dashboard.jsx";
 import DevPipeline from "./DevPipeline.jsx";
+import { traceKey } from "../lib/pipelineCase.js";
 import "../developer.css";
 
 // Stage App-8.3: the dashboard's Developer view as one page of seven numbered sections (designer's "MachineSense
@@ -158,6 +159,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
               <span><i className="lg-change" />Measured change</span><span><i className="lg-flag" />Inspect · quality flag</span>
               <span className="dvw-rig-note">Highlights suggest where to inspect; they do not confirm a fault.</span></div>
           </div>
+          {D.rigChannelNote(rows, unusual) && <p className="dvw-muted dvw-rig-channels">{D.rigChannelNote(rows, unusual)}</p>}
         </Section></div>}
 
         {/* 03 Data */}
@@ -166,8 +168,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
             <Panel id="rd-signal-quality" title="Signal quality" kicker={<span className={"dvw-pill" + (warn.length ? " is-warn" : "")}>
               {warn.length ? `${warn.length} warning${warn.length > 1 ? "s" : ""}` : "No warnings"}</span>}>
               <div className="dvw-kv">{D.qualityRows(record).map(([k, v]) => <div key={k}><span>{k}</span><b className="mono">{v}</b></div>)}</div>
-              <span className="dvw-muted">{warn.length ? warn.join(" · ") : "Warnings: none."}</span>
-              {record.signal_quality.warnings.filter((w) => !warn.includes(w)).map((w) => <span key={w} className="dvw-muted">{`Note, applies to a healthy verdict only: ${w}`}</span>)}
+              <span className="dvw-muted">{warn.length ? "The warning is shown once, with the verdict above." : "Warnings: none."}</span>
             </Panel>
             <Channels channels={channels} rows={rows} sel={sel} chId={chId} span={2} onRow={(r) => { setSel(r.sensor); setCh(r.id); }} />
             <Spectrum record={record} signals={signals} part={part} chId={chId} chOptions={chOptions} mode={sp} onMode={setSp} onChannel={setCh} span={2} />
@@ -196,6 +197,8 @@ export default function DeveloperView({ caseId, record, report, channels, signal
                 <span><em>Prompt</em><span className="mono">{e.prompt_version}</span></span>
                 <span><em>Latency</em><span className="mono">{`${Math.round(e.latency_ms).toLocaleString("en-US")} ms`}</span></span>
                 <span><em>Fallback</em>{e.fallback_reason || "none"}</span>
+                {e.corrections?.length > 0 && <span title={e.corrections.map((x) => `“${x.original}”`).join("\n")}><em>Evidence check</em>
+                  {`${e.corrections.length} sentence${e.corrections.length > 1 ? "s" : ""} restated from the measured record (direction and size)`}</span>}
               </> : <span className="dvw-muted">Preparing explanation…</span>}
               {onRegenerate && <button type="button" className="dvw-ghost" onClick={onRegenerate}>Regenerate explanation</button>}
             </div>
@@ -228,7 +231,7 @@ export default function DeveloperView({ caseId, record, report, channels, signal
 
         {/* 06 Pipeline */}
         <Section id="pipeline" n="06" title="Pipeline" sub="How this diagnosis was made, read from the case's saved trace; nothing is re-run.">
-          <DevPipeline caseId={caseId} initialTrace={trace} />
+          <DevPipeline caseId={caseId} initialTrace={trace} refreshKey={traceKey(explanation)} />
         </Section>
 
         {/* 07 Report */}

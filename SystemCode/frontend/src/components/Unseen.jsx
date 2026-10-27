@@ -255,6 +255,8 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
         <span className="uw-eyebrow">Explore an unseen fault</span>
         <h1>What happens when a machine fault appears that this model was never taught?</h1>
         <p>Hide one fault from training, choose a recording, and see whether the model accepts a familiar label or asks for further inspection.</p>
+        <button type="button" className="uw-about-link" onClick={() => document.getElementById("uw-about")?.scrollIntoView({ behavior: "smooth", block: "start" })}>
+          Research demonstration · about this page ↓</button>
       </div>
 
       <div className="uw-grid">
@@ -266,7 +268,7 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
                 <span className="uw-rail-n">{n}</span><span className="uw-col"><b>{t}</b><span>{rail[i][0]}</span></span>
               </button></li>;
           })}</ol>
-          <section className="uw-about">
+          <section className="uw-about" id="uw-about">
             <span className="uw-kick">About this demonstration</span>
             <p className="un-simulated" data-copy="simulated">{summary.simulated}</p>
             <p className="un-easier" data-copy="easier">{summary.easier_part}</p>
@@ -365,7 +367,6 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
                 </div>
               </section>
             </div>
-            {r.counts && <p className="uw-rate" data-v="rate">{rateLine(r.counts)}</p>}
             <div className="uw-res-mid">
               <section className="uw-proposed">
                 <span className="uw-kick">{level === "developer" ? "CNN-6 top class (leave-one-class-out model)" : "The label the model proposes"}</span>
@@ -385,6 +386,13 @@ export function UnseenView({ summary, initialHidden, initialLevel, initialResult
                 <p className="uw-small" data-copy="limits">{LIMITS_NOTE}</p>
               </div>
             </div>
+            {r.counts && <section className="uw-group-stat" aria-label="Hidden-fault group statistic">
+              <span className="uw-kick">{`Group statistic · all ${r.counts.withheld_recordings} eligible ${low(hidden)} recordings · not this recording`}</span>
+              <p className="uw-rate" data-v="rate">{rateLine(r.counts)}</p>
+              <span className="uw-small" data-v="rate-scope">{isWithheld
+                ? "This recording is one of them; its own result is shown above."
+                : `This recording is a familiar ${low(result.true_class)} comparison and is not part of this count; its own result is shown above.`}</span>
+            </section>}
             <div className="uw-actions">
               {familiarEx[0] && isWithheld && <button type="button" className="uw-dark" disabled={busy}
                 onClick={() => go(familiarEx[0], ordered.indexOf(familiarEx[0]))}>Compare with a familiar recording</button>}

@@ -103,9 +103,12 @@ export function outsideCalibration(record) {
   if (r) return q.shaft_speed_hz < r[0] || q.shaft_speed_hz > r[1];
   return !!q?.warnings?.includes(CALIBRATION_SPEED_WARNING);
 }
+// App-8.8 item 4: worded for the verdict at hand (the healthy checks decide a healthy verdict; otherwise they only add a caution)
 export function calibrationWarning(record) {
   const r = record?.signal_quality?.calibration_normal_speed_range_hz;
-  return `Shaft speed is outside the calibrated range${r ? ` (${Math.round(r[0])}–${Math.round(r[1])} Hz)` : ""}. The healthy checks are less reliable at this speed.`;
+  const healthy = record?.diagnosis?.decision === "healthy";
+  return `Shaft speed is outside the calibrated range${r ? ` (${Math.round(r[0])}–${Math.round(r[1])} Hz)` : ""}. The healthy checks are less reliable at this speed`
+    + (healthy ? ", so this healthy verdict is less certain." : "; they only add a caution and do not decide this verdict.");
 }
 
 // Warnings to show: every signal-quality warning; the calibration-speed warning on every verdict, in the app's words.

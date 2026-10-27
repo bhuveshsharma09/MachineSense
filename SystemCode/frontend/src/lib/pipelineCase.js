@@ -60,6 +60,15 @@ export const FMT = {
   ruleStatus: () => "B_with_caution, frozen 28 Sep 2026 before the final evaluation",
 };
 
+// App-8.8 item 2: a trace fetched before the explanation existed is stale once it does. The key changes when the case's
+// explanation appears or is regenerated; a trace whose explanation step is "not run" is refetched until it has run.
+export const traceKey = (explanation) => (explanation?.status === "ready"
+  ? `ready:${explanation.data?.created_at || ""}:${explanation.data?.source || ""}` : explanation?.status || "none");
+export function explanationNotRun(trace) {
+  const p = trace && blockPaths(trace).explanation;
+  return !!p && at(trace, p)?.status === "not_run";
+}
+
 export const STATUS_WORD = { completed: "Completed", warning: "Warning", failed: "Failed", not_run: "Not run", unavailable: "Unavailable" };
 
 // ---------------------------------------------------------------------------------------------------------- lines

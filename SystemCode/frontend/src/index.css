@@ -356,6 +356,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pl-frame-label { font-family: "Fragment Mono", monospace; font-size: 10px; letter-spacing: 0.09em; fill: oklch(0.50 0.008 260); }
 .pl-port-label { font-family: "Fragment Mono", monospace; font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; fill: oklch(0.50 0.008 260); }
 .pl-edge-label { font-family: "Switzer", system-ui, sans-serif; font-size: 10px; }
+.pl-fit-hint { position: absolute; left: 50%; transform: translateX(-50%); z-index: 3; margin: 0; padding: 6px 12px; border-radius: 999px; background: oklch(0.995 0.002 85 / 0.92); box-shadow: 0 1px 3px oklch(0.3 0.01 260 / 0.12); font-size: 12px; color: oklch(0.40 0.008 260); white-space: nowrap; pointer-events: none; }
 .pl-controls { position: absolute; right: 16px; top: 96px; z-index: 4; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .pl-legend { position: absolute; left: 16px; top: 96px; z-index: 4; padding: 8px 12px 10px; border-radius: 12px; display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
 .pl-legend.is-closed, .pl-minimap-wrap.is-closed { padding: 4px 10px; }

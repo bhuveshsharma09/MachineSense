@@ -87,6 +87,17 @@ export function defaultPart(sel, record, loc, rows) {
   const r = (rows || []).filter((x) => x.comparable && x.beyond).sort((a, b) => b.factor / b.band - a.factor / a.band)[0];
   return r ? r.sensor : null;
 }
+// App-8.8 item 6: the rig highlights physical sensors, the Sensors list counts channels (three per accelerometer)
+export function rigChannelNote(rows, unusual) {
+  const changed = (rows || []).filter((r) => r.comparable && r.beyond);
+  if (!changed.length) return null;
+  const n = changed.length, m = (unusual || []).length, ch = `${n} changed channel${n > 1 ? "s" : ""}`;
+  if (!m) return `${ch} ${n > 1 ? "are" : "is"} listed under Sensors; no sensor is highlighted on the rig for this case.`;
+  const sensors = new Set(changed.map((r) => r.sensor));
+  if ([...sensors].every((s) => unusual.includes(s)))
+    return `${ch} on ${m} highlighted sensor${m > 1 ? "s" : ""}: each accelerometer records three directions (axial, radial, tangential), so one sensor can carry several changed channels.`;
+  return `The rig highlights the ${m} sensor${m > 1 ? "s" : ""} with the largest changes; all ${ch} are listed under Sensors.`;
+}
 export const NO_LOCATION = "The model did not name a location.";
 
 // App-8.6 item 11: a healthy verdict with sensors beyond typical variation says so once
