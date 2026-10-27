@@ -7,6 +7,7 @@ import time
 from datetime import datetime, timezone
 
 from backend.explain import plain
+from backend.explain.evidence import comparable_rows, review_text
 from backend.explain.guard import ExplanationRejected, check_content, check_schema, parse
 from backend.explain.prompt import PROMPT_VERSION, SCHEMA, allowed_numbers, compact_view, messages, raw_numbers
 from backend.explain.provider import ProviderError
@@ -87,8 +88,11 @@ def explain_case(record: dict, assessment: dict, channels: dict | None, user_fie
                 reason = e.reason
                 if not e.retryable:
                     break
+    # App-8.8 item 1: every measured comparison stated from the record (direction and size), for the model's text too
+    final, fixes = review_text(text or template, channels)
     out = {**base, "source": "llm" if text else "template", "badge": BADGE_LLM if text else BADGE_TEMPLATE,
-           "text": text or template, "fallback_reason": reason, "attempts": attempts,
+           "text": final, "corrections": fixes, "evidence_checked": bool(comparable_rows(channels)),
+           "fallback_reason": reason, "attempts": attempts,
            "latency_ms": round((time.perf_counter() - t0) * 1000, 1)}
     _log(log_path, {k: out[k] for k in ("case_id", "created_at", "prompt_version", "provider", "model", "source",
                                          "attempts", "latency_ms", "fallback_reason")})

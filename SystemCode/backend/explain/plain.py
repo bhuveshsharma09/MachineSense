@@ -63,7 +63,7 @@ def finding(record: dict) -> str:
     if d["decision"] == "unknown":
         return "Further inspection needed"
     if d["caution"]:
-        return "No fault detected — a check disagrees; repeat the reading or inspect further"
+        return "No fault detected — one check disagrees"
     return "No fault detected in this recording"
 
 
@@ -106,7 +106,9 @@ def change_rank(c: dict) -> tuple:
 
 def change_sentence(ch: str, c: dict) -> str:
     """One measured change with its direction and factor against the one healthy reference recording (App-8.6 item 9)."""
-    return (f"The {MEASURE_PLAIN.get(c['change_metric'], c['change_metric'])} on the {SENSOR_PLAIN.get(ch, ch)} sensor is "
+    measure = MEASURE_PLAIN.get(c["change_metric"], c["change_metric"])
+    verb = "are" if measure.startswith("repeated impacts") else "is"
+    return (f"The {measure} on the {SENSOR_PLAIN.get(ch, ch)} sensor {verb} "
             f"{float(c['change_factor']):.1f}× {'higher' if c['direction'] == 'up' else 'lower'} than the healthy reference "
             "recording at a similar speed (a difference, not a proven fault).")
 

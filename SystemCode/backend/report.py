@@ -39,7 +39,9 @@ def calibration_warning(r: dict) -> str:
     """The calibration-speed warning in the app's words, on every verdict (App-8.6 item 4); the range is the record's."""
     lo_hi = r["signal_quality"].get("calibration_normal_speed_range_hz")
     rng = f" ({round(lo_hi[0])}–{round(lo_hi[1])} Hz)" if lo_hi else ""
-    return f"Shaft speed is outside the calibrated range{rng}. The healthy checks are less reliable at this speed"
+    healthy = r["diagnosis"]["decision"] == "healthy"  # App-8.8 item 4: worded for the verdict at hand
+    return (f"Shaft speed is outside the calibrated range{rng}. The healthy checks are less reliable at this speed"
+            + (", so this healthy verdict is less certain" if healthy else "; they only add a caution and do not decide this verdict"))
 
 
 def _name(c: str) -> str:

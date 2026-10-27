@@ -223,7 +223,9 @@ def create_app(bundle_directory=None, cases_path=None, guard_path=None, llm_tran
         e = eng.store.get_explanation(case_id)
         if e is None:
             raise HTTPException(404, "no explanation yet; POST to generate one")
-        return e
+        # App-8.8 item 1: stored explanations are served with every measured comparison checked against the record
+        from backend.explain.evidence import reviewed
+        return reviewed(e, _evidence(eng, case_id, "channels") if eng.case_array(case_id) is not None else None)
 
     @app.post("/api/cases/{case_id}/explanation")
     async def post_explanation(case_id: str, request: Request):
