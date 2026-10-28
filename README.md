@@ -95,7 +95,7 @@ The demo recordings are development recordings, not test data.
 
 `Refer to project report at Github Folder: ProjectReport`
 
-**Report:** [ProjectReport/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Report.pdf](ProjectReport/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Report.pdf) (to be added)
+**Report:** [ProjectReport/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Report.pdf](ProjectReport/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Report.pdf)
 
 ---
 
