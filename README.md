@@ -53,9 +53,14 @@ This is an individual project. AI tools were used as assistants, as described in
 
 ---
 
-## SECTION 4 : VIDEO OF SYSTEM MODELLING & USE CASE DEMO
+## SECTION 4 : VIDEO AND SLIDES OF SYSTEM MODELLING & USE CASE DEMO
 
 **Video:** [Video/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Video.mp4](Video/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Video.mp4) (14 min 27 s, 1080p)
+
+### Slides
+
+- **First presentation (6 Oct 2026):** [Slides/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Slides_1_Proposal.pptx](Slides/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Slides_1_Proposal.pptx)
+- **Final presentation:** [Slides/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Slides_2_Final.pptx](Slides/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_Slides_2_Final.pptx)
 
 ---
 
