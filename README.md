@@ -107,6 +107,14 @@ The demo recordings are development recordings, not test data.
 `Refer to Github Folder: Miscellaneous`
 
 - **[Miscellaneous/images/](Miscellaneous/images/)**: screenshots and figures used in the report and slides.
-- **Dataset:** MAFAULDA, from Kaggle ([mafaulda-full](https://www.kaggle.com/datasets/vuxuancu/mafaulda-full)). It is not included in this repository, and the demo does not need it.
+
+### Datasets
+
+- **Source:** MAFAULDA (Machinery Fault Database), Federal University of Rio de Janeiro (UFRJ). Kaggle copy used here: [mafaulda-full](https://www.kaggle.com/datasets/vuxuancu/mafaulda-full).
+- **Size:** 1,951 recordings, each 5 s at 50 kHz on 8 channels (tachometer, two three-axis accelerometers, microphone). The download is about 13 GB (31 GB as CSV files), so the full dataset is not included in this repository.
+- **Included instead** (enough to run the system):
+  - [SystemCode/metadata.csv](SystemCode/metadata.csv): the full index, one row per recording, with its labels, measured shaft speed and every split assignment (closed set, severity, speed block and the nine leave-one-class-out columns). The split hash computed from it (`4a935793…`, by `ml.splits.split_hash`) is recorded in the bundle manifest.
+  - [SystemCode/demo/](SystemCode/demo/): the demo pack, 5 development recordings plus the 4 healthy reference recordings they are compared with. No test recording is included.
+- **Reproduce with the full data:** download the Kaggle copy and follow "Full reproduction" in [SystemCode/HOW_TO_RUN.md](SystemCode/HOW_TO_RUN.md#full-reproduction-optional-needs-mafaulda).
 
 **This Pattern Recognition Systems (PRS) Practice Module is part of the NUS-ISS MTech in Artificial Intelligence Systems.**
