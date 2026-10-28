@@ -68,7 +68,7 @@ This is an individual project. AI tools were used as assistants, as described in
 
 `Refer to appendix <Installation and User Guide> in project report at Github Folder: ProjectReport`
 
-- The standalone User Guide PDF is in [UserGuide/](UserGuide/).
+- **Standalone installation and user guide (PDF):** [UserGuide/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_UserGuide.pdf](UserGuide/PRS-PM-2026-10-31-GRP-01_Bhuvesh_Kumar_A0243823H_UserGuide.pdf)
 - The same content is the "Installation and User Guide" appendix of the report in [ProjectReport/](ProjectReport/).
 - Full run instructions are in [SystemCode/HOW_TO_RUN.md](SystemCode/HOW_TO_RUN.md).
 
